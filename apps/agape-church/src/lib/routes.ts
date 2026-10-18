@@ -1,7 +1,10 @@
 /**
  * Data for the CMS routes, shared by the English and Romanian page files
  * (Astro i18n needs a file per locale prefix). Returns `null` when the entry
- * does not exist, so the page can rewrite to the 404.
+ * does not exist in the page's language, so the page can rewrite to the 404.
+ * EmDash falls back to English for a missing translation (`fallbackLocale`);
+ * served under `/ro/` that would be an English duplicate page, so it is
+ * treated as not found.
  */
 import type { AstroGlobal } from "astro";
 import { decodeSlug, getSeoMeta } from "emdash";
@@ -29,8 +32,8 @@ const cache = (
 
 export const loadHome = async (astro: AstroGlobal) => {
   const locale: Locale = toLocale(astro.currentLocale);
-  const { cacheHint, entry: page } = await getHomePage(locale);
-  if (!page) {
+  const { cacheHint, entry: page, fallbackLocale } = await getHomePage(locale);
+  if (!page || fallbackLocale !== undefined) {
     return null;
   }
   cache(astro, cacheHint);
@@ -48,8 +51,12 @@ export const loadPage = async (astro: AstroGlobal) => {
   if (slug === "") {
     return null;
   }
-  const { cacheHint, entry: page } = await getPage(slug, locale);
-  if (!page) {
+  const {
+    cacheHint,
+    entry: page,
+    fallbackLocale,
+  } = await getPage(slug, locale);
+  if (!page || fallbackLocale !== undefined) {
     return null;
   }
   cache(astro, cacheHint);
@@ -83,11 +90,9 @@ export const loadMinistry = async (astro: AstroGlobal) => {
   if (slug === "") {
     return null;
   }
-  const [{ cacheHint, entry: ministry }, all] = await Promise.all([
-    getMinistry(slug, locale),
-    getMinistries(locale),
-  ]);
-  if (!ministry) {
+  const [{ cacheHint, entry: ministry, fallbackLocale }, all] =
+    await Promise.all([getMinistry(slug, locale), getMinistries(locale)]);
+  if (!ministry || fallbackLocale !== undefined) {
     return null;
   }
   cache(astro, cacheHint);

@@ -10,6 +10,7 @@ export interface VideoEmbed {
 
 const YOUTUBE_ID = /^[\w-]{11}$/u;
 const VIMEO_ID = /^\d+$/u;
+const VIMEO_HASH = /^[\da-f]{6,}$/u;
 
 const youtubeId = (url: URL): string | undefined => {
   const host = url.hostname.replace(/^(?:www|m)\./u, "");
@@ -32,7 +33,11 @@ export const videoEmbed = (link: string): VideoEmbed | undefined => {
     return undefined;
   }
   const host = url.hostname.replace(/^www\./u, "");
-  if (host.endsWith("youtube.com") || host === "youtu.be") {
+  if (
+    host === "youtube.com" ||
+    host.endsWith(".youtube.com") ||
+    host === "youtu.be"
+  ) {
     const id = youtubeId(url);
     return id === undefined
       ? undefined
@@ -42,13 +47,20 @@ export const videoEmbed = (link: string): VideoEmbed | undefined => {
         };
   }
   if (host === "vimeo.com" || host === "player.vimeo.com") {
-    const id = url.pathname.split("/").findLast((part) => VIMEO_ID.test(part));
-    return id === undefined
-      ? undefined
-      : {
-          embedUrl: `https://player.vimeo.com/video/${id}?autoplay=1&dnt=1`,
-          provider: "vimeo",
-        };
+    const segments = url.pathname.split("/").filter((part) => part !== "");
+    const index = segments.findIndex((part) => VIMEO_ID.test(part));
+    const id = segments[index];
+    if (id === undefined) {
+      return undefined;
+    }
+    // Unlisted videos carry a privacy hash: vimeo.com/<id>/<hash> or ?h=<hash>.
+    const hash = url.searchParams.get("h") ?? segments[index + 1];
+    const privacy =
+      hash !== undefined && VIMEO_HASH.test(hash) ? `&h=${hash}` : "";
+    return {
+      embedUrl: `https://player.vimeo.com/video/${id}?autoplay=1&dnt=1${privacy}`,
+      provider: "vimeo",
+    };
   }
   return undefined;
 };

@@ -32,7 +32,16 @@ describe(videoEmbed, () => {
     );
   });
 
+  it("keeps an unlisted Vimeo video's privacy hash", () => {
+    expect(videoEmbed("https://vimeo.com/159704162/a1b2c3d4e5")?.embedUrl).toBe(
+      "https://player.vimeo.com/video/159704162?autoplay=1&dnt=1&h=a1b2c3d4e5"
+    );
+  });
+
   it("refuses links it cannot play", () => {
+    expect(
+      videoEmbed("https://notyoutube.com/watch?v=wNjDG9HyoHQ")
+    ).toBeUndefined();
     expect(videoEmbed("https://vimeopro.com/agapeoc/songs")).toBeUndefined();
     expect(videoEmbed("not a url")).toBeUndefined();
     expect(
