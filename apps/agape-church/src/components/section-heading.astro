@@ -1,0 +1,14 @@
+---
+interface Props {
+  title: string;
+  intro?: string | null | undefined;
+  as?: "h1" | "h2";
+}
+
+const { as: Tag = "h2", intro, title } = Astro.props;
+---
+
+<div class="max-w-2xl">
+  <Tag class="text-3xl sm:text-4xl">{title}</Tag>
+  {intro && <p class="mt-4 text-lg leading-relaxed text-muted-foreground">{intro}</p>}
+</div>
