@@ -1,8 +1,8 @@
 ---
 /**
- * LocalBusiness (Electrician) JSON-LD on every page. EmDashHead adds the
- * WebSite graph; this adds the business itself. Unknown facts are omitted
- * rather than guessed (see site.config.ts).
+ * Church JSON-LD on every page. EmDashHead adds the WebSite graph; this adds
+ * the church itself, from site.config.ts so the footer and search engines
+ * never disagree.
  */
 import { site } from "../../site.config";
 
@@ -11,41 +11,28 @@ interface Props {
 }
 
 const { origin } = Astro.props;
-const { business } = site;
-interface ElectricianJsonLd {
-  readonly "@context": string;
-  readonly "@type": string;
-  readonly areaServed: readonly { "@type": string; name: string }[];
-  readonly description: string;
-  readonly foundingDate: string;
-  readonly image: string;
-  readonly logo: string;
-  readonly name: string;
-  readonly url: string;
-  email?: string;
-  telephone?: string;
-}
+const { address, email, social, telephone } = site.business;
 
-const data: ElectricianJsonLd = {
+const data = {
   "@context": "https://schema.org",
-  "@type": "Electrician",
-  areaServed: business.areaServed.map((name) => ({
-    "@type": "AdministrativeArea",
-    name,
-  })),
+  "@type": "Church",
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "US",
+    addressLocality: address.city,
+    addressRegion: address.region,
+    postalCode: address.postalCode,
+    streetAddress: address.street,
+  },
   description: site.description,
-  foundingDate: String(business.foundingYear),
+  email,
   image: `${origin}/og-default.png`,
   logo: `${origin}/brand/logo.png`,
   name: site.name,
+  sameAs: [social.facebook, social.youtube, social.x],
+  telephone,
   url: origin,
 };
-if (business.email !== undefined) {
-  data.email = business.email;
-}
-if (business.telephone !== undefined) {
-  data.telephone = business.telephone;
-}
 ---
 
 <script type="application/ld+json" set:html={JSON.stringify(data)} />

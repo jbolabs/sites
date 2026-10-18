@@ -27,15 +27,14 @@ const year = new Date().getFullYear();
       </ul>
     </nav>
     <div>
-      <h2 class="mb-4 font-sans text-xs font-semibold tracking-[0.18em] text-white uppercase">Service area</h2>
-      <p class="text-sm leading-relaxed">{site.business.areaServed.map((area) => area.replace(" County, CA", "")).join(" · ")}</p>
-      <p class="mt-4 inline-flex items-center gap-2 text-sm text-olive">Certified Women's Business Enterprise</p>
+      <h2 class="mb-4 font-sans text-xs font-semibold tracking-[0.18em] text-white uppercase">Visit</h2>
+      <address class="text-sm leading-relaxed not-italic">{site.business.address.street}<br />{site.business.address.city}, {site.business.address.region} {site.business.address.postalCode}</address>
+      <p class="mt-4 text-sm"><a href={`mailto:${site.business.email}`} class="hover:text-white">{site.business.email}</a></p>
     </div>
   </div>
   <div class="border-t border-white/10">
     <div class="container-page flex flex-col gap-2 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-xs sm:flex-row sm:justify-between">
       <p>&copy; {year} {title} All rights reserved.</p>
-      <p>Commercial electrical contractor since {site.business.foundingYear}.</p>
     </div>
   </div>
 </footer>
