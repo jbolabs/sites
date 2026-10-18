@@ -22,7 +22,7 @@ describe(previewPolicy, () => {
         ? affectedSites(
             ["apps/jbolabs/src/content/home.ts"],
             ["jbolabs", "access-electric"]
-          )
+          ).deploy
         : []
     ).toStrictEqual(["jbolabs"]);
   });
