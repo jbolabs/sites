@@ -2,7 +2,7 @@
 /** Every published page and ministry in this language, generated (the old site's site.html). */
 import type { BlockComponentProps } from "emdash/ui";
 
-import { localePath, toLocale } from "@/i18n/locales";
+import { entrySlug, localePath, toLocale } from "@/i18n/locales";
 import { ui } from "@/i18n/ui";
 import { getMinistries, getPages } from "@/lib/content";
 import type { PageContentSiteMapBlock } from "../../../emdash-env";
@@ -19,11 +19,11 @@ if (Astro.cache?.enabled) {
 }
 const groups = [
   {
-    items: [{ title: t.home, url: localePath(locale, "/") }, ...pages.entries.map((entry) => ({ title: entry.data.title, url: localePath(locale, `/${entry.id}`) }))],
+    items: [{ title: t.home, url: localePath(locale, "/") }, ...pages.entries.map((entry) => ({ title: entry.data.title, url: localePath(locale, `/${entrySlug(entry.id)}`) }))],
     title: value.headline ?? t.pagesHeading,
   },
   {
-    items: ministries.entries.map((entry) => ({ title: entry.data.title, url: localePath(locale, `/ministries/${entry.id}`) })),
+    items: ministries.entries.map((entry) => ({ title: entry.data.title, url: localePath(locale, `/ministries/${entrySlug(entry.id)}`) })),
     title: t.ministries,
   },
 ];

@@ -33,6 +33,16 @@ export const localePath = (locale: Locale, path: string): string => {
 };
 
 /**
+ * An entry's URL slug. EmDash ids a non-default-locale entry as
+ * `<locale>/<slug>`, the way i18n routing prefixes its URL, so the prefix
+ * comes off before the id goes into a path built with `localePath`.
+ */
+export const entrySlug = (id: string): string => {
+  const [first, ...rest] = id.split("/");
+  return rest.length > 0 && isLocale(first) ? rest.join("/") : id;
+};
+
+/**
  * CMS pages the site chrome links to directly (header buttons, footer), keyed
  * by locale. Renaming one of these pages' slugs in the CMS needs a change here.
  */

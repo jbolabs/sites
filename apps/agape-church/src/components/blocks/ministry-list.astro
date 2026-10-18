@@ -4,7 +4,7 @@ import { Image } from "emdash/ui";
 import type { BlockComponentProps } from "emdash/ui";
 
 import SectionHeading from "@/components/section-heading.astro";
-import { localePath, toLocale } from "@/i18n/locales";
+import { entrySlug, localePath, toLocale } from "@/i18n/locales";
 import { getMinistries } from "@/lib/content";
 import type { PageContentMinistryListBlock } from "../../../emdash-env";
 
@@ -30,7 +30,7 @@ if (Astro.cache?.enabled) {
             </div>
             <div class="flex flex-1 flex-col gap-2 p-6">
               <h2 class="text-2xl leading-snug">
-                <a href={localePath(locale, `/ministries/${entry.id}`)} class="after:absolute after:inset-0 focus-visible:outline-none">{entry.data.title}</a>
+                <a href={localePath(locale, `/ministries/${entrySlug(entry.id)}`)} class="after:absolute after:inset-0 focus-visible:outline-none">{entry.data.title}</a>
               </h2>
               <p class="text-[0.95rem] leading-relaxed text-muted-foreground">{entry.data.summary}</p>
               <span class="mt-auto pt-3 text-clay-deep transition-transform group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>

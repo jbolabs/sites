@@ -10,7 +10,7 @@ import type { AstroGlobal } from "astro";
 import { decodeSlug, getSeoMeta } from "emdash";
 
 import { site } from "../../site.config.ts";
-import { localePath, toLocale } from "../i18n/locales.ts";
+import { entrySlug, localePath, toLocale } from "../i18n/locales.ts";
 import type { Locale } from "../i18n/locales.ts";
 import { ui } from "../i18n/ui.ts";
 import {
@@ -115,7 +115,7 @@ export const loadMinistry = async (astro: AstroGlobal) => {
       : [
           {
             title: entry.data.title,
-            url: localePath(locale, `/ministries/${entry.id}`),
+            url: localePath(locale, `/ministries/${entrySlug(entry.id)}`),
           },
         ]
   );
