@@ -8,6 +8,8 @@ interface TurnstileApi {
       callback: (token: string) => void;
       "expired-callback": () => void;
       "error-callback": () => void;
+      /** The widget's language (the page's locale). */
+      language?: string;
       size: "flexible";
       theme: "light";
     }

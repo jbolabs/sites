@@ -7,7 +7,12 @@ import { describe, expect, it } from "vitest";
 import { ssrPrebundle } from "./ssr-prebundle.ts";
 
 const repoRoot = path.join(import.meta.dirname, "../../../..");
-const siteApps = ["access-electric", "equityfast", "ms-custom-homes"] as const;
+const siteApps = [
+  "access-electric",
+  "agape-church",
+  "equityfast",
+  "ms-custom-homes",
+] as const;
 
 const AstroConfigModule = Schema.Struct({
   default: Schema.Struct({

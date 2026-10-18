@@ -1,0 +1,60 @@
+---
+/** A grid of cards with optional photos and links, on light, sand, or dark. */
+import { sanitizeHref } from "emdash";
+import { Image } from "emdash/ui";
+import type { BlockComponentProps } from "emdash/ui";
+
+import SectionHeading from "@/components/section-heading.astro";
+import type { PageContentCardsBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentCardsBlock>;
+
+const { value } = Astro.props;
+const tone = value.tone ?? "light";
+const dark = tone === "dark";
+// Logos and flyers show whole; photos crop to fill the card.
+const contain = value.image_fit === "contain";
+const count = value.items.length;
+// Four (or many) cards sit four across; two sit side by side; the rest three across.
+const columns = count === 4 || count > 6 ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-2 lg:grid-cols-3";
+const grid = count === 2 ? "sm:grid-cols-2" : columns;
+---
+
+<section class:list={["section-y", tone === "sand" && "bg-sand", dark && "bg-ink-deep"]}>
+  <div class="container-page">
+    <SectionHeading title={value.headline} intro={value.intro} linkLabel={value.link_label} linkUrl={value.link_url} tone={dark ? "light" : "ink"} />
+    <ul class:list={["grid gap-5", grid]}>
+      {value.items.map((item) => {
+        const href = item.url ? sanitizeHref(item.url) : undefined;
+        const external = href?.startsWith("http") ?? false;
+        return (
+          <li>
+            <article class:list={[
+              "group relative flex h-full flex-col overflow-hidden rounded-2xl",
+              dark ? "bg-white/5 ring-1 ring-white/10" : "border border-border bg-card shadow-xs",
+            ]}>
+              {item.image && (
+                <div class:list={["aspect-[3/2] overflow-hidden", contain ? "bg-white p-5" : "bg-muted"]}>
+                  <Image image={item.image} sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw" class:list={["size-full!", contain ? "object-contain!" : "object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"]} />
+                </div>
+              )}
+              <div class="flex flex-1 flex-col gap-2 p-6">
+                <h3 class:list={["text-xl leading-snug", dark && "text-white"]}>
+                  {href ? (
+                    <a href={href} rel={external ? "noopener" : undefined} target={external ? "_blank" : undefined} class="after:absolute after:inset-0 focus-visible:outline-none">{item.title}</a>
+                  ) : item.title}
+                </h3>
+                {item.body && <p class:list={["text-[0.95rem] leading-relaxed", dark ? "text-white/70" : "text-muted-foreground"]}>{item.body}</p>}
+                {href && (
+                  <span class:list={["mt-auto inline-flex items-center gap-1.5 pt-3 text-sm font-medium", dark ? "text-clay-soft" : "text-clay-deep"]} aria-hidden="true">
+                    {item.link_label ?? ""}<span class="transition-transform group-hover:translate-x-0.5">{external ? "↗" : "→"}</span>
+                  </span>
+                )}
+              </div>
+            </article>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>

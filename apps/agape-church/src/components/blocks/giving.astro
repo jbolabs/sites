@@ -1,0 +1,61 @@
+---
+/**
+ * Ways to give: Zelle, Venmo, Cash App, the PayPal hosted Donate button (a
+ * plain form post to PayPal, as on the old site), and the mailing address
+ * for checks.
+ */
+import { sanitizeHref } from "emdash";
+import type { BlockComponentProps } from "emdash/ui";
+
+import SectionHeading from "@/components/section-heading.astro";
+import { toLocale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import { lines, paragraphs, textParts } from "@/lib/text";
+import type { PageContentGivingBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentGivingBlock>;
+
+const { value } = Astro.props;
+const t = ui(toLocale(Astro.currentLocale));
+const [mailAddress, ...mailNotes] = paragraphs(value.mail_address);
+---
+
+<section class="section-y pt-0">
+  <div class="container-page">
+    <SectionHeading title={value.headline} intro={value.intro} />
+    <div class="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
+      <ul class="grid gap-5 sm:grid-cols-2">
+        {value.methods.map((method) => (
+          <li class="flex flex-col gap-3 rounded-2xl border border-border bg-card p-6">
+            <h3 class="text-2xl">{method.name}</h3>
+            {method.body && <p class="leading-relaxed text-muted-foreground">{method.body}</p>}
+            {method.handle && <p class="w-fit rounded-lg bg-sand px-3 py-2 font-mono text-sm break-all text-ink">{method.handle}</p>}
+            {method.name === "PayPal" && value.paypal_button_id ? (
+              <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" class="mt-auto pt-2">
+                <input type="hidden" name="cmd" value="_s-xclick" />
+                <input type="hidden" name="hosted_button_id" value={value.paypal_button_id} />
+                <button type="submit" class="inline-flex h-11 cursor-pointer items-center rounded-full bg-[#ffc439] px-5 text-sm font-semibold text-[#003087] hover:brightness-95">{t.donatePaypal}</button>
+              </form>
+            ) : method.url && (
+              <a href={sanitizeHref(method.url)} rel="noopener" target="_blank" class="mt-auto inline-flex items-center gap-1.5 pt-2 text-sm font-medium text-clay-deep hover:underline underline-offset-4">{t.howItWorks}<span aria-hidden="true">&nearr;</span></a>
+            )}
+          </li>
+        ))}
+      </ul>
+      <div class="flex flex-col gap-5">
+        {value.mail_title && mailAddress && (
+          <div class="rounded-2xl bg-ink p-7 text-white">
+            <h3 class="text-2xl text-white">{value.mail_title}</h3>
+            <address class="mt-4 leading-relaxed text-white/85 not-italic">{lines(mailAddress).map((line) => <span class="block">{line}</span>)}</address>
+            {mailNotes.map((note) => <p class="mt-4 text-sm text-white/70">{note}</p>)}
+          </div>
+        )}
+        {value.note && (
+          <p class="rounded-2xl bg-sand p-6 text-sm leading-relaxed text-foreground/80">
+            {textParts(value.note).map((part) => ("href" in part ? <a href={sanitizeHref(part.href)} class="font-medium text-clay-deep underline underline-offset-4">{part.text}</a> : part.text))}
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+</section>

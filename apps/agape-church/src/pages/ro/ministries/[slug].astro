@@ -1,0 +1,12 @@
+---
+/** Ministries edited in the CMS. Astro i18n resolves the locale from the URL. */
+import MinistryRoute from "@/components/routes/ministry-route.astro";
+import { loadMinistry } from "@/lib/routes";
+
+const data = await loadMinistry(Astro);
+if (!data) {
+  return Astro.rewrite("/404");
+}
+---
+
+<MinistryRoute {...data} />

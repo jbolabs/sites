@@ -203,11 +203,16 @@ export const internalPath = (
     : undefined;
 };
 
-const isCrawlable = (path: string): boolean =>
-  !path.startsWith("/_emdash") &&
-  !path.startsWith("/_image") &&
-  !path.startsWith("/_astro") &&
-  !path.startsWith("/_actions");
+/** A file download (`/files/plan.pdf`), not a page: any extension but `.html`. */
+const FILE_EXTENSION = /\.(?!html?$)[a-z0-9]{1,8}$/iu;
+
+/** Framework routes that are never pages. */
+const FRAMEWORK_PREFIXES = ["/_emdash", "/_image", "/_astro", "/_actions"];
+
+/** Paths the crawler audits as pages: not framework routes, not file downloads. */
+export const isCrawlable = (path: string): boolean =>
+  !FRAMEWORK_PREFIXES.some((prefix) => path.startsWith(prefix)) &&
+  !FILE_EXTENSION.test(path);
 
 /** Status recorded for a page that did not finish within the request timeout. */
 const NO_RESPONSE = 0;

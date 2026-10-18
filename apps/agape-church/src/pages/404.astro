@@ -1,17 +1,26 @@
 ---
 import ButtonLink from "@/components/button-link.astro";
+import { CHROME_PATHS, localePath, pathLocale } from "@/i18n/locales";
 import Base from "@/layouts/base.astro";
 
 Astro.response.status = 404;
+// Romanian visitors get Romanian copy when the missing URL is under /ro/.
+const locale = pathLocale(Astro.url.pathname);
+const copy =
+  locale === "ro"
+    ? { body: "Este posibil să fi fost mutată. Pagina principală și programul bisericii sunt locuri bune de început.", home: "Mergi la pagina principală", title: "Nu am găsit această pagină.", visit: "Programul bisericii" }
+    : { body: "It may have moved. The home page and our service times are good places to start.", home: "Go to the home page", title: "We could not find that page.", visit: "Service times" };
 ---
 
-<Base title="Page not found" robots="noindex">
-  <section class="container-page flex min-h-[55svh] flex-col items-start justify-center gap-5 py-20">
-    <h1 class="text-4xl sm:text-5xl">We could not find that page.</h1>
-    <p class="max-w-xl text-lg text-muted-foreground">It may have moved. Our portfolio and contact pages are good places to start.</p>
-    <div class="flex flex-wrap gap-3">
-      <ButtonLink href="/portfolio" size="cta">View the portfolio</ButtonLink>
-      <ButtonLink href="/contact" size="cta" variant="outline">Contact us</ButtonLink>
+<Base title={locale === "ro" ? "Pagina nu a fost găsită" : "Page not found"} robots="noindex">
+  <section class="bg-sand">
+    <div class="container-page flex min-h-[60svh] flex-col items-start justify-center gap-6 py-24">
+      <h1 class="text-4xl sm:text-6xl">{copy.title}</h1>
+      <p class="max-w-xl text-lg text-muted-foreground">{copy.body}</p>
+      <div class="flex flex-wrap gap-3">
+        <ButtonLink href={localePath(locale, "/")} variant="accent" size="hero">{copy.home}</ButtonLink>
+        <ButtonLink href={CHROME_PATHS.visit[locale]} variant="outline" size="hero">{copy.visit}</ButtonLink>
+      </div>
     </div>
   </section>
 </Base>

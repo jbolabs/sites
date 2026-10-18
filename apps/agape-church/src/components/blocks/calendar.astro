@@ -1,0 +1,46 @@
+---
+/**
+ * The church's public Google Calendar, which the office already keeps. Wide
+ * screens get the chosen view; phones get the agenda, which reads at 375px.
+ * Both frames load lazily, and a hidden one never loads.
+ */
+import type { BlockComponentProps } from "emdash/ui";
+
+import SectionHeading from "@/components/section-heading.astro";
+import { toLocale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import { CHURCH_TIME_ZONE } from "@/lib/dates";
+import type { PageContentCalendarBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentCalendarBlock>;
+
+const { value } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const src = (mode: string) => {
+  const params = new URLSearchParams({
+    bgcolor: "#ffffff",
+    color: "#182C57",
+    ctz: CHURCH_TIME_ZONE,
+    hl: locale,
+    mode,
+    showPrint: "0",
+    showTitle: "0",
+    src: value.calendar_id,
+    wkst: "1",
+  });
+  return `https://calendar.google.com/calendar/embed?${params.toString()}`;
+};
+const title = value.headline ?? "Agape Church calendar";
+const subscribe = `https://calendar.google.com/calendar/u/0?cid=${encodeURIComponent(btoa(value.calendar_id))}`;
+---
+
+<section class="section-y">
+  <div class="container-page">
+    <SectionHeading title={value.headline} intro={value.intro} />
+    <div class="overflow-hidden rounded-2xl border border-border bg-card shadow-xs">
+      <iframe title={title} src={src(value.mode ?? "MONTH")} loading="lazy" class="hidden h-[720px] w-full border-0 md:block"></iframe>
+      <iframe title={title} src={src("AGENDA")} loading="lazy" class="h-[640px] w-full border-0 md:hidden"></iframe>
+    </div>
+    <a href={subscribe} rel="noopener" target="_blank" class="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-clay-deep hover:underline underline-offset-4">{ui(locale).addToCalendar}<span aria-hidden="true">&nearr;</span></a>
+  </div>
+</section>

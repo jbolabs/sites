@@ -1,0 +1,20 @@
+---
+/** A Bible verse set large, with its reference and an optional second-language rendering. */
+import type { BlockComponentProps } from "emdash/ui";
+
+import type { PageContentVerseBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentVerseBlock>;
+
+const { value } = Astro.props;
+const other = Astro.currentLocale === "ro" ? "en" : "ro";
+---
+
+<section class="section-y">
+  <figure class="container-page max-w-4xl text-center">
+    <div class="mx-auto mb-8 h-px w-16 bg-clay" aria-hidden="true"></div>
+    <blockquote class="font-display text-2xl leading-snug text-balance text-ink sm:text-[2.1rem] sm:leading-[1.3]">{value.text}</blockquote>
+    {value.translation && <p lang={other} class="mx-auto mt-6 max-w-2xl text-base text-pretty text-muted-foreground italic">{value.translation}</p>}
+    <figcaption class="mt-6 text-sm font-semibold text-clay-deep">{value.reference}</figcaption>
+  </figure>
+</section>

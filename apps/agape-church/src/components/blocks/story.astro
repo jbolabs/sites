@@ -1,31 +1,49 @@
 ---
+/** Headline and text beside a photo, with an optional pull quote and link. */
 import { sanitizeHref } from "emdash";
-import { Image, PortableText } from "emdash/ui";
+import { Image } from "emdash/ui";
 import type { BlockComponentProps } from "emdash/ui";
 
-import ButtonLink from "@/components/button-link.astro";
+import { paragraphs } from "@/lib/text";
 import type { PageContentStoryBlock } from "../../../emdash-env";
 
 type Props = BlockComponentProps<PageContentStoryBlock>;
 
 const { value } = Astro.props;
-const imageRight = value.image_position === "right";
+const left = value.layout === "left";
+const link = value.link_label && value.link_url ? { href: sanitizeHref(value.link_url), label: value.link_label } : undefined;
+const external = link?.href.startsWith("http") ?? false;
 ---
 
-<section class="bg-secondary/60">
-  <div class="container-page grid items-center gap-10 py-20 sm:py-28 md:grid-cols-2 md:gap-16">
-    {value.image && (
-      <div class:list={["relative", { "md:order-2": imageRight }]}>
-        <div class="absolute -bottom-4 -left-4 hidden h-2/3 w-2/3 rounded-xl bg-olive/30 sm:block" aria-hidden="true"></div>
-        <Image image={value.image} sizes="(min-width: 768px) 50vw, 100vw" class="relative aspect-[4/3] w-full rounded-xl object-cover shadow-sm" />
+<section class="section-y">
+  <div class:list={["container-page grid items-start gap-10 lg:gap-16", value.image && "lg:grid-cols-2"]}>
+    <div class:list={["max-w-prose", left && value.image && "lg:order-2"]}>
+      <h2 class="text-3xl sm:text-[2.6rem] sm:leading-[1.1]">{value.headline}</h2>
+      <div class="mt-6 space-y-4 text-lg leading-relaxed text-foreground/80">
+        {paragraphs(value.body).map((paragraph) => <p>{paragraph}</p>)}
       </div>
-    )}
-    <div>
-      <h2 class="text-3xl sm:text-4xl">{value.headline}</h2>
-      <div class="prose-site mt-6"><PortableText value={value.body} /></div>
-      {value.cta_label && value.cta_url && (
-        <ButtonLink href={sanitizeHref(value.cta_url)} variant="outline" size="cta" class="mt-8">{value.cta_label}</ButtonLink>
+      {value.quote && (
+        <figure class="mt-10 rounded-2xl bg-sand p-7 sm:p-8">
+          <svg viewBox="0 0 32 24" class="mb-4 h-6 w-8 text-clay" fill="currentColor" aria-hidden="true"><path d="M0 24V14.4C0 6.24 4.4 1.44 13.2 0l1.44 3.36C9.84 4.56 7.44 7.2 7.2 11.04H13.2V24H0Zm18.8 0V14.4C18.8 6.24 23.2 1.44 32 0l1.44 3.36c-4.8 1.2-7.2 3.84-7.44 7.68H32V24H18.8Z" /></svg>
+          <blockquote class="font-display text-xl leading-relaxed text-ink">{value.quote}</blockquote>
+          {value.quote_author && (
+            <figcaption class="mt-5 text-sm">
+              <span class="font-semibold text-ink">{value.quote_author}</span>
+              {value.quote_role && <span class="text-muted-foreground">, {value.quote_role}</span>}
+            </figcaption>
+          )}
+        </figure>
+      )}
+      {link && (
+        <a href={link.href} rel={external ? "noopener" : undefined} target={external ? "_blank" : undefined} class="group mt-8 inline-flex items-center gap-1.5 font-medium text-clay-deep underline-offset-4 hover:underline">
+          {link.label}<span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+        </a>
       )}
     </div>
+    {value.image && (
+      <div class:list={["overflow-hidden rounded-2xl bg-muted shadow-sm lg:sticky lg:top-28", left && "lg:order-1"]}>
+        <Image image={value.image} sizes="(min-width: 1024px) 600px, 100vw" class="aspect-[4/3] size-full! object-cover" />
+      </div>
+    )}
   </div>
 </section>

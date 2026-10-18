@@ -1,0 +1,30 @@
+---
+/** A photo grid that opens full size (island), with a link to the full album. */
+import type { BlockComponentProps } from "emdash/ui";
+
+import PhotoGallery from "@/components/islands/photo-gallery";
+import SectionHeading from "@/components/section-heading.astro";
+import { toLocale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import { islandImage } from "@/lib/images";
+import type { PageContentPhotoGalleryBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentPhotoGalleryBlock>;
+
+const { value } = Astro.props;
+const t = ui(toLocale(Astro.currentLocale));
+const {origin} = Astro.url;
+const images = await Promise.all(
+  value.photos.flatMap((row) => (row.image ? [islandImage(row.image, origin, [480, 800, 1200, 1600])] : []))
+);
+const title = value.headline ?? "";
+---
+
+{images.length > 0 && (
+  <section class="section-y">
+    <div class="container-page">
+      <SectionHeading title={value.headline} intro={value.intro} linkLabel={value.link_label} linkUrl={value.link_url} />
+      <PhotoGallery client:visible title={title} images={images} labels={t.gallery} />
+    </div>
+  </section>
+)}

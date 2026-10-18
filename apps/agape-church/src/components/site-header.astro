@@ -1,51 +1,89 @@
 ---
-import type { NavItem } from "@/lib/content";
+/**
+ * Solid cream bar on every page: the typeset wordmark, the locale's CMS menu,
+ * the live-stream link, the language switch, and the visit call to action.
+ * Phones get the shared full-screen menu.
+ */
+import { CHROME_PATHS, localePath } from "@/i18n/locales";
+import type { Locale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import type { Alternates, NavItem } from "@/lib/content";
 import MobileMenu from "@jakebodea/site-ui/mobile-menu";
 import ButtonLink from "./button-link.astro";
+import Wordmark from "./wordmark.astro";
 
 interface Props {
-  title: string;
+  locale: Locale;
   items: readonly NavItem[];
+  alternates: Alternates;
 }
 
-const { items, title } = Astro.props;
-const current = Astro.url.pathname;
-const isActive = (url: string) =>
-  url === "/" ? current === "/" : current === url || current.startsWith(`${url}/`);
+const { alternates, items, locale } = Astro.props;
+const t = ui(locale);
+const current = Astro.url.pathname.replace(/\/$/u, "") || "/";
+const home = localePath(locale, "/");
+const isActive = (url: string) => (url === home ? current === home : current === url || current.startsWith(`${url}/`));
+const other: Locale = locale === "en" ? "ro" : "en";
+const switchHref = alternates[other] ?? localePath(other, "/");
+const live = CHROME_PATHS.live[locale];
+const visit = CHROME_PATHS.visit[locale];
 ---
 
-<header class="sticky top-0 z-40 border-b border-border/70 bg-background">
-  <div class="container-page flex h-16 items-center justify-between gap-6 sm:h-20">
-    <a href="/" class="flex shrink-0 items-center rounded-sm" aria-label={`${title}, home`}>
-      <img src="/brand/logo.webp" alt={title} width="339" height="100" class="h-9 w-auto sm:h-11" />
+<header class="sticky top-0 z-40 border-b border-border bg-background">
+  <div class="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-5 sm:h-[4.5rem] sm:px-8">
+    <a href={home} class="mr-auto shrink-0 rounded-md lg:mr-0">
+      <Wordmark />
+      <span class="sr-only">, {t.home}</span>
     </a>
-    <nav aria-label="Main" class="hidden items-center gap-1 md:flex">
+    <nav aria-label={t.mainNav} class="mx-auto hidden items-center gap-0.5 lg:flex">
       {
         items.map((item) => (
           <a
             href={item.url}
             aria-current={isActive(item.url) ? "page" : undefined}
-            class="rounded-md px-3 py-2 text-sm font-medium text-foreground/75 hover:bg-muted hover:text-foreground aria-[current=page]:text-navy aria-[current=page]:underline aria-[current=page]:decoration-olive aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8"
+            class="rounded-full px-3.5 py-2 text-[0.94rem] font-medium text-foreground/70 hover:bg-sand hover:text-ink aria-[current=page]:bg-sand aria-[current=page]:text-ink"
           >
             {item.label}
           </a>
         ))
       }
-      <ButtonLink href="/contact" size="cta" class="ml-3">Request a bid</ButtonLink>
     </nav>
-    <MobileMenu
-      client:media="(max-width: 767px)"
-      items={items.map((item) => ({ href: item.url, label: item.label }))}
-      currentPath={current}
-      classNames={{
-        toggle: "text-navy md:hidden",
-        overlay: "bg-background/85 md:hidden",
-        nav: "container-page pt-8",
-        link: "border-b border-border/70 py-4 text-3xl font-semibold text-navy/60 aria-[current=page]:text-navy",
-        footer: "container-page",
-      }}
-    >
-      <ButtonLink href="/contact" size="hero" class="w-full">Request a bid</ButtonLink>
-    </MobileMenu>
+    <div class="flex items-center gap-1.5 sm:gap-2">
+      <a href={live} class="hidden h-10 items-center gap-2 rounded-full px-3 text-sm font-medium text-ink hover:bg-sand sm:inline-flex" aria-current={isActive(live) ? "page" : undefined}>
+        <span class="relative flex size-2.5" aria-hidden="true">
+          <span class="absolute inline-flex size-full animate-ping rounded-full bg-red-500 opacity-60 motion-reduce:animate-none"></span>
+          <span class="relative inline-flex size-2.5 rounded-full bg-red-600"></span>
+        </span>
+        {t.live}
+      </a>
+      <a
+        href={switchHref}
+        hreflang={other}
+        lang={other}
+        class="inline-flex h-10 items-center rounded-full border border-border px-3 text-sm font-semibold text-ink uppercase hover:border-ink/40"
+      >
+        <span class="sr-only">{t.switchTo}</span>
+        <span aria-hidden="true">{other}</span>
+      </a>
+      <ButtonLink href={visit} variant="accent" size="cta" class="hidden md:inline-flex">{t.visit}</ButtonLink>
+      <MobileMenu
+        client:media="(max-width: 1023px)"
+        items={items.map((item) => ({ href: item.url, label: item.label }))}
+        currentPath={current}
+        homes={["/", "/ro"]}
+        labels={{ close: t.close, nav: t.mainNav, open: t.menu }}
+        classNames={{
+          toggle: "text-ink lg:hidden",
+          overlay: "bg-background lg:hidden",
+          nav: "container-page pt-8",
+          link: "border-b border-border py-4 font-display text-3xl text-ink/60 aria-[current=page]:text-ink",
+          footer: "container-page flex flex-col gap-3",
+        }}
+      >
+        <ButtonLink href={visit} variant="accent" size="hero" class="w-full">{t.visit}</ButtonLink>
+        <ButtonLink href={live} variant="outline" size="hero" class="w-full">{t.watchLive}</ButtonLink>
+        <a href={switchHref} hreflang={other} lang={other} class="py-2 text-center text-sm text-muted-foreground hover:text-ink">{t.switchTo}</a>
+      </MobileMenu>
+    </div>
   </div>
 </header>

@@ -42,7 +42,7 @@ function DialogOverlay({
 const dialogContentVariants = {
   default: "bg-popover text-popover-foreground ring-foreground/10 gap-4 p-4",
   /** Dark media viewer (project galleries). */
-  lightbox: "bg-navy-deep text-white ring-white/10 gap-3 p-3 sm:p-4",
+  lightbox: "bg-ink-deep text-white ring-white/10 gap-3 p-3 sm:p-4",
 } as const;
 
 function DialogContent({

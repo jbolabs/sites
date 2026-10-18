@@ -32,8 +32,13 @@ export const localePath = (locale: Locale, path: string): string => {
   return path === "/" ? `/${locale}` : `/${locale}${path}`;
 };
 
-/** Routes that live in code rather than the CMS, keyed by locale. */
-export const CONTACT_PATH: Record<Locale, string> = {
-  en: "/contact",
-  ro: "/ro/contact",
-};
+/**
+ * CMS pages the site chrome links to directly (header buttons, footer), keyed
+ * by locale. Renaming one of these pages' slugs in the CMS needs a change here.
+ */
+export const CHROME_PATHS = {
+  give: { en: "/give", ro: "/ro/donatii" },
+  live: { en: "/live", ro: "/ro/live" },
+  prayer: { en: "/prayer", ro: "/ro/rugaciune" },
+  visit: { en: "/visit", ro: "/ro/vizita" },
+} as const satisfies Record<string, Record<Locale, string>>;

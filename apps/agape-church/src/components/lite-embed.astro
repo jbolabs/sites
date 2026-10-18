@@ -1,0 +1,56 @@
+---
+/**
+ * A video that costs nothing until it is played: a poster and a play button,
+ * swapped for the real player (YouTube no-cookie or Vimeo) on click. Keeps
+ * third-party players off the page load and out of the Lighthouse budget.
+ */
+import { Image } from "emdash/ui";
+
+import type { MediaImage } from "@/lib/content";
+
+interface Props {
+  embedUrl: string;
+  title: string;
+  playLabel: string;
+  poster?: MediaImage | null | undefined;
+  /** Sizes for the poster image. */
+  sizes?: string;
+}
+
+const { embedUrl, playLabel, poster, sizes = "(min-width: 1024px) 960px, 100vw", title } = Astro.props;
+---
+
+<div class="lite-embed relative aspect-video overflow-hidden rounded-2xl bg-ink-deep shadow-sm" data-embed={embedUrl} data-title={title}>
+  {poster ? (
+    <Image image={poster} alt="" sizes={sizes} class="absolute inset-0 size-full! object-cover opacity-80" />
+  ) : (
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,var(--brand-clay-deep),transparent_55%),radial-gradient(circle_at_80%_90%,var(--brand-ink),transparent_60%)]" aria-hidden="true"></div>
+  )}
+  <button type="button" class="group absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-4 bg-ink-deep/30 p-6 text-center text-white hover:bg-ink-deep/40 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-white">
+    <span class="flex size-16 items-center justify-center rounded-full bg-clay shadow-lg transition-transform group-hover:scale-105 sm:size-20" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor" class="ml-1 size-7 sm:size-8"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14Z" /></svg>
+    </span>
+    <span class="max-w-md text-balance text-base font-medium drop-shadow sm:text-lg">{title}</span>
+    <span class="sr-only">{playLabel}</span>
+  </button>
+</div>
+
+<script>
+  // One delegated listener for every lite embed on the page.
+  document.addEventListener("click", (event) => {
+    const button = event.target instanceof Element ? event.target.closest(".lite-embed button") : null;
+    const frame = button?.closest<HTMLElement>(".lite-embed");
+    const src = frame?.dataset["embed"];
+    if (!frame || !src) {
+      return;
+    }
+    const iframe = document.createElement("iframe");
+    iframe.src = src;
+    iframe.title = frame.dataset["title"] ?? "";
+    iframe.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
+    iframe.allowFullscreen = true;
+    iframe.className = "absolute inset-0 size-full border-0";
+    frame.replaceChildren(iframe);
+    iframe.focus();
+  });
+</script>

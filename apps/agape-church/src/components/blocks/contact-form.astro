@@ -1,0 +1,48 @@
+---
+/** The contact form or the prayer request form, with a short text beside it. */
+import { env } from "cloudflare:workers";
+import type { BlockComponentProps } from "emdash/ui";
+
+import ContactForm from "@/components/islands/contact-form";
+import SectionHeading from "@/components/section-heading.astro";
+import { toLocale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import { lines } from "@/lib/text";
+import type { PageContentContactFormBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentContactFormBlock>;
+
+const { value } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const t = ui(locale);
+const asideLines = lines(value.aside);
+const PHONE = /^\(?\d{3}\)?[\s.-]?\d{3}[\s.-]\d{4}$/u;
+/** Email addresses and phone numbers in the aside become links. */
+const linkFor = (line: string): string | undefined => {
+  if (line.includes("@")) {
+    return `mailto:${line}`;
+  }
+  return PHONE.test(line) ? `tel:${line.replaceAll(/\D/gu, "")}` : undefined;
+};
+---
+
+<section class="section-y">
+  <div class="container-page">
+    <SectionHeading title={value.headline} intro={value.intro} />
+    <div class="grid gap-10 lg:grid-cols-[1.6fr_1fr]">
+      <ContactForm client:visible kind={value.kind ?? "contact"} locale={locale} strings={t.form} turnstileSiteKey={env.TURNSTILE_SITE_KEY} />
+      {asideLines.length > 0 && (
+        <aside class="h-fit rounded-2xl bg-ink p-7 text-white/85">
+          {asideLines.map((line, index) => {
+            const href = linkFor(line);
+            return (
+              <p class:list={[index === 0 && asideLines.length > 1 ? "font-display text-2xl text-white" : "mt-2 leading-relaxed first:mt-0"]}>
+                {href ? <a href={href} class="hover:text-white hover:underline underline-offset-4">{line}</a> : line}
+              </p>
+            );
+          })}
+        </aside>
+      )}
+    </div>
+  </div>
+</section>

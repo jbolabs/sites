@@ -1,17 +1,24 @@
-import { LeadNotSaved, LeadStore } from "@jakebodea/cloudflare-kit/server";
+import {
+  LeadNotSaved,
+  LeadStore,
+  leadNotificationText,
+} from "@jakebodea/cloudflare-kit/server";
 import type { Lead } from "@jakebodea/cloudflare-kit/server";
 import { Effect, Layer } from "effect";
 import { withEmDashRuntime } from "emdash/middleware";
 
+import { KIND_LABEL, KIND_QUESTION } from "./forms.ts";
+
 /**
- * Leads live in the EmDash `leads` collection: the client reads them in the
- * admin they already use, with no extra inbox or database. The collection is
- * not routable and entries stay drafts, so they never reach a public page,
- * sitemap, or query.
+ * Messages and prayer requests live in the EmDash `leads` collection
+ * ("Messages" in the admin): the church reads them where it already edits
+ * the site, marked Contact or Prayer request. The collection is not routable
+ * and entries stay drafts, so they never reach a public page, sitemap, or
+ * query. The entry's text is the same summary the notification email carries.
  *
  * `withEmDashRuntime` is EmDash's trusted server-side entry point (public
  * routes get no write handlers on `locals`); input is validated by
- * `ContactForm` before it gets here.
+ * `ChurchForm` before it gets here.
  */
 export const LeadStoreEmDash = Layer.succeed(LeadStore, {
   save: (lead: Lead) =>
@@ -19,11 +26,17 @@ export const LeadStoreEmDash = Layer.succeed(LeadStore, {
       catch: (cause) => new LeadNotSaved({ cause }),
       try: async () =>
         await withEmDashRuntime(async (runtime) => {
+          const kind = lead.answers?.find(
+            ({ question }) => question === KIND_QUESTION
+          )?.answer;
           const result = await runtime.handleContentCreate("leads", {
             data: {
-              company: lead.company ?? null,
               email: lead.email,
-              message: lead.message,
+              kind:
+                kind === KIND_LABEL.prayer
+                  ? KIND_LABEL.prayer
+                  : KIND_LABEL.contact,
+              message: leadNotificationText(lead),
               phone: lead.phone ?? null,
               source_path: lead.sourcePath,
               title: lead.name,

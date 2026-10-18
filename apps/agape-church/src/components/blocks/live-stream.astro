@@ -1,0 +1,43 @@
+---
+/** The YouTube live player on a dark band, with subscribe and playlist links. */
+import { sanitizeHref } from "emdash";
+import type { BlockComponentProps } from "emdash/ui";
+
+import LiteEmbed from "@/components/lite-embed.astro";
+import SocialIcon from "@/components/social-icon.astro";
+import { toLocale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import { paragraphs } from "@/lib/text";
+import { liveEmbedUrl } from "@/lib/video";
+import type { PageContentLiveStreamBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentLiveStreamBlock>;
+
+const { value } = Astro.props;
+const t = ui(toLocale(Astro.currentLocale));
+const subscribe = value.channel_handle
+  ? `https://www.youtube.com/@${encodeURIComponent(value.channel_handle)}?sub_confirmation=1`
+  : `https://www.youtube.com/channel/${encodeURIComponent(value.channel_id)}?sub_confirmation=1`;
+---
+
+<section class="section-y bg-ink text-white">
+  <div class="container-page grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+    <div>
+      <h2 class="text-3xl text-white sm:text-[2.6rem] sm:leading-[1.1]">{value.headline}</h2>
+      {paragraphs(value.body).map((paragraph) => <p class="mt-4 text-lg leading-relaxed text-white/75">{paragraph}</p>)}
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href={subscribe} rel="noopener" target="_blank" class="inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-medium text-ink hover:bg-sand">
+          <SocialIcon name="youtube" class="size-4 text-red-600" />{t.subscribe}
+        </a>
+      </div>
+      {value.links && value.links.length > 0 && (
+        <ul class="mt-8 space-y-2 border-t border-white/15 pt-6 text-sm">
+          {value.links.map((item) => (
+            <li><a href={sanitizeHref(item.url)} rel="noopener" target="_blank" class="inline-flex items-center gap-1.5 text-white/80 hover:text-white hover:underline underline-offset-4">{item.label}<span aria-hidden="true">&nearr;</span></a></li>
+          ))}
+        </ul>
+      )}
+    </div>
+    <LiteEmbed embedUrl={liveEmbedUrl(value.channel_id)} title={value.headline} playLabel={t.playVideo} poster={value.poster} sizes="(min-width: 1024px) 720px, 100vw" />
+  </div>
+</section>

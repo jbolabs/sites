@@ -1,0 +1,45 @@
+---
+/** Every published page and ministry in this language, generated (the old site's site.html). */
+import type { BlockComponentProps } from "emdash/ui";
+
+import { localePath, toLocale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import { getMinistries, getPages } from "@/lib/content";
+import type { PageContentSiteMapBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentSiteMapBlock>;
+
+const { value } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const t = ui(locale);
+const [pages, ministries] = await Promise.all([getPages(locale), getMinistries(locale)]);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(pages.cacheHint);
+  Astro.cache.set(ministries.cacheHint);
+}
+const groups = [
+  {
+    items: [{ title: t.home, url: localePath(locale, "/") }, ...pages.entries.map((entry) => ({ title: entry.data.title, url: localePath(locale, `/${entry.id}`) }))],
+    title: value.headline ?? t.pagesHeading,
+  },
+  {
+    items: ministries.entries.map((entry) => ({ title: entry.data.title, url: localePath(locale, `/ministries/${entry.id}`) })),
+    title: t.ministries,
+  },
+];
+---
+
+<section class="section-y">
+  <div class="container-page grid gap-12 md:grid-cols-2">
+    {groups.map((group) => (
+      <div>
+        <h2 class="mb-5 text-3xl">{group.title}</h2>
+        <ul class="space-y-1">
+          {group.items.map((item) => (
+            <li><a href={item.url} class="block rounded-lg px-3 py-2 text-ink hover:bg-sand">{item.title}</a></li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</section>

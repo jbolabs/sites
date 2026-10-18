@@ -1,0 +1,43 @@
+---
+/** A list of links (downloads, photo albums, resources) in one to three columns. */
+import { sanitizeHref } from "emdash";
+import type { BlockComponentProps } from "emdash/ui";
+
+import SectionHeading from "@/components/section-heading.astro";
+import type { PageContentLinkListBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentLinkListBlock>;
+
+const { value } = Astro.props;
+const COLUMNS = { "1": "max-w-2xl", "2": "sm:grid-cols-2", "3": "sm:grid-cols-2 lg:grid-cols-3" } as const;
+const columns = COLUMNS[value.columns ?? "2"];
+const isFile = (href: string) => /\.pdf$/iu.test(href);
+---
+
+<section class="section-y">
+  <div class="container-page">
+    <SectionHeading title={value.headline} intro={value.intro} />
+    <ul class:list={["grid gap-x-6 gap-y-2", columns]}>
+      {value.items.map((item) => {
+        const href = sanitizeHref(item.url);
+        const external = href.startsWith("http");
+        return (
+          <li>
+            <a
+              href={href}
+              rel={external ? "noopener" : undefined}
+              target={external || isFile(href) ? "_blank" : undefined}
+              class="group flex items-center justify-between gap-4 rounded-xl border border-transparent px-4 py-3 hover:border-border hover:bg-card"
+            >
+              <span class="min-w-0">
+                <span class="block font-medium text-ink group-hover:text-clay-deep">{item.label}</span>
+                {item.note && <span class="block truncate text-sm text-muted-foreground">{item.note}</span>}
+              </span>
+              <span class="shrink-0 text-muted-foreground group-hover:text-clay-deep" aria-hidden="true">{isFile(href) ? "↓" : external ? "↗" : "→"}</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>

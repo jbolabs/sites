@@ -1,0 +1,65 @@
+---
+/**
+ * A headline with a list of points in one of four styles: bullets (title and
+ * text), numbered (statements of faith), values (pill tiles), or pairs
+ * (label and value, like event details).
+ */
+import type { BlockComponentProps } from "emdash/ui";
+
+import SectionHeading from "@/components/section-heading.astro";
+import type { PageContentListBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentListBlock>;
+
+const { value } = Astro.props;
+const style = value.style ?? "bullets";
+---
+
+<section class="section-y">
+  <div class="container-page">
+    <SectionHeading title={value.headline} intro={value.intro} />
+    {style === "numbered" && (
+      <ol class="grid gap-x-12 gap-y-6 lg:grid-cols-2">
+        {value.items.map((item, index) => (
+          <li class="flex gap-5 border-t border-border pt-6">
+            <span class="font-display text-3xl leading-none text-clay tabular-nums" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+            <div>
+              <p class="text-lg leading-relaxed text-foreground/85">{item.title}</p>
+              {item.body && <p class="mt-2 text-muted-foreground">{item.body}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
+    )}
+    {style === "bullets" && (
+      <ul class="grid gap-5 md:grid-cols-2">
+        {value.items.map((item) => (
+          <li class="flex gap-4 rounded-2xl border border-border bg-card p-6">
+            <span class="mt-2 size-2 shrink-0 rounded-full bg-clay" aria-hidden="true"></span>
+            <div>
+              <p class="font-medium text-ink">{item.title}</p>
+              {item.body && <p class="mt-1.5 leading-relaxed text-muted-foreground">{item.body}</p>}
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
+    {style === "values" && (
+      <ul class="flex flex-wrap gap-3">
+        {value.items.map((item) => (
+          <li class="rounded-full bg-sand px-5 py-2.5 font-display text-lg text-ink">{item.title}{item.body && <span class="ml-2 font-sans text-sm text-muted-foreground">{item.body}</span>}</li>
+        ))}
+      </ul>
+    )}
+    {style === "pairs" && (
+      <dl class="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+        {value.items.map((item) => (
+          <div class="grid gap-1 px-6 py-5 sm:grid-cols-[minmax(10rem,0.35fr)_1fr] sm:gap-8">
+            <dt class="font-display text-lg text-ink">{item.title}</dt>
+            <dd class="leading-relaxed text-foreground/80">{item.body}</dd>
+          </div>
+        ))}
+      </dl>
+    )}
+  </div>
+</section>

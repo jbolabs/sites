@@ -1,0 +1,60 @@
+---
+/**
+ * Current flyers from the Announcements collection, in a horizontal rail
+ * (native scroll snapping, no JavaScript). The old site's home slideshow,
+ * except flyers past their end date hide themselves.
+ */
+import { sanitizeHref } from "emdash";
+import { Image } from "emdash/ui";
+import type { BlockComponentProps } from "emdash/ui";
+
+import SectionHeading from "@/components/section-heading.astro";
+import { toLocale } from "@/i18n/locales";
+import { getAnnouncements } from "@/lib/content";
+import { churchDate } from "@/lib/dates";
+import type { PageContentAnnouncementsBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentAnnouncementsBlock>;
+
+const { value } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const { cacheHint, entries } = await getAnnouncements(locale, churchDate(new Date()));
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+}
+---
+
+{entries.length > 0 && (
+  <section class="section-y overflow-hidden">
+    <div class="container-page">
+      <SectionHeading title={value.headline} intro={value.intro} />
+    </div>
+    <ul class="rail container-page" aria-label={value.headline ?? undefined}>
+      {entries.map((entry) => {
+        const { body, image, link_label: label, link_url: url, title } = entry.data;
+        const href = url ? sanitizeHref(url) : undefined;
+        const external = href?.startsWith("http") ?? false;
+        return (
+          <li class="w-[min(86vw,34rem)] shrink-0 snap-start">
+            <article class="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xs">
+              {image && (
+                <div class="aspect-[8/3] overflow-hidden bg-muted">
+                  <Image image={image} sizes="(min-width: 640px) 544px, 86vw" class="size-full! object-cover" />
+                </div>
+              )}
+              <div class="flex flex-1 flex-col gap-2 p-5 sm:p-6">
+                <h3 class="text-xl leading-snug">{title}</h3>
+                {body && <p class="text-sm leading-relaxed text-muted-foreground">{body}</p>}
+                {href && label && (
+                  <a href={href} rel={external ? "noopener" : undefined} target={external ? "_blank" : undefined} class="mt-auto inline-flex items-center gap-1.5 pt-2 text-sm font-medium text-clay-deep hover:underline underline-offset-4">
+                    {label}<span aria-hidden="true">&rarr;</span>
+                  </a>
+                )}
+              </div>
+            </article>
+          </li>
+        );
+      })}
+    </ul>
+  </section>
+)}

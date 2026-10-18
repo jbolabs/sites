@@ -1,14 +1,30 @@
 ---
+/** A section's headline, intro, and optional "see all" link, shared by every block. */
+import { sanitizeHref } from "emdash";
+
 interface Props {
-  title: string;
+  title?: string | null | undefined;
   intro?: string | null | undefined;
-  as?: "h1" | "h2";
+  linkLabel?: string | null | undefined;
+  linkUrl?: string | null | undefined;
+  tone?: "ink" | "light";
+  center?: boolean;
 }
 
-const { as: Tag = "h2", intro, title } = Astro.props;
+const { center = false, intro, linkLabel, linkUrl, title, tone = "ink" } = Astro.props;
+const link = linkLabel && linkUrl ? { href: sanitizeHref(linkUrl), label: linkLabel } : undefined;
 ---
 
-<div class="max-w-2xl">
-  <Tag class="text-3xl sm:text-4xl">{title}</Tag>
-  {intro && <p class="mt-4 text-lg leading-relaxed text-muted-foreground">{intro}</p>}
-</div>
+{(title || intro || link) && (
+  <div class:list={["mb-10 flex flex-col gap-4 sm:mb-12 md:flex-row md:items-end md:justify-between", center && "items-center text-center md:flex-col md:items-center"]}>
+    <div class:list={["max-w-2xl", center && "mx-auto"]}>
+      {title && <h2 class:list={["text-3xl sm:text-[2.6rem] sm:leading-[1.1]", tone === "light" && "text-white"]}>{title}</h2>}
+      {intro && <p class:list={["mt-4 text-lg leading-relaxed", tone === "light" ? "text-white/75" : "text-muted-foreground"]}>{intro}</p>}
+    </div>
+    {link && (
+      <a href={link.href} class:list={["group inline-flex shrink-0 items-center gap-1.5 font-medium underline-offset-4 hover:underline", tone === "light" ? "text-clay-soft" : "text-clay-deep"]}>
+        {link.label}<span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+      </a>
+    )}
+  </div>
+)}

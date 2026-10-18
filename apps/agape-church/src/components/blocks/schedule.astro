@@ -1,0 +1,55 @@
+---
+/** The weekly schedule from Site text, with the address and a directions link. */
+import type { BlockComponentProps } from "emdash/ui";
+
+import SectionHeading from "@/components/section-heading.astro";
+import { CHROME_PATHS, toLocale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import { mapsUrl } from "@/lib/church";
+import { getSchedule } from "@/lib/content";
+import type { PageContentScheduleBlock } from "../../../emdash-env";
+import { site } from "../../../site.config";
+
+type Props = BlockComponentProps<PageContentScheduleBlock>;
+
+const { value } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const t = ui(locale);
+const { cacheHint, schedule } = await getSchedule(locale);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+}
+const { address } = site.business;
+---
+
+<section class="section-y bg-sand">
+  <div class="container-page">
+    <SectionHeading title={value.headline} intro={value.intro} />
+    <div class:list={["grid gap-6", value.show_address !== false && "lg:grid-cols-[1.6fr_1fr]"]}>
+      <ul class="grid gap-3 sm:grid-cols-2">
+        {schedule.map((item) => (
+          <li class="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card p-5">
+            <div>
+              <p class="text-sm text-muted-foreground">{item.day}</p>
+              <p class="mt-0.5 font-medium text-ink">{item.name}</p>
+            </div>
+            <p class="font-display text-2xl text-clay-deep tabular-nums">{item.time}</p>
+          </li>
+        ))}
+      </ul>
+      {value.show_address !== false && (
+        <div class="flex flex-col justify-between gap-6 rounded-2xl bg-ink p-7 text-white">
+          <div>
+            <h3 class="text-2xl text-white">{t.address}</h3>
+            <address class="mt-3 leading-relaxed text-white/80 not-italic">{address.street}<br />{address.city}, {address.region} {address.postalCode}</address>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <a href={mapsUrl} rel="noopener" target="_blank" class="inline-flex h-11 items-center rounded-full bg-clay px-5 text-sm font-medium text-white hover:bg-clay-deep">{t.directions}</a>
+            <a href={CHROME_PATHS.live[locale]} class="inline-flex h-11 items-center rounded-full border border-white/40 px-5 text-sm font-medium text-white hover:bg-white/10">{t.watchLive}</a>
+          </div>
+        </div>
+      )}
+    </div>
+    {value.note && <p class="mt-6 text-sm text-muted-foreground">{value.note}</p>}
+  </div>
+</section>

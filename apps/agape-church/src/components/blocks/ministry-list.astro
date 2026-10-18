@@ -1,0 +1,43 @@
+---
+/** Every published ministry in this language, as photo cards linking to its page. */
+import { Image } from "emdash/ui";
+import type { BlockComponentProps } from "emdash/ui";
+
+import SectionHeading from "@/components/section-heading.astro";
+import { localePath, toLocale } from "@/i18n/locales";
+import { getMinistries } from "@/lib/content";
+import type { PageContentMinistryListBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentMinistryListBlock>;
+
+const { value } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const { cacheHint, entries } = await getMinistries(locale);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+}
+---
+
+<section class="section-y">
+  <div class="container-page">
+    <SectionHeading title={value.headline} intro={value.intro} />
+    <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {entries.map((entry) => (
+        <li>
+          <article class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xs">
+            <div class="aspect-[3/2] overflow-hidden bg-muted">
+              {entry.data.image && <Image image={entry.data.image} sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw" class="size-full! object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none" />}
+            </div>
+            <div class="flex flex-1 flex-col gap-2 p-6">
+              <h2 class="text-2xl leading-snug">
+                <a href={localePath(locale, `/ministries/${entry.id}`)} class="after:absolute after:inset-0 focus-visible:outline-none">{entry.data.title}</a>
+              </h2>
+              <p class="text-[0.95rem] leading-relaxed text-muted-foreground">{entry.data.summary}</p>
+              <span class="mt-auto pt-3 text-clay-deep transition-transform group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>
+            </div>
+          </article>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

@@ -1,18 +1,48 @@
 ---
+/**
+ * The opener every CMS page and ministry gets: breadcrumbs, title, intro, and
+ * an optional photo. With a photo it is a split layout; without one, a quiet
+ * sand band. The slot holds extras like a ministry's email button.
+ */
+import type { Crumb } from "@jakebodea/cloudflare-kit/seo";
+import { Image } from "emdash/ui";
+
+import type { MediaImage } from "@/lib/content";
+
 interface Props {
   title: string;
-  intro?: string | undefined;
+  intro?: string | null | undefined;
+  image?: MediaImage | null | undefined;
+  crumbs?: readonly Crumb[] | undefined;
 }
 
-const { intro, title } = Astro.props;
+const { crumbs = [], image, intro, title } = Astro.props;
+const trail = crumbs.slice(0, -1);
 ---
 
-<section class="relative overflow-hidden border-b border-border bg-secondary/60">
-  <div class="absolute inset-y-0 right-0 hidden w-1/3 bg-[repeating-linear-gradient(135deg,transparent_0_22px,color-mix(in_oklch,var(--brand-navy)_5%,transparent)_22px_23px)] lg:block" aria-hidden="true"></div>
-  <div class="container-page relative py-12 sm:py-16 lg:py-20">
-    <slot name="before" />
-    <h1 class="max-w-3xl text-4xl sm:text-5xl lg:text-6xl">{title}</h1>
-    {intro && <p class="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">{intro}</p>}
-    <slot />
+<section class="border-b border-border bg-sand">
+  <div class:list={["container-page grid items-center gap-10 py-12 sm:py-16", image && "lg:grid-cols-[1.05fr_1fr] lg:py-20"]}>
+    <div>
+      {trail.length > 0 && (
+        <nav aria-label="Breadcrumb" class="mb-6 text-sm text-muted-foreground">
+          <ol class="flex flex-wrap items-center gap-x-2">
+            {trail.map((crumb) => (
+              <li class="flex items-center gap-x-2">
+                <a href={crumb.path} class="hover:text-ink hover:underline">{crumb.label}</a>
+                <span aria-hidden="true">/</span>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
+      <h1 class="max-w-3xl text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">{title}</h1>
+      {intro && <p class="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">{intro}</p>}
+      <slot />
+    </div>
+    {image && (
+      <div class="overflow-hidden rounded-2xl bg-muted shadow-sm">
+        <Image image={image} sizes="(min-width: 1024px) 600px, 100vw" class="aspect-[4/3] size-full! object-cover" priority />
+      </div>
+    )}
   </div>
 </section>

@@ -2,33 +2,56 @@
 /** Maps each EmDash block type to its renderer. Add new section types here and in seed/seed.json. */
 import { Blocks, defineBlockComponents } from "emdash/ui";
 
+import type { ContentBlock } from "@/lib/content";
 import type { PageContentBlock } from "../../../emdash-env";
-import Badges from "./badges.astro";
+import Announcements from "./announcements.astro";
+import Calendar from "./calendar.astro";
+import Cards from "./cards.astro";
+import ContactForm from "./contact-form.astro";
 import CtaBand from "./cta-band.astro";
-import CurrentProjects from "./current-projects.astro";
-import Facts from "./facts.astro";
+import PhotoGallery from "./photo-gallery.astro";
+import Giving from "./giving.astro";
 import Hero from "./hero.astro";
+import LinkList from "./link-list.astro";
+import List from "./list.astro";
+import LiveStream from "./live-stream.astro";
+import MinistryList from "./ministry-list.astro";
+import People from "./people.astro";
 import RichText from "./rich-text.astro";
-import ServiceArea from "./service-area.astro";
-import Services from "./services.astro";
+import Schedule from "./schedule.astro";
+import SiteMap from "./site-map.astro";
 import Story from "./story.astro";
+import Verse from "./verse.astro";
+import Video from "./video.astro";
+import Visit from "./visit.astro";
 
 interface Props {
-  value?: PageContentBlock[] | null | undefined;
+  value?: readonly ContentBlock[] | null | undefined;
 }
 
 const { value } = Astro.props;
 const components = defineBlockComponents<PageContentBlock>({
-  badges: Badges,
+  announcements: Announcements,
+  calendar: Calendar,
+  cards: Cards,
+  contact_form: ContactForm,
   cta_band: CtaBand,
-  current_projects: CurrentProjects,
-  facts: Facts,
+  giving: Giving,
   hero: Hero,
+  link_list: LinkList,
+  list: List,
+  live_stream: LiveStream,
+  ministry_list: MinistryList,
+  people: People,
+  photo_gallery: PhotoGallery,
   rich_text: RichText,
-  service_area: ServiceArea,
-  services: Services,
+  schedule: Schedule,
+  site_map: SiteMap,
   story: Story,
+  verse: Verse,
+  video: Video,
+  visit: Visit,
 });
 ---
 
-<Blocks value={value} components={components} />
+<Blocks value={value as PageContentBlock[] | null | undefined} components={components} />

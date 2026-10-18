@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { internalPath, isProductionOrigin, pageFindings } from "./seo.ts";
+import {
+  internalPath,
+  isCrawlable,
+  isProductionOrigin,
+  pageFindings,
+} from "./seo.ts";
 
 type Page = Parameters<typeof pageFindings>[0];
 
@@ -98,5 +103,12 @@ describe("origins", () => {
       internalPath("https://other.com/", "https://example.com")
     ).toBeUndefined();
     expect(internalPath("mailto:a@b.c", "https://example.com")).toBeUndefined();
+  });
+
+  it("crawls pages but not linked file downloads", () => {
+    expect(isCrawlable("/give")).toBeTruthy();
+    expect(isCrawlable("/old/index.html")).toBeTruthy();
+    expect(isCrawlable("/files/bible-reading-plan-2025.pdf")).toBeFalsy();
+    expect(isCrawlable("/_emdash/api/media/file/abc")).toBeFalsy();
   });
 });

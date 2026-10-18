@@ -1,40 +1,84 @@
 ---
-import type { NavItem } from "@/lib/content";
+/**
+ * The church's address, phone, and weekly schedule on every page (the old
+ * site's "Agape Church Program" box), the locale's footer and resources menus,
+ * and the social accounts. Contact facts come from site.config.ts so the
+ * footer and structured data never disagree; the schedule is CMS site text.
+ */
+import type { Locale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import type { SiteChrome } from "@/lib/content";
+import { mapsUrl, phoneHref, phoneLabel } from "@/lib/church";
 import { site } from "../../site.config";
+import SocialIcon from "./social-icon.astro";
+import Wordmark from "./wordmark.astro";
 
 interface Props {
-  title: string;
-  tagline: string;
-  items: readonly NavItem[];
+  locale: Locale;
+  chrome: SiteChrome;
 }
 
-const { items, tagline, title } = Astro.props;
+const { chrome, locale } = Astro.props;
+const t = ui(locale);
+const { address, email, social } = site.business;
 const year = new Date().getFullYear();
+const socials = [
+  { href: social.facebook, label: t.social.facebook, name: "facebook" },
+  { href: social.youtube, label: t.social.youtube, name: "youtube" },
+  { href: social.x, label: t.social.x, name: "x" },
+] as const;
 ---
 
-<footer class="bg-navy-deep text-white/75">
-  <div class="container-page grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
-    <div class="space-y-4">
-      <img src="/brand/logo.webp" alt={title} width="339" height="100" loading="lazy" class="h-10 w-auto brightness-0 invert" />
-      <p class="max-w-sm text-sm leading-relaxed">{tagline}</p>
+<footer class="bg-ink-deep text-white/75">
+  <div class="container-page grid gap-12 pt-16 pb-12 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_0.8fr_0.9fr]">
+    <div class="space-y-5">
+      <Wordmark tone="light" />
+      {chrome.motto && <p class="max-w-sm text-sm leading-relaxed">{chrome.motto}</p>}
+      <address class="space-y-1.5 text-sm not-italic">
+        <a href={mapsUrl} rel="noopener" target="_blank" class="block hover:text-white">{address.street}<br />{address.city}, {address.region} {address.postalCode}</a>
+        <a href={phoneHref} class="block hover:text-white">{phoneLabel}</a>
+        <a href={`mailto:${email}`} class="block hover:text-white">{email}</a>
+      </address>
+      <ul class="flex gap-2">
+        {socials.map((item) => (
+          <li>
+            <a href={item.href} rel="noopener me" target="_blank" aria-label={item.label} class="flex size-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20">
+              <SocialIcon name={item.name} class="size-[1.1rem]" />
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
-    <nav aria-label="Footer">
-      <h2 class="mb-4 font-sans text-xs font-semibold tracking-[0.18em] text-white uppercase">Explore</h2>
-      <ul class="space-y-2 text-sm">
-        {items.map((item) => (
-          <li><a href={item.url} class="hover:text-white">{item.label}</a></li>
+    {chrome.schedule.length > 0 && (
+      <div>
+        <h2 class="mb-4 font-sans text-sm font-semibold text-white">{t.serviceTimes}</h2>
+        <dl class="space-y-3 text-sm">
+          {chrome.schedule.map((item) => (
+            <div>
+              <dt class="text-white/55">{item.day}</dt>
+              <dd class="flex justify-between gap-4 text-white/85"><span>{item.name}</span><span class="tabular-nums">{item.time}</span></dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    )}
+    <nav aria-label={t.footerNav}>
+      <ul class="grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm lg:grid-cols-1">
+        {chrome.footer.map((item) => (
+          <li><a href={item.url} class="inline-flex min-h-6 items-center hover:text-white">{item.label}</a></li>
         ))}
       </ul>
     </nav>
-    <div>
-      <h2 class="mb-4 font-sans text-xs font-semibold tracking-[0.18em] text-white uppercase">Visit</h2>
-      <address class="text-sm leading-relaxed not-italic">{site.business.address.street}<br />{site.business.address.city}, {site.business.address.region} {site.business.address.postalCode}</address>
-      <p class="mt-4 text-sm"><a href={`mailto:${site.business.email}`} class="hover:text-white">{site.business.email}</a></p>
-    </div>
+    <nav aria-label={t.resourcesNav}>
+      <ul class="space-y-2.5 text-sm">
+        {chrome.resources.map((item) => (
+          <li><a href={item.url} class="inline-flex min-h-6 items-center hover:text-white">{item.label}</a></li>
+        ))}
+        <li><a href="https://agapecca.org/" rel="noopener" target="_blank" class="inline-flex min-h-6 items-center hover:text-white">Agape Classical Christian Academy</a></li>
+      </ul>
+    </nav>
   </div>
   <div class="border-t border-white/10">
-    <div class="container-page flex flex-col gap-2 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-xs sm:flex-row sm:justify-between">
-      <p>&copy; {year} {title} All rights reserved.</p>
-    </div>
+    <p class="container-page pt-6 pb-safe text-xs text-white/55">&copy; {year} Agape Christian Church of Orange County. {t.rights}</p>
   </div>
 </footer>

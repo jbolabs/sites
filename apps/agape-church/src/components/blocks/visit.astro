@@ -1,0 +1,45 @@
+---
+/** The church's address with a map (loaded lazily, below the fold) and a directions link. */
+import type { BlockComponentProps } from "emdash/ui";
+
+import SectionHeading from "@/components/section-heading.astro";
+import { toLocale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import { mapsEmbedUrl, mapsUrl, phoneHref, phoneLabel } from "@/lib/church";
+import type { PageContentVisitBlock } from "../../../emdash-env";
+import { site } from "../../../site.config";
+
+type Props = BlockComponentProps<PageContentVisitBlock>;
+
+const { value } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const t = ui(locale);
+const { address, email } = site.business;
+---
+
+<section class="section-y">
+  <div class="container-page">
+    <SectionHeading title={value.headline} intro={value.intro} />
+    <div class="grid overflow-hidden rounded-2xl border border-border bg-card lg:grid-cols-[1fr_2fr]">
+      <div class="flex flex-col gap-6 p-7 sm:p-8">
+        <div>
+          <h3 class="text-xl">{t.address}</h3>
+          <address class="mt-2 leading-relaxed text-foreground/80 not-italic">Agape Church<br />{address.street}<br />{address.city}, {address.region} {address.postalCode}</address>
+        </div>
+        <div>
+          <h3 class="text-xl">{t.phone}</h3>
+          <p class="mt-2"><a href={phoneHref} class="text-clay-deep hover:underline underline-offset-4">{phoneLabel}</a></p>
+          <p><a href={`mailto:${email}`} class="text-clay-deep hover:underline underline-offset-4">{email}</a></p>
+        </div>
+        <a href={mapsUrl} rel="noopener" target="_blank" class="mt-auto inline-flex h-11 w-fit items-center rounded-full bg-clay px-5 text-sm font-medium text-white hover:bg-clay-deep">{t.directions}</a>
+      </div>
+      <iframe
+        title={`${t.address}: ${address.street}, ${address.city}`}
+        src={mapsEmbedUrl(locale)}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        class="aspect-[4/3] w-full border-0 lg:aspect-auto lg:min-h-[420px]"
+      ></iframe>
+    </div>
+  </div>
+</section>

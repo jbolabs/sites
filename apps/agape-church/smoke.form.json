@@ -1,0 +1,13 @@
+{
+  "action": "contact",
+  "body": {
+    "city": "Yorba Linda",
+    "contactBy": ["Email"],
+    "email": "smoke@example.com",
+    "kind": "contact",
+    "locale": "en",
+    "message": "Automated smoke test from control-app. Please ignore.",
+    "name": "Smoke Test"
+  },
+  "page": "/contact"
+}

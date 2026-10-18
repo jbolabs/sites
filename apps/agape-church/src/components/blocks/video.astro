@@ -1,0 +1,33 @@
+---
+/** One YouTube or Vimeo video that loads only when played. Unplayable links fall back to a plain link. */
+import { sanitizeHref } from "emdash";
+import type { BlockComponentProps } from "emdash/ui";
+
+import LiteEmbed from "@/components/lite-embed.astro";
+import { toLocale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import { paragraphs } from "@/lib/text";
+import { videoEmbed } from "@/lib/video";
+import type { PageContentVideoBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentVideoBlock>;
+
+const { value } = Astro.props;
+const t = ui(toLocale(Astro.currentLocale));
+const embed = videoEmbed(value.url);
+const title = value.headline ?? t.playVideo;
+---
+
+<section class="py-10 sm:py-14">
+  <div class="container-page grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-center lg:gap-14">
+    <div>
+      {value.headline && <h2 class="text-2xl sm:text-3xl">{value.headline}</h2>}
+      {paragraphs(value.body).map((paragraph) => <p class="mt-3 leading-relaxed text-muted-foreground">{paragraph}</p>)}
+    </div>
+    {embed ? (
+      <LiteEmbed embedUrl={embed.embedUrl} title={title} playLabel={t.playVideo} poster={value.poster} />
+    ) : (
+      <a href={sanitizeHref(value.url)} rel="noopener" target="_blank" class="text-clay-deep underline underline-offset-4">{title}</a>
+    )}
+  </div>
+</section>

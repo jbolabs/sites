@@ -19,11 +19,11 @@ const buttonVariants = cva(
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
         // Site additions: brand CTA on dark photography, its outline partner, and a frame for clickable photos.
-        accent: "bg-olive text-navy-deep hover:bg-olive/90",
+        accent: "bg-clay hover:bg-clay-deep text-white",
         "outline-inverse":
           "border-white/50 bg-transparent text-white hover:bg-white/10 hover:text-white",
         media:
-          "bg-muted aria-[current=true]:ring-olive overflow-hidden rounded-xl p-0 hover:opacity-95 aria-[current=true]:ring-2",
+          "bg-muted aria-[current=true]:ring-clay overflow-hidden rounded-xl p-0 hover:opacity-95 aria-[current=true]:ring-2",
       },
       size: {
         default:
@@ -32,8 +32,8 @@ const buttonVariants = cva(
         sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
         lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         // Site additions: comfortable touch targets for marketing CTAs.
-        cta: "h-11 gap-2 px-5 text-sm",
-        hero: "h-12 gap-2 px-6 text-base",
+        cta: "h-11 gap-2 rounded-full px-5 text-sm",
+        hero: "h-12 gap-2 rounded-full px-6 text-base",
         media: "h-auto w-full",
         icon: "size-8",
         "icon-xs":

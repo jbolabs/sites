@@ -1,0 +1,13 @@
+---
+/** The church's name set in type (Fraunces over Inter), so it stays crisp and editable. */
+interface Props {
+  tone?: "ink" | "light";
+}
+
+const { tone = "ink" } = Astro.props;
+---
+
+<span class="flex flex-col leading-none">
+  <span class:list={["font-display text-[1.7rem] font-medium tracking-tight", tone === "ink" ? "text-ink" : "text-white"]}>Agape</span>
+  <span class:list={["mt-0.5 text-[0.7rem] font-medium", tone === "ink" ? "text-clay-deep" : "text-clay-soft"]}>Christian Church</span>
+</span>

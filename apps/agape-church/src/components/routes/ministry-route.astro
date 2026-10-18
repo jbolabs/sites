@@ -1,0 +1,65 @@
+---
+/**
+ * A ministry view, shared by `/ministries/<slug>` and `/ro/ministries/<slug>`:
+ * header with the ministry's email, its sections, then the volunteer call
+ * (from Site text) and links to the other ministries, as on every old
+ * ministry page.
+ */
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import ButtonLink from "@/components/button-link.astro";
+import PageHeader from "@/components/page-header.astro";
+import { CHROME_PATHS, toLocale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import Base from "@/layouts/base.astro";
+import { getSiteChrome } from "@/lib/content";
+import type { MinistryData } from "@/lib/routes";
+import { site } from "../../../site.config";
+
+type Props = MinistryData;
+
+const { alternates, crumbs, ministry, others, seo } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const t = ui(locale);
+const { volunteer } = await getSiteChrome(locale, site.name);
+const { email } = ministry.data;
+---
+
+<Base
+  title={seo.title}
+  description={seo.description}
+  image={seo.ogImage}
+  canonical={seo.canonical}
+  robots={seo.robots}
+  alternates={alternates}
+  crumbs={crumbs}
+  content={{ collection: "ministries", id: ministry.data.id, slug: ministry.id }}
+>
+  <PageHeader title={ministry.data.title} intro={ministry.data.summary} image={ministry.data.image} crumbs={crumbs}>
+    {email && <ButtonLink href={`mailto:${email}`} variant="default" size="cta" class="mt-8">{t.contactMinistry}</ButtonLink>}
+  </PageHeader>
+  <div {...ministry.edit.content}><PageBlocks value={ministry.data.content} /></div>
+  {volunteer.title && (
+    <section class="container-page py-10 sm:py-14">
+      <div class="grid gap-8 rounded-[1.75rem] bg-clay-soft p-8 sm:p-12 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+        <div>
+          <h2 class="text-3xl sm:text-4xl">{volunteer.title}</h2>
+          <p class="mt-4 max-w-2xl text-lg leading-relaxed text-foreground/80">{volunteer.body}</p>
+        </div>
+        <div class="flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row lg:justify-end">
+          {email && <ButtonLink href={`mailto:${email}`} variant="accent" size="hero">{t.contactMinistry}</ButtonLink>}
+          {volunteer.giveLabel && <ButtonLink href={CHROME_PATHS.give[locale]} variant="outline" size="hero">{volunteer.giveLabel}</ButtonLink>}
+        </div>
+      </div>
+    </section>
+  )}
+  {others.length > 0 && (
+    <nav aria-label={t.otherMinistries} class="container-page pt-6 pb-20">
+      <h2 class="mb-5 text-2xl">{t.otherMinistries}</h2>
+      <ul class="flex flex-wrap gap-2.5">
+        {others.map((item) => (
+          <li><a href={item.url} class="inline-flex rounded-full border border-border bg-card px-4 py-2 text-sm text-ink hover:border-clay hover:text-clay-deep">{item.title}</a></li>
+        ))}
+      </ul>
+    </nav>
+  )}
+</Base>

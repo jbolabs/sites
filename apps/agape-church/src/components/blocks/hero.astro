@@ -1,53 +1,51 @@
 ---
+/** Home opener: full-bleed photo, headline, two buttons, and this week's service times. */
 import { sanitizeHref } from "emdash";
 import { Image } from "emdash/ui";
 import type { BlockComponentProps } from "emdash/ui";
 
 import ButtonLink from "@/components/button-link.astro";
+import { toLocale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import { getSchedule } from "@/lib/content";
+import type { ScheduleItem } from "@/lib/content";
 import type { PageContentHeroBlock } from "../../../emdash-env";
 
 type Props = BlockComponentProps<PageContentHeroBlock>;
 
 const { value } = Astro.props;
-const slides = value.slides.flatMap((slide) => (slide.image ? [slide.image] : []));
-const primary =
-  value.primary_cta_label && value.primary_cta_url
-    ? { href: sanitizeHref(value.primary_cta_url), label: value.primary_cta_label }
-    : undefined;
-const secondary =
-  value.secondary_cta_label && value.secondary_cta_url
-    ? { href: sanitizeHref(value.secondary_cta_url), label: value.secondary_cta_label }
-    : undefined;
+const locale = toLocale(Astro.currentLocale);
+const t = ui(locale);
+const link = (label: string | null | undefined, url: string | null | undefined) =>
+  label && url ? { href: sanitizeHref(url), label } : undefined;
+const primary = link(value.primary_label, value.primary_url);
+const secondary = link(value.secondary_label, value.secondary_url);
 
-// CSS-only crossfade: each slide holds for 6s and fades over 1s. Keyframes depend on the count.
-const holdSeconds = 6;
-const cycle = slides.length * holdSeconds;
-const fade = (1 / cycle) * 100;
-const visible = (holdSeconds / cycle) * 100;
-const keyframes =
-  slides.length > 1
-    ? `@keyframes hero-fade-${slides.length}{0%{opacity:0}${fade.toFixed(2)}%,${visible.toFixed(2)}%{opacity:1}${(visible + fade).toFixed(2)}%,100%{opacity:0}}`
-    : "";
+const days: { day: string; items: ScheduleItem[] }[] = [];
+if (value.show_schedule !== false) {
+  const { cacheHint, schedule } = await getSchedule(locale);
+  if (Astro.cache?.enabled) {
+    Astro.cache.set(cacheHint);
+  }
+  // Consecutive gatherings on the same day read as one line: "Sunday: 10:00 AM, 6:00 PM".
+  for (const item of schedule) {
+    const last = days.at(-1);
+    if (last?.day === item.day) {
+      last.items.push(item);
+    } else {
+      days.push({ day: item.day, items: [item] });
+    }
+  }
+}
 ---
 
-<section class="relative isolate overflow-hidden bg-navy-deep text-white">
-  {keyframes && <style set:html={keyframes} />}
-  <div class="hero-slides absolute inset-0 -z-10" data-count={slides.length} aria-hidden="true">
-    {slides.map((image, index) => (
-      <div
-        class="hero-slide absolute inset-0"
-        style={slides.length > 1 ? `animation: hero-fade-${slides.length} ${cycle}s linear infinite; animation-delay: ${index * holdSeconds - 1}s;` : undefined}
-      >
-        <Image image={image} alt="" priority={index === 0} sizes="100vw" class="size-full! object-cover" />
-      </div>
-    ))}
-  </div>
-  <div class="absolute inset-0 -z-10 bg-linear-to-t from-navy-deep via-navy-deep/75 to-navy-deep/25 md:bg-linear-to-r md:from-navy-deep/95 md:via-navy-deep/70 md:to-navy-deep/10" aria-hidden="true"></div>
-  <div class="container-page flex min-h-[78svh] flex-col justify-end pt-28 pb-14 sm:min-h-[620px] md:justify-center md:py-28">
+<section class="relative isolate overflow-hidden bg-ink-deep text-white">
+  {value.image && <Image image={value.image} alt="" priority sizes="100vw" class="absolute inset-0 -z-20 size-full! object-cover object-[50%_35%]" />}
+  <div class="absolute inset-0 -z-10 bg-linear-to-t from-ink-deep via-ink-deep/70 to-ink-deep/20 lg:bg-linear-to-r lg:from-ink-deep/95 lg:via-ink-deep/60 lg:to-ink-deep/10" aria-hidden="true"></div>
+  <div class="container-page grid min-h-[calc(100svh-4rem)] content-end gap-10 pt-32 pb-10 sm:min-h-[680px] sm:pb-14 lg:grid-cols-[1.4fr_1fr] lg:items-end lg:gap-16">
     <div class="max-w-2xl">
-      <div class="mb-6 h-1 w-16 bg-olive"></div>
-      <h1 class="text-[2.6rem] leading-[1.05] text-white sm:text-6xl lg:text-7xl">{value.headline}</h1>
-      {value.subheadline && <p class="mt-6 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl">{value.subheadline}</p>}
+      <h1 class="text-[2.9rem] leading-[1.02] text-white sm:text-6xl lg:text-7xl">{value.headline}</h1>
+      {value.intro && <p class="mt-6 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl">{value.intro}</p>}
       {(primary || secondary) && (
         <div class="mt-9 flex flex-col gap-3 sm:flex-row">
           {primary && <ButtonLink href={primary.href} variant="accent" size="hero">{primary.label}</ButtonLink>}
@@ -55,5 +53,20 @@ const keyframes =
         </div>
       )}
     </div>
+    {days.length > 0 && (
+      <div class="rounded-2xl border border-white/15 bg-white/10 p-6 backdrop-blur-md">
+        <h2 class="font-sans text-sm font-semibold text-white/90">{t.serviceTimes}</h2>
+        <dl class="mt-4 divide-y divide-white/15 text-sm">
+          {days.map(({ day, items }) => (
+            <div class="flex items-baseline justify-between gap-6 py-2.5">
+              <dt class="font-medium text-white">{day}</dt>
+              <dd class="text-right text-white/80">
+                {items.map((item) => <span class="block"><span class="text-white/60">{item.name}</span> <span class="tabular-nums text-white">{item.time}</span></span>)}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    )}
   </div>
 </section>

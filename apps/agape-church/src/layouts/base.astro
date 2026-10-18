@@ -1,21 +1,26 @@
 ---
 /**
- * Page shell: EmDash head/body hooks (SEO tags, plugin contributions, visual
- * editing), fonts, header/footer from CMS menus, structured data, and
- * analytics when enabled. Pages pass SEO from `getSeoMeta()`.
+ * Page shell: EmDash head/body hooks (SEO tags, hreflang for translated
+ * entries, plugin contributions, visual editing), fonts, header/footer from
+ * the locale's CMS menus and site text, structured data, and analytics when
+ * enabled. Pages pass SEO from `getSeoMeta()`.
  */
 import "@/styles/global.css";
 
 import { Font } from "astro:assets";
 import { EmDashBodyEnd, EmDashBodyStart, EmDashHead } from "emdash/ui";
 import { createPublicPageContext } from "emdash/page";
-import { documentTitle, metaDescription } from "@jakebodea/cloudflare-kit/seo";
+import { breadcrumbJsonLd, documentTitle, metaDescription } from "@jakebodea/cloudflare-kit/seo";
+import type { Crumb } from "@jakebodea/cloudflare-kit/seo";
 
 import WebAnalyticsBeacon from "@jakebodea/cloudflare-kit/astro/web-analytics-beacon.astro";
 import SiteFooter from "@/components/site-footer.astro";
 import SiteHeader from "@/components/site-header.astro";
 import StructuredData from "@/components/structured-data.astro";
+import { LANGUAGE_TAG, pathLocale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
 import { getSiteChrome } from "@/lib/content";
+import type { Alternates } from "@/lib/content";
 import { site } from "../../site.config";
 
 interface Props {
@@ -26,10 +31,17 @@ interface Props {
   canonical?: string | null | undefined;
   robots?: string | null | undefined;
   content?: { collection: string; id: string; slug?: string | null } | undefined;
+  /** The same page in other languages, for the visible switcher. */
+  alternates?: Alternates | undefined;
+  /** Breadcrumb trail (structured data only), ending at this page. */
+  crumbs?: readonly Crumb[] | undefined;
 }
 
-const { canonical, content, description, image, robots, title } = Astro.props;
-const chrome = await getSiteChrome(site.name);
+const { alternates = {}, canonical, content, crumbs, description, image, robots, title } = Astro.props;
+// From the URL rather than Astro.currentLocale: the 404 is not localized by Astro.
+const locale = pathLocale(Astro.url.pathname);
+const t = ui(locale);
+const chrome = await getSiteChrome(locale, site.name);
 if (Astro.cache?.enabled) {
   for (const hint of chrome.cacheHints) {
     Astro.cache.set(hint);
@@ -37,10 +49,11 @@ if (Astro.cache?.enabled) {
 }
 
 const origin = Astro.site?.origin ?? Astro.url.origin;
-const fullTitle = title === undefined ? `${chrome.title} | Commercial Electrical Contractor` : documentTitle(title, site.shortName);
+const homeTitle = locale === "ro" ? "Biserica Agape | Biserică românească în Yorba Linda, CA" : "Agape Church | Romanian Church in Yorba Linda, CA";
+const fullTitle = title === undefined ? homeTitle : documentTitle(title, site.shortName);
 // Editors write descriptions of any length; this keeps the snippet within what search engines show.
 const pageDescription = metaDescription(description ?? chrome.tagline ?? site.description, site.descriptionContext);
-const ogImage = image ?? `${origin}/og-default.png`;
+const ogImage = image ?? `${origin}/og-default.jpg`;
 
 const page = createPublicPageContext({
   Astro,
@@ -55,31 +68,34 @@ const page = createPublicPageContext({
   siteName: chrome.title,
   title: fullTitle,
 });
-
+const breadcrumbs = crumbs === undefined ? undefined : JSON.stringify(breadcrumbJsonLd(crumbs, origin));
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={LANGUAGE_TAG[locale]}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#1f3f4f" />
+    <meta name="theme-color" content="#fbf7f0" />
     <title>{fullTitle}</title>
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <Font cssVariable="--font-display" preload />
     <Font cssVariable="--font-body" preload />
     <EmDashHead page={page} />
+    <meta property="og:locale" content={LANGUAGE_TAG[locale].replace("-", "_")} />
+    {Object.entries(LANGUAGE_TAG).filter(([code]) => code !== locale).map(([, tag]) => <meta property="og:locale:alternate" content={tag.replace("-", "_")} />)}
     <StructuredData origin={origin} />
+    {breadcrumbs && <script type="application/ld+json" set:html={breadcrumbs} />}
   </head>
   <body class="flex min-h-svh flex-col">
     <EmDashBodyStart page={page} />
-    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:shadow">Skip to content</a>
-    <SiteHeader title={chrome.title} items={chrome.primary} />
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-60 focus:rounded-full focus:bg-background focus:px-4 focus:py-2 focus:text-ink focus:shadow">{t.skipToContent}</a>
+    <SiteHeader locale={locale} items={chrome.primary} alternates={alternates} />
     <main id="main" class="flex-1">
       <slot />
     </main>
-    <SiteFooter title={chrome.title} tagline={chrome.tagline} items={chrome.footer} />
+    <SiteFooter locale={locale} chrome={chrome} />
     <WebAnalyticsBeacon />
     <EmDashBodyEnd page={page} />
     <script>

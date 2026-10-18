@@ -1,0 +1,42 @@
+---
+/** Names and roles (councils, coordinators, small group leaders), each with an optional email. */
+import type { BlockComponentProps } from "emdash/ui";
+
+import SectionHeading from "@/components/section-heading.astro";
+import type { PageContentPeopleBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentPeopleBlock>;
+
+const { value } = Astro.props;
+// Longer "names" are groups or book studies: they get an icon instead of initials.
+const MAX_NAME_WORDS = 4;
+const initials = (name: string) =>
+  name
+    .split(/\s+/u)
+    .filter((part) => /^\p{Lu}/u.test(part))
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("");
+---
+
+<section class="section-y">
+  <div class="container-page">
+    <SectionHeading title={value.headline} intro={value.intro} />
+    <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {value.items.map((person) => (
+        <li class="flex items-center gap-4 rounded-2xl border border-border bg-card p-4">
+          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-clay-soft font-display text-lg text-clay-deep" aria-hidden="true">
+            {person.name.split(/\s+/u).length > MAX_NAME_WORDS ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="size-5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+            ) : initials(person.name)}
+          </span>
+          <div class="min-w-0">
+            <p class="font-medium text-ink">{person.name}</p>
+            {person.role && <p class="text-sm text-muted-foreground">{person.role}</p>}
+            {person.email && <a href={`mailto:${person.email}`} class="mt-0.5 block truncate text-sm text-clay-deep hover:underline underline-offset-4">{person.email}</a>}
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
