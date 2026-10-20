@@ -91,27 +91,19 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup
-      - name: Prepare local verification build inputs
-        run: bun scripts/ci/local-verify.ts --prepare --sites "[\"$SITE\"]"
-        env:
-          SITE: ${{ matrix.site }}
-      - name: Build (cached)
-        run: bunx turbo run build --filter="@sites/$SITE"
-        env:
-          SITE: ${{ matrix.site }}
       # Miniflare supports Node; use its native runtime rather than Bun's subprocess emulation.
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: "24"
       - name: Required smoke, SEO and Lighthouse
-        run: node scripts/ci/local-verify.ts --sites "[\"$SITE\"]"
+        run: bun run verify:ci "$SITE"
         env:
           SITE: ${{ matrix.site }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: required-site-verification-${{ matrix.site }}
-          path: .artifacts/ci/local-verification/
+          path: apps/${{ matrix.site }}/.artifacts/ci/local-verification/
           if-no-files-found: ignore
 
   # The ruleset requires one `check` context; this gathers the parallel jobs into it.

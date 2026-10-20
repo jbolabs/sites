@@ -11,7 +11,8 @@
     "typecheck": "astro-check && tsc --noEmit -p tsconfig.node.json",
     "test": "vitest run",
     "types": "node ../../packages/cloudflare-kit/src/emdash/env-types.ts",
-    "sync": "(test -f .astro/types.d.ts -a -f emdash-env.d.ts && grep -qF \"$PWD/\" .astro/actions.d.ts) || (astro sync && node ../../packages/cloudflare-kit/src/emdash/env-types.ts)"
+    "sync": "(test -f .astro/types.d.ts -a -f emdash-env.d.ts && grep -qF \"$PWD/\" .astro/actions.d.ts) || (astro sync && node ../../packages/cloudflare-kit/src/emdash/env-types.ts)",
+    "verify:ci": "node ../../scripts/ci/local-verify.ts --cached-task --sites '[\"access-electric\"]'"
   },
   "dependencies": {
     "@astrojs/cloudflare": "catalog:",
