@@ -323,7 +323,10 @@ describe(bookAppointment, () => {
       yield* TestClock.setTime(MONDAY_NOON);
       const { book, layer, stored } = yield* world;
       const exit = yield* bookAppointment(
-        form({ photos: [{ data: btoa("<svg/>"), kind: "now" }] }),
+        form({
+          photos: [{ data: btoa("<svg/>"), kind: "now" }],
+          services: ["dimensional-color"],
+        }),
         request
       ).pipe(Effect.provide(layer), Effect.exit);
 
@@ -334,6 +337,51 @@ describe(bookAppointment, () => {
         (yield* Ref.get(book)).length,
         (yield* Ref.get(stored)).length,
       ]).toStrictEqual([0, 0]);
+    })
+  );
+
+  it.effect("stores no photos when the time is already taken", () =>
+    Effect.gen(function* noOrphans() {
+      yield* TestClock.setTime(MONDAY_NOON);
+      const { layer, stored } = yield* world;
+      yield* bookAppointment(form(), request).pipe(Effect.provide(layer));
+      const exit = yield* bookAppointment(
+        form({
+          name: "Sam Lee",
+          photos: [{ data: JPEG, kind: "now" }],
+          services: ["dimensional-color"],
+        }),
+        request
+      ).pipe(Effect.provide(layer), Effect.exit);
+
+      expect([
+        Exit.isFailure(exit) &&
+          exit.cause.toString().includes("SlotUnavailable"),
+        (yield* Ref.get(stored)).length,
+      ]).toStrictEqual([true, 0]);
+    })
+  );
+
+  it.effect("ignores photos sent with a visit that does not ask for them", () =>
+    Effect.gen(function* ignoreUnasked() {
+      yield* TestClock.setTime(MONDAY_NOON);
+      const { book, layer, stored } = yield* world;
+      yield* bookAppointment(
+        form({
+          hairHistory: "vivid-color",
+          photos: [{ data: JPEG, kind: "now" }],
+        }),
+        request
+      ).pipe(Effect.provide(layer));
+
+      expect(
+        (yield* Ref.get(book)).map((item) => [
+          item.service,
+          item.hairPhotos.length,
+          item.hairHistory ?? "no answer",
+        ])
+      ).toStrictEqual([["Men's cut", 0, "no answer"]]);
+      expect(yield* Ref.get(stored)).toHaveLength(0);
     })
   );
 

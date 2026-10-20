@@ -201,8 +201,8 @@ const BookingFlow = ({
   const initial = fromLink(services, initialService);
   const [audience, setAudience] = useState(initial.audience);
   const [selected, setSelected] = useState<readonly string[]>(initial.slugs);
-  const [visitDone, setVisitDone] = useState(false);
-  const [hairDone, setHairDone] = useState(false);
+  // Which steps the client finished with Continue (time and details finish themselves).
+  const [confirmed, setConfirmed] = useState({ hair: false, visit: false });
   const [history, setHistory] = useState<HairHistory | undefined>();
   const hairPhotos = useHairPhotos();
   const { photos } = hairPhotos;
@@ -223,9 +223,9 @@ const BookingFlow = ({
   ];
   const done: Record<StepId, boolean> = {
     details: false,
-    hair: hairDone,
+    hair: confirmed.hair,
     time: slot !== undefined,
-    visit: visitDone && ready,
+    visit: confirmed.visit && ready,
   };
   const step: StepId =
     editing !== undefined && steps.includes(editing)
@@ -257,7 +257,8 @@ const BookingFlow = ({
 
   const changeVisit = (next: readonly string[]) => {
     setSelected(next);
-    setVisitDone(false);
+    // A new visit may ask new questions (the color one), so the hair step opens again.
+    setConfirmed({ hair: false, visit: false });
     setSlot(undefined);
     setEditing("visit");
   };
@@ -351,7 +352,7 @@ const BookingFlow = ({
       selected={selected}
       onToggle={toggle}
       onContinue={() => {
-        setVisitDone(true);
+        setConfirmed((current) => ({ ...current, visit: true }));
         setEditing(undefined);
       }}
     />
@@ -391,7 +392,7 @@ const BookingFlow = ({
               hairPhotos.remove(photoId);
             }}
             onContinue={() => {
-              setHairDone(true);
+              setConfirmed((current) => ({ ...current, hair: true }));
               setEditing(undefined);
             }}
           />

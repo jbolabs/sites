@@ -30,13 +30,14 @@ import {
   studioNewBookingMail,
 } from "./mail.ts";
 import type { MailAppointment, MailContext } from "./mail.ts";
-import { MAX_PHOTOS } from "./photo-limits.ts";
+import { MAX_PHOTOS, MAX_PHOTOS_PER_KIND } from "./photo-limits.ts";
 import {
   Appointments,
   BookingLock,
   BookingMail,
   Catalog,
   HairPhotos,
+  PHOTO_KINDS,
   endsAt,
   occupiedUntil,
 } from "./services.ts";
@@ -135,7 +136,18 @@ export const BookingForm = Schema.Struct({
   notes: Schema.optional(Schema.Trim.check(Schema.isMaxLength(1000))),
   phone: trimmed(7, 40),
   photos: Schema.optional(
-    Schema.Array(PhotoUpload).check(Schema.isMaxLength(MAX_PHOTOS))
+    Schema.Array(PhotoUpload).check(
+      Schema.isMaxLength(MAX_PHOTOS),
+      Schema.makeFilter((photos: readonly PhotoUpload[]) =>
+        PHOTO_KINDS.every(
+          (kind) =>
+            photos.filter((photo) => photo.kind === kind).length <=
+            MAX_PHOTOS_PER_KIND
+        )
+          ? undefined
+          : `At most ${MAX_PHOTOS_PER_KIND} photos of each kind`
+      )
+    )
   ),
   services: Slugs,
   /** The chosen start, exactly as the calendar offered it (ISO 8601, UTC). */
@@ -323,6 +335,25 @@ const asMail = (appointment: Appointment): MailAppointment => ({
   start: appointment.start,
 });
 
+/** Whether a visit of this length can start at `start`, against the live calendar. */
+const slotIsOpen = Effect.fn("slotIsOpen")(function* slotIsOpen(
+  start: Date,
+  length: { readonly durationMinutes: number; readonly bufferMinutes: number },
+  policy: SalonPolicy
+) {
+  const busy = yield* busyBetween(
+    new Date(start.getTime() - MS_PER_DAY),
+    new Date(start.getTime() + MS_PER_DAY)
+  );
+  return isOpenSlot({
+    busy,
+    now: yield* now,
+    rules: policy.rules,
+    service: length,
+    start,
+  });
+});
+
 /** Books a time: verify the visitor, then check and save while holding the lock. */
 export const bookAppointment = Effect.fn("bookAppointment")(
   function* bookAppointment(form: BookingForm, request: BookingRequest) {
@@ -338,9 +369,13 @@ export const bookAppointment = Effect.fn("bookAppointment")(
       token: form.turnstileToken,
     });
     const service = yield* visitFor(form.services);
-    const photos = yield* Effect.all(
-      (form.photos ?? []).map((photo) => decodePhoto(photo))
-    );
+    // Photos and the color answer only belong to visits that ask for them.
+    const hairHistory = service.asksForPhotos ? form.hairHistory : undefined;
+    const photos = service.asksForPhotos
+      ? yield* Effect.all(
+          (form.photos ?? []).map((photo) => decodePhoto(photo))
+        )
+      : [];
     const policy = yield* catalog.policy;
     const start = new Date(form.start);
     const length = {
@@ -349,8 +384,13 @@ export const bookAppointment = Effect.fn("bookAppointment")(
     };
     const token = newToken();
     const tokenHash = yield* Effect.promise(async () => await hashToken(token));
-    // Stored before the lock: if the time is then taken, the photos are
-    // orphans the bucket's lifecycle rule deletes, and the lock stays short.
+    // A time that is already gone fails here, before any photo is stored.
+    if (!(yield* slotIsOpen(start, length, policy))) {
+      return yield* new SlotUnavailable();
+    }
+    // Stored before the lock, which re-checks the time: if someone takes it in
+    // between, the photos are orphans the bucket's lifecycle rule deletes, and
+    // the lock stays short.
     const hairPhotos: HairPhotoLink[] = yield* Effect.forEach(
       photos,
       (photo) =>
@@ -362,25 +402,14 @@ export const bookAppointment = Effect.fn("bookAppointment")(
 
     const { id } = yield* lock.withLock(
       Effect.gen(function* checkAndSave() {
-        const busy = yield* busyBetween(
-          new Date(start.getTime() - MS_PER_DAY),
-          new Date(start.getTime() + MS_PER_DAY)
-        );
-        const open = isOpenSlot({
-          busy,
-          now: yield* now,
-          rules: policy.rules,
-          service: length,
-          start,
-        });
-        if (!open) {
+        if (!(yield* slotIsOpen(start, length, policy))) {
           return yield* new SlotUnavailable();
         }
         return yield* appointments.create({
           ...length,
           clientName: form.name,
           email: form.email,
-          hairHistory: form.hairHistory,
+          hairHistory,
           hairPhotos,
           notes: form.notes === "" ? undefined : form.notes,
           phone: form.phone,
@@ -397,7 +426,7 @@ export const bookAppointment = Effect.fn("bookAppointment")(
       clientName: form.name,
       durationMinutes: service.durationMinutes,
       email: form.email,
-      hairHistory: form.hairHistory,
+      hairHistory,
       notes: form.notes,
       phone: form.phone,
       service: service.title,

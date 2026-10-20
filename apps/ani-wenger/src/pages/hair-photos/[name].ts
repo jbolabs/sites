@@ -11,6 +11,8 @@ import { PHOTO_NAME } from "@/lib/booking/hair-photos";
 const PRIVATE_HEADERS = {
   "cache-control": "private, max-age=86400",
   "referrer-policy": "no-referrer",
+  // Only the first bytes are checked on upload; never let a browser guess another type.
+  "x-content-type-options": "nosniff",
   "x-robots-tag": "noindex, nofollow",
 };
 
