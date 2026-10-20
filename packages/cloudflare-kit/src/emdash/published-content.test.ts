@@ -531,80 +531,85 @@ describe("published content", () => {
     }
   });
 
-  it("rejects incompatible schema, missing required fields, and unsupported retained block versions before activation", async () => {
-    const branch = branchSeed();
-    branch.content = {};
-    const snapshot = decodeSnapshot({
-      entries: [
-        {
-          collection: "pages",
-          data: { content: [], title: "Public" },
-          locale: "en",
-          references: {},
-          seo: {
-            canonical: null,
-            description: null,
-            image: null,
-            noIndex: false,
-            title: null,
+  // Native SQLite preflight cycles; on shared CI runners they share CPU with the per-site astro.config imports.
+  it(
+    "rejects incompatible schema, missing required fields, and unsupported retained block versions before activation",
+    { timeout: 15_000 },
+    async () => {
+      const branch = branchSeed();
+      branch.content = {};
+      const snapshot = decodeSnapshot({
+        entries: [
+          {
+            collection: "pages",
+            data: { content: [], title: "Public" },
+            locale: "en",
+            references: {},
+            seo: {
+              canonical: null,
+              description: null,
+              image: null,
+              noIndex: false,
+              title: null,
+            },
+            slug: "about",
           },
-          slug: "about",
-        },
-      ],
-      menus: [],
-      origin: contentPolicy("access-electric").origin,
-      settings: {},
-      site: "access-electric",
-      version: 1,
-    });
-    const fields = branch.collections?.find(
-      (collection) => collection.slug === "pages"
-    )?.fields;
-    if (fields === undefined) {
-      throw new Error("Missing fixture fields");
-    }
-    fields.push({
-      label: "Required",
-      required: true,
-      slug: "required_branch",
-      type: "string",
-    });
-    await expect(
-      validateFreshPlan(composeFreshSeed(branch, snapshot, "access-electric"))
-    ).rejects.toThrow("required_branch");
-    fields.pop();
-    const title = fields.find((field) => field.slug === "title");
-    if (title === undefined) {
-      throw new Error("Missing fixture title");
-    }
-    title.type = "integer";
-    expect(() => composeFreshSeed(branch, snapshot, "access-electric")).toThrow(
-      "incompatible field type"
-    );
-    title.type = "string";
-    const versioned = decodeSnapshot({
-      ...snapshot,
-      entries: [
-        {
-          ...snapshot.entries[0],
-          data: {
-            content: [{ _key: "bad", _type: "content", _version: 99 }],
-            title: "Public",
+        ],
+        menus: [],
+        origin: contentPolicy("access-electric").origin,
+        settings: {},
+        site: "access-electric",
+        version: 1,
+      });
+      const fields = branch.collections?.find(
+        (collection) => collection.slug === "pages"
+      )?.fields;
+      if (fields === undefined) {
+        throw new Error("Missing fixture fields");
+      }
+      fields.push({
+        label: "Required",
+        required: true,
+        slug: "required_branch",
+        type: "string",
+      });
+      await expect(
+        validateFreshPlan(composeFreshSeed(branch, snapshot, "access-electric"))
+      ).rejects.toThrow("required_branch");
+      fields.pop();
+      const title = fields.find((field) => field.slug === "title");
+      if (title === undefined) {
+        throw new Error("Missing fixture title");
+      }
+      title.type = "integer";
+      expect(() =>
+        composeFreshSeed(branch, snapshot, "access-electric")
+      ).toThrow("incompatible field type");
+      title.type = "string";
+      const versioned = decodeSnapshot({
+        ...snapshot,
+        entries: [
+          {
+            ...snapshot.entries[0],
+            data: {
+              content: [{ _key: "bad", _type: "content", _version: 99 }],
+              title: "Public",
+            },
           },
-        },
-      ],
-    });
-    expect(() =>
-      composeFreshSeed(branch, versioned, "access-electric")
-    ).toThrow("no retained branch version");
-    expect(() =>
-      composeFreshSeed(
-        branch,
-        { ...snapshot, site: "ms-custom-homes" },
-        "access-electric"
-      )
-    ).toThrow("Published source/site mismatch");
-  });
+        ],
+      });
+      expect(() =>
+        composeFreshSeed(branch, versioned, "access-electric")
+      ).toThrow("no retained branch version");
+      expect(() =>
+        composeFreshSeed(
+          branch,
+          { ...snapshot, site: "ms-custom-homes" },
+          "access-electric"
+        )
+      ).toThrow("Published source/site mismatch");
+    }
+  );
 
   it("refuses auth/stage/source mismatches and arbitrary media URLs", () => {
     const token = "synthetic-export-credential-00000000000001";
