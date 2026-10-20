@@ -9,7 +9,7 @@ import PageHeader from "@/components/page-header.astro";
 import Base from "@/layouts/base.astro";
 import { getPage, getServices, getStudio } from "@/lib/content";
 import { toLocal } from "@/lib/booking/calendar";
-import { CATEGORY_LABELS, CATEGORY_ORDER, formatDuration, formatPrice } from "@/lib/labels";
+import { CATEGORY_LABELS, CATEGORY_ORDER } from "@/lib/labels";
 import { site } from "../../site.config";
 
 const [{ cacheHint, entry: page }, list, studio] = await Promise.all([getPage("book"), getServices(), getStudio()]);
@@ -23,10 +23,16 @@ const services = CATEGORY_ORDER.flatMap((category) =>
     service.data.category === category && service.data.bookable !== false
       ? [
           {
+            addOn: service.data.add_on === true,
+            asksForPhotos: service.data.ask_photos === true,
+            audience: service.data.audience,
+            bufferMinutes: service.data.buffer_minutes ?? 0,
             category,
             categoryLabel: CATEGORY_LABELS[category],
-            duration: formatDuration(service.data.duration_minutes),
-            price: formatPrice(service.data.price, service.data.price_from),
+            colorCorrection: service.data.color_correction === true,
+            durationMinutes: service.data.duration_minutes,
+            price: service.data.price ?? undefined,
+            priceFrom: service.data.price_from === true,
             slug: service.id,
             summary: service.data.summary,
             title: service.data.title,

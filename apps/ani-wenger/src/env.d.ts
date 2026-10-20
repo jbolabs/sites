@@ -10,6 +10,8 @@ declare global {
       DB: D1Database;
       /** EmDash media library (R2). */
       MEDIA: R2Bucket;
+      /** Clients' hair photos from booking (private; deleted after a year). Served by `/hair-photos/<name>.jpg`. */
+      HAIR_PHOTOS: R2Bucket;
       /** Backup bucket (retained on prod; the daily backup cron runs on prod only). */
       BACKUPS: R2Bucket;
       /** Image resizing for EmDash's `/_image` endpoint. */

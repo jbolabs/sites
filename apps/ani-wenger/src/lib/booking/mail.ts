@@ -2,11 +2,14 @@
  * The words in booking emails. Plain text: it reads well in every inbox and
  * on every phone, and nothing in it can break.
  */
+import { HAIR_HISTORY } from "../labels.ts";
+import type { HairHistory } from "../labels.ts";
 import { formatDate, formatTime, toLocal } from "./calendar.ts";
 
 export interface MailAppointment {
   readonly clientName: string;
   readonly email: string | undefined;
+  readonly hairHistory: HairHistory | undefined;
   readonly phone: string | undefined;
   readonly notes: string | undefined;
   readonly service: string;
@@ -59,9 +62,26 @@ export const confirmationMail = (
   ].join("\n"),
 });
 
+/** What Ani reads before a color appointment: the client's answer, and a nudge when it means correction. */
+const hairLines = (appointment: MailAppointment, photos: string) => {
+  const history =
+    appointment.hairHistory === undefined
+      ? []
+      : [
+          `Color on their hair now: ${HAIR_HISTORY[appointment.hairHistory].label}`,
+          ...(HAIR_HISTORY[appointment.hairHistory].needsCorrection
+            ? [
+                "This may need a color correction. Check the photos and call them if the time or price will change.",
+              ]
+            : []),
+        ];
+  const sent = photos === "" ? [] : ["Hair photos:", photos];
+  return history.length + sent.length === 0 ? [] : ["", ...history, ...sent];
+};
+
 export const studioNewBookingMail = (
   appointment: MailAppointment,
-  context: MailContext & { readonly adminUrl: string }
+  context: MailContext & { readonly adminUrl: string; readonly photos: string }
 ) => ({
   subject: `New booking: ${appointment.clientName}, ${whenText(appointment.start, context.timeZone)}`,
   text: [
@@ -73,6 +93,7 @@ export const studioNewBookingMail = (
     ...(appointment.notes === undefined
       ? []
       : ["", `Notes: ${appointment.notes}`]),
+    ...hairLines(appointment, context.photos),
     "",
     `See your schedule: ${context.adminUrl}`,
   ].join("\n"),

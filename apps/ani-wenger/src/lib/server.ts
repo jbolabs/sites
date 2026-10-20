@@ -15,7 +15,8 @@ import { ConfigProvider, Layer } from "effect";
 import { FetchHttpClient } from "effect/http";
 
 import { site } from "../../site.config.ts";
-import { AppointmentsEmDash, catalogEmDash } from "./booking/emdash-store.ts";
+import { appointmentsEmDash, catalogEmDash } from "./booking/emdash-store.ts";
+import { hairPhotosR2 } from "./booking/hair-photos.ts";
 import { bookingLockD1 } from "./booking/lock.ts";
 import { bookingMailFromConfig } from "./booking/services.ts";
 import { LeadStoreEmDash } from "./leads.ts";
@@ -40,7 +41,7 @@ export const contactLayer = () =>
 /** The appointment book, menu, mail, and lock, without visitor verification (cron, admin). */
 export const scheduleLayer = () =>
   Layer.mergeAll(
-    AppointmentsEmDash,
+    appointmentsEmDash(env.SITE_ORIGIN),
     catalogEmDash(site.timeZone),
     bookingLockD1(env.DB),
     emailFromEnv(env.EMAIL),
@@ -49,7 +50,8 @@ export const scheduleLayer = () =>
 
 /** Everything a public booking request needs, Turnstile included. */
 export const bookingLayer = () =>
-  Layer.mergeAll(scheduleLayer(), TurnstileLive).pipe(
-    Layer.provide(FetchHttpClient.layer),
-    Layer.provide(configLayer())
-  );
+  Layer.mergeAll(
+    scheduleLayer(),
+    TurnstileLive,
+    hairPhotosR2(env.HAIR_PHOTOS)
+  ).pipe(Layer.provide(FetchHttpClient.layer), Layer.provide(configLayer()));

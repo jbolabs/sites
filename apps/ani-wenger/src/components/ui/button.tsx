@@ -41,6 +41,11 @@ const buttonVariants = cva(
         slot: "text-ui h-11 rounded-full px-3 tabular-nums",
         day: "text-ui aspect-square h-auto w-full rounded-full p-0 tabular-nums",
         tile: "h-full w-full flex-col items-stretch justify-start gap-2 rounded-xl p-4 text-left whitespace-normal",
+        // One answer in a list of answers ("What is on your hair now?").
+        option:
+          "text-ui min-h-12 w-full rounded-xl px-4 py-3 text-left whitespace-normal",
+        // Women / Men: two halves of one row.
+        segment: "text-ui h-12 flex-1 rounded-full px-4",
         // Text-sized, with a 44px hit area around it for thumbs.
         inline:
           "text-ui relative h-auto p-0 after:absolute after:-inset-x-2 after:-inset-y-3",

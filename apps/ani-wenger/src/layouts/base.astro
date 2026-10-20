@@ -39,7 +39,7 @@ if (Astro.cache?.enabled) {
 }
 
 const origin = Astro.site?.origin ?? Astro.url.origin;
-const fullTitle = title === undefined ? `${chrome.title} | Hairstylist in South Orange County` : documentTitle(title, site.shortName);
+const fullTitle = title === undefined ? `${chrome.title} | Hairstylist in Irvine, CA` : documentTitle(title, site.shortName);
 // Editors write descriptions of any length; this keeps the snippet within what search engines show.
 const pageDescription = metaDescription(description ?? chrome.tagline ?? site.description, site.descriptionContext);
 const ogImage = image ?? `${origin}/og-default.jpg`;

@@ -5,8 +5,27 @@ export interface ServiceOption {
   readonly category: string;
   readonly categoryLabel: string;
   readonly summary: string;
-  readonly duration: string;
-  readonly price: string | undefined;
+  readonly audience: "women" | "men" | "everyone";
+  /** Only booked together with a main service. */
+  readonly addOn: boolean;
+  readonly asksForPhotos: boolean;
+  /** The service to suggest when the client's hair needs color removed first. */
+  readonly colorCorrection: boolean;
+  readonly durationMinutes: number;
+  readonly bufferMinutes: number;
+  /** Dollars; 0 is complimentary, absent is unlisted. */
+  readonly price?: number | undefined;
+  readonly priceFrom: boolean;
+}
+
+export type Audience = "women" | "men";
+
+/** A photo the client added, already shrunk to a JPEG in the browser. */
+export interface HairPhoto {
+  readonly id: string;
+  readonly kind: "now" | "goal";
+  /** Base64 JPEG, as the server takes it. */
+  readonly data: string;
 }
 
 export interface Slot {

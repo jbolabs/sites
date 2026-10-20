@@ -11,12 +11,18 @@ import {
   sendReminders,
 } from "./booking.ts";
 import type { BookingForm, BookingRequest } from "./booking.ts";
-import { Appointments, BookingLock, BookingMail, Catalog } from "./services.ts";
-import type { Appointment, SalonPolicy } from "./services.ts";
+import {
+  Appointments,
+  BookingLock,
+  BookingMail,
+  Catalog,
+  HairPhotos,
+} from "./services.ts";
+import type { Appointment, BookableService, SalonPolicy } from "./services.ts";
 
 const at = (iso: string) => new Date(iso);
 
-/** Monday 2026-10-19, noon in Laguna Niguel (PDT). */
+/** Monday 2026-10-19, noon in Irvine (PDT). */
 const MONDAY_NOON = Date.parse("2026-10-19T19:00:00Z");
 /** Tuesday 2026-10-27, 10:00 PDT. */
 const TUESDAY_TEN = "2026-10-27T17:00:00.000Z";
@@ -25,7 +31,7 @@ const form = (overrides: Partial<BookingForm> = {}): BookingForm => ({
   email: "pat@example.com",
   name: "Pat Rivera",
   phone: "949-555-0100",
-  service: "mens-cut",
+  services: ["mens-cut"],
   start: TUESDAY_TEN,
   turnstileToken: "token",
   ...overrides,
@@ -34,7 +40,7 @@ const form = (overrides: Partial<BookingForm> = {}): BookingForm => ({
 const POLICY: SalonPolicy = {
   bookingNote: "Please cancel 24 hours ahead.",
   cancelCutoffHours: 24,
-  location: "James Mathew Salon, Laguna Niguel, CA",
+  location: "James Matthew Salon, Irvine, CA",
   phone: "949-275-6251",
   rules: {
     horizonDays: 60,
@@ -45,6 +51,39 @@ const POLICY: SalonPolicy = {
   },
 };
 
+const service = (
+  slug: string,
+  title: string,
+  durationMinutes: number,
+  extra: Partial<BookableService> = {}
+): BookableService => ({
+  addOn: false,
+  asksForPhotos: false,
+  bufferMinutes: 0,
+  durationMinutes,
+  priceFrom: false,
+  slug,
+  title,
+  ...extra,
+});
+
+const MENU: readonly BookableService[] = [
+  service("mens-cut", "Men's cut", 45, { price: 70 }),
+  service("mens-gray-blending", "Men's gray blending", 30, {
+    addOn: true,
+    price: 50,
+  }),
+  service("dimensional-color", "Highlights", 150, {
+    asksForPhotos: true,
+    bufferMinutes: 15,
+    price: 210,
+    priceFrom: true,
+  }),
+];
+
+/** The smallest JPEG header the server accepts, base64-encoded. */
+const JPEG = btoa(String.fromCodePoint(0xff, 0xd8, 0xff, 0xe0, 0, 16));
+
 const request: BookingRequest = {
   remoteIp: "203.0.113.9",
   requestId: "ray-1",
@@ -54,6 +93,7 @@ const request: BookingRequest = {
 const world = Effect.gen(function* world() {
   const book = yield* Ref.make<Appointment[]>([]);
   const sent = yield* Ref.make<EmailMessage[]>([]);
+  const stored = yield* Ref.make<Uint8Array[]>([]);
   const layer = Layer.mergeAll(
     Layer.succeed(Appointments, {
       between: (from, to) =>
@@ -96,16 +136,15 @@ const world = Effect.gen(function* world() {
       policy: Effect.succeed(POLICY),
       service: (slug) =>
         Effect.succeed(
-          slug === "mens-cut"
-            ? Option.some({
-                bufferMinutes: 0,
-                durationMinutes: 45,
-                priceLabel: "$70",
-                slug,
-                title: "Men's cut",
-              })
-            : Option.none()
+          Option.fromNullishOr(MENU.find((item) => item.slug === slug))
         ),
+    }),
+    Layer.succeed(HairPhotos, {
+      put: (jpeg) =>
+        Ref.modify(stored, (all) => [
+          `/hair-photos/photo-${all.length + 1}.jpg`,
+          [...all, jpeg],
+        ]),
     }),
     Layer.succeed(BookingLock, { withLock: (effect) => effect }),
     Layer.succeed(BookingMail, {
@@ -123,7 +162,7 @@ const world = Effect.gen(function* world() {
     }),
     TurnstileAllowAll
   );
-  return { book, layer, sent };
+  return { book, layer, sent, stored };
 });
 
 describe(bookAppointment, () => {
@@ -140,7 +179,7 @@ describe(bookAppointment, () => {
         expect(booked).toMatchObject({
           end: "2026-10-27T17:45:00.000Z",
           id: "appt-1",
-          location: "James Mathew Salon, Laguna Niguel, CA",
+          location: "James Matthew Salon, Irvine, CA",
           service: "Men's cut",
           start: TUESDAY_TEN,
         });
@@ -194,6 +233,107 @@ describe(bookAppointment, () => {
       expect(
         (yield* Ref.get(book)).map((item) => item.clientName)
       ).toStrictEqual(["Pat Rivera"]);
+    })
+  );
+
+  it.effect(
+    "books stacked services as one appointment as long as all of them",
+    () =>
+      Effect.gen(function* bookStacked() {
+        yield* TestClock.setTime(MONDAY_NOON);
+        const { book, layer } = yield* world;
+        const booked = yield* bookAppointment(
+          form({ services: ["mens-gray-blending", "mens-cut"] }),
+          request
+        ).pipe(Effect.provide(layer));
+
+        expect(booked).toMatchObject({
+          end: "2026-10-27T18:15:00.000Z",
+          service: "Men's cut + Men's gray blending",
+        });
+        expect(
+          (yield* Ref.get(book)).map((item) => [
+            item.serviceSlug,
+            item.durationMinutes,
+          ])
+        ).toStrictEqual([["mens-cut,mens-gray-blending", 75]]);
+      })
+  );
+
+  it.effect("refuses a visit of only add-ons", () =>
+    Effect.gen(function* refuseAddOnOnly() {
+      yield* TestClock.setTime(MONDAY_NOON);
+      const { book, layer } = yield* world;
+      const exit = yield* bookAppointment(
+        form({ services: ["mens-gray-blending"] }),
+        request
+      ).pipe(Effect.provide(layer), Effect.exit);
+
+      expect(Exit.isFailure(exit) && exit.cause.toString()).toContain(
+        "InvalidVisit"
+      );
+      expect(yield* Ref.get(book)).toHaveLength(0);
+    })
+  );
+
+  it.effect(
+    "keeps the client's photos and warns Ani when the color needs correcting",
+    () =>
+      Effect.gen(function* bookWithPhotos() {
+        yield* TestClock.setTime(MONDAY_NOON);
+        const { book, layer, sent, stored } = yield* world;
+        yield* bookAppointment(
+          form({
+            hairHistory: "vivid-color",
+            photos: [
+              { data: JPEG, kind: "now" },
+              { data: JPEG, kind: "goal" },
+            ],
+            services: ["dimensional-color"],
+          }),
+          request
+        ).pipe(Effect.provide(layer));
+
+        expect(yield* Ref.get(stored)).toHaveLength(2);
+        const [saved] = yield* Ref.get(book);
+        expect([saved?.hairHistory, saved?.hairPhotos]).toStrictEqual([
+          "vivid-color",
+          [
+            { kind: "now", path: "/hair-photos/photo-1.jpg" },
+            { kind: "goal", path: "/hair-photos/photo-2.jpg" },
+          ],
+        ]);
+        const toAni = (yield* Ref.get(sent)).find(
+          (message) => message.to === "ani@example.com"
+        );
+        expect(toAni?.text).toContain(
+          [
+            "Color on their hair now: Vivid color, like purple, blue, pink, or red",
+            "This may need a color correction. Check the photos and call them if the time or price will change.",
+            "Hair photos:",
+            "Now: https://aniwenger.example/hair-photos/photo-1.jpg",
+            "Goal: https://aniwenger.example/hair-photos/photo-2.jpg",
+          ].join("\n")
+        );
+      })
+  );
+
+  it.effect("refuses a photo that is not a JPEG, before saving anything", () =>
+    Effect.gen(function* refuseNotJpeg() {
+      yield* TestClock.setTime(MONDAY_NOON);
+      const { book, layer, stored } = yield* world;
+      const exit = yield* bookAppointment(
+        form({ photos: [{ data: btoa("<svg/>"), kind: "now" }] }),
+        request
+      ).pipe(Effect.provide(layer), Effect.exit);
+
+      expect(Exit.isFailure(exit) && exit.cause.toString()).toContain(
+        "PhotoRejected"
+      );
+      expect([
+        (yield* Ref.get(book)).length,
+        (yield* Ref.get(stored)).length,
+      ]).toStrictEqual([0, 0]);
     })
   );
 

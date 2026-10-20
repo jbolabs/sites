@@ -8,7 +8,7 @@
   },
   "settings": {
     "title": "Ani Wenger",
-    "tagline": "European master hairstylist in South Orange County.",
+    "tagline": "Your European hairstylist in Irvine, California.",
     "timezone": "America/Los_Angeles"
   },
   "blockTypes": [
@@ -676,6 +676,26 @@
           "type": "text"
         },
         {
+          "slug": "hair_history",
+          "label": "Color on their hair now",
+          "type": "select",
+          "validation": {
+            "options": [
+              "natural",
+              "salon-color",
+              "home-color",
+              "vivid-color",
+              "lightened",
+              "not-sure"
+            ]
+          }
+        },
+        {
+          "slug": "hair_photos",
+          "label": "Hair photos (set by the website)",
+          "type": "text"
+        },
+        {
           "slug": "source",
           "label": "Booked through",
           "type": "select",
@@ -748,7 +768,7 @@
       "supports": ["drafts", "revisions", "preview", "seo"],
       "urlPattern": "/services/{slug}",
       "admin": {
-        "listColumns": ["category", "duration_minutes", "price"]
+        "listColumns": ["category", "audience", "duration_minutes", "price"]
       },
       "fields": [
         {
@@ -780,6 +800,35 @@
           "label": "One-line description",
           "type": "text",
           "required": true
+        },
+        {
+          "slug": "audience",
+          "label": "Who it is for",
+          "type": "select",
+          "required": true,
+          "indexed": true,
+          "validation": {
+            "options": ["women", "men", "everyone"]
+          },
+          "defaultValue": "everyone"
+        },
+        {
+          "slug": "add_on",
+          "label": "Add-on (booked together with another service)",
+          "type": "boolean",
+          "defaultValue": false
+        },
+        {
+          "slug": "ask_photos",
+          "label": "Ask clients for photos of their hair",
+          "type": "boolean",
+          "defaultValue": false
+        },
+        {
+          "slug": "color_correction",
+          "label": "This is the color correction service",
+          "type": "boolean",
+          "defaultValue": false
         },
         {
           "slug": "duration_minutes",
@@ -1059,6 +1108,11 @@
           "label": "Phone for clients",
           "type": "string",
           "required": true
+        },
+        {
+          "slug": "salon_phone",
+          "label": "Salon front desk phone",
+          "type": "string"
         },
         {
           "slug": "map_url",
@@ -1391,7 +1445,7 @@
               "primary_cta_url": "/book",
               "secondary_cta_label": "See services and prices",
               "secondary_cta_url": "/services",
-              "note": "James Mathew Salon, South Orange County"
+              "note": "James Matthew Salon, 19800 MacArthur Blvd., Irvine"
             },
             {
               "_type": "credentials",
@@ -1470,12 +1524,12 @@
                 {
                   "_type": "block",
                   "style": "normal",
-                  "_key": "p179",
+                  "_key": "p191",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s180",
+                      "_key": "s192",
                       "text": "I believe the right cut does most of the work. When it is shaped for your texture and your life, your hair falls into place on its own, and styling takes minutes instead of an hour.",
                       "marks": []
                     }
@@ -1484,13 +1538,13 @@
                 {
                   "_type": "block",
                   "style": "normal",
-                  "_key": "p181",
+                  "_key": "p193",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s182",
-                      "text": "I have spent my career at the chair, in the studio, and backstage. Now I work one client at a time, with the time to listen and to teach you how to care for your hair at home.",
+                      "_key": "s194",
+                      "text": "I have spent my career at the chair, in the studio, and backstage. Now I see one client at a time at James Matthew Salon in Irvine, with the time to listen and to teach you how to care for your hair at home.",
                       "marks": []
                     }
                   ]
@@ -1498,9 +1552,9 @@
               ],
               "image": {
                 "$media": {
-                  "url": "/_seed/media/ani-dimensional-brunette.jpg",
-                  "alt": "Long brunette waves with soft caramel dimension, colored and styled by Ani",
-                  "filename": "ani-dimensional-brunette.jpg"
+                  "url": "/_seed/media/ani-wenger-portrait.jpg",
+                  "alt": "Ani Wenger smiling, with long auburn waves, in a black top",
+                  "filename": "ani-wenger-portrait.jpg"
                 }
               },
               "image_position": "right",
@@ -1519,14 +1573,14 @@
                   "place": "Southern California"
                 },
                 {
-                  "quote": "Ani has a gift in knowing what cut and color best suits a face and particular type of hair. She does an amazing job and is respectful of her clients' time. I feel confident recommending her to anyone.",
-                  "name": "Gina B.",
-                  "place": "Laguna Hills"
+                  "quote": "I found Ani via a Google search for a master hair stylist in Irvine, and I am so glad I did. She knew exactly what hairstyle would suit my hair texture and gave me the precision cut I was looking for. Even though it's a bit of a commute for me, it is so worth it to keep going back.",
+                  "name": "Jen T.",
+                  "place": "Orange County"
                 },
                 {
-                  "quote": "Ani performs wonders! On two separate occasions, I have watched her take 10 years off of people, one being my husband and another being my mother. She is a master of achieving the perfect current cut and style to suit the person.",
-                  "name": "Catherine D.",
-                  "place": "Newport Beach"
+                  "quote": "If you want to feel beautiful and pampered at the same time, Ani is the best for you! She is a pro in every aspect of the word! Her color, highlights, and haircuts are the tops!",
+                  "name": "Bunny H.",
+                  "place": "San Juan Capistrano"
                 }
               ]
             },
@@ -1574,7 +1628,7 @@
         "status": "published",
         "data": {
           "title": "About Ani",
-          "intro": "European master hairstylist, former director-level stylist at José Eber and Vidal Sassoon, now taking clients in South Orange County.",
+          "intro": "Your European hairstylist in Irvine: former director-level stylist at José Eber and Vidal Sassoon, now seeing clients at James Matthew Salon.",
           "content": [
             {
               "_type": "story",
@@ -1585,12 +1639,12 @@
                 {
                   "_type": "block",
                   "style": "normal",
-                  "_key": "p183",
+                  "_key": "p195",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s184",
+                      "_key": "s196",
                       "text": "For the professional who wants to refine or refresh a look, I offer something that is hard to find: time, technique, and honesty about what will suit you.",
                       "marks": []
                     }
@@ -1599,12 +1653,12 @@
                 {
                   "_type": "block",
                   "style": "normal",
-                  "_key": "p185",
+                  "_key": "p197",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s186",
+                      "_key": "s198",
                       "text": "I trained in Europe and spent more than ten years as a director-level stylist at José Eber and Vidal Sassoon. I have styled hair for fashion shows and for Fendi, W magazine, and Roxy, and I have been featured in Orange Coast and Women magazine.",
                       "marks": []
                     }
@@ -1613,13 +1667,13 @@
                 {
                   "_type": "block",
                   "style": "normal",
-                  "_key": "p187",
+                  "_key": "p199",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s188",
-                      "text": "Today I see clients one at a time at James Mathew Salon. Many have been with me for more than fifteen years. Some fly in from Canada, Peru, and Israel. They come back because their hair looks like them, only better, and because it is easy to care for at home.",
+                      "_key": "s200",
+                      "text": "Today I see clients one at a time at James Matthew Salon in Irvine, minutes from John Wayne Airport and the 405. Many have been with me for more than fifteen years. Some fly in from Canada, Peru, and Israel. They come back because their hair looks like them, only better, and because it is easy to care for at home.",
                       "marks": []
                     }
                   ]
@@ -1627,12 +1681,12 @@
                 {
                   "_type": "block",
                   "style": "normal",
-                  "_key": "p189",
+                  "_key": "p201",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s190",
+                      "_key": "s202",
                       "text": "Outside the salon I love exercise, gardening, and anything that keeps us healthy. Ask me about the bananas and coffee I grow in my backyard.",
                       "marks": []
                     }
@@ -1641,9 +1695,9 @@
               ],
               "image": {
                 "$media": {
-                  "url": "/_seed/media/styling-station.jpg",
-                  "alt": "Warm afternoon light across a minimal styling station with round mirrors and a pale wood counter",
-                  "filename": "styling-station.jpg"
+                  "url": "/_seed/media/ani-wenger-portrait.jpg",
+                  "alt": "Ani Wenger smiling, with long auburn waves, in a black top",
+                  "filename": "ani-wenger-portrait.jpg"
                 }
               },
               "image_position": "left",
@@ -1775,6 +1829,26 @@
                   "place": "Winnipeg, Canada"
                 },
                 {
+                  "quote": "If you need a perfect hair color or cut, you need to call Ani! The service is exceptional, Ani has an amazing amount of knowledge and experience, and she knows exactly what needs to be done for you to love your hair. From the first appointment I really felt I was in the hands of a professional.",
+                  "name": "Irina B.",
+                  "place": "Irvine"
+                },
+                {
+                  "quote": "If you want to feel beautiful and pampered at the same time, Ani is the best for you! She is a pro in every aspect of the word! Her color, highlights, and haircuts are the tops!",
+                  "name": "Bunny H.",
+                  "place": "San Juan Capistrano"
+                },
+                {
+                  "quote": "I recommend Ani as the best hair stylist and hair cutter I have experienced during my time in the Los Angeles area. I tried a number of hair stylists in the area, and around the States, and I can truly say that Ani is a real professional.",
+                  "name": "Bracha M.",
+                  "place": "Israel"
+                },
+                {
+                  "quote": "I wear my hair very short, so a good cut is essential. Ani did a great job!",
+                  "name": "Barb P.",
+                  "place": "Orange County"
+                },
+                {
                   "quote": "Living in the Inland Empire, the 50 mile distance is not discouraging to travel for Ani. I have very fine and thin hair. Ani has always given me a complimentary and easy to care for cut and style. I'm an ex-cosmetologist.",
                   "name": "Betsy P.",
                   "place": "Inland Empire"
@@ -1816,7 +1890,7 @@
               "items": [
                 {
                   "question": "I'm a new client. What should I book?",
-                  "answer": "Book the service you want, and add a note about your hair history. If you are planning a big color change or correcting color from elsewhere, book a free color consultation first."
+                  "answer": "Book the service you want and add photos of your hair as it is now. If you have box dye, vivid color, or color from elsewhere you want to change, book a color correction consultation first: it is complimentary, and it means your real appointment gets the right time and price."
                 },
                 {
                   "question": "How do I pay?",
@@ -1828,7 +1902,11 @@
                 },
                 {
                   "question": "Can I book more than one service?",
-                  "answer": "Yes. Book the main service online and mention the other in your note, or call and I will schedule the right amount of time."
+                  "answer": "Yes. When you book online, choose every service you want, like a cut with color, and add extras such as a gloss or a Kérastase ritual. The booking adds up the time and shows only the times that fit."
+                },
+                {
+                  "question": "Where do I park?",
+                  "answer": "Park in the Newport Gateway visitor structure off Fairchild Road, take the escalator in building 19800 to the bottom floor, and bring your parking ticket for validation."
                 }
               ]
             },
@@ -1893,7 +1971,7 @@
         "status": "published",
         "data": {
           "title": "Book an appointment",
-          "intro": "Choose a service and a time. You will get a confirmation by email right away, with a link to change or cancel."
+          "intro": "Build your visit, show me your hair, and choose a time. You will get a confirmation by email right away, with a link to change or cancel."
         }
       },
       {
@@ -1909,7 +1987,7 @@
               "_version": 1,
               "_key": "visit",
               "headline": "Visit the salon",
-              "intro": "I see clients by appointment at James Mathew Salon in South Orange County."
+              "intro": "I see clients by appointment at James Matthew Salon in Irvine, off MacArthur Boulevard near the 405 and John Wayne Airport."
             }
           ]
         }
@@ -1930,12 +2008,12 @@
                 {
                   "_type": "block",
                   "style": "h2",
-                  "_key": "h191",
+                  "_key": "h203",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s192",
+                      "_key": "s204",
                       "text": "Booking",
                       "marks": []
                     }
@@ -1944,12 +2022,12 @@
                 {
                   "_type": "block",
                   "style": "normal",
-                  "_key": "p197",
+                  "_key": "p209",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s198",
+                      "_key": "s210",
                       "text": "You can book online at any time. Your appointment is confirmed as soon as you see the confirmation screen, and a confirmation email follows. Nothing is charged online; you pay at the salon.",
                       "marks": []
                     }
@@ -1958,12 +2036,12 @@
                 {
                   "_type": "block",
                   "style": "h2",
-                  "_key": "h193",
+                  "_key": "h205",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s194",
+                      "_key": "s206",
                       "text": "Changes and cancellations",
                       "marks": []
                     }
@@ -1972,12 +2050,12 @@
                 {
                   "_type": "block",
                   "style": "normal",
-                  "_key": "p199",
+                  "_key": "p211",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s200",
+                      "_key": "s212",
                       "text": "Please cancel at least 24 hours before your appointment, using the link in your confirmation email or by calling. Late cancellations and missed appointments keep another client from that time.",
                       "marks": []
                     }
@@ -1986,12 +2064,12 @@
                 {
                   "_type": "block",
                   "style": "h2",
-                  "_key": "h195",
+                  "_key": "h207",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s196",
+                      "_key": "s208",
                       "text": "Running late",
                       "marks": []
                     }
@@ -2000,12 +2078,12 @@
                 {
                   "_type": "block",
                   "style": "normal",
-                  "_key": "p201",
+                  "_key": "p213",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s202",
+                      "_key": "s214",
                       "text": "If you are running more than 15 minutes late, please call. I will do everything I can, but I may need to shorten the service or move it so the next client is not kept waiting.",
                       "marks": []
                     }
@@ -2032,12 +2110,12 @@
                 {
                   "_type": "block",
                   "style": "h2",
-                  "_key": "h203",
+                  "_key": "h215",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s204",
+                      "_key": "s216",
                       "text": "What we collect",
                       "marks": []
                     }
@@ -2046,12 +2124,12 @@
                 {
                   "_type": "block",
                   "style": "normal",
-                  "_key": "p211",
+                  "_key": "p225",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s212",
+                      "_key": "s226",
                       "text": "When you book or send a message, we collect your name, email, phone number, and anything you choose to write. We use it only to schedule your appointment, remind you of it, and reply to you.",
                       "marks": []
                     }
@@ -2060,12 +2138,40 @@
                 {
                   "_type": "block",
                   "style": "h2",
-                  "_key": "h205",
+                  "_key": "h217",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s206",
+                      "_key": "s218",
+                      "text": "Hair photos",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p227",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s228",
+                      "text": "If you add photos of your hair when you book, only Ani sees them, to plan your appointment. Photos are resized and stripped of location data in your browser before they are sent, kept privately, and deleted automatically after a year.",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "h2",
+                  "_key": "h219",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s220",
                       "text": "Analytics",
                       "marks": []
                     }
@@ -2074,12 +2180,12 @@
                 {
                   "_type": "block",
                   "style": "normal",
-                  "_key": "p213",
+                  "_key": "p229",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s214",
+                      "_key": "s230",
                       "text": "This site counts visits with Cloudflare Web Analytics, which uses no cookies and does not track you across other websites.",
                       "marks": []
                     }
@@ -2088,12 +2194,12 @@
                 {
                   "_type": "block",
                   "style": "h2",
-                  "_key": "h207",
+                  "_key": "h221",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s208",
+                      "_key": "s222",
                       "text": "Product links",
                       "marks": []
                     }
@@ -2102,12 +2208,12 @@
                 {
                   "_type": "block",
                   "style": "normal",
-                  "_key": "p215",
+                  "_key": "p231",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s216",
+                      "_key": "s232",
                       "text": "Some product links are affiliate links. If you buy through one, the store may pay a small commission. The price you pay does not change.",
                       "marks": []
                     }
@@ -2116,12 +2222,12 @@
                 {
                   "_type": "block",
                   "style": "h2",
-                  "_key": "h209",
+                  "_key": "h223",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s210",
+                      "_key": "s224",
                       "text": "Your choices",
                       "marks": []
                     }
@@ -2130,12 +2236,12 @@
                 {
                   "_type": "block",
                   "style": "normal",
-                  "_key": "p217",
+                  "_key": "p233",
                   "markDefs": [],
                   "children": [
                     {
                       "_type": "span",
-                      "_key": "s218",
+                      "_key": "s234",
                       "text": "To see, change, or delete the details we hold about you, call or email and we will take care of it.",
                       "marks": []
                     }
@@ -2156,6 +2262,10 @@
           "title": "Women's precision cut",
           "category": "cuts",
           "summary": "A consultation, shampoo, a precision cut shaped for your texture, and a finish you can recreate at home.",
+          "audience": "women",
+          "add_on": false,
+          "ask_photos": false,
+          "color_correction": false,
           "duration_minutes": 60,
           "buffer_minutes": 0,
           "price": 120,
@@ -2286,6 +2396,10 @@
           "title": "Men's cut",
           "category": "cuts",
           "summary": "A tailored scissor cut with a shampoo and finish. Clean lines that still look right three weeks later.",
+          "audience": "men",
+          "add_on": false,
+          "ask_photos": false,
+          "color_correction": false,
           "duration_minutes": 45,
           "buffer_minutes": 0,
           "price": 70,
@@ -2388,6 +2502,10 @@
           "title": "Fringe trim",
           "category": "cuts",
           "summary": "A quick trim to keep bangs and face-framing pieces in shape between cuts.",
+          "audience": "women",
+          "add_on": false,
+          "ask_photos": false,
+          "color_correction": false,
           "duration_minutes": 15,
           "buffer_minutes": 0,
           "price": 20,
@@ -2405,6 +2523,10 @@
           "title": "Gray blending",
           "category": "color",
           "summary": "Soft, multi-tonal color that blends gray instead of covering it, so regrowth is gentle and visits are further apart.",
+          "audience": "women",
+          "add_on": false,
+          "ask_photos": true,
+          "color_correction": false,
           "duration_minutes": 120,
           "buffer_minutes": 15,
           "price": 180,
@@ -2535,6 +2657,10 @@
           "title": "Root touch-up",
           "category": "color",
           "summary": "All-over color refreshed at the root, with a gloss on the lengths for shine.",
+          "audience": "women",
+          "add_on": false,
+          "ask_photos": true,
+          "color_correction": false,
           "duration_minutes": 90,
           "buffer_minutes": 15,
           "price": 110,
@@ -2559,6 +2685,10 @@
           "title": "Highlights and dimensional color",
           "category": "color",
           "summary": "Hand-placed highlights or balayage for depth and brightness that grows out softly.",
+          "audience": "women",
+          "add_on": false,
+          "ask_photos": true,
+          "color_correction": false,
           "duration_minutes": 150,
           "buffer_minutes": 15,
           "price": 210,
@@ -2659,12 +2789,54 @@
                 {
                   "_type": "span",
                   "_key": "s49",
-                  "text": "Big changes, like blonde to brunette, may take two visits. Book a color consultation first if you are unsure.",
+                  "text": "Big changes, like blonde to brunette, may take two visits. If your hair has box dye or vivid color on it now, book a color correction consultation instead, so we plan the right appointment.",
                   "marks": []
                 }
               ]
             }
           ]
+        }
+      },
+      {
+        "id": "service-gloss",
+        "slug": "gloss",
+        "status": "published",
+        "data": {
+          "title": "Gloss and tone",
+          "category": "color",
+          "summary": "A shine gloss that refreshes tone and seals the cuticle. Add it to a cut or blowout.",
+          "audience": "women",
+          "add_on": true,
+          "ask_photos": false,
+          "color_correction": false,
+          "duration_minutes": 30,
+          "buffer_minutes": 0,
+          "price": 45,
+          "price_from": false,
+          "bookable": true,
+          "featured": false,
+          "sort_order": 40
+        }
+      },
+      {
+        "id": "service-mens-gray-blending",
+        "slug": "mens-gray-blending",
+        "status": "published",
+        "data": {
+          "title": "Men's gray blending",
+          "category": "color",
+          "summary": "A quick, natural blend that softens gray without looking colored. Add it to a men's cut.",
+          "audience": "men",
+          "add_on": true,
+          "ask_photos": false,
+          "color_correction": false,
+          "duration_minutes": 30,
+          "buffer_minutes": 0,
+          "price": 50,
+          "price_from": false,
+          "bookable": true,
+          "featured": false,
+          "sort_order": 50
         }
       },
       {
@@ -2675,6 +2847,10 @@
           "title": "Blowout",
           "category": "styling",
           "summary": "A shampoo and smooth, bouncy blow-dry that lasts for days.",
+          "audience": "women",
+          "add_on": false,
+          "ask_photos": false,
+          "color_correction": false,
           "duration_minutes": 45,
           "buffer_minutes": 0,
           "price": 65,
@@ -2715,6 +2891,10 @@
           "title": "Special occasion styling",
           "category": "styling",
           "summary": "Styling for weddings, galas, and photos: soft waves, an elegant updo, or a sleek finish.",
+          "audience": "women",
+          "add_on": false,
+          "ask_photos": true,
+          "color_correction": false,
           "duration_minutes": 75,
           "buffer_minutes": 0,
           "price": 120,
@@ -2755,6 +2935,10 @@
           "title": "Brazilian Blowout smoothing",
           "category": "treatments",
           "summary": "A professional smoothing treatment that removes frizz and adds shine for up to 12 weeks, with no downtime.",
+          "audience": "everyone",
+          "add_on": false,
+          "ask_photos": true,
+          "color_correction": false,
           "duration_minutes": 150,
           "buffer_minutes": 15,
           "price": 350,
@@ -2885,6 +3069,10 @@
           "title": "Kérastase ritual",
           "category": "treatments",
           "summary": "A personalized Kérastase treatment for dry, damaged, or color-treated hair, with a scalp massage.",
+          "audience": "everyone",
+          "add_on": true,
+          "ask_photos": false,
+          "color_correction": false,
           "duration_minutes": 30,
           "buffer_minutes": 0,
           "price": 50,
@@ -2923,7 +3111,7 @@
                 {
                   "_type": "span",
                   "_key": "s71",
-                  "text": "It is a lovely add-on to a cut or color, or a quiet half hour on its own.",
+                  "text": "Add it to a cut, color, or blowout when you book. It adds half an hour.",
                   "marks": []
                 }
               ]
@@ -2939,6 +3127,10 @@
           "title": "Hair extensions consultation",
           "category": "extensions",
           "summary": "We talk through length, volume, and the right method for your hair, and match color.",
+          "audience": "women",
+          "add_on": false,
+          "ask_photos": true,
+          "color_correction": false,
           "duration_minutes": 30,
           "buffer_minutes": 0,
           "price": 0,
@@ -2978,7 +3170,11 @@
         "data": {
           "title": "Color consultation",
           "category": "consultations",
-          "summary": "Planning a big change, or correcting color from elsewhere? Let's look at it together first.",
+          "summary": "Planning a big change? Let's look at your hair together and plan the color, the time, and the price.",
+          "audience": "everyone",
+          "add_on": false,
+          "ask_photos": true,
+          "color_correction": false,
           "duration_minutes": 20,
           "buffer_minutes": 0,
           "price": 0,
@@ -2989,6 +3185,124 @@
         }
       },
       {
+        "id": "service-color-correction-consultation",
+        "slug": "color-correction-consultation",
+        "status": "published",
+        "data": {
+          "title": "Color correction consultation",
+          "category": "consultations",
+          "summary": "Box dye, vivid color, or color from elsewhere you want to change. I see your hair first, then plan the correction.",
+          "audience": "women",
+          "add_on": false,
+          "ask_photos": true,
+          "color_correction": true,
+          "duration_minutes": 30,
+          "buffer_minutes": 0,
+          "price": 0,
+          "price_from": false,
+          "bookable": true,
+          "featured": false,
+          "sort_order": 15,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/comb-through-hair.jpg",
+              "alt": "A hand draws a wooden comb through long, straight auburn hair",
+              "filename": "comb-through-hair.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p80",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s81",
+                  "text": "Color correction is its own service. Taking out box dye, a vivid purple, or old dark color before new color goes on takes more time, more product, and sometimes more than one visit. It cannot be priced or scheduled well from a booking form.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p82",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s83",
+                  "text": "So we start with a short consultation. I look at your hair in natural light, test a strand when needed, and give you a plan: how many visits, how long each takes, and what it costs. Then we book the correction itself.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h74",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s75",
+                  "text": "What to bring",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l76",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s77",
+                  "text": "Photos of the color you want, and of your hair when you liked it.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l78",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s79",
+                  "text": "What has been on your hair in the last two years: box dye, henna, vivid color, lightener, or keratin.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p84",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s85",
+                  "text": "Booking online? Add photos of your hair as it is now, and I will look before you arrive.",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
         "id": "service-thinning-hair-consultation",
         "slug": "thinning-hair-consultation",
         "status": "published",
@@ -2996,6 +3310,10 @@
           "title": "Thinning hair consultation",
           "category": "consultations",
           "summary": "A private conversation about shedding or thinning, and a plan: the cut, color, and care that help.",
+          "audience": "everyone",
+          "add_on": false,
+          "ask_photos": false,
+          "color_correction": false,
           "duration_minutes": 30,
           "buffer_minutes": 0,
           "price": 0,
@@ -3014,12 +3332,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p74",
+              "_key": "p86",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s75",
+                  "_key": "s87",
                   "text": "Thinning hair is common, and it is not something you have to live with quietly. In a private consultation we look at your scalp and hair together, talk about what changed and when, and build a plan.",
                   "marks": []
                 }
@@ -3028,12 +3346,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p76",
+              "_key": "p88",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s77",
+                  "_key": "s89",
                   "text": "Often that means a cut that puts weight where it helps, color that adds the look of density, and a scalp routine. If anything suggests a medical cause, I will tell you, and suggest you see your doctor or a dermatologist.",
                   "marks": []
                 }
@@ -3184,12 +3502,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p175",
+              "_key": "p187",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s176",
+                  "_key": "s188",
                   "text": "Curls need moisture, a cut that respects how they fall, and as little friction as possible.",
                   "marks": []
                 }
@@ -3198,12 +3516,12 @@
             {
               "_type": "block",
               "style": "h2",
-              "_key": "h163",
+              "_key": "h175",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s164",
+                  "_key": "s176",
                   "text": "Start with the right cut",
                   "marks": []
                 }
@@ -3212,12 +3530,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p177",
+              "_key": "p189",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s178",
+                  "_key": "s190",
                   "text": "Curls shrink and spring differently on every head. I shape them where they live, so the cut looks balanced when your hair dries naturally, not only after a blowout.",
                   "marks": []
                 }
@@ -3226,12 +3544,12 @@
             {
               "_type": "block",
               "style": "h2",
-              "_key": "h165",
+              "_key": "h177",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s166",
+                  "_key": "s178",
                   "text": "Everyday routine",
                   "marks": []
                 }
@@ -3242,12 +3560,12 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l167",
+              "_key": "l179",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s168",
+                  "_key": "s180",
                   "text": "Detangle only when wet and full of conditioner, with your fingers or a wide-tooth comb.",
                   "marks": []
                 }
@@ -3258,12 +3576,12 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l169",
+              "_key": "l181",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s170",
+                  "_key": "s182",
                   "text": "Blot with a microfiber towel or a cotton T-shirt; never rub.",
                   "marks": []
                 }
@@ -3274,12 +3592,12 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l171",
+              "_key": "l183",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s172",
+                  "_key": "s184",
                   "text": "Apply a leave-in while the hair is soaking wet to lock in moisture.",
                   "marks": []
                 }
@@ -3290,12 +3608,12 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l173",
+              "_key": "l185",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s174",
+                  "_key": "s186",
                   "text": "Diffuse on low heat, or let curls dry without touching them.",
                   "marks": []
                 }
@@ -3329,12 +3647,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p159",
+              "_key": "p171",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s160",
+                  "_key": "s172",
                   "text": "Color molecules escape every time the cuticle opens. Most fading comes from a few everyday habits:",
                   "marks": []
                 }
@@ -3345,18 +3663,18 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l147",
+              "_key": "l159",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s148",
+                  "_key": "s160",
                   "text": "Hot showers.",
                   "marks": ["strong"]
                 },
                 {
                   "_type": "span",
-                  "_key": "s149",
+                  "_key": "s161",
                   "text": " Rinse in lukewarm or cool water.",
                   "marks": []
                 }
@@ -3367,18 +3685,18 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l150",
+              "_key": "l162",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s151",
+                  "_key": "s163",
                   "text": "Washing every day.",
                   "marks": ["strong"]
                 },
                 {
                   "_type": "span",
-                  "_key": "s152",
+                  "_key": "s164",
                   "text": " Two or three times a week is plenty for most hair.",
                   "marks": []
                 }
@@ -3389,18 +3707,18 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l153",
+              "_key": "l165",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s154",
+                  "_key": "s166",
                   "text": "Harsh shampoo.",
                   "marks": ["strong"]
                 },
                 {
                   "_type": "span",
-                  "_key": "s155",
+                  "_key": "s167",
                   "text": " Choose a gentle, color-safe formula.",
                   "marks": []
                 }
@@ -3411,18 +3729,18 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l156",
+              "_key": "l168",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s157",
+                  "_key": "s169",
                   "text": "Sun and heat.",
                   "marks": ["strong"]
                 },
                 {
                   "_type": "span",
-                  "_key": "s158",
+                  "_key": "s170",
                   "text": " Use a heat protectant before styling and a hat at the beach.",
                   "marks": []
                 }
@@ -3431,12 +3749,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p161",
+              "_key": "p173",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s162",
+                  "_key": "s174",
                   "text": "Red and copper tones fade fastest. A gloss between color appointments brings the shine and tone back in half an hour.",
                   "marks": []
                 }
@@ -3472,12 +3790,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p145",
+              "_key": "p157",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s146",
+                  "_key": "s158",
                   "text": "The Brazilian Blowout works from the first wash, and the way you care for it decides whether it lasts six weeks or twelve.",
                   "marks": []
                 }
@@ -3488,12 +3806,12 @@
               "style": "normal",
               "listItem": "number",
               "level": 1,
-              "_key": "l137",
+              "_key": "l149",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s138",
+                  "_key": "s150",
                   "text": "Use a sulfate-free shampoo and conditioner. Sulfates strip the protective layer.",
                   "marks": []
                 }
@@ -3504,12 +3822,12 @@
               "style": "normal",
               "listItem": "number",
               "level": 1,
-              "_key": "l139",
+              "_key": "l151",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s140",
+                  "_key": "s152",
                   "text": "Rinse with fresh water after the pool or the ocean, or wear a cap.",
                   "marks": []
                 }
@@ -3520,12 +3838,12 @@
               "style": "normal",
               "listItem": "number",
               "level": 1,
-              "_key": "l141",
+              "_key": "l153",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s142",
+                  "_key": "s154",
                   "text": "Blow-dry with a round brush on medium heat when you want it extra sleek. Air drying is fine too.",
                   "marks": []
                 }
@@ -3536,12 +3854,12 @@
               "style": "normal",
               "listItem": "number",
               "level": 1,
-              "_key": "l143",
+              "_key": "l155",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s144",
+                  "_key": "s156",
                   "text": "Book your next treatment when the frizz starts to come back, usually after 10 to 12 weeks.",
                   "marks": []
                 }
@@ -3574,12 +3892,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p133",
+              "_key": "p145",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s134",
+                  "_key": "s146",
                   "text": "It depends on the length and on the shape you want to keep.",
                   "marks": []
                 }
@@ -3590,18 +3908,18 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l124",
+              "_key": "l136",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s125",
+                  "_key": "s137",
                   "text": "Short cuts and men's cuts:",
                   "marks": ["strong"]
                 },
                 {
                   "_type": "span",
-                  "_key": "s126",
+                  "_key": "s138",
                   "text": " every 4 to 6 weeks. A few millimeters change everything.",
                   "marks": []
                 }
@@ -3612,18 +3930,18 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l127",
+              "_key": "l139",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s128",
+                  "_key": "s140",
                   "text": "Bobs and medium length:",
                   "marks": ["strong"]
                 },
                 {
                   "_type": "span",
-                  "_key": "s129",
+                  "_key": "s141",
                   "text": " every 6 to 8 weeks to keep the line crisp.",
                   "marks": []
                 }
@@ -3634,18 +3952,18 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l130",
+              "_key": "l142",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s131",
+                  "_key": "s143",
                   "text": "Long hair:",
                   "marks": ["strong"]
                 },
                 {
                   "_type": "span",
-                  "_key": "s132",
+                  "_key": "s144",
                   "text": " every 8 to 12 weeks to keep the ends healthy while you grow it.",
                   "marks": []
                 }
@@ -3654,12 +3972,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p135",
+              "_key": "p147",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s136",
+                  "_key": "s148",
                   "text": "A good precision cut grows out gracefully, so you should not feel you are fighting your hair in week five. If you are, the cut is not working for your texture, and we should change it.",
                   "marks": []
                 }
@@ -3692,12 +4010,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p118",
+              "_key": "p130",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s119",
+                  "_key": "s131",
                   "text": "Solid color creates a hard line the moment the gray grows in. Gray blending works with your natural silver instead of against it.",
                   "marks": []
                 }
@@ -3706,12 +4024,12 @@
             {
               "_type": "block",
               "style": "h2",
-              "_key": "h106",
+              "_key": "h118",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s107",
+                  "_key": "s119",
                   "text": "How it works",
                   "marks": []
                 }
@@ -3720,12 +4038,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p120",
+              "_key": "p132",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s121",
+                  "_key": "s133",
                   "text": "I place fine lowlights and highlights in shades close to your own, then finish with a gloss. The gray becomes another tone in the mix. When it grows out, there is no stripe at the part, just a softer version of the same color.",
                   "marks": []
                 }
@@ -3734,12 +4052,12 @@
             {
               "_type": "block",
               "style": "h2",
-              "_key": "h108",
+              "_key": "h120",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s109",
+                  "_key": "s121",
                   "text": "Going fully silver",
                   "marks": []
                 }
@@ -3748,12 +4066,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p122",
+              "_key": "p134",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s123",
+                  "_key": "s135",
                   "text": "If you want to stop coloring altogether, blending is the gentlest way through it. A shorter cut speeds things up. One of my clients went from a long bob to a short, textured cut with soft fringe, and the silver finally looked intentional instead of like waiting for roots.",
                   "marks": []
                 }
@@ -3762,12 +4080,12 @@
             {
               "_type": "block",
               "style": "h2",
-              "_key": "h110",
+              "_key": "h122",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s111",
+                  "_key": "s123",
                   "text": "Keep silver bright",
                   "marks": []
                 }
@@ -3778,12 +4096,12 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l112",
+              "_key": "l124",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s113",
+                  "_key": "s125",
                   "text": "Use a purple shampoo once or twice a week to keep yellow tones away.",
                   "marks": []
                 }
@@ -3794,12 +4112,12 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l114",
+              "_key": "l126",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s115",
+                  "_key": "s127",
                   "text": "Protect from heat and sun, which turn gray brassy.",
                   "marks": []
                 }
@@ -3810,12 +4128,12 @@
               "style": "normal",
               "listItem": "bullet",
               "level": 1,
-              "_key": "l116",
+              "_key": "l128",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s117",
+                  "_key": "s129",
                   "text": "Finish with a little oil: silver hair is often drier and loves shine.",
                   "marks": []
                 }
@@ -3851,133 +4169,13 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p94",
+              "_key": "p106",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s95",
+                  "_key": "s107",
                   "text": "This is the question I hear most, and I understand how worrying it is. The good news: in most cases there is a lot we can do, and the routine below is the one I give my own clients.",
-                  "marks": []
-                }
-              ]
-            },
-            {
-              "_type": "block",
-              "style": "h2",
-              "_key": "h78",
-              "markDefs": [],
-              "children": [
-                {
-                  "_type": "span",
-                  "_key": "s79",
-                  "text": "1. Find out why it is happening",
-                  "marks": []
-                }
-              ]
-            },
-            {
-              "_type": "block",
-              "style": "normal",
-              "_key": "p96",
-              "markDefs": [],
-              "children": [
-                {
-                  "_type": "span",
-                  "_key": "s97",
-                  "text": "Everyone loses about 50 to 100 hairs a day. If you are suddenly losing much more, something usually changed about three months earlier: stress, illness, surgery, a new medication, a baby, or a crash diet.",
-                  "marks": []
-                }
-              ]
-            },
-            {
-              "_type": "block",
-              "style": "normal",
-              "_key": "p98",
-              "markDefs": [],
-              "children": [
-                {
-                  "_type": "span",
-                  "_key": "s99",
-                  "text": "If the shedding is new or heavy, ask your doctor for a blood test. Low iron, thyroid changes, and low vitamin D are common and very treatable causes. Patchy loss or an itchy, sore scalp is a reason to see a dermatologist.",
-                  "marks": []
-                }
-              ]
-            },
-            {
-              "_type": "block",
-              "style": "h2",
-              "_key": "h80",
-              "markDefs": [],
-              "children": [
-                {
-                  "_type": "span",
-                  "_key": "s81",
-                  "text": "2. Be gentle with the hair you have",
-                  "marks": []
-                }
-              ]
-            },
-            {
-              "_type": "block",
-              "style": "normal",
-              "listItem": "bullet",
-              "level": 1,
-              "_key": "l82",
-              "markDefs": [],
-              "children": [
-                {
-                  "_type": "span",
-                  "_key": "s83",
-                  "text": "Detangle wet hair with a wide-tooth comb, starting at the ends.",
-                  "marks": []
-                }
-              ]
-            },
-            {
-              "_type": "block",
-              "style": "normal",
-              "listItem": "bullet",
-              "level": 1,
-              "_key": "l84",
-              "markDefs": [],
-              "children": [
-                {
-                  "_type": "span",
-                  "_key": "s85",
-                  "text": "Skip tight ponytails and buns; use a soft scrunchie or a claw clip.",
-                  "marks": []
-                }
-              ]
-            },
-            {
-              "_type": "block",
-              "style": "normal",
-              "listItem": "bullet",
-              "level": 1,
-              "_key": "l86",
-              "markDefs": [],
-              "children": [
-                {
-                  "_type": "span",
-                  "_key": "s87",
-                  "text": "Turn the heat down on your dryer and irons, and always use a heat protectant.",
-                  "marks": []
-                }
-              ]
-            },
-            {
-              "_type": "block",
-              "style": "normal",
-              "listItem": "bullet",
-              "level": 1,
-              "_key": "l88",
-              "markDefs": [],
-              "children": [
-                {
-                  "_type": "span",
-                  "_key": "s89",
-                  "text": "Sleep on silk so the hair is not rubbed and pulled all night.",
                   "marks": []
                 }
               ]
@@ -3991,7 +4189,7 @@
                 {
                   "_type": "span",
                   "_key": "s91",
-                  "text": "3. Care for your scalp every day",
+                  "text": "1. Find out why it is happening",
                   "marks": []
                 }
               ]
@@ -3999,13 +4197,27 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p100",
+              "_key": "p108",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s101",
-                  "text": "Healthy hair grows from a healthy scalp. Wash with a gentle shampoo, massage the scalp for a minute or two while you do, and use a fortifying scalp serum daily. Give it three months: hair grows slowly, and so does the improvement.",
+                  "_key": "s109",
+                  "text": "Everyone loses about 50 to 100 hairs a day. If you are suddenly losing much more, something usually changed about three months earlier: stress, illness, surgery, a new medication, a baby, or a crash diet.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p110",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s111",
+                  "text": "If the shedding is new or heavy, ask your doctor for a blood test. Low iron, thyroid changes, and low vitamin D are common and very treatable causes. Patchy loss or an itchy, sore scalp is a reason to see a dermatologist.",
                   "marks": []
                 }
               ]
@@ -4019,6 +4231,112 @@
                 {
                   "_type": "span",
                   "_key": "s93",
+                  "text": "2. Be gentle with the hair you have",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l94",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s95",
+                  "text": "Detangle wet hair with a wide-tooth comb, starting at the ends.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l96",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s97",
+                  "text": "Skip tight ponytails and buns; use a soft scrunchie or a claw clip.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l98",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s99",
+                  "text": "Turn the heat down on your dryer and irons, and always use a heat protectant.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l100",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s101",
+                  "text": "Sleep on silk so the hair is not rubbed and pulled all night.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h102",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s103",
+                  "text": "3. Care for your scalp every day",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p112",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s113",
+                  "text": "Healthy hair grows from a healthy scalp. Wash with a gentle shampoo, massage the scalp for a minute or two while you do, and use a fortifying scalp serum daily. Give it three months: hair grows slowly, and so does the improvement.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h104",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s105",
                   "text": "4. Let the cut and color work for you",
                   "marks": []
                 }
@@ -4027,12 +4345,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p102",
+              "_key": "p114",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s103",
+                  "_key": "s115",
                   "text": "Long, heavy hair pulls and shows the scalp. A shorter shape with soft layers puts the weight where it creates fullness. Color helps too: a few lowlights close to your scalp color make the part look less sparse.",
                   "marks": []
                 }
@@ -4041,12 +4359,12 @@
             {
               "_type": "block",
               "style": "normal",
-              "_key": "p104",
+              "_key": "p116",
               "markDefs": [],
               "children": [
                 {
                   "_type": "span",
-                  "_key": "s105",
+                  "_key": "s117",
                   "text": "If you are worried, book a thinning hair consultation. We will look at it together, privately, and make a plan.",
                   "marks": []
                 }
@@ -4080,10 +4398,15 @@
         "status": "published",
         "data": {
           "title": "Salon and hours",
-          "salon_name": "James Mathew Salon",
-          "city": "South Orange County",
+          "salon_name": "James Matthew Salon",
+          "street": "19800 MacArthur Blvd., Ste. C80",
+          "city": "Irvine",
           "region": "CA",
+          "postal_code": "92612",
           "phone": "949-275-6251",
+          "salon_phone": "949-474-4221",
+          "map_url": "https://www.google.com/maps/search/?api=1&query=19800+MacArthur+Blvd+Ste+C80+Irvine+CA+92612",
+          "arrival_note": "Park on the top floor of the Newport Gateway visitor structure off Fairchild Road, then take the escalator in building 19800 to the bottom floor. Bring your parking ticket for validation.",
           "hours": [
             {
               "day": "tuesday",

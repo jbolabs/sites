@@ -88,7 +88,7 @@ export const openingHoursSpecification = (studio: Studio) =>
       : []
   );
 
-/** "James Mathew Salon, 123 Main St, Laguna Niguel, CA 92677" without empty parts. */
+/** "James Matthew Salon, 19800 MacArthur Blvd., Ste. C80, Irvine, CA 92612" without empty parts. */
 export const addressLine = (
   studio: Pick<
     Studio,

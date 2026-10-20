@@ -24,7 +24,8 @@ const bookable = data.bookable !== false;
   </div>
   <p class="mt-2 max-w-xl leading-relaxed text-muted-foreground">{data.summary}</p>
   <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-ui">
-    <span class="text-foreground/70">{formatDuration(data.duration_minutes)}</span>
+    <span class="text-foreground/70">{data.add_on ? `Add-on, +${formatDuration(data.duration_minutes)}` : formatDuration(data.duration_minutes)}</span>
+    {data.audience === "men" && <span class="text-foreground/70">For men</span>}
     {bookable ? (
       <a href={`/book?service=${service.id}`} class="relative z-10 font-medium text-espresso-deep underline decoration-clay decoration-1 underline-offset-4 hover:text-clay">Book this</a>
     ) : (

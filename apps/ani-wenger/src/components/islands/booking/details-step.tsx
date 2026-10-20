@@ -119,7 +119,7 @@ export const DetailsStep = ({
             name="notes"
             maxLength={1000}
             rows={4}
-            placeholder="Your hair history, a look you love, or a second service you would like."
+            placeholder="Anything about your hair, your event, or your schedule."
           />
         </Field>
         <p className="bg-sand/70 text-foreground/80 rounded-xl p-4 text-sm leading-relaxed">

@@ -6,17 +6,17 @@
  */
 /** Facts for the HairSalon JSON-LD and the footer. Leave unknown fields out rather than guessing. */
 interface BusinessFacts {
-  /** Where clients come from; the salon is in South Orange County. */
+  /** Where clients come from; the salon is in Irvine, near John Wayne Airport. */
   readonly areaServed: readonly string[];
   readonly email: string;
   readonly instagram: string;
-  /** The salon Ani works from. Its street address is confirmed with Ani before launch. */
+  /** The salon Ani works from, as printed on her business card. */
   readonly salon: {
     readonly name: string;
     readonly locality: string;
     readonly region: string;
-    readonly street?: string;
-    readonly postalCode?: string;
+    readonly street: string;
+    readonly postalCode: string;
   };
   /** E.164 form for `tel:` links and JSON-LD. */
   readonly telephone: string;
@@ -24,19 +24,21 @@ interface BusinessFacts {
 
 const business: BusinessFacts = {
   areaServed: [
-    "Laguna Niguel, CA",
     "Irvine, CA",
-    "Mission Viejo, CA",
-    "Laguna Hills, CA",
     "Newport Beach, CA",
+    "Costa Mesa, CA",
+    "Tustin, CA",
+    "Laguna Niguel, CA",
     "Orange County, CA",
   ],
   email: "aniwenger@gmail.com",
   instagram: "https://www.instagram.com/aniwenger/",
   salon: {
-    locality: "South Orange County",
-    name: "James Mathew Salon",
+    locality: "Irvine",
+    name: "James Matthew Salon",
+    postalCode: "92612",
     region: "CA",
+    street: "19800 MacArthur Blvd., Ste. C80",
   },
   telephone: "+19492756251",
 };
@@ -45,11 +47,11 @@ export const site = {
   business,
 
   description:
-    "Ani Wenger is a European master hairstylist in South Orange County: precision cuts, color, gray blending, and care for thinning hair. Book online.",
+    "Ani Wenger is a European master hairstylist in Irvine: precision cuts, color, gray blending, and care for thinning hair. Book online.",
 
   /** Appended to meta descriptions too short for a search snippet (see `metaDescription`). */
   descriptionContext:
-    "Ani Wenger, European master hairstylist in South Orange County, California.",
+    "Ani Wenger, European master hairstylist at James Matthew Salon in Irvine, California.",
 
   /**
    * Attached as a custom domain on the `prod` stage only. Unset until the zone is

@@ -19,7 +19,7 @@ import {
 /**
  * Ani Wenger infrastructure (one Alchemy stack, one stage per environment):
  *
- *   D1 (EmDash content and appointments) + R2 (media) + Images binding + session KV (auto)
+ *   D1 (EmDash content and appointments) + R2 (media; clients' hair photos) + Images binding + session KV (auto)
  *   + Turnstile widget (contact form and booking) + every-minute cron (EmDash
  *   scheduled publishing, appointment reminders) + a random calendar-feed key
  *   + Workers AI + AI Gateway for the CMS assistant (deployed stages only)
@@ -81,6 +81,19 @@ export default Alchemy.Stack(
       // Disposable stages must empty the bucket to delete it.
       forceDestroy: !stage.production,
     }).pipe(keep);
+    // Photos clients send with a booking: private (served only by unguessable
+    // name), never in the media library, and deleted after a year.
+    const hairPhotos = yield* Cloudflare.R2.Bucket("HairPhotos", {
+      forceDestroy: !stage.production,
+      lifecycleRules: [
+        {
+          deleteObjectsTransition: {
+            condition: { maxAge: 365 * 86_400, type: "Age" },
+          },
+          id: "delete-after-a-year",
+        },
+      ],
+    }).pipe(keep);
     // Bound everywhere so the Worker's types never branch; only prod runs the backup cron.
     const backups = yield* Cloudflare.R2.Bucket("Backups", {
       forceDestroy: !stage.production,
@@ -120,6 +133,7 @@ export default Alchemy.Stack(
       CMS_OWNER_EMAIL: studio.cmsOwnerEmail,
       CMS_OWNER_SITE: site.id,
       DB: database,
+      HAIR_PHOTOS: hairPhotos,
       // EmDash's /_image endpoint resizes media with this binding.
       IMAGES: Cloudflare.Images.Images("IMAGES"),
       MEDIA: media,

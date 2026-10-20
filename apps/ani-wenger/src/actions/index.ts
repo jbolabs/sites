@@ -27,6 +27,9 @@ const failureTag = <E extends { readonly _tag: string }>(
   return Option.isSome(error) ? error.value._tag : "Defect";
 };
 
+const ADD_ON_MESSAGE =
+  "Add-ons book together with a cut, color, or other service. Please choose one too.";
+
 const BUSY_MESSAGE =
   "Booking is busy for a moment. Please try again in a few seconds.";
 
@@ -58,6 +61,12 @@ export const server = {
         throw new ActionError({
           code: "NOT_FOUND",
           message: "That service cannot be booked online. Please call.",
+        });
+      }
+      if (tag === "InvalidVisit") {
+        throw new ActionError({
+          code: "BAD_REQUEST",
+          message: ADD_ON_MESSAGE,
         });
       }
       await Effect.runPromise(Effect.logError("availability failed", { tag }));
@@ -112,6 +121,19 @@ export const server = {
           throw new ActionError({
             code: "NOT_FOUND",
             message: "That service cannot be booked online. Please call.",
+          });
+        }
+        case "InvalidVisit": {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message: ADD_ON_MESSAGE,
+          });
+        }
+        case "PhotoRejected": {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message:
+              "One of the photos could not be read. Please remove it and add it again.",
           });
         }
         case "CalendarBusy": {

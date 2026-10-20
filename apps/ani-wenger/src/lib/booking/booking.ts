@@ -14,9 +14,11 @@ import {
 import type { EmailMessage } from "@jakebodea/cloudflare-kit/server";
 import { Clock, Effect, Option, Schema } from "effect";
 
+import { HAIR_HISTORY_ORDER } from "../labels.ts";
 import { availableDays, isOpenSlot } from "./availability.ts";
 import type { Busy, Day } from "./availability.ts";
 import { addDays, fromLocal, isLocalDate } from "./calendar.ts";
+import { PhotoUpload, decodePhoto, photosText } from "./hair-photos.ts";
 import { googleCalendarUrl } from "./ics.ts";
 import type { CalendarEvent } from "./ics.ts";
 import {
@@ -28,16 +30,20 @@ import {
   studioNewBookingMail,
 } from "./mail.ts";
 import type { MailAppointment, MailContext } from "./mail.ts";
+import { MAX_PHOTOS } from "./photo-limits.ts";
 import {
   Appointments,
   BookingLock,
   BookingMail,
   Catalog,
+  HairPhotos,
   endsAt,
   occupiedUntil,
 } from "./services.ts";
-import type { Appointment, BookableService, SalonPolicy } from "./services.ts";
+import type { Appointment, HairPhotoLink, SalonPolicy } from "./services.ts";
 import { hashToken, newToken, tokenMatches } from "./token.ts";
+import { MAX_VISIT_SERVICES, combineVisit, isVisit } from "./visit.ts";
+import type { Visit } from "./visit.ts";
 
 const MS_PER_HOUR = 3_600_000;
 const MS_PER_DAY = 24 * MS_PER_HOUR;
@@ -48,6 +54,12 @@ export const MAX_CALENDAR_DAYS = 42;
 export class ServiceUnavailable extends Schema.TaggedError<ServiceUnavailable>()(
   "ServiceUnavailable",
   { slug: Schema.String }
+) {}
+
+/** The services cannot be booked together (only add-ons, or too many). */
+export class InvalidVisit extends Schema.TaggedError<InvalidVisit>()(
+  "InvalidVisit",
+  { reason: Schema.String }
 ) {}
 
 /** Someone else took the time, or it is no longer within the booking rules. */
@@ -90,6 +102,10 @@ const trimmed = (min: number, max: number) =>
   );
 
 const Slug = Schema.String.check(Schema.isPattern(/^[a-z0-9-]{1,80}$/u));
+const Slugs = Schema.Array(Slug).check(
+  Schema.isMinLength(1),
+  Schema.isMaxLength(MAX_VISIT_SERVICES)
+);
 
 export const AvailabilityRequest = Schema.Struct({
   days: Schema.Number.check(
@@ -101,7 +117,7 @@ export const AvailabilityRequest = Schema.Struct({
       isLocalDate(value) ? undefined : "Expected a YYYY-MM-DD date"
     )
   ),
-  service: Slug,
+  services: Slugs,
 });
 export type AvailabilityRequest = typeof AvailabilityRequest.Type;
 
@@ -113,10 +129,15 @@ export const BookingForm = Schema.Struct({
       isEmailAddress(value) ? undefined : "Enter a valid email address"
     )
   ),
+  /** "What is on your hair now?", asked when the visit includes color. */
+  hairHistory: Schema.optional(Schema.Literals(HAIR_HISTORY_ORDER)),
   name: trimmed(2, 120),
   notes: Schema.optional(Schema.Trim.check(Schema.isMaxLength(1000))),
   phone: trimmed(7, 40),
-  service: Slug,
+  photos: Schema.optional(
+    Schema.Array(PhotoUpload).check(Schema.isMaxLength(MAX_PHOTOS))
+  ),
+  services: Slugs,
   /** The chosen start, exactly as the calendar offered it (ISO 8601, UTC). */
   start: Schema.String.check(
     Schema.makeFilter((value: string) =>
@@ -186,12 +207,25 @@ const bookableService = Effect.fn("bookableService")(function* bookableService(
   });
 });
 
-/** Open start times for a service over a run of days. */
+/** The chosen services as one visit: every one bookable, at least one a main service. */
+export const visitFor = Effect.fn("visitFor")(function* visitFor(
+  slugs: readonly string[]
+) {
+  const services = yield* Effect.all(
+    slugs.map((slug) => bookableService(slug))
+  );
+  const visit = combineVisit(services);
+  return isVisit(visit)
+    ? visit
+    : yield* new InvalidVisit({ reason: visit.reason });
+});
+
+/** Open start times for a visit over a run of days. */
 export const openTimes = Effect.fn("openTimes")(function* openTimes(
   request: AvailabilityRequest
 ) {
   const catalog = yield* Catalog;
-  const service = yield* bookableService(request.service);
+  const service: Visit = yield* visitFor(request.services);
   const policy = yield* catalog.policy;
   const { timeZone } = policy.rules;
   const busy = yield* busyBetween(
@@ -209,7 +243,7 @@ export const openTimes = Effect.fn("openTimes")(function* openTimes(
       durationMinutes: service.durationMinutes,
     },
   });
-  return { days, service };
+  return { days, visit: service };
 });
 
 const mailContext = (policy: SalonPolicy, siteName: string): MailContext => ({
@@ -282,6 +316,7 @@ const asMail = (appointment: Appointment): MailAppointment => ({
   clientName: appointment.clientName,
   durationMinutes: appointment.durationMinutes,
   email: appointment.email,
+  hairHistory: appointment.hairHistory,
   notes: appointment.notes,
   phone: appointment.phone,
   service: appointment.service,
@@ -296,12 +331,16 @@ export const bookAppointment = Effect.fn("bookAppointment")(
     const appointments = yield* Appointments;
     const lock = yield* BookingLock;
     const mail = yield* BookingMail;
+    const photoStore = yield* HairPhotos;
 
     yield* turnstile.verify({
       remoteIp: request.remoteIp,
       token: form.turnstileToken,
     });
-    const service: BookableService = yield* bookableService(form.service);
+    const service = yield* visitFor(form.services);
+    const photos = yield* Effect.all(
+      (form.photos ?? []).map((photo) => decodePhoto(photo))
+    );
     const policy = yield* catalog.policy;
     const start = new Date(form.start);
     const length = {
@@ -310,6 +349,16 @@ export const bookAppointment = Effect.fn("bookAppointment")(
     };
     const token = newToken();
     const tokenHash = yield* Effect.promise(async () => await hashToken(token));
+    // Stored before the lock: if the time is then taken, the photos are
+    // orphans the bucket's lifecycle rule deletes, and the lock stays short.
+    const hairPhotos: HairPhotoLink[] = yield* Effect.forEach(
+      photos,
+      (photo) =>
+        photoStore
+          .put(photo.bytes)
+          .pipe(Effect.map((path) => ({ kind: photo.kind, path }))),
+      { concurrency: MAX_PHOTOS }
+    );
 
     const { id } = yield* lock.withLock(
       Effect.gen(function* checkAndSave() {
@@ -331,10 +380,12 @@ export const bookAppointment = Effect.fn("bookAppointment")(
           ...length,
           clientName: form.name,
           email: form.email,
+          hairHistory: form.hairHistory,
+          hairPhotos,
           notes: form.notes === "" ? undefined : form.notes,
           phone: form.phone,
           service: service.title,
-          serviceSlug: service.slug,
+          serviceSlug: service.services.map((part) => part.slug).join(","),
           start,
           tokenHash,
         });
@@ -346,6 +397,7 @@ export const bookAppointment = Effect.fn("bookAppointment")(
       clientName: form.name,
       durationMinutes: service.durationMinutes,
       email: form.email,
+      hairHistory: form.hairHistory,
       notes: form.notes,
       phone: form.phone,
       service: service.title,
@@ -390,6 +442,7 @@ export const bookAppointment = Effect.fn("bookAppointment")(
         ...studioNewBookingMail(appointment, {
           ...context,
           adminUrl: `${mail.siteOrigin}/_admin`,
+          photos: photosText(hairPhotos, mail.siteOrigin),
         }),
       },
       logContext

@@ -67,3 +67,42 @@ export const formatDuration = (minutes: number): string => {
   }
   return rest === 0 ? `${hours} hr` : `${hours} hr ${rest} min`;
 };
+
+/** Who a service is for; "everyone" services show for both. */
+export const AUDIENCE_LABELS = {
+  everyone: "Everyone",
+  men: "Men",
+  women: "Women",
+} as const;
+export type Audience = keyof typeof AUDIENCE_LABELS;
+
+/**
+ * "What is on your hair now?" The answers that change a color appointment
+ * into a color correction are flagged: removing old color first takes more
+ * time and is priced differently, so Ani wants to see the hair before booking it.
+ */
+export const HAIR_HISTORY = {
+  "home-color": {
+    label: "Box dye or color done at home",
+    needsCorrection: true,
+  },
+  lightened: { label: "Bleached or lightened", needsCorrection: true },
+  natural: { label: "My natural color, never colored", needsCorrection: false },
+  "not-sure": { label: "Not sure", needsCorrection: false },
+  "salon-color": { label: "Colored at a salon", needsCorrection: false },
+  "vivid-color": {
+    label: "Vivid color, like purple, blue, pink, or red",
+    needsCorrection: true,
+  },
+} as const;
+export type HairHistory = keyof typeof HAIR_HISTORY;
+
+/** Display order: most common first. */
+export const HAIR_HISTORY_ORDER: readonly HairHistory[] = [
+  "natural",
+  "salon-color",
+  "home-color",
+  "vivid-color",
+  "lightened",
+  "not-sure",
+];

@@ -6,6 +6,10 @@ Placeholders until Ani sends her own photos. Replace them in the CMS (Media), no
 
 - `ani-*.jpg`: before and after photos and finished styles posted by Ani. Confirm each client is happy to appear before launch.
 
+## Ani's portrait
+
+- `ani-wenger-portrait.jpg`: Ani's headshot from her old site (aniwenger.com, archived by the Wayback Machine), the same photo as her business card. It is 485 px wide; ask Ani for the original or a new one before launch.
+
 ## Unsplash (free under the Unsplash License)
 
 | File | Photo | Photographer |

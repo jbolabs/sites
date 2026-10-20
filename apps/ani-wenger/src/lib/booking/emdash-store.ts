@@ -11,9 +11,10 @@
 import { Effect, Layer, Option, Schema } from "effect";
 import { withEmDashRuntime } from "emdash/middleware";
 
-import { formatPrice } from "../labels.ts";
+import { HAIR_HISTORY_ORDER } from "../labels.ts";
 import { addressLine } from "../studio.ts";
 import type { Busy } from "./availability.ts";
+import { parsePhotosText, photosText } from "./hair-photos.ts";
 import { bookingRules } from "./rules.ts";
 import {
   APPOINTMENT_STATES,
@@ -86,6 +87,9 @@ const AppointmentData = Schema.Struct({
   buffer_minutes: OptionalCount,
   duration_minutes: Schema.Number,
   email: OptionalText,
+  // An unknown answer (an editor's typo) reads as no answer rather than hiding the appointment.
+  hair_history: Schema.optional(Schema.NullOr(Schema.String)),
+  hair_photos: OptionalText,
   manage_token_hash: OptionalText,
   notes: OptionalText,
   phone: OptionalText,
@@ -113,6 +117,10 @@ const toAppointment = (item: Item): Option.Option<Appointment> =>
       createdAt: new Date(item.createdAt),
       durationMinutes: data.duration_minutes,
       email: text(data.email),
+      hairHistory: HAIR_HISTORY_ORDER.find(
+        (answer) => answer === data.hair_history
+      ),
+      hairPhotos: parsePhotosText(data.hair_photos),
       id: item.id,
       notes: text(data.notes),
       phone: text(data.phone),
@@ -147,97 +155,108 @@ const TimeOffData = Schema.Struct({
   starts_at: Schema.String,
 });
 
-export const AppointmentsEmDash = Layer.succeed(Appointments, {
-  between: (from, to) =>
-    withRuntime(
-      "Appointments.between",
-      async (runtime) =>
-        await listAll(runtime, "appointments", {
-          fieldFilters: {
-            starts_at: { gte: from.toISOString(), lt: to.toISOString() },
-          },
-          order: "asc",
-          orderBy: "starts_at",
-        })
-    ).pipe(Effect.flatMap(decodeAll)),
+/** A time-off entry as busy time; an unreadable one blocks nothing. */
+const toBusy = (item: Item): Busy[] =>
+  Option.match(Schema.decodeUnknownOption(TimeOffData)(item.data), {
+    onNone: () => [],
+    onSome: (away) => [
+      { end: new Date(away.ends_at), start: new Date(away.starts_at) },
+    ],
+  });
 
-  create: (appointment) =>
-    withRuntime("Appointments.create", async (runtime) => {
-      const result = unwrap(
-        await runtime.handleContentCreate("appointments", {
-          data: {
-            buffer_minutes: appointment.bufferMinutes,
-            duration_minutes: appointment.durationMinutes,
-            email: appointment.email,
-            manage_token_hash: appointment.tokenHash,
-            notes: appointment.notes ?? null,
-            phone: appointment.phone,
-            reminder_sent: false,
-            service: appointment.service,
-            service_slug: appointment.serviceSlug,
-            source: "website",
-            starts_at: appointment.start.toISOString(),
-            state: "confirmed",
-            title: appointment.clientName,
-          },
-          // Not public content: drafts never reach a page, sitemap, or export.
-          status: "draft",
-        })
-      );
-      return { id: result.item.id };
-    }),
-
-  find: (id) =>
-    withRuntime("Appointments.find", async (runtime) => {
-      const result = await runtime.handleContentGet("appointments", id);
-      return result.success && result.data !== undefined
-        ? Option.some(result.data.item)
-        : Option.none<Item>();
-    }).pipe(Effect.map(Option.flatMap(toAppointment))),
-
-  markReminded: (id) =>
-    withRuntime("Appointments.markReminded", async (runtime) => {
-      unwrap(
-        await runtime.handleContentUpdate("appointments", id, {
-          data: { reminder_sent: true },
-        })
-      );
-    }),
-
-  setState: (id, state) =>
-    withRuntime("Appointments.setState", async (runtime) => {
-      unwrap(
-        await runtime.handleContentUpdate("appointments", id, {
-          data: { state },
-        })
-      );
-    }),
-
-  timeOff: (from, to) =>
-    withRuntime(
-      "Appointments.timeOff",
-      async (runtime) =>
-        await listAll(runtime, "time_off", {
-          fieldFilters: {
-            ends_at: { gt: from.toISOString() },
-            starts_at: { lt: to.toISOString() },
-          },
-        })
-    ).pipe(
-      Effect.map((items) =>
-        items.flatMap((item): Busy[] =>
-          Option.match(Schema.decodeUnknownOption(TimeOffData)(item.data), {
-            onNone: () => [],
-            onSome: (away) => [
-              { end: new Date(away.ends_at), start: new Date(away.starts_at) },
-            ],
+/** The appointment book; `origin` makes the stored photo links complete URLs. */
+export const appointmentsEmDash = (origin: string) =>
+  Layer.succeed(Appointments, {
+    between: (from, to) =>
+      withRuntime(
+        "Appointments.between",
+        async (runtime) =>
+          await listAll(runtime, "appointments", {
+            fieldFilters: {
+              starts_at: { gte: from.toISOString(), lt: to.toISOString() },
+            },
+            order: "asc",
+            orderBy: "starts_at",
           })
-        )
-      )
-    ),
-});
+      ).pipe(Effect.flatMap(decodeAll)),
+
+    create: (appointment) =>
+      withRuntime("Appointments.create", async (runtime) => {
+        const result = unwrap(
+          await runtime.handleContentCreate("appointments", {
+            data: {
+              buffer_minutes: appointment.bufferMinutes,
+              duration_minutes: appointment.durationMinutes,
+              email: appointment.email,
+              hair_history: appointment.hairHistory ?? null,
+              hair_photos:
+                appointment.hairPhotos.length === 0
+                  ? null
+                  : photosText(appointment.hairPhotos, origin),
+              manage_token_hash: appointment.tokenHash,
+              notes: appointment.notes ?? null,
+              phone: appointment.phone,
+              reminder_sent: false,
+              service: appointment.service,
+              service_slug: appointment.serviceSlug,
+              source: "website",
+              starts_at: appointment.start.toISOString(),
+              state: "confirmed",
+              title: appointment.clientName,
+            },
+            // Not public content: drafts never reach a page, sitemap, or export.
+            status: "draft",
+          })
+        );
+        return { id: result.item.id };
+      }),
+
+    find: (id) =>
+      withRuntime("Appointments.find", async (runtime) => {
+        const result = await runtime.handleContentGet("appointments", id);
+        return result.success && result.data !== undefined
+          ? Option.some(result.data.item)
+          : Option.none<Item>();
+      }).pipe(Effect.map(Option.flatMap(toAppointment))),
+
+    markReminded: (id) =>
+      withRuntime("Appointments.markReminded", async (runtime) => {
+        unwrap(
+          await runtime.handleContentUpdate("appointments", id, {
+            data: { reminder_sent: true },
+          })
+        );
+      }),
+
+    setState: (id, state) =>
+      withRuntime("Appointments.setState", async (runtime) => {
+        unwrap(
+          await runtime.handleContentUpdate("appointments", id, {
+            data: { state },
+          })
+        );
+      }),
+
+    timeOff: (from, to) =>
+      withRuntime(
+        "Appointments.timeOff",
+        async (runtime) =>
+          await listAll(runtime, "time_off", {
+            fieldFilters: {
+              ends_at: { gt: from.toISOString() },
+              starts_at: { lt: to.toISOString() },
+            },
+          })
+      ).pipe(Effect.map((items) => items.flatMap(toBusy))),
+  });
 
 const ServiceData = Schema.Struct({
+  add_on: Schema.optional(
+    Schema.NullOr(Schema.Union([Schema.Boolean, Schema.Number]))
+  ),
+  ask_photos: Schema.optional(
+    Schema.NullOr(Schema.Union([Schema.Boolean, Schema.Number]))
+  ),
   bookable: Schema.optional(
     Schema.NullOr(Schema.Union([Schema.Boolean, Schema.Number]))
   ),
@@ -329,12 +348,12 @@ export const catalogEmDash = (timeZone: string) =>
             Option.flatMap(Schema.decodeUnknownOption(ServiceData)),
             Option.filter((service) => flag(service.bookable, true)),
             Option.map((service) => ({
+              addOn: flag(service.add_on, false),
+              asksForPhotos: flag(service.ask_photos, false),
               bufferMinutes: service.buffer_minutes ?? 0,
               durationMinutes: service.duration_minutes,
-              priceLabel: formatPrice(
-                service.price,
-                flag(service.price_from, false)
-              ),
+              price: service.price ?? undefined,
+              priceFrom: flag(service.price_from, false),
               slug,
               title: service.title,
             }))

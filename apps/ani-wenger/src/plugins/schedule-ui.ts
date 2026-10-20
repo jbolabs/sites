@@ -7,6 +7,7 @@ import type { Block, BlockResponse } from "@emdash-cms/blocks";
 
 import { formatDate, formatTime, toLocal } from "../lib/booking/calendar.ts";
 import type { Appointment } from "../lib/booking/services.ts";
+import { HAIR_HISTORY } from "../lib/labels.ts";
 
 export const CANCEL_ACTION = "cancel";
 export const PAGE_ACTION = "page";
@@ -42,6 +43,84 @@ const row = (appointment: Appointment, timeZone: string, today: string) => ({
   service: appointment.service,
   when: when(appointment.start, timeZone, today),
 });
+
+/** At most this many appointments' photos on the page; the rest wait their turn. */
+const HAIR_NOTES_SHOWN = 8;
+
+const photoColumn = (
+  appointment: Appointment,
+  kind: "now" | "goal",
+  label: string
+): Block[] => {
+  const photos = appointment.hairPhotos.filter((photo) => photo.kind === kind);
+  return [
+    { text: label, type: "context" },
+    ...(photos.length === 0
+      ? [{ text: "No photo", type: "context" } as const]
+      : photos.map((photo, index): Block => ({
+          alt: `${appointment.clientName}, ${label.toLowerCase()} ${index + 1}`,
+          type: "image",
+          url: photo.path,
+        }))),
+  ];
+};
+
+/** What clients told Ani about their hair, with their photos, before they arrive. */
+const hairNotes = (
+  upcoming: readonly Appointment[],
+  timeZone: string,
+  today: string
+): Block[] => {
+  const withNotes = upcoming
+    .filter(
+      (appointment) =>
+        appointment.hairPhotos.length > 0 ||
+        appointment.hairHistory !== undefined
+    )
+    .slice(0, HAIR_NOTES_SHOWN);
+  if (withNotes.length === 0) {
+    return [];
+  }
+  return [
+    { type: "divider" },
+    { text: "Before they arrive", type: "header" },
+    {
+      text: "What clients said about their hair, and the photos they sent.",
+      type: "context",
+    },
+    ...withNotes.flatMap((appointment): Block[] => {
+      const history =
+        appointment.hairHistory === undefined
+          ? undefined
+          : HAIR_HISTORY[appointment.hairHistory];
+      return [
+        {
+          text: `${appointment.clientName}: ${appointment.service}, ${when(appointment.start, timeZone, today)}`,
+          type: "section",
+        },
+        ...(history === undefined
+          ? []
+          : [
+              {
+                text: `Color on their hair now: ${history.label}.${history.needsCorrection ? " This may need a color correction; call them if the time or price will change." : ""}`,
+                type: "context",
+              } as const,
+            ]),
+        ...(appointment.hairPhotos.length === 0
+          ? []
+          : [
+              {
+                columns: [
+                  photoColumn(appointment, "now", "Hair now"),
+                  photoColumn(appointment, "goal", "The look they want"),
+                ],
+                type: "columns",
+              } satisfies Block,
+            ]),
+      ];
+    }),
+  ];
+};
 
 export const schedulePage = ({
   feedUrl,
@@ -89,6 +168,7 @@ export const schedulePage = ({
       text: "Open an appointment to change its time or notes. To block time off, use Time off in the sidebar.",
       type: "context",
     },
+    ...hairNotes(upcoming, timeZone, today),
     { type: "divider" },
     { text: "Your appointments on your phone", type: "header" },
     {

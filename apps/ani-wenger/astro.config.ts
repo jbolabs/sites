@@ -129,6 +129,11 @@ export default defineConfig({
     }),
   ],
   output: "server",
+  security: {
+    // A booking can carry up to four hair photos the browser has already shrunk
+    // (about 250 KB each, 900 KB at most); the default 1 MB fits only one or two.
+    actionBodySizeLimit: 5 * 1024 * 1024,
+  },
   site: inputs.origin,
   vite: {
     ...(buildCaches && { cacheDir: buildCaches.vite }),

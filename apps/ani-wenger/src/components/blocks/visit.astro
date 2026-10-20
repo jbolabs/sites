@@ -33,7 +33,8 @@ const studio = entry?.data;
         {studio.arrival_note && <p class="text-foreground/75">{studio.arrival_note}</p>}
         {studio.map_url && <p><a href={sanitizeHref(studio.map_url)} class="font-medium text-espresso-deep underline decoration-clay underline-offset-4">Open in Maps</a></p>}
         <h3 class="pt-4 text-xl">Call or email</h3>
-        <p><a href={telHref(studio.phone)} class="hover:text-clay">{studio.phone}</a></p>
+        <p><a href={telHref(studio.phone)} class="hover:text-clay">{studio.phone}</a> <span class="text-foreground/60">(Ani)</span></p>
+        {studio.salon_phone && <p><a href={telHref(studio.salon_phone)} class="hover:text-clay">{studio.salon_phone}</a> <span class="text-foreground/60">(salon front desk)</span></p>}
         <p><a href={`mailto:${site.business.email}`} class="break-all hover:text-clay">{site.business.email}</a></p>
       </div>
       <div>

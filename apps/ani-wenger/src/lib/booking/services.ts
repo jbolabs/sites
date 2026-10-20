@@ -7,6 +7,7 @@ import type { EmailAddress } from "@jakebodea/cloudflare-kit/server";
  */
 import { Config, Context, Effect, Layer, Option, Schema } from "effect";
 
+import type { HairHistory } from "../labels.ts";
 import type { BookingRules, Busy } from "./availability.ts";
 
 export const APPOINTMENT_STATES = [
@@ -25,6 +26,9 @@ export interface Appointment {
   readonly notes: string | undefined;
   readonly service: string;
   readonly serviceSlug: string | undefined;
+  readonly hairHistory: HairHistory | undefined;
+  /** Photos the client sent, as `HairPhotoLink`s (see `hair-photos.ts`). */
+  readonly hairPhotos: readonly HairPhotoLink[];
   readonly start: Date;
   readonly durationMinutes: number;
   readonly bufferMinutes: number;
@@ -40,7 +44,10 @@ export interface NewAppointment {
   readonly phone: string;
   readonly notes: string | undefined;
   readonly service: string;
+  /** Every service in the visit, comma-separated. */
   readonly serviceSlug: string;
+  readonly hairHistory: HairHistory | undefined;
+  readonly hairPhotos: readonly HairPhotoLink[];
   readonly start: Date;
   readonly durationMinutes: number;
   readonly bufferMinutes: number;
@@ -108,8 +115,32 @@ export interface BookableService {
   readonly title: string;
   readonly durationMinutes: number;
   readonly bufferMinutes: number;
-  readonly priceLabel: string | undefined;
+  /** Dollars; 0 is complimentary, absent is unlisted. */
+  readonly price?: number | undefined;
+  readonly priceFrom: boolean;
+  /** Only booked together with a main service. */
+  readonly addOn: boolean;
+  readonly asksForPhotos: boolean;
 }
+
+/** Which photo it is: the hair as it is now, or the look the client wants. */
+export const PHOTO_KINDS = ["now", "goal"] as const;
+export type PhotoKind = (typeof PHOTO_KINDS)[number];
+
+export interface HairPhotoLink {
+  readonly kind: PhotoKind;
+  /** Root-relative: `/hair-photos/<name>.jpg`. */
+  readonly path: string;
+}
+
+/** The private photo store. Names are random, so a photo's address is its key. */
+export class HairPhotos extends Context.Service<
+  HairPhotos,
+  {
+    /** Stores a JPEG and returns its root-relative path. */
+    readonly put: (jpeg: Uint8Array) => Effect.Effect<string, StoreFailed>;
+  }
+>()("ani-wenger/HairPhotos") {}
 
 /** The salon rules plus what confirmations need to say. */
 export interface SalonPolicy {

@@ -27,8 +27,8 @@ import {
 import type { Day, Slot } from "./types";
 
 interface TimeStepProps {
-  /** Remount per service (`key`): each service has its own open times. */
-  readonly service: string;
+  /** The visit's services. Remount when they change (`key`): open times depend on its length. */
+  readonly services: readonly string[];
   /** Today in the salon's time zone, `YYYY-MM-DD`. */
   readonly today: string;
   readonly selected: Slot | undefined;
@@ -60,7 +60,7 @@ const openCount = (count: number) => {
 };
 
 const loadMonth = async (
-  service: string,
+  services: readonly string[],
   month: string,
   today: string
 ): Promise<Load> => {
@@ -68,7 +68,7 @@ const loadMonth = async (
   const { data, error } = await actions.availability({
     days: daysBetween(from, nextMonth(month)),
     from,
-    service,
+    services,
   });
   return error === undefined
     ? { days: data.days, state: "ready" }
@@ -104,7 +104,7 @@ export const TimeStep = ({
   onSelect,
   phone,
   selected,
-  service,
+  services,
   today,
 }: TimeStepProps) => {
   const [month, setMonth] = useState(() => monthStart(today));
@@ -117,10 +117,12 @@ export const TimeStep = ({
   const times = useRef<HTMLDivElement>(null);
 
   const load = loads.get(month);
+  // A string, so a new array with the same services does not refetch.
+  const visitKey = services.join(",");
   useEffect(() => {
     let cancelled = false;
     const fetchMonth = async () => {
-      const result = await loadMonth(service, month, today);
+      const result = await loadMonth(visitKey.split(","), month, today);
       if (cancelled) {
         return;
       }
@@ -136,7 +138,7 @@ export const TimeStep = ({
     return () => {
       cancelled = true;
     };
-  }, [load, month, service, today]);
+  }, [load, month, visitKey, today]);
 
   const pageTo = (target: string) => {
     autoAdvance.current = 0;
