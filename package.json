@@ -70,6 +70,7 @@
     "test:root": "vitest run",
     "smoke": "bun packages/control-app/src/cli.ts smoke",
     "references": "bun scripts/sync-references.ts",
+    "secrets": "bun scripts/dev-secrets.ts",
     "setup:worktree": "bun scripts/setup-worktree.ts",
     "prepare": "git rev-parse --git-dir >/dev/null 2>&1 && lefthook install || true",
     "app": "bun packages/control-app/src/cli.ts",

@@ -79,11 +79,13 @@ Why each client-site choice was made, and how it is built: [ADR 0001](adr/0001-c
 
 ## Secrets
 
-No Infisical, no 1Password.
+Two Infisical projects, one per trust tier ([ADR 4](adr/0004-infisical-secret-tiers.md)). No 1Password.
 
-- Local: one `.env` in the **main checkout** only. Worktrees get a symlink (`scripts/setup-worktree.ts` via `t3.json` `runOnWorktreeCreate` + lefthook `post-checkout`), and Alchemy's DotEnv provider reads the main checkout's file via `git rev-parse --path-format=absolute --git-common-dir` as a fallback.
+- **`sites-dev`** (env `dev`, id in the committed `.infisical.json`): development values, readable by the `agent-dev` machine identity. Run anything with them through `bun run secrets -- <cmd>` (`scripts/dev-secrets.ts`); no `.env` needed. Never holds a preview or prod value.
+- **`sites-prod`** (envs `preview`, `prod`, id `cb46a5eb-7afc-4e8a-93b7-40a065c6d6c9`): deployed-tier values, readable by `ci-prod` (GitHub OIDC, `main`) and the operator, never agents. Operator commands that mint or deploy them source it: `infisical run --projectId cb46a5eb-7afc-4e8a-93b7-40a065c6d6c9 --env prod -- bun alchemy deploy stacks/github.ts --stage ci`. It holds `PUBLISHED_CONTENT_EXPORT_TOKEN` in both `preview` and `prod`; every other deployed credential is minted by Alchemy (`stacks/`).
+- Local fallback (dev-only): one `.env` in the **main checkout** only. Worktrees get a symlink (`scripts/setup-worktree.ts` via `t3.json` `runOnWorktreeCreate` + lefthook `post-checkout`), and Alchemy's DotEnv provider reads the main checkout's file via `git rev-parse --path-format=absolute --git-common-dir` as a fallback. `siteSecrets()` reads the process environment last, so Infisical-injected values win over `.env`.
 - CI: every workflow variable and secret is written by Alchemy in `stacks/`. `scripts/ci/workflow-env.test.ts` rejects references without a stack writer. Email addresses are committed configuration, not secrets.
-- Published export: private `PUBLISHED_CONTENT_EXPORT_TOKEN` (at least 32 random characters) shared through main-checkout `.env` and Alchemy-written production/preview GitHub environment secrets; production-only export and dev/pr-only bootstrap completion. One-time control-plane deployment plus normal CI production deployment is required.
+- Published export: private `PUBLISHED_CONTENT_EXPORT_TOKEN` (at least 32 random characters) shared through `sites-dev` (local `--content prod`; main-checkout `.env` as fallback), `sites-prod` (what `stacks/github.ts` mints from) and Alchemy-written production/preview GitHub environment secrets; production-only export and dev/pr-only bootstrap completion. One-time control-plane deployment plus normal CI production deployment is required.
 - Generated secrets: `Alchemy.Random`. Shared rotatable secrets: Cloudflare Secrets Store.
 - Cloudflare credentials: Alchemy profiles (`~/.alchemy`), never exported env vars.
 
@@ -134,4 +136,4 @@ T3 Code / Executor style: root `AGENTS.md` (+ `CLAUDE.md` symlink) with stack ma
 - Get a scoped `agent` Alchemy profile; re-auth the `default` OAuth profile from a real terminal.
 - Apply the CI control-plane changes with explicit authorization to provision the analytics-read token. Verify that Account Settings Write permits Rum site creation on the first prod deploy. Real domains and verified senders are still needed for email.
 - File Alchemy issues: supported custom Worker entry for `Website.Astro`; `config:` path bug; EmDash image endpoint support; SSR dep-optimizer instability under the workerd dev runner (stale chunks / duplicate React); dev proxy resetting curl connections.
-- Extract `@jakebodea/*` toolkit; adopt in pcobooster (drop Infisical, add control-app, fake Planning Center, per-worktree stages) and shouldertap.
+- Extract `@jakebodea/*` toolkit; adopt in pcobooster (two-tier Infisical projects, add control-app, fake Planning Center, per-worktree stages) and shouldertap.

@@ -35,10 +35,19 @@ bun run ci                  # lint (zero warnings) + typecheck + tests, cached b
 bun run build               # credential-free production build of every site
 bun run proof -- run --flow "…" --artifact path#alt
 bun run fix                 # format + autofix
+bun run secrets -- <cmd>    # run <cmd> with sites-dev secrets from Infisical (no .env needed)
 bun --cwd apps/<site> run types   # regenerate emdash-env.d.ts after seed schema changes
 ```
 
 The Alchemy profile comes from `ALCHEMY_PROFILE` (e.g. `ALCHEMY_PROFILE=admin`). Local dev uses only emulated resources; it still needs a profile to resolve the account.
+
+## Agent secrets (Infisical)
+
+- Each repo has two Infisical projects. `sites-dev` (env `dev`, id `49d82a92-1821-44d4-bb5f-4252b411eadb`) holds development credentials; `sites-prod` (envs `preview`, `prod`, id `cb46a5eb-7afc-4e8a-93b7-40a065c6d6c9`) holds deployed-tier values.
+- Identities are trust tiers: `agent-dev` (Universal Auth; `INFISICAL_CLIENT_ID`/`INFISICAL_CLIENT_SECRET` in the agent environment) is Viewer on every `*-dev` project only. `ci-prod` (GitHub OIDC, `main` of any jbolabs repo) is Viewer on every `*-prod` project. Agents never get `*-prod` access.
+- The free plan has no environment-scoped roles: the project is the access boundary. Never put prod or preview values in a `*-dev` project, or add a non-`dev` environment to one.
+- Deploy jobs load `sites-prod` through `ci-prod` and Alchemy writes the values into Cloudflare.
+- Agent run: `bun run secrets -- <cmd>` (for example `bun run secrets -- bun run app -- start`) runs `<cmd>` with `sites-dev` loaded. It logs in from `INFISICAL_CLIENT_ID`/`INFISICAL_CLIENT_SECRET` without printing the token and reads the project id from `.infisical.json`; see `scripts/dev-secrets.ts`.
 
 ## Never
 
@@ -46,7 +55,7 @@ The Alchemy profile comes from `ALCHEMY_PROFILE` (e.g. `ALCHEMY_PROFILE=admin`).
 - Never deploy `prod` from a shell. Production deploys from CI on merge to `main`; the stack refuses otherwise.
 - Never deploy, destroy, or change cloud resources without the user's explicit go-ahead for that action.
 - Never touch infrastructure outside Alchemy. Every resource and every setting lives in an `alchemy.run.ts` or `stacks/` and changes only through `alchemy deploy`/`destroy`. No dashboard, Cloudflare MCP write tools, `wrangler`, or raw API calls that create, change, or delete resources or the data inside them (D1 rows, R2 objects, KV keys). Read-only inspection is fine, and so is using the site itself (the CMS, `app seed`/`reset`, the contact form). A broken stage is fixed in code and redeployed, or destroyed and redeployed.
-- Never print or commit secrets. Real `.env` files live only in the main checkout.
+- Never print or commit secrets. Dev secrets come from `sites-dev` via `bun run secrets -- <cmd>`; a real `.env` (dev-only fallback) lives only in the main checkout. Never put preview or prod values in either.
 - Never add `@cloudflare/vite-plugin`, wrangler config, or an Astro `adapter`: Alchemy owns that.
 - Never run Effect in islands. Islands are plain React; Effect stays on the server.
 - Never disable a lint rule inline without a `-- reason`. Fix the code first.

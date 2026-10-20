@@ -5,6 +5,10 @@
  *
  *   ALCHEMY_PROFILE=admin bun alchemy deploy stacks/github.ts --stage ci
  *
+ * Run it under `infisical run` against the `sites-prod` project's `prod` env
+ * (exact command in docs/stack.md "Secrets"): `PUBLISHED_CONTENT_EXPORT_TOKEN`
+ * comes from there, never from an agent's `.env`.
+ *
  * Needs an Alchemy profile that can create Cloudflare API tokens and a GitHub
  * login (`gh auth login`). Deploy once per repository, again to rotate.
  */
