@@ -6,8 +6,9 @@
  *
  *   ALCHEMY_PROFILE=admin bun alchemy deploy stacks/turbo-cache.ts --stage shared
  *
- * Local use: copy the `turboApi`/`turboTeam` outputs and the token (shown
- * once with `bun alchemy state` for this stage) into the main checkout's `.env`.
+ * Local use: put the `turboApi`/`turboTeam` outputs and the token (shown once
+ * with `bun alchemy state` for this stage) in `sites-dev` as `TURBO_API`,
+ * `TURBO_TEAM`, `TURBO_TOKEN`, and run turbo under `bun run secrets -- …`.
  */
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";

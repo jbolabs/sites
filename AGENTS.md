@@ -35,10 +35,21 @@ bun run ci                  # lint (zero warnings) + typecheck + tests, cached b
 bun run build               # credential-free production build of every site
 bun run proof -- run --flow "…" --artifact path#alt
 bun run fix                 # format + autofix
+bun run setup:infisical     # once per agent machine: add agent-dev (Infisical) to the Alchemy profile
+bun run secrets -- <cmd>    # run a non-Alchemy <cmd> with sites-dev in process.env (e.g. --content prod)
 bun --cwd apps/<site> run types   # regenerate emdash-env.d.ts after seed schema changes
 ```
 
 The Alchemy profile comes from `ALCHEMY_PROFILE` (e.g. `ALCHEMY_PROFILE=admin`). Local dev uses only emulated resources; it still needs a profile to resolve the account.
+
+## Agent secrets (Infisical)
+
+- Secrets come from Infisical through Alchemy (`Infisical.Secrets` in each stack). `stacks/secrets.ts` holds the project ids and maps stage → source: `prod` reads `sites-prod`, `pr-*`/CI previews read nothing from Infisical, everything else reads `sites-dev`.
+- Who can read what: Alchemy `default` profile = `agent-dev` (`*-dev` only); `admin` profile = `operator` (all; the owner's Mac only, pass `--profile admin`); CI = `ci-prod` via GitHub OIDC, only in jobs using the `production` environment (main only).
+- Agent setup, once per machine: export `INFISICAL_CLIENT_ID`/`INFISICAL_CLIENT_SECRET`, then `bun run setup:infisical`.
+- Never add prod values to `sites-dev`, never give a PR job the `production` environment, and never read secrets via `process.env` in stacks (use `Config`).
+- Sites-specific: the operator's control-plane stage `ci` (`stacks/github.ts`) reads `sites-prod` env `preview` and writes it into the GitHub `preview` environment for PR previews. `PUBLISHED_CONTENT_EXPORT_TOKEN` is the one value kept in both projects, because local `--content prod` fetches the production exporter.
+- Plain commands that read `process.env` (the control app's `--content prod`) run as `bun run secrets -- <cmd>` with `sites-dev`.
 
 ## Never
 
@@ -46,7 +57,7 @@ The Alchemy profile comes from `ALCHEMY_PROFILE` (e.g. `ALCHEMY_PROFILE=admin`).
 - Never deploy `prod` from a shell. Production deploys from CI on merge to `main`; the stack refuses otherwise.
 - Never deploy, destroy, or change cloud resources without the user's explicit go-ahead for that action.
 - Never touch infrastructure outside Alchemy. Every resource and every setting lives in an `alchemy.run.ts` or `stacks/` and changes only through `alchemy deploy`/`destroy`. No dashboard, Cloudflare MCP write tools, `wrangler`, or raw API calls that create, change, or delete resources or the data inside them (D1 rows, R2 objects, KV keys). Read-only inspection is fine, and so is using the site itself (the CMS, `app seed`/`reset`, the contact form). A broken stage is fixed in code and redeployed, or destroyed and redeployed.
-- Never print or commit secrets. Real `.env` files live only in the main checkout.
+- Never print or commit secrets, and never create `.env` files: secrets live in Infisical (`sites-dev` for you). Never put preview or prod values in `sites-dev`.
 - Never add `@cloudflare/vite-plugin`, wrangler config, or an Astro `adapter`: Alchemy owns that.
 - Never run Effect in islands. Islands are plain React; Effect stays on the server.
 - Never disable a lint rule inline without a `-- reason`. Fix the code first.

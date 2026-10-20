@@ -4,9 +4,11 @@ export { emdashSecrets } from "./emdash-secrets.ts";
 export { WORKER_COMPATIBILITY } from "./compatibility.ts";
 export { siteObservability } from "./observability.ts";
 export {
-  mainCheckoutEnvFiles,
-  mainCheckoutRoot,
-  siteSecrets,
+  CONTROL_PLANE_STAGE,
+  type SecretProjects,
+  type SecretSource,
+  secretSource,
+  stageSecretsFor,
 } from "./secrets.ts";
 export {
   devPort,

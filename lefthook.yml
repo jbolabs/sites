@@ -12,7 +12,7 @@ pre-push:
       run: bun run typecheck
 
 # New worktrees and clones (previous HEAD is the null SHA), from any tool, not just T3, get the
-# main checkout's .env symlinks and dependencies. Ordinary branch switches skip this.
+# dependencies. Ordinary branch switches skip this.
 post-checkout:
   jobs:
     - name: setup worktree

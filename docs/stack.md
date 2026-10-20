@@ -47,7 +47,7 @@ Also:
 - **Workers Paid is required.** On the Free plan's 10 ms CPU limit, EmDash's server rendering hits "Worker exceeded resource limits" (error 1102) under modest concurrency. The account was upgraded on 2026-10-05; afterwards ae-preview served 40 concurrent requests and a full smoke run with no failures.
 - **Layering**: never import `@jakebodea/cloudflare-kit/infra` from runtime code; it pulls Alchemy's deploy-time modules into the Worker.
 
-Local verification runs entirely under `alchemy dev`, which (as of `alchemy@2.0.0-beta.80`) emulates Workers, D1, R2, KV, Queues, Secrets Store, and Images locally; only Turnstile (test keys) and Email are cloud-only. Spike notes: `spikes/emdash-alchemy/README.md`.
+Local verification runs entirely under `alchemy dev`, which (as of `alchemy@2.0.0-beta.82`) emulates Workers, D1, R2, KV, Queues, Secrets Store, and Images locally; only Turnstile (test keys) and Email are cloud-only. Spike notes: `spikes/emdash-alchemy/README.md`.
 
 - **Public CMS HTML cache**: production anonymous GETs to public page/portfolio/project route shapes use the existing Worker Cache API with a 30-second TTL. The TTL binding is declared in each Alchemy stack; set it to `"0"` to disable. Cookies, authorization, queries (including preview links), reload directives, CMS/admin/auth/action/media routes, contact, non-GET methods, non-HTML/error/negotiated responses, and any `Set-Cookie` or private/no-store response bypass it. Browsers receive `Cache-Control: no-store`; `X-Public-HTML-Cache` distinguishes MISS/HIT. Each Cloudflare data center fills its own copy, every request still invokes the Worker, and anonymous visitors may see the previous published revision for up to 30 seconds after a CMS edit. Native version metadata, bound through Alchemy, partitions the cache so code deploys start cold and cannot reuse HTML from an older asset build. There is no stale-while-revalidate and no global purge claim. Authenticated CMS/editing requests see current content immediately. Alchemy explicitly leaves the newer pre-Worker `cache` feature disabled, because [Workers Cache bills otherwise-free asset requests](https://developers.cloudflare.com/workers/cache/#pricing). No zone cache rules, new cloud storage, or dashboard settings are required. `node scripts/ci/public-html-fixture.ts` verifies the built Worker, local D1/KV/R2, real CMS draft/publish APIs, cache hits and expiry for both sites.
 
@@ -79,11 +79,15 @@ Why each client-site choice was made, and how it is built: [ADR 0001](adr/0001-c
 
 ## Secrets
 
-No Infisical, no 1Password.
+Alchemy reads two Infisical projects, one per trust tier, through its native `Infisical.Secrets` provider ([ADR 4](adr/0004-infisical-secret-tiers.md)). No `.env` files, no 1Password.
 
-- Local: one `.env` in the **main checkout** only. Worktrees get a symlink (`scripts/setup-worktree.ts` via `t3.json` `runOnWorktreeCreate` + lefthook `post-checkout`), and Alchemy's DotEnv provider reads the main checkout's file via `git rev-parse --path-format=absolute --git-common-dir` as a fallback.
+- Every stack sets `secrets: stageSecrets` from `stacks/secrets.ts`, the only place with the project ids (`infisical = { dev, prod }`), the `ci-prod` identity, and the stage mapping (built on the generic `stageSecretsFor` in cloudflare-kit `infra/secrets.ts`, shared jbolabs standard). Values load into Effect Config, not `process.env`; the process environment is still read last.
+- **`sites-dev`** (env `dev`): local stages (`dev-*`), read with the Alchemy profile's Infisical identity (`agent-dev` on agent machines; set it up once with `bun run setup:infisical`). Never holds a preview or prod value.
+- **`sites-prod`** (envs `preview`, `prod`): never readable by agents. Stage `prod` reads env `prod` in CI as `ci-prod` over GitHub OIDC. `ci-prod` trusts only `repo:jbolabs@305914027/*:environment:production`, so only jobs in the GitHub `production` environment (branch policy `main` only, enforced by `stacks/github.test.ts`) can read it; such jobs declare `environment: production` and `id-token: write`, and take `INFISICAL_IDENTITY_ID`/`INFISICAL_OIDC_AUDIENCE` from `vars.*` written by `stacks/github.ts`. Stage `ci` (`stacks/github.ts`, run by the operator with the `admin` profile) reads env `preview`. Holds `PUBLISHED_CONTENT_EXPORT_TOKEN`, with the same value in both envs.
+- `pr-*` stages (anywhere) and every other non-`prod` stage in GitHub Actions read no Infisical project: they use Alchemy-minted GitHub `preview` environment secrets.
+- Plain commands that read `process.env` themselves (the control app's `--content prod` fetch, optional `TURBO_*`) run under `bun run secrets -- <cmd>`, which uses `infisical run` against `sites-dev`.
 - CI: every workflow variable and secret is written by Alchemy in `stacks/`. `scripts/ci/workflow-env.test.ts` rejects references without a stack writer. Email addresses are committed configuration, not secrets.
-- Published export: private `PUBLISHED_CONTENT_EXPORT_TOKEN` (at least 32 random characters) shared through main-checkout `.env` and Alchemy-written production/preview GitHub environment secrets; production-only export and dev/pr-only bootstrap completion. One-time control-plane deployment plus normal CI production deployment is required.
+- Published export: private `PUBLISHED_CONTENT_EXPORT_TOKEN` (at least 32 random characters) in `sites-prod` (`prod` for the production exporter; `preview`, which `stacks/github.ts` writes to the GitHub `preview` environment for `production-content` PR previews) and `sites-dev` (local `--content prod`). Export is production-only, and bootstrap completion is dev/pr-only. It needs a one-time control-plane deployment, then a normal CI production deployment.
 - Generated secrets: `Alchemy.Random`. Shared rotatable secrets: Cloudflare Secrets Store.
 - Cloudflare credentials: Alchemy profiles (`~/.alchemy`), never exported env vars.
 
@@ -121,7 +125,7 @@ An agent's work isn't done until it's proven on the real running surface.
 
 - **`bun run app -- …` (control-app CLI + skill)**: `start` (local workerd, seeded, per-worktree port), `reset`, `login` (local test admin via Playwright virtual WebAuthn authenticator), `open/click/fill/snapshot`, `screenshot` (1280 + 375), `record`, `smoke`, `seo` (crawls every page's server-rendered HTML: titles, descriptions, canonicals, one H1, alt text, breadcrumbs, noindex, sitemap/orphans, redirects, 404s, image formats), `logs`; JSON output and artifacts under `.artifacts/`; `--url` targets a deployed stage.
 - **`bun run proof -- doctor|run|verify|publish`**: revision-bound proof receipts with path-derived risk tiers (ported from pcobooster). Visible changes need screenshots/video.
-- **Agent Alchemy profile**: scoped API token that can deploy/destroy `dev-*` and `pr-*`, refused for `prod`; no interactive logins ever needed.
+- **Agent Alchemy profile**: scoped API token that can deploy/destroy `dev-*` and `pr-*`, refused for `prod`, plus the `agent-dev` Infisical identity (`bun run setup:infisical`); no interactive logins ever needed.
 - AGENTS.md "Definition of done": check/typecheck/test → verify on the running surface → proof receipt → report what remains unverified.
 
 ## Agent docs
@@ -134,4 +138,4 @@ T3 Code / Executor style: root `AGENTS.md` (+ `CLAUDE.md` symlink) with stack ma
 - Get a scoped `agent` Alchemy profile; re-auth the `default` OAuth profile from a real terminal.
 - Apply the CI control-plane changes with explicit authorization to provision the analytics-read token. Verify that Account Settings Write permits Rum site creation on the first prod deploy. Real domains and verified senders are still needed for email.
 - File Alchemy issues: supported custom Worker entry for `Website.Astro`; `config:` path bug; EmDash image endpoint support; SSR dep-optimizer instability under the workerd dev runner (stale chunks / duplicate React); dev proxy resetting curl connections.
-- Extract `@jakebodea/*` toolkit; adopt in pcobooster (drop Infisical, add control-app, fake Planning Center, per-worktree stages) and shouldertap.
+- Extract `@jakebodea/*` toolkit; adopt in pcobooster (two-tier Infisical projects, add control-app, fake Planning Center, per-worktree stages) and shouldertap.

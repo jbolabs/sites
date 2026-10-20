@@ -218,15 +218,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production
+    # id-token: the prod stack reads sites-prod (Infisical env `prod`) by logging in as
+    # `ci-prod` with this job's GitHub OIDC token. Only this job may read sites-prod.
+    permissions:
+      contents: read
+      id-token: write
     concurrency:
       group: production
       cancel-in-progress: false
     env:
       CMS_BOOTSTRAP_TOKEN: ${{ secrets.CMS_BOOTSTRAP_TOKEN }}
-      PUBLISHED_CONTENT_EXPORT_TOKEN: ${{ secrets.PUBLISHED_CONTENT_EXPORT_TOKEN }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
       CF_ANALYTICS_API_TOKEN: ${{ secrets.CF_ANALYTICS_API_TOKEN }}
+      INFISICAL_IDENTITY_ID: ${{ vars.INFISICAL_IDENTITY_ID }}
+      INFISICAL_OIDC_AUDIENCE: ${{ vars.INFISICAL_OIDC_AUDIENCE }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
