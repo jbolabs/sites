@@ -67,6 +67,12 @@ export const environments: readonly DeployEnvironment[] = [
     permissions: sitePermissions,
   },
   {
+    branches: { customBranchPolicies: ["main"] },
+    id: "Staging",
+    name: "staging",
+    permissions: sitePermissions,
+  },
+  {
     // Merging to main is the approval; only main may deploy production.
     branches: { customBranchPolicies: ["main"] },
     id: "Production",

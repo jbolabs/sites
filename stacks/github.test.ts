@@ -15,11 +15,16 @@ describe("GitHub production environment", () => {
     );
   });
 
-  it("is the only environment with a branch policy, so previews stay open to PRs", () => {
+  it("restricts staging to main while previews stay open to PRs", () => {
     expect(
       environments
         .filter((environment) => environment.branches === null)
         .map((environment) => environment.name)
     ).toStrictEqual(["preview"]);
+    expect(
+      environments
+        .filter((environment) => environment.name === "staging")
+        .map((environment) => environment.branches)
+    ).toStrictEqual([{ customBranchPolicies: ["main"] }]);
   });
 });

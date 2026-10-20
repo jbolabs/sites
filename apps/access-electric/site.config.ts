@@ -37,7 +37,7 @@ export const site = {
   /**
    * Attached as a custom domain on the `prod` stage only. Unset until the zone is
    * on the Cloudflare account (attaching an unowned domain fails the deploy), so
-   * prod serves from workers.dev for now. Intended domain: accesselectricinc.com.
+   * only staging deploys until configured. Intended domain: accesselectricinc.com.
    */
   domain: null,
 

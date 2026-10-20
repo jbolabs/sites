@@ -35,6 +35,16 @@ describe(resolveStage, () => {
     ).toBeUndefined();
   });
 
+  it("serves staging from its own workers.dev origin even with a production domain", () => {
+    expect(resolveStage(site, "staging")).toMatchObject({
+      kind: "staging",
+      origin: "https://example-staging.acme.workers.dev",
+      production: false,
+      stage: "staging",
+      workerName: "example-staging",
+    });
+  });
+
   it("serves every other stage from workers.dev", () => {
     expect(resolveStage(site, "pr-42").origin).toBe(
       "https://example-pr-42.acme.workers.dev"
@@ -69,6 +79,16 @@ describe(productionDeployRefusal, () => {
 
   it("refuses prod outside CI", () => {
     expect(productionDeployRefusal(prod, {})).toMatch(/Refusing/u);
+  });
+
+  it("refuses domainless production even in CI", () => {
+    expect(
+      productionDeployRefusal(resolveStage({ ...site, domain: null }, "prod"), {
+        CI: "true",
+      })
+    ).toBe(
+      "Refusing to deploy prod without a production domain. Use staging instead."
+    );
   });
 
   it("allows prod from CI or with the explicit override", () => {

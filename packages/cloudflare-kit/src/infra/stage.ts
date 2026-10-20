@@ -2,13 +2,19 @@
  * Stage naming and per-stage origins, shared by every site's `alchemy.run.ts`
  * and the CI scripts so they agree on what a stage is called and where it lives.
  *
- * - `prod`: the live site on the custom domain, or on workers.dev until the site has one.
+ * - `prod`: the live site on its configured custom domain.
+ * - `staging`: the persistent main-branch environment on workers.dev.
  * - `pr-<n>`: a pull request preview, destroyed when the PR closes.
  * - `dev-<worktree>`: a developer's `alchemy dev` stage (one per git worktree).
  * - anything else (for example `ae-preview`): a named, long-lived preview.
  */
 
-export type StageKind = "production" | "pull-request" | "development" | "named";
+export type StageKind =
+  | "production"
+  | "staging"
+  | "pull-request"
+  | "development"
+  | "named";
 
 export interface SiteIdentity {
   /** Short kebab-case id; prefixes every Worker name (`<id>-<stage>`). */
@@ -16,7 +22,7 @@ export interface SiteIdentity {
   /**
    * Production hostname, attached as a custom domain on `prod` only. Leave it
    * unset until the zone is on the Cloudflare account: attaching a domain the
-   * account doesn't own fails the deploy, so prod serves from workers.dev instead.
+   * account doesn't own fails the deploy. Domainless sites deploy to staging only.
    */
   readonly domain: string | null;
   /** The Cloudflare account's `workers.dev` subdomain, which non-prod stages are served from. */
@@ -42,6 +48,9 @@ const STAGE_NAME = /^[a-z][a-z0-9-]{0,30}$/u;
 export const stageKind = (stage: string): StageKind => {
   if (stage === "prod") {
     return "production";
+  }
+  if (stage === "staging") {
+    return "staging";
   }
   if (PULL_REQUEST_STAGE.test(stage)) {
     return "pull-request";
@@ -99,6 +108,9 @@ export const productionDeployRefusal = (
 ): string | undefined => {
   if (!settings.production) {
     return undefined;
+  }
+  if (settings.domain === undefined) {
+    return "Refusing to deploy prod without a production domain. Use staging instead.";
   }
   if (env.CI === "true" || env.ALLOW_PROD_DEPLOY === "1") {
     return undefined;

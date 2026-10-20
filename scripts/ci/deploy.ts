@@ -12,10 +12,12 @@ import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
 
+import { resolveStage } from "@jakebodea/cloudflare-kit/infra";
 import { listSites } from "@jakebodea/control-app/site";
 import { Schema } from "effect";
 import pLimit from "p-limit";
 
+import { deploymentSites, loadDeploymentSites } from "./deployment-sites.ts";
 import { migrateDatabase } from "./migrate.ts";
 
 const SiteList = Schema.fromJsonString(Schema.Array(Schema.String));
@@ -31,7 +33,7 @@ const root = path.resolve(import.meta.dirname, "../..");
 const stage = flag("--stage") ?? "";
 const destroy = process.argv.includes("--destroy");
 const requested = flag("--sites") ?? "all";
-const sites =
+const candidates =
   requested === "all"
     ? listSites(root)
     : Schema.decodeUnknownSync(SiteList)(requested);
@@ -41,6 +43,23 @@ if (!/^[a-z][a-z0-9-]{0,30}$/u.test(stage)) {
 }
 if (destroy && stage === "prod") {
   throw new Error("Refusing to destroy prod from CI.");
+}
+
+const configured = await loadDeploymentSites(root, candidates);
+const sites = deploymentSites(configured, stage, destroy);
+
+// Review the exact release targets without credentials or cloud operations.
+if (process.argv.includes("--plan")) {
+  process.stdout.write(
+    `${JSON.stringify(
+      configured
+        .filter((site) => sites.includes(site.id))
+        .map((site) => ({ site: site.id, ...resolveStage(site, stage) })),
+      null,
+      2
+    )}\n`
+  );
+  process.exit(0);
 }
 
 // GitHub expands an unset secret or variable to "", which would read as a
