@@ -100,7 +100,13 @@ jobs:
       # Runner images also carry different Chrome patches. Playwright's locked
       # package selects a fixed browser revision instead of the system install.
       - name: Install pinned audit browser
-        run: bunx playwright-core install chromium --no-shell
+        run: bunx playwright-core install --with-deps chromium --no-shell
+      # Ubuntu's AppArmor policy blocks user namespaces for downloaded Chrome.
+      # This disposable runner audits only our local Worker; allow namespaces so
+      # Chrome keeps its sandbox, with the same Lighthouse settings and budgets.
+      # https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md
+      - name: Allow the pinned browser sandbox
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - name: Required smoke, SEO and Lighthouse
         run: |
           CHROME_PATH="$(node --input-type=module -e 'import { chromium } from "playwright-core"; process.stdout.write(chromium.executablePath())')"
