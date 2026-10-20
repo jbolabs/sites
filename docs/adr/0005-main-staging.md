@@ -1,6 +1,6 @@
 # 5. Main releases deploy every app to staging and domain-qualified apps to production
 
-- Status: accepted
+- Status: accepted; staging hostname and credentials superseded by [ADR 6](0006-branded-client-staging.md)
 - Date: 2026-10-20
 
 ## Context

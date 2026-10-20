@@ -10,6 +10,7 @@ import {
 const site = {
   domain: "example.com",
   id: "example",
+  stagingBaseDomain: "studio.test",
   workersSubdomain: "acme",
 };
 
@@ -35,14 +36,27 @@ describe(resolveStage, () => {
     ).toBeUndefined();
   });
 
-  it("serves staging from its own workers.dev origin even with a production domain", () => {
+  it("serves staging from the studio domain even with a production domain", () => {
     expect(resolveStage(site, "staging")).toMatchObject({
+      domain: "example-staging.studio.test",
       kind: "staging",
-      origin: "https://example-staging.acme.workers.dev",
+      origin: "https://example-staging.studio.test",
       production: false,
       stage: "staging",
       workerName: "example-staging",
     });
+  });
+
+  it("uses branded staging before a production domain is configured", () => {
+    expect(resolveStage({ ...site, domain: null }, "staging").origin).toBe(
+      "https://example-staging.studio.test"
+    );
+    expect(() =>
+      resolveStage(
+        { domain: null, id: "example", workersSubdomain: "acme" },
+        "staging"
+      )
+    ).toThrow("Staging requires a studio-owned stagingBaseDomain.");
   });
 
   it("serves every other stage from workers.dev", () => {

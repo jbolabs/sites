@@ -1,3 +1,5 @@
+import { studio } from "../../stacks/config.ts";
+
 /**
  * Everything that makes this site *this* site (as opposed to the template):
  * identity, domain, lender facts for structured data, and contact routing.
@@ -70,6 +72,8 @@ export const site = {
 
   shortName: "EquityFast",
 
-  /** The Cloudflare account's workers.dev subdomain (non-prod stages live there). */
+  stagingBaseDomain: studio.domain,
+
+  /** The Cloudflare account's workers.dev subdomain for developer previews. */
   workersSubdomain: "jakebodea",
 } as const;

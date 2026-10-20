@@ -3,7 +3,7 @@
  * and the CI scripts so they agree on what a stage is called and where it lives.
  *
  * - `prod`: the live site on its configured custom domain.
- * - `staging`: the persistent main-branch environment on workers.dev.
+ * - `staging`: the persistent client preview on the studio domain.
  * - `pr-<n>`: a pull request preview, destroyed when the PR closes.
  * - `dev-<worktree>`: a developer's `alchemy dev` stage (one per git worktree).
  * - anything else (for example `ae-preview`): a named, long-lived preview.
@@ -25,8 +25,10 @@ export interface SiteIdentity {
    * account doesn't own fails the deploy. Domainless sites deploy to staging only.
    */
   readonly domain: string | null;
-  /** The Cloudflare account's `workers.dev` subdomain, which non-prod stages are served from. */
+  /** The Cloudflare account's `workers.dev` subdomain for developer previews. */
   readonly workersSubdomain: string;
+  /** Studio-owned base domain for client staging, separate from the client's production domain. */
+  readonly stagingBaseDomain?: string;
 }
 
 export interface StageSettings {
@@ -37,7 +39,7 @@ export interface StageSettings {
   readonly workerName: string;
   /** Public origin visitors use for this stage. */
   readonly origin: string;
-  /** Custom domain to attach: the site's domain on `prod`, otherwise none. */
+  /** Custom hostname to attach for staging or production; other stages use workers.dev. */
   readonly domain: string | undefined;
 }
 
@@ -73,7 +75,18 @@ export const resolveStage = (
   const kind = stageKind(stage);
   const production = kind === "production";
   const workerName = `${site.id}-${stage}`;
-  const domain = production && site.domain !== null ? site.domain : undefined;
+  if (
+    kind === "staging" &&
+    (site.stagingBaseDomain === undefined || site.stagingBaseDomain === "")
+  ) {
+    throw new Error("Staging requires a studio-owned stagingBaseDomain.");
+  }
+  const productionDomain =
+    production && site.domain !== null ? site.domain : undefined;
+  const domain =
+    kind === "staging"
+      ? `${workerName}.${site.stagingBaseDomain}`
+      : productionDomain;
   return {
     domain,
     kind,

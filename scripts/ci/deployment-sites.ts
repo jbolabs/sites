@@ -7,6 +7,7 @@ import { Schema } from "effect";
 const DeploymentSite = Schema.Struct({
   domain: Schema.NullOr(Schema.NonEmptyString),
   id: Schema.NonEmptyString,
+  stagingBaseDomain: Schema.NonEmptyString,
   workersSubdomain: Schema.NonEmptyString,
 });
 export type DeploymentSite = Schema.Schema.Type<typeof DeploymentSite>;

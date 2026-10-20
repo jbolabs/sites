@@ -14,7 +14,7 @@ Always get the user's go-ahead before deploying or destroying anything.
 | `dev-<worktree>` | `bun run app -- start` | Local, emulated, any time |
 | `pr-<n>` | CI on same-repo PRs labeled `preview`, affected sites only | Destroyed on label removal or PR close; janitor sweeps leftovers daily |
 | named preview | `cd apps/<site> && ALCHEMY_PROFILE=admin bun alchemy deploy --stage <name>` | Ad-hoc demos; destroy when done |
-| `staging` | CI on merge to `main`, every affected app | Persistent `<app>-staging.jakebodea.workers.dev`, separate seeded CMS data |
+| `staging` | CI on merge to `main`, every affected app | Persistent `<app>-staging.jbolabs.com`, separate seeded CMS data |
 | `prod` | CI on merge to `main`, apps with `site.domain` only | Deploys alongside staging; the stack refuses domainless prod |
 
 ```bash

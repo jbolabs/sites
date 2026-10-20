@@ -41,13 +41,18 @@ const sitePermissions: Cloudflare.ApiToken.PermissionGroupRef[] = [
   "Secrets Store Write",
 ];
 
-/** Production also attaches custom domains to the site zones. */
-const productionPermissions: Cloudflare.ApiToken.PermissionGroupRef[] = [
-  // Rum site creation is expected to require this; the first production deploy must verify it.
-  "Account Settings Write",
+/** Staging attaches branded hostnames; PR previews retain workers.dev-only credentials. */
+const domainPermissions: Cloudflare.ApiToken.PermissionGroupRef[] = [
   "Zone Read",
   "DNS Write",
   "Workers Routes Write",
+];
+
+/** Production also enables Web Analytics. */
+const productionPermissions: Cloudflare.ApiToken.PermissionGroupRef[] = [
+  // Rum site creation is expected to require this; the first production deploy must verify it.
+  "Account Settings Write",
+  ...domainPermissions,
 ];
 
 const account = { [`com.cloudflare.api.account.${repository.accountId}`]: "*" };
@@ -70,7 +75,7 @@ export const environments: readonly DeployEnvironment[] = [
     branches: { customBranchPolicies: ["main"] },
     id: "Staging",
     name: "staging",
-    permissions: sitePermissions,
+    permissions: [...sitePermissions, ...domainPermissions],
   },
   {
     // Merging to main is the approval; only main may deploy production.
@@ -80,6 +85,36 @@ export const environments: readonly DeployEnvironment[] = [
     permissions: [...sitePermissions, ...productionPermissions],
   },
 ];
+
+/** Account-owned tokens nest zone scope under their account, in a separate policy. */
+export const deployPolicies = (
+  environment: DeployEnvironment
+): Cloudflare.ApiToken.Policy[] => {
+  const zones = environment.permissions.filter((permission) =>
+    domainPermissions.includes(permission)
+  );
+  const policies: Cloudflare.ApiToken.Policy[] = [
+    {
+      effect: "allow",
+      permissionGroups: environment.permissions.filter(
+        (permission) => !domainPermissions.includes(permission)
+      ),
+      resources: account,
+    },
+  ];
+  if (zones.length > 0) {
+    policies.push({
+      effect: "allow",
+      permissionGroups: zones,
+      resources: {
+        [`com.cloudflare.api.account.${repository.accountId}`]: {
+          "com.cloudflare.api.account.zone.*": "*",
+        },
+      },
+    });
+  }
+  return policies;
+};
 
 const ciOnly = Layer.unwrap(
   Alchemy.Stage.pipe(
@@ -160,13 +195,7 @@ export default Alchemy.Stack(
           accountId: repository.accountId,
           expiresOn: deployTokens.expiresOn,
           name: `${repo}-${environment.name}-deploy-g${deployTokens.generation}`,
-          policies: [
-            {
-              effect: "allow",
-              permissionGroups: environment.permissions,
-              resources: account,
-            },
-          ],
+          policies: deployPolicies(environment),
         }
       );
       yield* GitHub.Secret(`${environment.id}CloudflareToken`, {

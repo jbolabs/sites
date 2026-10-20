@@ -6,8 +6,18 @@ import { describe, expect, it } from "vitest";
 import { deploymentSites, loadDeploymentSites } from "./deployment-sites.ts";
 
 const sites = [
-  { domain: "example.com", id: "launched", workersSubdomain: "jakebodea" },
-  { domain: null, id: "unlaunched", workersSubdomain: "jakebodea" },
+  {
+    domain: "example.com",
+    id: "launched",
+    stagingBaseDomain: "jbolabs.com",
+    workersSubdomain: "jakebodea",
+  },
+  {
+    domain: null,
+    id: "unlaunched",
+    stagingBaseDomain: "jbolabs.com",
+    workersSubdomain: "jakebodea",
+  },
 ];
 
 describe(deploymentSites, () => {
@@ -42,9 +52,9 @@ describe(deploymentSites, () => {
       )
     )(output);
     expect(planned.map(({ origin }) => origin).toSorted()).toStrictEqual([
-      "https://access-electric-staging.jakebodea.workers.dev",
-      "https://equityfast-staging.jakebodea.workers.dev",
-      "https://ms-custom-homes-staging.jakebodea.workers.dev",
+      "https://access-electric-staging.jbolabs.com",
+      "https://equityfast-staging.jbolabs.com",
+      "https://ms-custom-homes-staging.jbolabs.com",
     ]);
   });
 

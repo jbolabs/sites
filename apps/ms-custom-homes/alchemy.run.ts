@@ -177,6 +177,8 @@ export default Alchemy.Stack(
       },
       name: stage.workerName,
       observability: siteObservability(stage),
+      // Client staging has only its branded hostname, including version URLs.
+      workersDev: stage.kind !== "staging",
     });
 
     return {
