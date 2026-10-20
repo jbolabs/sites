@@ -103,8 +103,9 @@ jobs:
         run: bunx playwright-core install chromium --no-shell
       - name: Required smoke, SEO and Lighthouse
         run: |
-          CHROME_PATH="$(node --input-type=module -e 'import { chromium } from "playwright-core"; process.stdout.write(chromium.executablePath())')" \
-            bun run verify:ci "$SITE" --summarize
+          CHROME_PATH="$(node --input-type=module -e 'import { chromium } from "playwright-core"; process.stdout.write(chromium.executablePath())')"
+          export CHROME_PATH
+          bun run verify:ci "$SITE" --summarize
         env:
           SITE: ${{ matrix.site }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
