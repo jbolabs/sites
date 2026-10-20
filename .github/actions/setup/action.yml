@@ -1,5 +1,7 @@
 name: Setup
 description: Bun (version from package.json) and a fresh install. Turbo remote cache comes from job env.
+# No actions/cache for ~/.bun/install/cache: restoring its ~650 MB took 21 to 29 s per job,
+# while a fresh `bun install --frozen-lockfile` from the registry takes 10 to 15 s (PR #57).
 runs:
   using: composite
   steps:
