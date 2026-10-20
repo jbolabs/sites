@@ -94,9 +94,11 @@ jobs:
       # Miniflare supports Node; use its native runtime rather than Bun's subprocess emulation.
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: "24"
+          # A major-only range picks different cached patches on different runners.
+          # Keep the audit runtime stable; VERIFY_RUNTIME still hashes the actual version.
+          node-version: "24.22.0"
       - name: Required smoke, SEO and Lighthouse
-        run: bun run verify:ci "$SITE"
+        run: bun run verify:ci "$SITE" --summarize
         env:
           SITE: ${{ matrix.site }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -104,6 +106,13 @@ jobs:
         with:
           name: required-site-verification-${{ matrix.site }}
           path: apps/${{ matrix.site }}/.artifacts/ci/local-verification/
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: verification-cache-inputs-${{ matrix.site }}
+          path: .turbo/runs/*.json
+          include-hidden-files: true
           if-no-files-found: ignore
 
   # The ruleset requires one `check` context; this gathers the parallel jobs into it.

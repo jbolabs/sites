@@ -35,6 +35,8 @@ process.env.VERIFY_RUNTIME = JSON.stringify({
   node: process.versions.node,
   platform: process.platform,
 });
+// Only this allowlisted, public fingerprint is logged, never the process env.
+process.stdout.write(`Verification runtime: ${process.env.VERIFY_RUNTIME}\n`);
 
 // This cheap write must precede Turbo's build hash, including on clean CI runners.
 await command(
