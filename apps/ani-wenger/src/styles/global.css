@@ -97,14 +97,59 @@
     @apply border-border outline-ring/50;
   }
 
+  /*
+   * Most clients book from a phone, so the touch layer is set once here.
+   * No gray tap flash (every control has its own :active state instead);
+   * pull-to-refresh stays on because this is a scrolling document.
+   */
   html {
     -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
     scroll-padding-top: 6rem;
   }
 
   body {
     @apply bg-background text-foreground font-sans text-[1.0625rem] antialiased;
-    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Taps fire at once: nothing here double-tap zooms, so there is no click delay. */
+  a,
+  button,
+  summary,
+  label,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* A long press on a control should not select its label or open the link callout. Content text stays selectable. */
+  button,
+  summary,
+  [role="button"] {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /*
+   * Press feedback on touch, the moment a finger lands (iOS needs the empty
+   * `ontouchstart` on <body> in base.astro for :active to apply). Mouse users get
+   * hover states instead.
+   */
+  @media (pointer: coarse) {
+    a,
+    .press {
+      transition:
+        opacity 100ms ease-out,
+        transform 120ms ease-out;
+    }
+
+    a:active {
+      opacity: 0.6;
+    }
+
+    .press:active {
+      transform: scale(0.985);
+    }
   }
 
   h1,
@@ -119,8 +164,23 @@
   }
 }
 
+/*
+ * Page gutters. With viewport-fit=cover a phone in landscape puts the notch
+ * over the edge, so the gutter grows to at least the safe-area inset.
+ */
 @utility container-page {
-  @apply mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12;
+  @apply mx-auto w-full max-w-7xl;
+  --gutter: 1.25rem;
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+
+  @variant sm {
+    --gutter: 2rem;
+  }
+
+  @variant lg {
+    --gutter: 3rem;
+  }
 }
 
 /* Bottom padding that clears the iPhone home indicator. */

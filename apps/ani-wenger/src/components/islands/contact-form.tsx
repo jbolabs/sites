@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
+import { nextFieldOnEnter } from "./form-keys";
 import { loadTurnstile } from "./turnstile";
 
 interface ContactFormProps {
@@ -119,6 +120,7 @@ const ContactForm = ({ turnstileSiteKey }: ContactFormProps) => {
       onSubmit={(event) => {
         void onSubmit(event);
       }}
+
       className="border-border bg-card rounded-xl border p-6 shadow-xs sm:p-8"
       noValidate={false}
     >
@@ -129,6 +131,9 @@ const ContactForm = ({ turnstileSiteKey }: ContactFormProps) => {
             id="contact-name"
             name="name"
             autoComplete="name"
+            autoCapitalize="words"
+            enterKeyHint="next"
+            onKeyDown={nextFieldOnEnter}
             required
             minLength={2}
             maxLength={120}
@@ -143,6 +148,11 @@ const ContactForm = ({ turnstileSiteKey }: ContactFormProps) => {
               name="email"
               type="email"
               autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              enterKeyHint="next"
+              onKeyDown={nextFieldOnEnter}
               required
               maxLength={254}
               className="h-11"
@@ -160,6 +170,8 @@ const ContactForm = ({ turnstileSiteKey }: ContactFormProps) => {
               name="phone"
               type="tel"
               autoComplete="tel"
+              enterKeyHint="next"
+              onKeyDown={nextFieldOnEnter}
               maxLength={40}
               className="h-11"
             />

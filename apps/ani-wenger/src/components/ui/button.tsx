@@ -26,7 +26,7 @@ const buttonVariants = cva(
         "text-link":
           "decoration-clay text-espresso-deep hover:text-clay underline underline-offset-4",
         choice:
-          "border-border bg-card text-foreground hover:border-espresso/40 aria-pressed:border-espresso aria-pressed:bg-espresso aria-pressed:text-ivory aria-checked:border-espresso aria-checked:bg-espresso aria-checked:text-ivory disabled:bg-transparent disabled:opacity-35",
+          "border-border bg-card text-foreground hover:border-espresso/40 aria-pressed:border-espresso aria-pressed:bg-espresso aria-pressed:text-ivory aria-checked:border-espresso aria-checked:bg-espresso aria-checked:text-ivory active:scale-97 disabled:bg-transparent disabled:opacity-35",
       },
       size: {
         default:
@@ -35,14 +35,16 @@ const buttonVariants = cva(
         sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
         lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         // Site additions: comfortable touch targets for CTAs and booking choices.
-        "sm-cta": "h-10 gap-1.5 rounded-full px-4 text-sm",
+        "sm-cta": "h-11 gap-1.5 rounded-full px-5 text-sm",
         cta: "text-ui h-11 gap-2 rounded-full px-6",
         hero: "h-13 gap-2 rounded-full px-7 text-base",
         slot: "text-ui h-11 rounded-full px-3 tabular-nums",
         day: "text-ui aspect-square h-auto w-full rounded-full p-0 tabular-nums",
         tile: "h-full w-full flex-col items-stretch justify-start gap-2 rounded-xl p-4 text-left whitespace-normal",
-        inline: "text-ui h-auto p-0",
-        "icon-round": "size-10 rounded-full",
+        // Text-sized, with a 44px hit area around it for thumbs.
+        inline:
+          "text-ui relative h-auto p-0 after:absolute after:-inset-x-2 after:-inset-y-3",
+        "icon-round": "size-11 rounded-full",
         icon: "size-8",
         "icon-xs":
           "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",

@@ -12,6 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
+import { nextFieldOnEnter } from "../form-keys";
+
 export interface Details {
   readonly name: string;
   readonly email: string;
@@ -60,6 +62,9 @@ export const DetailsStep = ({
             id="book-name"
             name="name"
             autoComplete="name"
+            autoCapitalize="words"
+            enterKeyHint="next"
+            onKeyDown={nextFieldOnEnter}
             required
             minLength={2}
             maxLength={120}
@@ -74,6 +79,11 @@ export const DetailsStep = ({
               name="email"
               type="email"
               autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              enterKeyHint="next"
+              onKeyDown={nextFieldOnEnter}
               required
               maxLength={254}
               className="h-12"
@@ -87,6 +97,8 @@ export const DetailsStep = ({
               name="phone"
               type="tel"
               autoComplete="tel"
+              enterKeyHint="next"
+              onKeyDown={nextFieldOnEnter}
               required
               minLength={7}
               maxLength={40}

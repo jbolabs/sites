@@ -131,7 +131,7 @@ const offsetMinutes = (instant: Date, timeZone: string): number => {
 
 /**
  * The instant a wall clock in `timeZone` reads `date` at `minutes`. Times that
- * do not exist (the hour skipped when clocks spring forward) resolve forward,
+ * do not exist (the hour skipped when clocks spring forward) resolve to the hour before,
  * which never matters for salon hours.
  */
 export const fromLocal = (

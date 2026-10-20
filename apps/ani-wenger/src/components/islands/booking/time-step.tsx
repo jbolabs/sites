@@ -75,6 +75,26 @@ const loadMonth = async (
     : { message: error.message, state: "error" };
 };
 
+/**
+ * On a phone the times sit below the calendar: after a day is tapped, bring
+ * them up if they are mostly off screen. Wide layouts show both side by side.
+ */
+const revealTimes = (element: HTMLElement | null) => {
+  if (element === null) {
+    return;
+  }
+  const { top } = element.getBoundingClientRect();
+  if (top > window.innerHeight * 0.6) {
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    element.scrollIntoView({
+      behavior: reduce ? "auto" : "smooth",
+      block: "start",
+    });
+  }
+};
+
 const isEmpty = (load: Load) =>
   load.state === "ready" &&
   load.days.every((candidate) => candidate.slots.length === 0);
@@ -94,6 +114,7 @@ export const TimeStep = ({
   const [chosenDay, setChosenDay] = useState<string | undefined>();
   // Until someone pages by hand, an empty month moves on to the next one.
   const autoAdvance = useRef(AUTO_ADVANCE);
+  const times = useRef<HTMLDivElement>(null);
 
   const load = loads.get(month);
   useEffect(() => {
@@ -198,6 +219,9 @@ export const TimeStep = ({
                 aria-label={`${formatDate(date, year)}, ${openCount(count)}`}
                 onClick={() => {
                   setChosenDay(date);
+                  requestAnimationFrame(() => {
+                    revealTimes(times.current);
+                  });
                 }}
               >
                 {Number(date.slice(8))}
@@ -220,7 +244,7 @@ export const TimeStep = ({
           </p>
         )}
       </div>
-      <div aria-live="polite">
+      <div ref={times} aria-live="polite" className="scroll-mt-24">
         {day === undefined && load?.state === "ready" && (
           <p className="text-muted-foreground bg-sand/60 rounded-2xl p-6 leading-relaxed">
             No open times this month. Try the next month, or call{" "}

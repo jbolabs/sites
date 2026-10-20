@@ -12,8 +12,12 @@ import { Effect, Layer, Schedule, Schema } from "effect";
 
 import { BookingLock, CalendarBusy, StoreFailed } from "./services.ts";
 
-/** Longer than any booking takes; only matters if a Worker dies holding the lock. */
-const LEASE_MS = 15_000;
+/**
+ * Far longer than a booking takes (a check and one save, well under a second);
+ * it only frees the lock when a Worker dies holding it. The save is not
+ * fenced by the lease, so the lease must outlast any realistic request.
+ */
+const LEASE_MS = 60_000;
 const RETRIES = 25;
 
 const CREATE = `CREATE TABLE IF NOT EXISTS site_booking_lock (

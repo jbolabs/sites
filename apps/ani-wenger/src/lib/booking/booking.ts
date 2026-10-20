@@ -68,8 +68,26 @@ export class TooLateToCancel extends Schema.TaggedError<TooLateToCancel>()(
   { cutoffHours: Schema.Number }
 ) {}
 
+/** No control characters: names and phones end up in emails and calendar lines. */
+const hasControlCharacter = (value: string) => {
+  for (let index = 0; index < value.length; index += 1) {
+    if ((value.codePointAt(index) ?? 0) < 32) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const printable = Schema.makeFilter((value: string) =>
+  hasControlCharacter(value) ? "Remove special characters" : undefined
+);
+
 const trimmed = (min: number, max: number) =>
-  Schema.Trim.check(Schema.isMinLength(min), Schema.isMaxLength(max));
+  Schema.Trim.check(
+    Schema.isMinLength(min),
+    Schema.isMaxLength(max),
+    printable
+  );
 
 const Slug = Schema.String.check(Schema.isPattern(/^[a-z0-9-]{1,80}$/u));
 
@@ -514,6 +532,8 @@ export const sendReminders = Effect.fn("sendReminders")(
     const context = mailContext(policy, mail.siteName);
     let reminded = 0;
     for (const appointment of due) {
+      // Marked first: if marking failed after a send, the next tick would send again.
+      yield* appointments.markReminded(appointment.id);
       const bookedAhead =
         appointment.start.getTime() - appointment.createdAt.getTime();
       if (bookedAhead >= 36 * MS_PER_HOUR && appointment.email !== undefined) {
@@ -527,7 +547,6 @@ export const sendReminders = Effect.fn("sendReminders")(
         );
         reminded += 1;
       }
-      yield* appointments.markReminded(appointment.id);
     }
     return { reminded };
   }

@@ -15,7 +15,7 @@ const isActive = (url: string) =>
   url === "/" ? current === "/" : current === url || current.startsWith(`${url}/`);
 ---
 
-<header class="sticky top-0 z-40 border-b border-border/80 bg-background">
+<header class="sticky top-0 z-40 border-b border-border/80 bg-background pt-[env(safe-area-inset-top,0px)]">
   <div class="container-page flex h-16 items-center justify-between gap-6 sm:h-20">
     <a href="/" class="shrink-0 rounded-sm" aria-label={`${title}, home`}>
       <Wordmark class="text-[1.65rem] sm:text-[1.9rem]" />
@@ -42,7 +42,7 @@ const isActive = (url: string) =>
         currentPath={current}
         classNames={{
           toggle: "text-espresso-deep lg:hidden",
-          overlay: "bg-background lg:hidden",
+          overlay: "bg-background overscroll-contain lg:hidden",
           nav: "container-page pt-8",
           link: "font-display border-b border-border py-4 text-4xl text-espresso-deep/55 aria-[current=page]:text-espresso-deep",
           footer: "container-page",

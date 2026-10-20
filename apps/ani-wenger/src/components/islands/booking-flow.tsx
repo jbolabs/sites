@@ -150,15 +150,25 @@ const BookingFlow = ({
   const chosen = services.find((option) => option.slug === service);
   const step = currentStep(chosen, slot, editing);
   const sectionRef = useScrollToStep(step);
+  const confirmation = useRef<HTMLDivElement>(null);
+  const booked = submission.state === "booked";
+  // Bring the confirmation (not the page header above it) into view.
+  useEffect(() => {
+    if (booked) {
+      confirmation.current?.scrollIntoView({ block: "start" });
+    }
+  }, [booked]);
   useServiceInUrl(service);
 
   if (submission.state === "booked") {
     return (
-      <Confirmation
-        booking={submission.booking}
-        email={submission.email}
-        timeZone={timeZone}
-      />
+      <div ref={confirmation} className="scroll-mt-28">
+        <Confirmation
+          booking={submission.booking}
+          email={submission.email}
+          timeZone={timeZone}
+        />
+      </div>
     );
   }
 
@@ -182,7 +192,7 @@ const BookingFlow = ({
         email: details.email.trim(),
         state: "booked",
       });
-      window.scrollTo({ top: 0 });
+
       return;
     }
     turnstile.reset();

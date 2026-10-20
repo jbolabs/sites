@@ -48,7 +48,7 @@ const phone = studio.entry?.data.phone ?? site.phone;
   content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
 >
   <PageHeader title={title} intro={page?.data.intro} />
-  <section class="container-page py-14 sm:py-20">
+  <section class="container-page py-10 sm:py-20">
     <BookingFlow
       client:load
       services={services}

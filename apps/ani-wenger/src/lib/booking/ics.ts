@@ -21,12 +21,31 @@ const stamp = (date: Date) =>
     .replaceAll(/[-:]/gu, "")
     .replace(/\.\d{3}/u, "");
 
-const escapeText = (text: string) =>
-  text
-    .replaceAll("\\", "\\\\")
-    .replaceAll(";", ";")
-    .replaceAll(",", "\\,")
-    .replaceAll(/\r?\n/gu, "\\n");
+/** Drops control characters (line breaks are already escaped by then). */
+const printableOnly = (text: string) => {
+  let result = "";
+  for (let index = 0; index < text.length; index += 1) {
+    const code = text.codePointAt(index) ?? 0;
+    if (code >= 32 && code !== 127) {
+      result += text.charAt(index);
+    }
+  }
+  return result;
+};
+
+/**
+ * RFC 5545 TEXT: escape backslash, semicolon, and comma; every kind of line
+ * break becomes a literal `\n`. A bare CR left in a booker's name would let
+ * them start a new property (a fake event) in Ani's feed.
+ */
+export const escapeText = (text: string): string =>
+  printableOnly(
+    text
+      .replaceAll("\\", String.raw`\\`)
+      .replaceAll(";", String.raw`\;`)
+      .replaceAll(",", String.raw`\,`)
+      .replaceAll(/\r\n|\r|\n/gu, String.raw`\n`)
+  );
 
 const encoder = new TextEncoder();
 

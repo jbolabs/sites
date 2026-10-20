@@ -63,8 +63,10 @@ const page = createPublicPageContext({
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#f8f4ee" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+    <!-- The status bar matches the ivory top bar; the site has one light scheme. -->
+    <meta name="theme-color" content="#faf6f1" />
+    <meta name="color-scheme" content="light" />
     <title>{fullTitle}</title>
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -73,7 +75,8 @@ const page = createPublicPageContext({
     <EmDashHead page={page} />
     <StructuredData origin={origin} studio={chrome.studio} />
   </head>
-  <body class="flex min-h-svh flex-col">
+  <!-- An empty touch handler: iOS Safari applies :active (press feedback) only under one. -->
+  <body class="flex min-h-svh flex-col" ontouchstart="">
     <EmDashBodyStart page={page} />
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:shadow">Skip to content</a>
     <SiteHeader title={chrome.title} items={chrome.primary} />
