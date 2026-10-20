@@ -1,0 +1,167 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@jakebodea/site-ui/mobile-menu.css";
+@import "@jakebodea/site-ui/seamless-edges.css";
+
+/*
+ * Ani Wenger design tokens: a warm editorial palette. Ivory paper, espresso
+ * ink, a sand surface for alternating sections, and a muted clay accent for
+ * small details (rules, links, selected states). Espresso carries the calls
+ * to action because it holds contrast on every light surface. shadcn/ui
+ * primitives read the semantic names (--primary, --muted, ...), so restyling
+ * the site starts here.
+ */
+:root {
+  --brand-ivory: oklch(0.975 0.008 80);
+  --brand-sand: oklch(0.935 0.018 72);
+  /* Sand at 60% over ivory, as a solid color for headers (the top bar rule forbids translucent headers). */
+  --brand-linen: oklch(0.951 0.014 75);
+  --brand-sand-deep: oklch(0.88 0.028 68);
+  --brand-espresso: oklch(0.27 0.022 45);
+  --brand-espresso-deep: oklch(0.21 0.018 45);
+  --brand-clay: oklch(0.56 0.085 42);
+  --brand-clay-soft: oklch(0.9 0.035 50);
+  --brand-champagne: oklch(0.86 0.045 80);
+
+  --background: var(--brand-ivory);
+  --foreground: oklch(0.25 0.02 45);
+  --card: oklch(0.99 0.004 80);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.99 0.004 80);
+  --popover-foreground: var(--foreground);
+  --primary: var(--brand-espresso);
+  --primary-foreground: var(--brand-ivory);
+  --secondary: var(--brand-sand);
+  --secondary-foreground: var(--brand-espresso);
+  --muted: var(--brand-sand);
+  --muted-foreground: oklch(0.47 0.022 50);
+  --accent: var(--brand-clay-soft);
+  --accent-foreground: var(--brand-espresso);
+  --destructive: oklch(0.52 0.17 28);
+  --border: oklch(0.88 0.018 70);
+  --input: oklch(0.82 0.022 65);
+  --ring: var(--brand-clay);
+  --radius: 0.625rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), ui-serif, Georgia, serif;
+
+  --color-ivory: var(--brand-ivory);
+  --color-sand: var(--brand-sand);
+  --color-linen: var(--brand-linen);
+  --color-sand-deep: var(--brand-sand-deep);
+  --color-espresso: var(--brand-espresso);
+  --color-espresso-deep: var(--brand-espresso-deep);
+  --color-clay: var(--brand-clay);
+  --color-clay-soft: var(--brand-clay-soft);
+  --color-champagne: var(--brand-champagne);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Type scale beyond Tailwind's steps: UI text a touch under body size, and fluid headings. */
+  --text-ui: 0.95rem;
+  --text-ui--line-height: 1.5;
+  --text-step: clamp(1.75rem, 3.6vw, 2.4rem);
+  --text-step--line-height: 1.15;
+  --text-display-sm: clamp(2.25rem, 5vw, 3.25rem);
+  --text-display-sm--line-height: 1.05;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 10px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans text-[1.0625rem] antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-espresso-deep font-normal tracking-tight text-balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@utility container-page {
+  @apply mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12;
+}
+
+/* Bottom padding that clears the iPhone home indicator. */
+@utility pb-safe {
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
+
+/* Section headline scale shared by the content blocks. */
+@utility headline-section {
+  @apply text-[clamp(2rem,4.2vw,3.25rem)] leading-[1.06];
+}
+
+/* Long-form copy from the CMS (Portable Text). */
+@utility prose-site {
+  @apply text-foreground/85 max-w-prose space-y-5 text-lg leading-relaxed;
+
+  & h2 {
+    @apply mt-12 text-3xl first:mt-0;
+  }
+
+  & h3 {
+    @apply mt-9 text-2xl;
+  }
+
+  & a {
+    @apply text-espresso decoration-clay font-medium underline decoration-1 underline-offset-4;
+  }
+
+  & ul {
+    @apply marker:text-clay list-disc space-y-2 pl-6;
+  }
+
+  & ol {
+    @apply marker:text-clay list-decimal space-y-2 pl-6;
+  }
+
+  & strong {
+    @apply text-espresso-deep font-semibold;
+  }
+
+  & blockquote {
+    @apply border-clay font-display text-espresso border-l-2 pl-5 text-xl italic;
+  }
+}

@@ -1,0 +1,17 @@
+---
+interface Props {
+  title: string;
+  intro?: string | null | undefined;
+}
+
+const { intro, title } = Astro.props;
+---
+
+<section class="border-b border-border bg-linen">
+  <div class="container-page py-14 sm:py-20 lg:py-24">
+    <slot name="before" />
+    <h1 class="max-w-4xl text-[clamp(2.5rem,6vw,4.5rem)] leading-[1.02]">{title}</h1>
+    {intro && <p class="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">{intro}</p>}
+    <slot />
+  </div>
+</section>

@@ -1,0 +1,26 @@
+---
+import type { BlockComponentProps } from "emdash/ui";
+
+import type { PageContentFaqBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentFaqBlock>;
+
+const { value } = Astro.props;
+---
+
+<section class="py-20 sm:py-24">
+  <div class="container-page grid gap-10 lg:grid-cols-[1fr_1.6fr] lg:gap-20">
+    <h2 class="headline-section">{value.headline}</h2>
+    <div class="border-b border-border">
+      {value.items.map((item) => (
+        <details class="group border-t border-border">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-lg font-medium text-espresso-deep marker:hidden [&::-webkit-details-marker]:hidden">
+            {item.question}
+            <span class="font-display text-2xl leading-none text-clay transition-transform duration-200 group-open:rotate-45" aria-hidden="true">+</span>
+          </summary>
+          <p class="max-w-2xl pb-6 leading-relaxed text-foreground/80">{item.answer}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>

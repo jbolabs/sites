@@ -1,0 +1,4135 @@
+{
+  "$schema": "https://emdashcms.com/seed.schema.json",
+  "version": "1",
+  "meta": {
+    "name": "Ani Wenger",
+    "description": "Hairstylist site: pages built from sections, a service menu with online booking, Ask Ani answers, product picks, and a message inbox.",
+    "author": "Jake Bodea"
+  },
+  "settings": {
+    "title": "Ani Wenger",
+    "tagline": "European master hairstylist in South Orange County.",
+    "timezone": "America/Los_Angeles"
+  },
+  "blockTypes": [
+    {
+      "slug": "hero",
+      "label": "Hero",
+      "description": "The opening section: a headline beside a large photo.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "subheadline",
+              "label": "Subheadline",
+              "type": "text"
+            },
+            {
+              "slug": "image",
+              "label": "Photo",
+              "type": "image"
+            },
+            {
+              "slug": "primary_cta_label",
+              "label": "Main button label",
+              "type": "string"
+            },
+            {
+              "slug": "primary_cta_url",
+              "label": "Main button link",
+              "type": "url"
+            },
+            {
+              "slug": "secondary_cta_label",
+              "label": "Second button label",
+              "type": "string"
+            },
+            {
+              "slug": "secondary_cta_url",
+              "label": "Second button link",
+              "type": "url"
+            },
+            {
+              "slug": "note",
+              "label": "Small print under the buttons",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "story",
+      "label": "Image and text",
+      "description": "A photo beside a heading, text, and an optional button.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "body",
+              "label": "Text",
+              "type": "portableText",
+              "required": true
+            },
+            {
+              "slug": "image",
+              "label": "Photo",
+              "type": "image"
+            },
+            {
+              "slug": "image_position",
+              "label": "Photo side",
+              "type": "select",
+              "validation": {
+                "options": ["left", "right"]
+              },
+              "defaultValue": "left"
+            },
+            {
+              "slug": "cta_label",
+              "label": "Button label",
+              "type": "string"
+            },
+            {
+              "slug": "cta_url",
+              "label": "Button link",
+              "type": "url"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "credentials",
+      "label": "Credentials",
+      "description": "Short proof points, such as where you trained.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string"
+            },
+            {
+              "slug": "items",
+              "label": "Items",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 6,
+                "subFields": [
+                  {
+                    "slug": "title",
+                    "label": "Title",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "detail",
+                    "label": "Detail",
+                    "type": "text"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "services_menu",
+      "label": "Services",
+      "description": "Your services and prices, taken from Services automatically.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "show",
+              "label": "Which services",
+              "type": "select",
+              "validation": {
+                "options": ["featured", "all"]
+              },
+              "defaultValue": "featured"
+            },
+            {
+              "slug": "link_label",
+              "label": "Link to all services",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "transformations",
+      "label": "Before and after",
+      "description": "Photos of your work with a short caption each.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "items",
+              "label": "Photos",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 9,
+                "subFields": [
+                  {
+                    "slug": "image",
+                    "label": "Photo",
+                    "type": "image"
+                  },
+                  {
+                    "slug": "caption",
+                    "label": "Caption",
+                    "type": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "testimonials",
+      "label": "Client words",
+      "description": "Quotes from clients.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "items",
+              "label": "Quotes",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 16,
+                "subFields": [
+                  {
+                    "slug": "quote",
+                    "label": "Quote",
+                    "type": "text",
+                    "required": true
+                  },
+                  {
+                    "slug": "name",
+                    "label": "Name",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "place",
+                    "label": "Where they are from",
+                    "type": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "questions_list",
+      "label": "Ask Ani",
+      "description": "Your newest answers, taken from Ask Ani automatically.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "count",
+              "label": "How many",
+              "type": "integer",
+              "validation": {
+                "min": 1,
+                "max": 9
+              },
+              "defaultValue": 3
+            },
+            {
+              "slug": "link_label",
+              "label": "Link to all answers",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "products_list",
+      "label": "Product picks",
+      "description": "Products marked Featured, taken from Products automatically.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "link_label",
+              "label": "Link to all products",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "faq",
+      "label": "Questions",
+      "description": "Questions and answers that open in place.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "items",
+              "label": "Questions",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 16,
+                "subFields": [
+                  {
+                    "slug": "question",
+                    "label": "Question",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "answer",
+                    "label": "Answer",
+                    "type": "text",
+                    "required": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "visit",
+      "label": "Visit",
+      "description": "The salon address, hours, and phone from Salon and hours.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "cta_band",
+      "label": "Call to action",
+      "description": "A bold line over a photo with a button.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "body",
+              "label": "Text",
+              "type": "text"
+            },
+            {
+              "slug": "image",
+              "label": "Background photo",
+              "type": "image"
+            },
+            {
+              "slug": "cta_label",
+              "label": "Button label",
+              "type": "string"
+            },
+            {
+              "slug": "cta_url",
+              "label": "Button link",
+              "type": "url"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "rich_text",
+      "label": "Text",
+      "description": "Headings and paragraphs.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string"
+            },
+            {
+              "slug": "body",
+              "label": "Text",
+              "type": "portableText",
+              "required": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "collections": [
+    {
+      "slug": "home",
+      "label": "Home page",
+      "labelSingular": "Home page",
+      "icon": "house",
+      "sortOrder": 0,
+      "supports": ["drafts", "revisions", "preview", "seo"],
+      "urlPattern": "/",
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "intro",
+          "label": "Intro",
+          "type": "text"
+        },
+        {
+          "slug": "content",
+          "label": "Sections",
+          "type": "blocks",
+          "validation": {
+            "allowedTypes": [
+              "hero",
+              "story",
+              "credentials",
+              "services_menu",
+              "transformations",
+              "testimonials",
+              "questions_list",
+              "products_list",
+              "faq",
+              "visit",
+              "cta_band",
+              "rich_text"
+            ],
+            "maxItems": 20
+          }
+        }
+      ],
+      "description": "The first page visitors see. Edit its sections to change the home page.",
+      "admin": {
+        "quickCreate": false
+      }
+    },
+    {
+      "slug": "pages",
+      "label": "Pages",
+      "labelSingular": "Page",
+      "icon": "file-text",
+      "sortOrder": 1,
+      "supports": ["drafts", "revisions", "preview", "seo"],
+      "urlPattern": "/{slug}",
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "intro",
+          "label": "Intro",
+          "type": "text"
+        },
+        {
+          "slug": "content",
+          "label": "Sections",
+          "type": "blocks",
+          "validation": {
+            "allowedTypes": [
+              "hero",
+              "story",
+              "credentials",
+              "services_menu",
+              "transformations",
+              "testimonials",
+              "questions_list",
+              "products_list",
+              "faq",
+              "visit",
+              "cta_band",
+              "rich_text"
+            ],
+            "maxItems": 20
+          }
+        }
+      ],
+      "description": "Every other page, like About and Contact. The Services, Ask Ani, Products, and Book pages list their entries below these words."
+    },
+    {
+      "slug": "appointments",
+      "label": "Appointments",
+      "labelSingular": "Appointment",
+      "icon": "calendar-check",
+      "sortOrder": 2,
+      "description": "Bookings from the website and the ones you add yourself. Set Status to Cancelled to free the time.",
+      "routable": false,
+      "supports": [],
+      "admin": {
+        "listColumns": ["starts_at", "service", "phone", "state"]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Client name",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "starts_at",
+          "label": "Starts",
+          "type": "datetime",
+          "required": true,
+          "indexed": true
+        },
+        {
+          "slug": "service",
+          "label": "Service",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "duration_minutes",
+          "label": "Length in minutes",
+          "type": "integer",
+          "required": true,
+          "validation": {
+            "min": 5,
+            "max": 600
+          },
+          "defaultValue": 60
+        },
+        {
+          "slug": "buffer_minutes",
+          "label": "Cleanup minutes after",
+          "type": "integer",
+          "validation": {
+            "min": 0,
+            "max": 120
+          },
+          "defaultValue": 0
+        },
+        {
+          "slug": "state",
+          "label": "Status",
+          "type": "select",
+          "required": true,
+          "indexed": true,
+          "validation": {
+            "options": ["confirmed", "cancelled", "completed", "no_show"]
+          },
+          "defaultValue": "confirmed"
+        },
+        {
+          "slug": "phone",
+          "label": "Phone",
+          "type": "string"
+        },
+        {
+          "slug": "email",
+          "label": "Email",
+          "type": "string"
+        },
+        {
+          "slug": "notes",
+          "label": "Notes",
+          "type": "text"
+        },
+        {
+          "slug": "source",
+          "label": "Booked through",
+          "type": "select",
+          "validation": {
+            "options": ["website", "salon"]
+          },
+          "defaultValue": "salon"
+        },
+        {
+          "slug": "service_slug",
+          "label": "Service page (set by the website)",
+          "type": "string"
+        },
+        {
+          "slug": "reminder_sent",
+          "label": "Reminder sent",
+          "type": "boolean",
+          "indexed": true,
+          "defaultValue": false
+        },
+        {
+          "slug": "manage_token_hash",
+          "label": "Client link key (set by the website)",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "slug": "time_off",
+      "label": "Time off",
+      "labelSingular": "Time off",
+      "icon": "airplane-tilt",
+      "sortOrder": 3,
+      "description": "Days or hours you are away. Clients cannot book these times.",
+      "routable": false,
+      "supports": [],
+      "admin": {
+        "listColumns": ["starts_at", "ends_at"]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Reason (only you see it)",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "starts_at",
+          "label": "From",
+          "type": "datetime",
+          "required": true,
+          "indexed": true
+        },
+        {
+          "slug": "ends_at",
+          "label": "Until",
+          "type": "datetime",
+          "required": true,
+          "indexed": true
+        }
+      ]
+    },
+    {
+      "slug": "services",
+      "label": "Services",
+      "labelSingular": "Service",
+      "icon": "scissors",
+      "sortOrder": 4,
+      "description": "Your service menu. Each service gets its own page, and its length sets the times clients can book.",
+      "supports": ["drafts", "revisions", "preview", "seo"],
+      "urlPattern": "/services/{slug}",
+      "admin": {
+        "listColumns": ["category", "duration_minutes", "price"]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Name",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "category",
+          "label": "Category",
+          "type": "select",
+          "required": true,
+          "indexed": true,
+          "validation": {
+            "options": [
+              "cuts",
+              "color",
+              "styling",
+              "treatments",
+              "extensions",
+              "consultations"
+            ]
+          }
+        },
+        {
+          "slug": "summary",
+          "label": "One-line description",
+          "type": "text",
+          "required": true
+        },
+        {
+          "slug": "duration_minutes",
+          "label": "Length in minutes",
+          "type": "integer",
+          "required": true,
+          "validation": {
+            "min": 5,
+            "max": 600
+          }
+        },
+        {
+          "slug": "buffer_minutes",
+          "label": "Cleanup minutes after",
+          "type": "integer",
+          "validation": {
+            "min": 0,
+            "max": 120
+          },
+          "defaultValue": 0
+        },
+        {
+          "slug": "price",
+          "label": "Price in dollars (0 for complimentary)",
+          "type": "integer",
+          "validation": {
+            "min": 0,
+            "max": 5000
+          }
+        },
+        {
+          "slug": "price_from",
+          "label": "Price is a starting point",
+          "type": "boolean",
+          "defaultValue": false
+        },
+        {
+          "slug": "bookable",
+          "label": "Clients can book this online",
+          "type": "boolean",
+          "defaultValue": true
+        },
+        {
+          "slug": "featured",
+          "label": "Show on the home page",
+          "type": "boolean",
+          "indexed": true,
+          "defaultValue": false
+        },
+        {
+          "slug": "sort_order",
+          "label": "Order in its category",
+          "type": "integer",
+          "indexed": true,
+          "defaultValue": 100
+        },
+        {
+          "slug": "image",
+          "label": "Photo",
+          "type": "image"
+        },
+        {
+          "slug": "body",
+          "label": "Details",
+          "type": "portableText"
+        }
+      ]
+    },
+    {
+      "slug": "questions",
+      "label": "Ask Ani",
+      "labelSingular": "Answer",
+      "icon": "chat-circle-text",
+      "sortOrder": 5,
+      "description": "Your answers to the questions clients ask most. Each one is its own page.",
+      "supports": ["drafts", "revisions", "preview", "seo", "search"],
+      "urlPattern": "/ask-ani/{slug}",
+      "admin": {
+        "listColumns": ["topic"]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Question",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "topic",
+          "label": "Topic",
+          "type": "select",
+          "required": true,
+          "indexed": true,
+          "validation": {
+            "options": [
+              "thinning-hair",
+              "gray-hair",
+              "color-care",
+              "cuts",
+              "smoothing",
+              "curly-hair",
+              "everyday-care"
+            ]
+          }
+        },
+        {
+          "slug": "summary",
+          "label": "Short answer",
+          "type": "text",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "image",
+          "label": "Photo",
+          "type": "image"
+        },
+        {
+          "slug": "body",
+          "label": "Full answer",
+          "type": "portableText",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "products",
+          "label": "Products that help",
+          "type": "reference",
+          "validation": {
+            "targetCollection": "products",
+            "multiple": true
+          }
+        },
+        {
+          "slug": "services",
+          "label": "Services that help",
+          "type": "reference",
+          "validation": {
+            "targetCollection": "services",
+            "multiple": true
+          }
+        }
+      ]
+    },
+    {
+      "slug": "products",
+      "label": "Products",
+      "labelSingular": "Product",
+      "icon": "shopping-bag",
+      "sortOrder": 6,
+      "description": "Products you recommend, with your shopping links.",
+      "routable": false,
+      "supports": ["drafts", "revisions"],
+      "admin": {
+        "listColumns": ["brand", "concern", "featured"]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Name",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "brand",
+          "label": "Brand",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "url",
+          "label": "Shopping link",
+          "type": "url",
+          "required": true
+        },
+        {
+          "slug": "note",
+          "label": "Why I recommend it",
+          "type": "text",
+          "required": true
+        },
+        {
+          "slug": "concern",
+          "label": "Best for",
+          "type": "select",
+          "required": true,
+          "indexed": true,
+          "validation": {
+            "options": [
+              "thinning-hair",
+              "gray-hair",
+              "color-care",
+              "cuts",
+              "smoothing",
+              "curly-hair",
+              "everyday-care"
+            ]
+          }
+        },
+        {
+          "slug": "price_label",
+          "label": "Price (as shown)",
+          "type": "string"
+        },
+        {
+          "slug": "image",
+          "label": "Photo",
+          "type": "image"
+        },
+        {
+          "slug": "featured",
+          "label": "Show on the home page",
+          "type": "boolean",
+          "indexed": true,
+          "defaultValue": false
+        },
+        {
+          "slug": "sort_order",
+          "label": "Order",
+          "type": "integer",
+          "indexed": true,
+          "defaultValue": 100
+        }
+      ]
+    },
+    {
+      "slug": "studio",
+      "label": "Salon and hours",
+      "labelSingular": "Salon and hours",
+      "icon": "storefront",
+      "sortOrder": 7,
+      "description": "Where you work, your weekly hours, and how far ahead clients can book.",
+      "routable": false,
+      "supports": ["revisions"],
+      "admin": {
+        "quickCreate": false
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "salon_name",
+          "label": "Salon",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "street",
+          "label": "Street address",
+          "type": "string"
+        },
+        {
+          "slug": "city",
+          "label": "City",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "region",
+          "label": "State",
+          "type": "string",
+          "defaultValue": "CA"
+        },
+        {
+          "slug": "postal_code",
+          "label": "ZIP code",
+          "type": "string"
+        },
+        {
+          "slug": "phone",
+          "label": "Phone for clients",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "map_url",
+          "label": "Map link",
+          "type": "url"
+        },
+        {
+          "slug": "arrival_note",
+          "label": "Arrival note (parking, entrance)",
+          "type": "text"
+        },
+        {
+          "slug": "hours",
+          "label": "Weekly hours",
+          "type": "repeater",
+          "required": true,
+          "validation": {
+            "minItems": 1,
+            "maxItems": 14,
+            "subFields": [
+              {
+                "slug": "day",
+                "label": "Day",
+                "type": "select",
+                "required": true,
+                "validation": {
+                  "options": [
+                    "monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday",
+                    "saturday",
+                    "sunday"
+                  ]
+                }
+              },
+              {
+                "slug": "opens",
+                "label": "Opens (24-hour, like 09:00)",
+                "type": "string",
+                "required": true,
+                "validation": {
+                  "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                }
+              },
+              {
+                "slug": "closes",
+                "label": "Closes (24-hour, like 17:30)",
+                "type": "string",
+                "required": true,
+                "validation": {
+                  "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "slug": "step_minutes",
+          "label": "Offer start times every (minutes)",
+          "type": "integer",
+          "required": true,
+          "validation": {
+            "min": 5,
+            "max": 60
+          },
+          "defaultValue": 15
+        },
+        {
+          "slug": "min_notice_hours",
+          "label": "Earliest booking, hours from now",
+          "type": "integer",
+          "required": true,
+          "validation": {
+            "min": 0,
+            "max": 168
+          },
+          "defaultValue": 12
+        },
+        {
+          "slug": "horizon_days",
+          "label": "Latest booking, days ahead",
+          "type": "integer",
+          "required": true,
+          "validation": {
+            "min": 7,
+            "max": 365
+          },
+          "defaultValue": 60
+        },
+        {
+          "slug": "cancel_cutoff_hours",
+          "label": "Clients can cancel online up to (hours before)",
+          "type": "integer",
+          "required": true,
+          "validation": {
+            "min": 0,
+            "max": 168
+          },
+          "defaultValue": 24
+        },
+        {
+          "slug": "booking_note",
+          "label": "Booking policy (shown before clients book)",
+          "type": "text",
+          "required": true
+        }
+      ]
+    },
+    {
+      "slug": "leads",
+      "label": "Messages",
+      "labelSingular": "Message",
+      "icon": "envelope-simple",
+      "sortOrder": 8,
+      "description": "Contact form messages. Visitors never see these.",
+      "routable": false,
+      "supports": [],
+      "admin": {
+        "listColumns": ["email", "phone"],
+        "quickCreate": false
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "email",
+          "label": "Email",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "phone",
+          "label": "Phone",
+          "type": "string"
+        },
+        {
+          "slug": "message",
+          "label": "Message",
+          "type": "text",
+          "required": true
+        },
+        {
+          "slug": "source_path",
+          "label": "Sent from",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "menus": [
+    {
+      "name": "primary",
+      "label": "Main navigation",
+      "items": [
+        {
+          "type": "custom",
+          "label": "Services",
+          "url": "/services"
+        },
+        {
+          "type": "custom",
+          "label": "Ask Ani",
+          "url": "/ask-ani"
+        },
+        {
+          "type": "custom",
+          "label": "Products",
+          "url": "/products"
+        },
+        {
+          "type": "custom",
+          "label": "About",
+          "url": "/about"
+        },
+        {
+          "type": "custom",
+          "label": "Contact",
+          "url": "/contact"
+        }
+      ]
+    },
+    {
+      "name": "footer",
+      "label": "Footer links",
+      "items": [
+        {
+          "type": "custom",
+          "label": "Book",
+          "url": "/book"
+        },
+        {
+          "type": "custom",
+          "label": "Services",
+          "url": "/services"
+        },
+        {
+          "type": "custom",
+          "label": "Ask Ani",
+          "url": "/ask-ani"
+        },
+        {
+          "type": "custom",
+          "label": "Products",
+          "url": "/products"
+        },
+        {
+          "type": "custom",
+          "label": "About",
+          "url": "/about"
+        },
+        {
+          "type": "custom",
+          "label": "Contact",
+          "url": "/contact"
+        },
+        {
+          "type": "custom",
+          "label": "Booking policy",
+          "url": "/booking-policy"
+        },
+        {
+          "type": "custom",
+          "label": "Privacy",
+          "url": "/privacy"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/home",
+      "destination": "/",
+      "type": 308,
+      "enabled": true,
+      "groupName": "Site structure"
+    },
+    {
+      "source": "/about-ani",
+      "destination": "/about",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old aniwenger.com pages"
+    },
+    {
+      "source": "/testimonials",
+      "destination": "/about",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old aniwenger.com pages"
+    },
+    {
+      "source": "/hairstylestreatments",
+      "destination": "/services",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old aniwenger.com pages"
+    },
+    {
+      "source": "/brazilian-blowout",
+      "destination": "/services/brazilian-blowout",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old aniwenger.com pages"
+    },
+    {
+      "source": "/precisioncut",
+      "destination": "/services/womens-precision-cut",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old aniwenger.com pages"
+    },
+    {
+      "source": "/styling",
+      "destination": "/services/special-occasion-styling",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old aniwenger.com pages"
+    },
+    {
+      "source": "/makeover",
+      "destination": "/services",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old aniwenger.com pages"
+    },
+    {
+      "source": "/treatments",
+      "destination": "/services/kerastase-ritual",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old aniwenger.com pages"
+    },
+    {
+      "source": "/extensions",
+      "destination": "/services/hair-extensions-consultation",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old aniwenger.com pages"
+    }
+  ],
+  "content": {
+    "home": [
+      {
+        "id": "page-home",
+        "slug": "home",
+        "status": "published",
+        "data": {
+          "title": "Home",
+          "content": [
+            {
+              "_type": "hero",
+              "_version": 1,
+              "_key": "hero",
+              "headline": "Hair that feels like you again.",
+              "subheadline": "Precision cuts, natural color, gray blending, and gentle care for thinning hair, from a European master stylist trained at José Eber and Vidal Sassoon.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/salon-blow-dry-styling.jpg",
+                  "alt": "A stylist smooths a client's shoulder-length hair with a round brush and blow dryer in a bright salon",
+                  "filename": "salon-blow-dry-styling.jpg"
+                }
+              },
+              "primary_cta_label": "Book an appointment",
+              "primary_cta_url": "/book",
+              "secondary_cta_label": "See services and prices",
+              "secondary_cta_url": "/services",
+              "note": "James Mathew Salon, South Orange County"
+            },
+            {
+              "_type": "credentials",
+              "_version": 1,
+              "_key": "credentials",
+              "headline": "Trained where great hair is made",
+              "items": [
+                {
+                  "title": "José Eber and Vidal Sassoon",
+                  "detail": "More than ten years as a director-level stylist at two of the most respected names in hair."
+                },
+                {
+                  "title": "Runway and editorial",
+                  "detail": "Fashion show and shoot styling for Fendi, W magazine, and Roxy. Featured in Orange Coast and Women magazine."
+                },
+                {
+                  "title": "Trusted by demanding clients",
+                  "detail": "Royal families, Anaheim Ducks and Red Wings players, models, and professionals who need hair that works."
+                }
+              ]
+            },
+            {
+              "_type": "services_menu",
+              "_version": 1,
+              "_key": "services",
+              "headline": "Services",
+              "intro": "Every appointment starts with a conversation about your hair, your routine, and what you want to feel when you look in the mirror.",
+              "show": "featured",
+              "link_label": "See every service and price"
+            },
+            {
+              "_type": "transformations",
+              "_version": 1,
+              "_key": "work",
+              "headline": "Not younger. Just you again.",
+              "intro": "Recent clients, before and after. Color that matches the skin, a cut that moves, and the moment someone recognizes herself.",
+              "items": [
+                {
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/ani-transformation-soft-layers.jpg",
+                      "alt": "Before and after: an 86-year-old client with shorter length, soft face-framing layers, and richer color",
+                      "filename": "ani-transformation-soft-layers.jpg"
+                    }
+                  },
+                  "caption": "Shorter length, soft layers around the face, and a richer color. She is 86."
+                },
+                {
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/ani-transformation-long-layers.jpg",
+                      "alt": "Before and after: long, flat dark hair cut into soft layers with body and movement",
+                      "filename": "ani-transformation-long-layers.jpg"
+                    }
+                  },
+                  "caption": "Soft layers and movement for body and bounce that grows out well."
+                },
+                {
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/ani-transformation-blonde-to-brunette.jpg",
+                      "alt": "Before and after: long blonde hair changed to a rich brunette with soft waves",
+                      "filename": "ani-transformation-blonde-to-brunette.jpg"
+                    }
+                  },
+                  "caption": "Blonde to a rich brunette with soft waves and dimension."
+                }
+              ]
+            },
+            {
+              "_type": "story",
+              "_version": 1,
+              "_key": "about",
+              "headline": "A European approach to hair",
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p179",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s180",
+                      "text": "I believe the right cut does most of the work. When it is shaped for your texture and your life, your hair falls into place on its own, and styling takes minutes instead of an hour.",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p181",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s182",
+                      "text": "I have spent my career at the chair, in the studio, and backstage. Now I work one client at a time, with the time to listen and to teach you how to care for your hair at home.",
+                      "marks": []
+                    }
+                  ]
+                }
+              ],
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/ani-dimensional-brunette.jpg",
+                  "alt": "Long brunette waves with soft caramel dimension, colored and styled by Ani",
+                  "filename": "ani-dimensional-brunette.jpg"
+                }
+              },
+              "image_position": "right",
+              "cta_label": "About Ani",
+              "cta_url": "/about"
+            },
+            {
+              "_type": "testimonials",
+              "_version": 1,
+              "_key": "reviews",
+              "headline": "What clients say",
+              "items": [
+                {
+                  "quote": "I have been a client of Ani's for approximately twelve years. My hair is very curly and frizzy, and difficult to manage. Ani does a fantastic job blow-drying my hair into a sleek and beautiful style. She also styles my daughter's hair. Ani is a premier hair stylist and I would never let anyone else style or cut my hair.",
+                  "name": "Susan B.",
+                  "place": "Southern California"
+                },
+                {
+                  "quote": "Ani has a gift in knowing what cut and color best suits a face and particular type of hair. She does an amazing job and is respectful of her clients' time. I feel confident recommending her to anyone.",
+                  "name": "Gina B.",
+                  "place": "Laguna Hills"
+                },
+                {
+                  "quote": "Ani performs wonders! On two separate occasions, I have watched her take 10 years off of people, one being my husband and another being my mother. She is a master of achieving the perfect current cut and style to suit the person.",
+                  "name": "Catherine D.",
+                  "place": "Newport Beach"
+                }
+              ]
+            },
+            {
+              "_type": "questions_list",
+              "_version": 1,
+              "_key": "ask",
+              "headline": "Ask Ani",
+              "intro": "Straight answers to the questions I hear every day in the chair.",
+              "count": 3,
+              "link_label": "Read every answer"
+            },
+            {
+              "_type": "products_list",
+              "_version": 1,
+              "_key": "picks",
+              "headline": "What I use and recommend",
+              "intro": "The products I trust for my clients' hair, and why.",
+              "link_label": "See all products"
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "book",
+              "headline": "Ready when you are.",
+              "body": "Choose a service and a time that suits you. You get a confirmation right away.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/salon-vanity.jpg",
+                  "alt": "An antique vanity with combs and brushes beside a softly lit window",
+                  "filename": "salon-vanity.jpg"
+                }
+              },
+              "cta_label": "Book an appointment",
+              "cta_url": "/book"
+            }
+          ]
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page-about",
+        "slug": "about",
+        "status": "published",
+        "data": {
+          "title": "About Ani",
+          "intro": "European master hairstylist, former director-level stylist at José Eber and Vidal Sassoon, now taking clients in South Orange County.",
+          "content": [
+            {
+              "_type": "story",
+              "_version": 1,
+              "_key": "story",
+              "headline": "Hair is personal. So is the way I work.",
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p183",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s184",
+                      "text": "For the professional who wants to refine or refresh a look, I offer something that is hard to find: time, technique, and honesty about what will suit you.",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p185",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s186",
+                      "text": "I trained in Europe and spent more than ten years as a director-level stylist at José Eber and Vidal Sassoon. I have styled hair for fashion shows and for Fendi, W magazine, and Roxy, and I have been featured in Orange Coast and Women magazine.",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p187",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s188",
+                      "text": "Today I see clients one at a time at James Mathew Salon. Many have been with me for more than fifteen years. Some fly in from Canada, Peru, and Israel. They come back because their hair looks like them, only better, and because it is easy to care for at home.",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p189",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s190",
+                      "text": "Outside the salon I love exercise, gardening, and anything that keeps us healthy. Ask me about the bananas and coffee I grow in my backyard.",
+                      "marks": []
+                    }
+                  ]
+                }
+              ],
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/styling-station.jpg",
+                  "alt": "Warm afternoon light across a minimal styling station with round mirrors and a pale wood counter",
+                  "filename": "styling-station.jpg"
+                }
+              },
+              "image_position": "left",
+              "cta_label": "Book with Ani",
+              "cta_url": "/book"
+            },
+            {
+              "_type": "credentials",
+              "_version": 1,
+              "_key": "credentials",
+              "headline": "Trained where great hair is made",
+              "items": [
+                {
+                  "title": "José Eber and Vidal Sassoon",
+                  "detail": "More than ten years as a director-level stylist at two of the most respected names in hair."
+                },
+                {
+                  "title": "Runway and editorial",
+                  "detail": "Fashion show and shoot styling for Fendi, W magazine, and Roxy. Featured in Orange Coast and Women magazine."
+                },
+                {
+                  "title": "Trusted by demanding clients",
+                  "detail": "Royal families, Anaheim Ducks and Red Wings players, models, and professionals who need hair that works."
+                }
+              ]
+            },
+            {
+              "_type": "transformations",
+              "_version": 1,
+              "_key": "work",
+              "headline": "Recent work",
+              "items": [
+                {
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/ani-transformation-soft-layers.jpg",
+                      "alt": "Before and after: an 86-year-old client with shorter length, soft face-framing layers, and richer color",
+                      "filename": "ani-transformation-soft-layers.jpg"
+                    }
+                  },
+                  "caption": "Soft layers and richer color, for a client visiting from Peru."
+                },
+                {
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/ani-transformation-long-layers.jpg",
+                      "alt": "Before and after: long, flat dark hair cut into soft layers with body and movement",
+                      "filename": "ani-transformation-long-layers.jpg"
+                    }
+                  },
+                  "caption": "Layers that add body without losing length."
+                },
+                {
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/ani-transformation-blonde-to-brunette.jpg",
+                      "alt": "Before and after: long blonde hair changed to a rich brunette with soft waves",
+                      "filename": "ani-transformation-blonde-to-brunette.jpg"
+                    }
+                  },
+                  "caption": "A full color change to rich brunette."
+                },
+                {
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/ani-dimensional-brunette.jpg",
+                      "alt": "Long brunette waves with soft caramel dimension, colored and styled by Ani",
+                      "filename": "ani-dimensional-brunette.jpg"
+                    }
+                  },
+                  "caption": "Dimensional brunette with soft waves."
+                },
+                {
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/ani-silver-bob.jpg",
+                      "alt": "A client's chin-length silver bob with soft movement, cut by Ani",
+                      "filename": "ani-silver-bob.jpg"
+                    }
+                  },
+                  "caption": "A short, textured silver bob after growing out color."
+                }
+              ]
+            },
+            {
+              "_type": "testimonials",
+              "_version": 1,
+              "_key": "reviews",
+              "headline": "What clients say",
+              "items": [
+                {
+                  "quote": "I have been a client of Ani's for approximately twelve years. My hair is very curly and frizzy, and difficult to manage. Ani does a fantastic job blow-drying my hair into a sleek and beautiful style. She also styles my daughter's hair. Ani is a premier hair stylist and I would never let anyone else style or cut my hair.",
+                  "name": "Susan B.",
+                  "place": "Southern California"
+                },
+                {
+                  "quote": "I have Long, thick, coarse hair, which I consider a test for most hairdressers to style. Unlike most hairdressers taking 60 to 75 minutes, Ani can style my hair within 45 minutes! The cut lines are precise and always flattering, with many compliments to follow.",
+                  "name": "Tarita P.",
+                  "place": "Monarch Beach"
+                },
+                {
+                  "quote": "Ani has a gift in knowing what cut and color best suits a face and particular type of hair. She does an amazing job and is respectful of her clients' time. I feel confident recommending her to anyone.",
+                  "name": "Gina B.",
+                  "place": "Laguna Hills"
+                },
+                {
+                  "quote": "I have been a client of Ani's for the past 16 years. She saved my hair from chemical and sun damage by teaching me new techniques for care and recommending great products!",
+                  "name": "Sandy C.",
+                  "place": "Laguna Niguel"
+                },
+                {
+                  "quote": "Ani performs wonders! On two separate occasions, I have watched her take 10 years off of people, one being my husband and another being my mother. She is a master of achieving the perfect current cut and style to suit the person.",
+                  "name": "Catherine D.",
+                  "place": "Newport Beach"
+                },
+                {
+                  "quote": "I found Ani via a Google search for a master hair stylist in Irvine, and I am so glad I did. She knew exactly what hairstyle would suit my hair texture and gave me the precision cut I was looking for. Even though it's a bit of a commute for me, it is so worth it to keep going back.",
+                  "name": "Jen T.",
+                  "place": "Orange County"
+                },
+                {
+                  "quote": "As a mother of four, I don't have time to mess around with my long hair every day! I need a cut that can look great in just a few minutes, and can also look amazing when I do have the time for that special night out. Ani is just magic!",
+                  "name": "Naomi G.",
+                  "place": "Laguna Niguel"
+                },
+                {
+                  "quote": "I first met Ani while on vacation in Newport Beach. At that time my hair was chemically damaged and over texturized. Ani suggested I go darker and gave me a wonderful cut. Since then I have returned many times, at least twice yearly, all the way from Winnipeg. As a result I now have long beautiful shiny hair.",
+                  "name": "Rochelle N.",
+                  "place": "Winnipeg, Canada"
+                },
+                {
+                  "quote": "Living in the Inland Empire, the 50 mile distance is not discouraging to travel for Ani. I have very fine and thin hair. Ani has always given me a complimentary and easy to care for cut and style. I'm an ex-cosmetologist.",
+                  "name": "Betsy P.",
+                  "place": "Inland Empire"
+                }
+              ]
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "book",
+              "headline": "Let's find the cut that works for you.",
+              "body": "New clients are welcome. Book online, or call if you would like to talk first.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/salon-vanity.jpg",
+                  "alt": "An antique vanity with combs and brushes beside a softly lit window",
+                  "filename": "salon-vanity.jpg"
+                }
+              },
+              "cta_label": "Book an appointment",
+              "cta_url": "/book"
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-services",
+        "slug": "services",
+        "status": "published",
+        "data": {
+          "title": "Services and prices",
+          "intro": "Every service begins with a consultation. Prices with a plus sign are starting points that depend on length and density; I always confirm the price before we begin.",
+          "content": [
+            {
+              "_type": "faq",
+              "_version": 1,
+              "_key": "faq",
+              "headline": "Before your appointment",
+              "items": [
+                {
+                  "question": "I'm a new client. What should I book?",
+                  "answer": "Book the service you want, and add a note about your hair history. If you are planning a big color change or correcting color from elsewhere, book a free color consultation first."
+                },
+                {
+                  "question": "How do I pay?",
+                  "answer": "You pay at the salon after your appointment. Nothing is charged when you book online."
+                },
+                {
+                  "question": "What if I need to cancel?",
+                  "answer": "Use the link in your confirmation email to cancel up to 24 hours before your appointment, or call. Please give as much notice as you can so someone else can have the time."
+                },
+                {
+                  "question": "Can I book more than one service?",
+                  "answer": "Yes. Book the main service online and mention the other in your note, or call and I will schedule the right amount of time."
+                }
+              ]
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "book",
+              "headline": "Found what you need?",
+              "body": "Pick a time online in under a minute.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/salon-vanity.jpg",
+                  "alt": "An antique vanity with combs and brushes beside a softly lit window",
+                  "filename": "salon-vanity.jpg"
+                }
+              },
+              "cta_label": "Book an appointment",
+              "cta_url": "/book"
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-ask-ani",
+        "slug": "ask-ani",
+        "status": "published",
+        "data": {
+          "title": "Ask Ani",
+          "intro": "Honest answers to the hair questions I hear every day: thinning, gray, color that fades, curls, and the routines and products that help.",
+          "content": [
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "book",
+              "headline": "Want advice for your own hair?",
+              "body": "Book a consultation and we will look at it together.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/salon-vanity.jpg",
+                  "alt": "An antique vanity with combs and brushes beside a softly lit window",
+                  "filename": "salon-vanity.jpg"
+                }
+              },
+              "cta_label": "Book a consultation",
+              "cta_url": "/book?service=thinning-hair-consultation"
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-products",
+        "slug": "products",
+        "status": "published",
+        "data": {
+          "title": "Products I recommend",
+          "intro": "The shampoos, treatments, and tools I trust for my clients' hair. Some links earn me a small commission at no extra cost to you; I only recommend what I use."
+        }
+      },
+      {
+        "id": "page-book",
+        "slug": "book",
+        "status": "published",
+        "data": {
+          "title": "Book an appointment",
+          "intro": "Choose a service and a time. You will get a confirmation by email right away, with a link to change or cancel."
+        }
+      },
+      {
+        "id": "page-contact",
+        "slug": "contact",
+        "status": "published",
+        "data": {
+          "title": "Contact",
+          "intro": "Questions about a service, a big change, or whether we are a good fit? Send a message and I will reply within a day or two.",
+          "content": [
+            {
+              "_type": "visit",
+              "_version": 1,
+              "_key": "visit",
+              "headline": "Visit the salon",
+              "intro": "I see clients by appointment at James Mathew Salon in South Orange County."
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-booking-policy",
+        "slug": "booking-policy",
+        "status": "published",
+        "data": {
+          "title": "Booking and cancellation policy",
+          "intro": "How booking, changes, and cancellations work.",
+          "content": [
+            {
+              "_type": "rich_text",
+              "_version": 1,
+              "_key": "policy",
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "h2",
+                  "_key": "h191",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s192",
+                      "text": "Booking",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p197",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s198",
+                      "text": "You can book online at any time. Your appointment is confirmed as soon as you see the confirmation screen, and a confirmation email follows. Nothing is charged online; you pay at the salon.",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "h2",
+                  "_key": "h193",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s194",
+                      "text": "Changes and cancellations",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p199",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s200",
+                      "text": "Please cancel at least 24 hours before your appointment, using the link in your confirmation email or by calling. Late cancellations and missed appointments keep another client from that time.",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "h2",
+                  "_key": "h195",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s196",
+                      "text": "Running late",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p201",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s202",
+                      "text": "If you are running more than 15 minutes late, please call. I will do everything I can, but I may need to shorten the service or move it so the next client is not kept waiting.",
+                      "marks": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-privacy",
+        "slug": "privacy",
+        "status": "published",
+        "data": {
+          "title": "Privacy",
+          "intro": "What this website collects and how it is used.",
+          "content": [
+            {
+              "_type": "rich_text",
+              "_version": 1,
+              "_key": "privacy",
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "h2",
+                  "_key": "h203",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s204",
+                      "text": "What we collect",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p211",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s212",
+                      "text": "When you book or send a message, we collect your name, email, phone number, and anything you choose to write. We use it only to schedule your appointment, remind you of it, and reply to you.",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "h2",
+                  "_key": "h205",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s206",
+                      "text": "Analytics",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p213",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s214",
+                      "text": "This site counts visits with Cloudflare Web Analytics, which uses no cookies and does not track you across other websites.",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "h2",
+                  "_key": "h207",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s208",
+                      "text": "Product links",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p215",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s216",
+                      "text": "Some product links are affiliate links. If you buy through one, the store may pay a small commission. The price you pay does not change.",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "h2",
+                  "_key": "h209",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s210",
+                      "text": "Your choices",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p217",
+                  "markDefs": [],
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s218",
+                      "text": "To see, change, or delete the details we hold about you, call or email and we will take care of it.",
+                      "marks": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "services": [
+      {
+        "id": "service-womens-precision-cut",
+        "slug": "womens-precision-cut",
+        "status": "published",
+        "data": {
+          "title": "Women's precision cut",
+          "category": "cuts",
+          "summary": "A consultation, shampoo, a precision cut shaped for your texture, and a finish you can recreate at home.",
+          "duration_minutes": 60,
+          "buffer_minutes": 0,
+          "price": 120,
+          "price_from": false,
+          "bookable": true,
+          "featured": true,
+          "sort_order": 10,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/precision-cut-scissors.jpg",
+              "alt": "A stylist cuts a section of long, wet dark hair with scissors and a comb",
+              "filename": "precision-cut-scissors.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p8",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s9",
+                  "text": "A precision cut is the foundation of everything else. I study how your hair grows, where it wants to fall, and how much time you really spend on it in the morning. Then I cut for that, so it looks finished on the days you air dry it too.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p10",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s11",
+                  "text": "Curly, straight, fine, thick, or difficult: every texture needs its own technique. Curls are shaped where they live, fine hair gets weight kept where it matters, and thick hair is lightened from the inside so it moves.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h0",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s1",
+                  "text": "What to expect",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l2",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s3",
+                  "text": "A conversation about your routine, your photos, and what has not worked before.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l4",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s5",
+                  "text": "Shampoo and a scalp massage.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l6",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s7",
+                  "text": "The cut, then a blow-dry or diffuse with a short lesson on how to style it yourself.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p12",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s13",
+                  "text": "Come with your hair the way you usually wear it, so I can see your everyday style.",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "service-mens-cut",
+        "slug": "mens-cut",
+        "status": "published",
+        "data": {
+          "title": "Men's cut",
+          "category": "cuts",
+          "summary": "A tailored scissor cut with a shampoo and finish. Clean lines that still look right three weeks later.",
+          "duration_minutes": 45,
+          "buffer_minutes": 0,
+          "price": 70,
+          "price_from": false,
+          "bookable": true,
+          "featured": true,
+          "sort_order": 20,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/mens-cut.jpg",
+              "alt": "A scissor and comb cut on a man's salt-and-pepper hair, seen from behind",
+              "filename": "mens-cut.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p22",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s23",
+                  "text": "A men's cut should look sharp on day one and grow out without losing its shape. I work mostly with scissors over comb, so the shape follows your head and your hairline instead of a clipper guard.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h14",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s15",
+                  "text": "What to expect",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l16",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s17",
+                  "text": "A quick consultation about length, part, and how you style it.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l18",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s19",
+                  "text": "Shampoo, cut, and a clean finish at the neck and around the ears.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l20",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s21",
+                  "text": "A product recommendation if you want one, and how much to use.",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "service-fringe-trim",
+        "slug": "fringe-trim",
+        "status": "published",
+        "data": {
+          "title": "Fringe trim",
+          "category": "cuts",
+          "summary": "A quick trim to keep bangs and face-framing pieces in shape between cuts.",
+          "duration_minutes": 15,
+          "buffer_minutes": 0,
+          "price": 20,
+          "price_from": false,
+          "bookable": true,
+          "featured": false,
+          "sort_order": 30
+        }
+      },
+      {
+        "id": "service-gray-blending",
+        "slug": "gray-blending",
+        "status": "published",
+        "data": {
+          "title": "Gray blending",
+          "category": "color",
+          "summary": "Soft, multi-tonal color that blends gray instead of covering it, so regrowth is gentle and visits are further apart.",
+          "duration_minutes": 120,
+          "buffer_minutes": 15,
+          "price": 180,
+          "price_from": true,
+          "bookable": true,
+          "featured": true,
+          "sort_order": 10,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/ani-silver-bob.jpg",
+              "alt": "A client's chin-length silver bob with soft movement, cut by Ani",
+              "filename": "ani-silver-bob.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p32",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s33",
+                  "text": "Gray blending is for clients who are tired of a hard line at the root every three weeks. Instead of one solid color, I weave in lowlights and highlights close to your natural shades. The gray becomes part of the color rather than something to hide.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p34",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s35",
+                  "text": "Some clients use it to stretch time between appointments. Others use it as a gentle path to going fully silver. Either way, it should look like your own hair, only brighter.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h24",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s25",
+                  "text": "What to expect",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l26",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s27",
+                  "text": "A color consultation in natural light to choose tones that suit your skin.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l28",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s29",
+                  "text": "Hand-placed lowlights and highlights, then a gloss to tie them together.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l30",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s31",
+                  "text": "A blow-dry and a plan for your next visit, usually in 8 to 12 weeks.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p36",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s37",
+                  "text": "Prices start here and depend on length and density. I confirm the price before we begin.",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "service-root-touch-up",
+        "slug": "root-touch-up",
+        "status": "published",
+        "data": {
+          "title": "Root touch-up",
+          "category": "color",
+          "summary": "All-over color refreshed at the root, with a gloss on the lengths for shine.",
+          "duration_minutes": 90,
+          "buffer_minutes": 15,
+          "price": 110,
+          "price_from": true,
+          "bookable": true,
+          "featured": false,
+          "sort_order": 20,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/foil-highlights.jpg",
+              "alt": "A colorist paints lightener onto a section of long dark hair over a board, with foils below",
+              "filename": "foil-highlights.jpg"
+            }
+          }
+        }
+      },
+      {
+        "id": "service-dimensional-color",
+        "slug": "dimensional-color",
+        "status": "published",
+        "data": {
+          "title": "Highlights and dimensional color",
+          "category": "color",
+          "summary": "Hand-placed highlights or balayage for depth and brightness that grows out softly.",
+          "duration_minutes": 150,
+          "buffer_minutes": 15,
+          "price": 210,
+          "price_from": true,
+          "bookable": true,
+          "featured": true,
+          "sort_order": 30,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/ani-dimensional-brunette.jpg",
+              "alt": "Long brunette waves with soft caramel dimension, colored and styled by Ani",
+              "filename": "ani-dimensional-brunette.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p46",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s47",
+                  "text": "Dimensional color adds light where the sun would naturally hit and depth underneath, so your hair looks thicker and more alive. I choose foils, balayage, or both, depending on how bright you want to go and how often you want to come in.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h38",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s39",
+                  "text": "What to expect",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l40",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s41",
+                  "text": "A consultation about your color history, so the result is predictable.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l42",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s43",
+                  "text": "Lightening and toning, then a gloss for shine.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l44",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s45",
+                  "text": "A blow-dry and the home care that keeps the tone true.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p48",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s49",
+                  "text": "Big changes, like blonde to brunette, may take two visits. Book a color consultation first if you are unsure.",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "service-blowout",
+        "slug": "blowout",
+        "status": "published",
+        "data": {
+          "title": "Blowout",
+          "category": "styling",
+          "summary": "A shampoo and smooth, bouncy blow-dry that lasts for days.",
+          "duration_minutes": 45,
+          "buffer_minutes": 0,
+          "price": 65,
+          "price_from": false,
+          "bookable": true,
+          "featured": true,
+          "sort_order": 10,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/glossy-blowout.jpg",
+              "alt": "A glossy, bouncy blowout in long highlighted hair, seen from behind in a bright salon",
+              "filename": "glossy-blowout.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p50",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s51",
+                  "text": "Clients with curly, thick, or frizzy hair often book a weekly blowout with me. It is the fastest way to look polished for the week, and the right technique keeps the shape for days without damage.",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "service-special-occasion-styling",
+        "slug": "special-occasion-styling",
+        "status": "published",
+        "data": {
+          "title": "Special occasion styling",
+          "category": "styling",
+          "summary": "Styling for weddings, galas, and photos: soft waves, an elegant updo, or a sleek finish.",
+          "duration_minutes": 75,
+          "buffer_minutes": 0,
+          "price": 120,
+          "price_from": false,
+          "bookable": true,
+          "featured": false,
+          "sort_order": 20,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/styling-station.jpg",
+              "alt": "Warm afternoon light across a minimal styling station with round mirrors and a pale wood counter",
+              "filename": "styling-station.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p52",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s53",
+                  "text": "I have styled hair for fashion shows and magazine shoots, and I bring the same care to your event. Send me a photo of your outfit when you book, and come with clean, dry hair unless we plan a shampoo.",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "service-brazilian-blowout",
+        "slug": "brazilian-blowout",
+        "status": "published",
+        "data": {
+          "title": "Brazilian Blowout smoothing",
+          "category": "treatments",
+          "summary": "A professional smoothing treatment that removes frizz and adds shine for up to 12 weeks, with no downtime.",
+          "duration_minutes": 150,
+          "buffer_minutes": 15,
+          "price": 350,
+          "price_from": true,
+          "bookable": true,
+          "featured": true,
+          "sort_order": 10,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/sleek-smooth-hair.jpg",
+              "alt": "Sleek, frizz-free brown hair over the shoulders of a white shirt, seen from behind",
+              "filename": "sleek-smooth-hair.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p62",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s63",
+                  "text": "The Brazilian Blowout creates a protective layer around each hair to smooth the cuticle and eliminate frizz. Hair stays soft and moves naturally. It does not look flat or chemically straight.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p64",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s65",
+                  "text": "There is no downtime: you can wash, air dry, and wear your hair up the same day. Results last up to 12 weeks with the right shampoo.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h54",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s55",
+                  "text": "What to expect",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l56",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s57",
+                  "text": "A strand check and a shampoo to prepare the hair.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l58",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s59",
+                  "text": "The smoothing solution is applied, dried, and sealed with a flat iron.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l60",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s61",
+                  "text": "Aftercare advice and a sulfate-free routine to make it last.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p66",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s67",
+                  "text": "The price depends on length and thickness. I confirm it before we begin.",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "service-kerastase-ritual",
+        "slug": "kerastase-ritual",
+        "status": "published",
+        "data": {
+          "title": "Kérastase ritual",
+          "category": "treatments",
+          "summary": "A personalized Kérastase treatment for dry, damaged, or color-treated hair, with a scalp massage.",
+          "duration_minutes": 30,
+          "buffer_minutes": 0,
+          "price": 50,
+          "price_from": false,
+          "bookable": true,
+          "featured": false,
+          "sort_order": 20,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/shampoo-treatment.jpg",
+              "alt": "A client's long hair being rinsed at a white salon basin during a treatment",
+              "filename": "shampoo-treatment.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p68",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s69",
+                  "text": "Every head of hair needs something different. After a quick diagnosis of your hair and scalp, I choose the Kérastase treatment that fits: deep nourishment for dry ends, strength for color-damaged hair, or balance for an oily scalp.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p70",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s71",
+                  "text": "It is a lovely add-on to a cut or color, or a quiet half hour on its own.",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "service-hair-extensions-consultation",
+        "slug": "hair-extensions-consultation",
+        "status": "published",
+        "data": {
+          "title": "Hair extensions consultation",
+          "category": "extensions",
+          "summary": "We talk through length, volume, and the right method for your hair, and match color.",
+          "duration_minutes": 30,
+          "buffer_minutes": 0,
+          "price": 0,
+          "price_from": false,
+          "bookable": true,
+          "featured": false,
+          "sort_order": 10,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/hair-extensions.jpg",
+              "alt": "A stylist fits extension wefts into long platinum hair in front of a gilded mirror",
+              "filename": "hair-extensions.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p72",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s73",
+                  "text": "Extensions can add length, fill in thin areas, or simply give more volume. The method matters: it has to suit your own hair and your routine, and it has to be invisible. I match color in person and give you a firm quote for the full service.",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "service-color-consultation",
+        "slug": "color-consultation",
+        "status": "published",
+        "data": {
+          "title": "Color consultation",
+          "category": "consultations",
+          "summary": "Planning a big change, or correcting color from elsewhere? Let's look at it together first.",
+          "duration_minutes": 20,
+          "buffer_minutes": 0,
+          "price": 0,
+          "price_from": false,
+          "bookable": true,
+          "featured": false,
+          "sort_order": 10
+        }
+      },
+      {
+        "id": "service-thinning-hair-consultation",
+        "slug": "thinning-hair-consultation",
+        "status": "published",
+        "data": {
+          "title": "Thinning hair consultation",
+          "category": "consultations",
+          "summary": "A private conversation about shedding or thinning, and a plan: the cut, color, and care that help.",
+          "duration_minutes": 30,
+          "buffer_minutes": 0,
+          "price": 0,
+          "price_from": false,
+          "bookable": true,
+          "featured": false,
+          "sort_order": 20,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/comb-through-hair.jpg",
+              "alt": "A hand draws a wooden comb through long, straight auburn hair",
+              "filename": "comb-through-hair.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p74",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s75",
+                  "text": "Thinning hair is common, and it is not something you have to live with quietly. In a private consultation we look at your scalp and hair together, talk about what changed and when, and build a plan.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p76",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s77",
+                  "text": "Often that means a cut that puts weight where it helps, color that adds the look of density, and a scalp routine. If anything suggests a medical cause, I will tell you, and suggest you see your doctor or a dermatologist.",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "products": [
+      {
+        "id": "product-genesis-anti-hair-fall-serum",
+        "slug": "genesis-anti-hair-fall-serum",
+        "status": "published",
+        "data": {
+          "title": "Genesis Anti Hair-Fall Fortifying Serum",
+          "brand": "Kérastase",
+          "url": "https://www.amazon.com/s?k=K%C3%A9rastase+Genesis+Anti+Hair-Fall+Fortifying+Serum",
+          "note": "A light leave-in serum for the scalp. I suggest it to clients who notice more hair in the brush: used every day, it strengthens the hair from the root and reduces breakage.",
+          "concern": "thinning-hair",
+          "featured": true,
+          "sort_order": 10
+        }
+      },
+      {
+        "id": "product-genesis-bain-hydra-fortifiant",
+        "slug": "genesis-bain-hydra-fortifiant",
+        "status": "published",
+        "data": {
+          "title": "Genesis Bain Hydra-Fortifiant Shampoo",
+          "brand": "Kérastase",
+          "url": "https://www.amazon.com/s?k=K%C3%A9rastase+Genesis+Bain+Hydra-Fortifiant+Shampoo",
+          "note": "A gentle shampoo for hair that breaks and sheds easily. It cleans the scalp without stripping, which matters more than most people think.",
+          "concern": "thinning-hair",
+          "featured": false,
+          "sort_order": 20
+        }
+      },
+      {
+        "id": "product-wide-tooth-detangling-comb",
+        "slug": "wide-tooth-detangling-comb",
+        "status": "published",
+        "data": {
+          "title": "Wide-Tooth Detangling Comb",
+          "brand": "Kent",
+          "url": "https://www.amazon.com/s?k=Kent+Wide-Tooth+Detangling+Comb",
+          "note": "The single cheapest thing that saves hair. Comb wet hair from the ends up, never from the root down, and you will lose far less to breakage.",
+          "concern": "everyday-care",
+          "featured": false,
+          "sort_order": 30
+        }
+      },
+      {
+        "id": "product-mulberry-silk-pillowcase",
+        "slug": "mulberry-silk-pillowcase",
+        "status": "published",
+        "data": {
+          "title": "Mulberry Silk Pillowcase",
+          "brand": "Slip",
+          "url": "https://www.amazon.com/s?k=Slip+Mulberry+Silk+Pillowcase",
+          "note": "Cotton grabs the hair all night. Silk lets it glide, so you wake up with less frizz, fewer tangles, and a blowout that lasts a day longer.",
+          "concern": "everyday-care",
+          "featured": true,
+          "sort_order": 40
+        }
+      },
+      {
+        "id": "product-elixir-ultime-huile-originale",
+        "slug": "elixir-ultime-huile-originale",
+        "status": "published",
+        "data": {
+          "title": "Elixir Ultime L'Huile Originale",
+          "brand": "Kérastase",
+          "url": "https://www.amazon.com/s?k=K%C3%A9rastase+Elixir+Ultime+L%27Huile+Originale",
+          "note": "My favorite finishing oil. Two drops on the ends after blow-drying for shine and softness, without making fine hair heavy.",
+          "concern": "color-care",
+          "featured": true,
+          "sort_order": 50
+        }
+      },
+      {
+        "id": "product-blond-absolu-bain-ultra-violet",
+        "slug": "blond-absolu-bain-ultra-violet",
+        "status": "published",
+        "data": {
+          "title": "Blond Absolu Bain Ultra-Violet",
+          "brand": "Kérastase",
+          "url": "https://www.amazon.com/s?k=K%C3%A9rastase+Blond+Absolu+Bain+Ultra-Violet",
+          "note": "A purple shampoo that keeps silver and blonde bright instead of yellow. Use it once or twice a week, not every wash.",
+          "concern": "gray-hair",
+          "featured": false,
+          "sort_order": 60
+        }
+      },
+      {
+        "id": "product-acai-anti-frizz-shampoo",
+        "slug": "acai-anti-frizz-shampoo",
+        "status": "published",
+        "data": {
+          "title": "Açaí Anti-Frizz Shampoo",
+          "brand": "Brazilian Blowout",
+          "url": "https://www.amazon.com/s?k=Brazilian+Blowout+A%C3%A7a%C3%AD+Anti-Frizz+Shampoo",
+          "note": "Made to protect a Brazilian Blowout. Sulfate-free and gentle, so the smoothing lasts the full 12 weeks.",
+          "concern": "smoothing",
+          "featured": true,
+          "sort_order": 70
+        }
+      },
+      {
+        "id": "product-resistance-ciment-thermique",
+        "slug": "resistance-ciment-thermique",
+        "status": "published",
+        "data": {
+          "title": "Résistance Ciment Thermique",
+          "brand": "Kérastase",
+          "url": "https://www.amazon.com/s?k=K%C3%A9rastase+R%C3%A9sistance+Ciment+Thermique",
+          "note": "A heat protectant that also repairs. Use it before every blow-dry if your hair is colored or fragile.",
+          "concern": "color-care",
+          "featured": false,
+          "sort_order": 80
+        }
+      },
+      {
+        "id": "product-microfiber-hair-towel",
+        "slug": "microfiber-hair-towel",
+        "status": "published",
+        "data": {
+          "title": "Microfiber Hair Towel",
+          "brand": "Aquis",
+          "url": "https://www.amazon.com/s?k=Aquis+Microfiber+Hair+Towel",
+          "note": "Rubbing hair with a cotton towel roughs up the cuticle. Blot with microfiber instead, especially curls, and you will see less frizz.",
+          "concern": "curly-hair",
+          "featured": false,
+          "sort_order": 90
+        }
+      }
+    ],
+    "questions": [
+      {
+        "id": "question-care-for-curly-hair",
+        "slug": "care-for-curly-hair",
+        "status": "published",
+        "data": {
+          "title": "What is the best way to care for curly hair?",
+          "topic": "curly-hair",
+          "summary": "Get a cut shaped for your curls, keep them hydrated, blot instead of rubbing, and never brush them dry. Let curls dry undisturbed, or use a diffuser on low.",
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p175",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s176",
+                  "text": "Curls need moisture, a cut that respects how they fall, and as little friction as possible.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h163",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s164",
+                  "text": "Start with the right cut",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p177",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s178",
+                  "text": "Curls shrink and spring differently on every head. I shape them where they live, so the cut looks balanced when your hair dries naturally, not only after a blowout.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h165",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s166",
+                  "text": "Everyday routine",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l167",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s168",
+                  "text": "Detangle only when wet and full of conditioner, with your fingers or a wide-tooth comb.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l169",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s170",
+                  "text": "Blot with a microfiber towel or a cotton T-shirt; never rub.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l171",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s172",
+                  "text": "Apply a leave-in while the hair is soaking wet to lock in moisture.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l173",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s174",
+                  "text": "Diffuse on low heat, or let curls dry without touching them.",
+                  "marks": []
+                }
+              ]
+            }
+          ],
+          "image": {
+            "$media": {
+              "url": "/_seed/media/natural-curls.jpg",
+              "alt": "Long, defined spiral curls seen from behind against a cream wall",
+              "filename": "natural-curls.jpg"
+            }
+          },
+          "products": [
+            "$ref:product-microfiber-hair-towel",
+            "$ref:product-wide-tooth-detangling-comb",
+            "$ref:product-mulberry-silk-pillowcase"
+          ],
+          "services": ["$ref:service-womens-precision-cut"]
+        }
+      },
+      {
+        "id": "question-why-color-fades-fast",
+        "slug": "why-color-fades-fast",
+        "status": "published",
+        "data": {
+          "title": "Why does my hair color fade so fast?",
+          "topic": "color-care",
+          "summary": "Hot water, harsh shampoos, sun, and heat styling wash color out. Wash less often in cool water, use a color-safe shampoo, and protect your hair from heat.",
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p159",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s160",
+                  "text": "Color molecules escape every time the cuticle opens. Most fading comes from a few everyday habits:",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l147",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s148",
+                  "text": "Hot showers.",
+                  "marks": ["strong"]
+                },
+                {
+                  "_type": "span",
+                  "_key": "s149",
+                  "text": " Rinse in lukewarm or cool water.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l150",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s151",
+                  "text": "Washing every day.",
+                  "marks": ["strong"]
+                },
+                {
+                  "_type": "span",
+                  "_key": "s152",
+                  "text": " Two or three times a week is plenty for most hair.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l153",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s154",
+                  "text": "Harsh shampoo.",
+                  "marks": ["strong"]
+                },
+                {
+                  "_type": "span",
+                  "_key": "s155",
+                  "text": " Choose a gentle, color-safe formula.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l156",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s157",
+                  "text": "Sun and heat.",
+                  "marks": ["strong"]
+                },
+                {
+                  "_type": "span",
+                  "_key": "s158",
+                  "text": " Use a heat protectant before styling and a hat at the beach.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p161",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s162",
+                  "text": "Red and copper tones fade fastest. A gloss between color appointments brings the shine and tone back in half an hour.",
+                  "marks": []
+                }
+              ]
+            }
+          ],
+          "image": {
+            "$media": {
+              "url": "/_seed/media/ani-dimensional-brunette.jpg",
+              "alt": "Long brunette waves with soft caramel dimension, colored and styled by Ani",
+              "filename": "ani-dimensional-brunette.jpg"
+            }
+          },
+          "products": [
+            "$ref:product-resistance-ciment-thermique",
+            "$ref:product-elixir-ultime-huile-originale"
+          ],
+          "services": [
+            "$ref:service-dimensional-color",
+            "$ref:service-kerastase-ritual"
+          ]
+        }
+      },
+      {
+        "id": "question-make-brazilian-blowout-last",
+        "slug": "make-brazilian-blowout-last",
+        "status": "published",
+        "data": {
+          "title": "How do I make my Brazilian Blowout last?",
+          "topic": "smoothing",
+          "summary": "Wash with a sulfate-free shampoo, keep chlorine and salt water off your hair, and blow-dry with low heat. With the right care, results last up to 12 weeks.",
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p145",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s146",
+                  "text": "The Brazilian Blowout works from the first wash, and the way you care for it decides whether it lasts six weeks or twelve.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "l137",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s138",
+                  "text": "Use a sulfate-free shampoo and conditioner. Sulfates strip the protective layer.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "l139",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s140",
+                  "text": "Rinse with fresh water after the pool or the ocean, or wear a cap.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "l141",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s142",
+                  "text": "Blow-dry with a round brush on medium heat when you want it extra sleek. Air drying is fine too.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "l143",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s144",
+                  "text": "Book your next treatment when the frizz starts to come back, usually after 10 to 12 weeks.",
+                  "marks": []
+                }
+              ]
+            }
+          ],
+          "image": {
+            "$media": {
+              "url": "/_seed/media/sleek-smooth-hair.jpg",
+              "alt": "Sleek, frizz-free brown hair over the shoulders of a white shirt, seen from behind",
+              "filename": "sleek-smooth-hair.jpg"
+            }
+          },
+          "products": [
+            "$ref:product-acai-anti-frizz-shampoo",
+            "$ref:product-resistance-ciment-thermique"
+          ],
+          "services": ["$ref:service-brazilian-blowout"]
+        }
+      },
+      {
+        "id": "question-how-often-haircut",
+        "slug": "how-often-haircut",
+        "status": "published",
+        "data": {
+          "title": "How often should I get a haircut?",
+          "topic": "cuts",
+          "summary": "Short hair every 4 to 6 weeks, medium length every 6 to 8, and long hair every 8 to 12. Come sooner if the ends feel dry or the shape stops falling into place.",
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p133",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s134",
+                  "text": "It depends on the length and on the shape you want to keep.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l124",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s125",
+                  "text": "Short cuts and men's cuts:",
+                  "marks": ["strong"]
+                },
+                {
+                  "_type": "span",
+                  "_key": "s126",
+                  "text": " every 4 to 6 weeks. A few millimeters change everything.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l127",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s128",
+                  "text": "Bobs and medium length:",
+                  "marks": ["strong"]
+                },
+                {
+                  "_type": "span",
+                  "_key": "s129",
+                  "text": " every 6 to 8 weeks to keep the line crisp.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l130",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s131",
+                  "text": "Long hair:",
+                  "marks": ["strong"]
+                },
+                {
+                  "_type": "span",
+                  "_key": "s132",
+                  "text": " every 8 to 12 weeks to keep the ends healthy while you grow it.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p135",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s136",
+                  "text": "A good precision cut grows out gracefully, so you should not feel you are fighting your hair in week five. If you are, the cut is not working for your texture, and we should change it.",
+                  "marks": []
+                }
+              ]
+            }
+          ],
+          "image": {
+            "$media": {
+              "url": "/_seed/media/precision-cut-scissors.jpg",
+              "alt": "A stylist cuts a section of long, wet dark hair with scissors and a comb",
+              "filename": "precision-cut-scissors.jpg"
+            }
+          },
+          "services": [
+            "$ref:service-womens-precision-cut",
+            "$ref:service-mens-cut",
+            "$ref:service-fringe-trim"
+          ]
+        }
+      },
+      {
+        "id": "question-blend-gray-without-root-touch-ups",
+        "slug": "blend-gray-without-root-touch-ups",
+        "status": "published",
+        "data": {
+          "title": "How do I blend gray instead of covering it?",
+          "topic": "gray-hair",
+          "summary": "Switch from solid coverage to gray blending: soft lowlights and highlights that let your silver become part of the color, so regrowth is gentle and visits stretch to 8 to 12 weeks.",
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p118",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s119",
+                  "text": "Solid color creates a hard line the moment the gray grows in. Gray blending works with your natural silver instead of against it.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h106",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s107",
+                  "text": "How it works",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p120",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s121",
+                  "text": "I place fine lowlights and highlights in shades close to your own, then finish with a gloss. The gray becomes another tone in the mix. When it grows out, there is no stripe at the part, just a softer version of the same color.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h108",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s109",
+                  "text": "Going fully silver",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p122",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s123",
+                  "text": "If you want to stop coloring altogether, blending is the gentlest way through it. A shorter cut speeds things up. One of my clients went from a long bob to a short, textured cut with soft fringe, and the silver finally looked intentional instead of like waiting for roots.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h110",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s111",
+                  "text": "Keep silver bright",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l112",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s113",
+                  "text": "Use a purple shampoo once or twice a week to keep yellow tones away.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l114",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s115",
+                  "text": "Protect from heat and sun, which turn gray brassy.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l116",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s117",
+                  "text": "Finish with a little oil: silver hair is often drier and loves shine.",
+                  "marks": []
+                }
+              ]
+            }
+          ],
+          "image": {
+            "$media": {
+              "url": "/_seed/media/ani-silver-bob.jpg",
+              "alt": "A client's chin-length silver bob with soft movement, cut by Ani",
+              "filename": "ani-silver-bob.jpg"
+            }
+          },
+          "products": [
+            "$ref:product-blond-absolu-bain-ultra-violet",
+            "$ref:product-elixir-ultime-huile-originale"
+          ],
+          "services": [
+            "$ref:service-gray-blending",
+            "$ref:service-color-consultation"
+          ]
+        }
+      },
+      {
+        "id": "question-stop-hair-falling-out",
+        "slug": "stop-hair-falling-out",
+        "status": "published",
+        "data": {
+          "title": "What can I do to stop my hair from falling out?",
+          "topic": "thinning-hair",
+          "summary": "First, find out why: see your doctor for a blood test if the shedding is new. Then be gentle with your hair, care for your scalp every day, and get a cut that makes the most of the hair you have.",
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p94",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s95",
+                  "text": "This is the question I hear most, and I understand how worrying it is. The good news: in most cases there is a lot we can do, and the routine below is the one I give my own clients.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h78",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s79",
+                  "text": "1. Find out why it is happening",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p96",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s97",
+                  "text": "Everyone loses about 50 to 100 hairs a day. If you are suddenly losing much more, something usually changed about three months earlier: stress, illness, surgery, a new medication, a baby, or a crash diet.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p98",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s99",
+                  "text": "If the shedding is new or heavy, ask your doctor for a blood test. Low iron, thyroid changes, and low vitamin D are common and very treatable causes. Patchy loss or an itchy, sore scalp is a reason to see a dermatologist.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h80",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s81",
+                  "text": "2. Be gentle with the hair you have",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l82",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s83",
+                  "text": "Detangle wet hair with a wide-tooth comb, starting at the ends.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l84",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s85",
+                  "text": "Skip tight ponytails and buns; use a soft scrunchie or a claw clip.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l86",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s87",
+                  "text": "Turn the heat down on your dryer and irons, and always use a heat protectant.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "l88",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s89",
+                  "text": "Sleep on silk so the hair is not rubbed and pulled all night.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h90",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s91",
+                  "text": "3. Care for your scalp every day",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p100",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s101",
+                  "text": "Healthy hair grows from a healthy scalp. Wash with a gentle shampoo, massage the scalp for a minute or two while you do, and use a fortifying scalp serum daily. Give it three months: hair grows slowly, and so does the improvement.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "h92",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s93",
+                  "text": "4. Let the cut and color work for you",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p102",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s103",
+                  "text": "Long, heavy hair pulls and shows the scalp. A shorter shape with soft layers puts the weight where it creates fullness. Color helps too: a few lowlights close to your scalp color make the part look less sparse.",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p104",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s105",
+                  "text": "If you are worried, book a thinning hair consultation. We will look at it together, privately, and make a plan.",
+                  "marks": []
+                }
+              ]
+            }
+          ],
+          "image": {
+            "$media": {
+              "url": "/_seed/media/comb-through-hair.jpg",
+              "alt": "A hand draws a wooden comb through long, straight auburn hair",
+              "filename": "comb-through-hair.jpg"
+            }
+          },
+          "products": [
+            "$ref:product-genesis-anti-hair-fall-serum",
+            "$ref:product-genesis-bain-hydra-fortifiant",
+            "$ref:product-wide-tooth-detangling-comb",
+            "$ref:product-mulberry-silk-pillowcase"
+          ],
+          "services": [
+            "$ref:service-thinning-hair-consultation",
+            "$ref:service-womens-precision-cut"
+          ]
+        }
+      }
+    ],
+    "studio": [
+      {
+        "id": "studio",
+        "slug": "studio",
+        "status": "published",
+        "data": {
+          "title": "Salon and hours",
+          "salon_name": "James Mathew Salon",
+          "city": "South Orange County",
+          "region": "CA",
+          "phone": "949-275-6251",
+          "hours": [
+            {
+              "day": "tuesday",
+              "opens": "09:00",
+              "closes": "18:00"
+            },
+            {
+              "day": "wednesday",
+              "opens": "09:00",
+              "closes": "18:00"
+            },
+            {
+              "day": "thursday",
+              "opens": "09:00",
+              "closes": "18:00"
+            },
+            {
+              "day": "friday",
+              "opens": "09:00",
+              "closes": "18:00"
+            },
+            {
+              "day": "saturday",
+              "opens": "09:00",
+              "closes": "15:00"
+            }
+          ],
+          "step_minutes": 15,
+          "min_notice_hours": 12,
+          "horizon_days": 60,
+          "cancel_cutoff_hours": 24,
+          "booking_note": "Please cancel at least 24 hours ahead using the link in your confirmation email, or call. You pay at the salon; nothing is charged online."
+        }
+      }
+    ],
+    "time_off": [
+      {
+        "id": "time-off-thanksgiving",
+        "slug": "thanksgiving-2026",
+        "status": "published",
+        "data": {
+          "title": "Thanksgiving",
+          "starts_at": "2026-11-26T08:00:00.000Z",
+          "ends_at": "2026-11-28T08:00:00.000Z"
+        }
+      }
+    ]
+  }
+}

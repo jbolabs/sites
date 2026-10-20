@@ -1,0 +1,15 @@
+---
+interface Props {
+  title: string;
+  intro?: string | null | undefined;
+  as?: "h1" | "h2";
+  class?: string;
+}
+
+const { as: Tag = "h2", class: className, intro, title } = Astro.props;
+---
+
+<div class:list={["max-w-2xl", className]}>
+  <Tag class="headline-section">{title}</Tag>
+  {intro && <p class="mt-5 text-lg leading-relaxed text-muted-foreground">{intro}</p>}
+</div>

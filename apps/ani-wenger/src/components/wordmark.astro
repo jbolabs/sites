@@ -1,0 +1,10 @@
+---
+/** "Ani Wenger" set in the display face: the logo is type, so it stays sharp at any size. */
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<span class:list={["font-display text-espresso-deep leading-none tracking-tight whitespace-nowrap", className]}>Ani <em class="italic">Wenger</em></span>

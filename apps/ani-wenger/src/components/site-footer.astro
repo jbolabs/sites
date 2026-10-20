@@ -1,0 +1,62 @@
+---
+import type { NavItem, Studio } from "@/lib/content";
+import { addressLine, hoursLines, telHref } from "@/lib/studio";
+import { site } from "../../site.config";
+
+interface Props {
+  title: string;
+  tagline: string;
+  items: readonly NavItem[];
+  studio: Studio | undefined;
+}
+
+const { items, studio, tagline, title } = Astro.props;
+const year = new Date().getFullYear();
+const phone = studio?.phone ?? site.phone;
+---
+
+<footer class="bg-espresso-deep text-ivory/75">
+  <div class="container-page grid gap-12 py-16 sm:py-20 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+    <div class="space-y-5">
+      <p class="font-display text-ivory text-3xl leading-none tracking-tight">Ani <em class="italic">Wenger</em></p>
+      <p class="max-w-xs text-ui leading-relaxed">{tagline}</p>
+      <a href="/book" class="text-champagne inline-flex items-center gap-2 text-ui font-medium underline decoration-1 underline-offset-4 hover:text-ivory">Book an appointment</a>
+    </div>
+    <nav aria-label="Footer">
+      <h2 class="text-ivory mb-4 text-xl">Explore</h2>
+      <ul class="space-y-2.5 text-ui">
+        {items.map((item) => (
+          <li><a href={item.url} class="hover:text-ivory">{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <div>
+      <h2 class="text-ivory mb-4 text-xl">Visit</h2>
+      <address class="space-y-2.5 text-ui not-italic leading-relaxed">
+        {studio && <p>{addressLine(studio)}</p>}
+        <p><a href={telHref(phone)} class="hover:text-ivory">{phone}</a></p>
+        <p><a href={`mailto:${site.business.email}`} class="break-all hover:text-ivory">{site.business.email}</a></p>
+      </address>
+    </div>
+    {studio && (
+      <div>
+        <h2 class="text-ivory mb-4 text-xl">Hours</h2>
+        <dl class="space-y-2.5 text-ui">
+          {hoursLines(studio).map((line) => (
+            <div>
+              <dt class="text-ivory/90">{line.days}</dt>
+              <dd>{line.times}</dd>
+            </div>
+          ))}
+        </dl>
+        <p class="mt-4 text-sm">By appointment only.</p>
+      </div>
+    )}
+  </div>
+  <div class="border-t border-ivory/10">
+    <div class="container-page flex flex-col gap-3 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-sm sm:flex-row sm:items-center sm:justify-between">
+      <p>&copy; {year} {title}. All rights reserved.</p>
+      <a href={site.business.instagram} class="hover:text-ivory" rel="me noopener">Instagram @aniwenger</a>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,28 @@
+---
+import { Image } from "emdash/ui";
+import type { BlockComponentProps } from "emdash/ui";
+
+import SectionHeading from "@/components/section-heading.astro";
+import type { PageContentTransformationsBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentTransformationsBlock>;
+
+const { value } = Astro.props;
+const items = value.items.flatMap((item) => (item.image ? [{ caption: item.caption, image: item.image }] : []));
+---
+
+<section class="bg-espresso-deep py-20 text-ivory sm:py-28">
+  <div class="container-page">
+    <div class="max-w-2xl [&_h2]:text-ivory [&_p]:text-ivory/75">
+      <SectionHeading title={value.headline} intro={value.intro} />
+    </div>
+    <div class="mt-12 columns-1 gap-6 sm:columns-2 lg:columns-3">
+      {items.map((item) => (
+        <figure class="mb-6 break-inside-avoid">
+          <Image image={item.image} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw" class="w-full rounded-2xl" />
+          {item.caption && <figcaption class="mt-3 text-ui leading-relaxed text-ivory/75">{item.caption}</figcaption>}
+        </figure>
+      ))}
+    </div>
+  </div>
+</section>

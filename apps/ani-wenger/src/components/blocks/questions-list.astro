@@ -1,0 +1,32 @@
+---
+/** The newest Ask Ani answers, read live from the collection. */
+import type { BlockComponentProps } from "emdash/ui";
+
+import ButtonLink from "@/components/button-link.astro";
+import QuestionCard from "@/components/question-card.astro";
+import SectionHeading from "@/components/section-heading.astro";
+import { getQuestions } from "@/lib/content";
+import type { PageContentQuestionsListBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentQuestionsListBlock>;
+
+const { value } = Astro.props;
+const { cacheHint, questions } = await getQuestions(value.count ?? 3);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+}
+---
+
+{questions.length > 0 && (
+  <section class="bg-sand/60 py-20 sm:py-28">
+    <div class="container-page">
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <SectionHeading title={value.headline} intro={value.intro} />
+        {value.link_label && <ButtonLink href="/ask-ani" variant="outline" size="cta" class="self-start sm:self-auto">{value.link_label}</ButtonLink>}
+      </div>
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {questions.map((question) => <QuestionCard question={question} />)}
+      </div>
+    </div>
+  </section>
+)}

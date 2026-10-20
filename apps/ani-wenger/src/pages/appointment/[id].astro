@@ -1,0 +1,106 @@
+---
+/**
+ * A client's own appointment, reached from the link in their confirmation:
+ * details, add to calendar, and cancel. The token in `?t=` is the only key;
+ * a wrong id or token shows the same "not found" page.
+ */
+import { Effect } from "effect";
+
+import ButtonLink from "@/components/button-link.astro";
+import CancelAppointment from "@/components/islands/cancel-appointment";
+import Base from "@/layouts/base.astro";
+import { appointmentForLink, calendarEvent, canCancel } from "@/lib/booking/booking";
+import { formatDate, formatTime, toLocal } from "@/lib/booking/calendar";
+import { googleCalendarUrl } from "@/lib/booking/ics";
+import { runSchedule } from "@/lib/booking/run";
+import { Catalog, endsAt } from "@/lib/booking/services";
+import { site } from "../../../site.config";
+
+// Personal pages: never cached, never indexed.
+Astro.response.headers.set("Cache-Control", "private, no-store");
+const id = Astro.params.id ?? "";
+const token = Astro.url.searchParams.get("t") ?? "";
+const outcome =
+  token.length < 16
+    ? { ok: false as const, tag: "AppointmentNotFound" }
+    : await runSchedule(
+        Effect.gen(function* load() {
+          const appointment = yield* appointmentForLink({ id, token });
+          const policy = yield* (yield* Catalog).policy;
+          return { appointment, policy };
+        })
+      );
+if (!outcome.ok) {
+  Astro.response.status = 404;
+}
+const view = outcome.ok
+  ? (() => {
+      const { appointment, policy } = outcome.value;
+      const start = toLocal(appointment.start, site.timeZone);
+      const end = toLocal(endsAt(appointment), site.timeZone);
+      const query = `?t=${encodeURIComponent(token)}`;
+      return {
+        cancellable: canCancel(appointment, policy.cancelCutoffHours, new Date()),
+        cancelled: appointment.state === "cancelled",
+        cutoffHours: policy.cancelCutoffHours,
+        google: googleCalendarUrl(
+          calendarEvent(appointment, policy, {
+            description: `${appointment.service} with ${site.name}`,
+            summary: `${appointment.service} with ${site.name}`,
+            updated: new Date(),
+          })
+        ),
+        ics: `/appointment/${encodeURIComponent(id)}/event.ics${query}`,
+        location: policy.location,
+        name: appointment.clientName,
+        past: appointment.start.getTime() < Date.now(),
+        phone: policy.phone,
+        service: appointment.service,
+        when: `${formatDate(start.date)}, ${formatTime(start.minutes)} to ${formatTime(end.minutes)}`,
+      };
+    })()
+  : undefined;
+---
+
+<Base title="Your appointment" robots="noindex, nofollow">
+  <section class="container-page py-14 sm:py-20">
+    {view === undefined ? (
+      <div class="max-w-xl space-y-5">
+        <h1 class="text-display-sm">We could not find that appointment.</h1>
+        <p class="text-lg text-muted-foreground">The link may be incomplete. Please call <a href={`tel:${site.phone}`} class="underline underline-offset-4">{site.phone}</a> and I will help.</p>
+        <ButtonLink href="/book" size="cta">Book an appointment</ButtonLink>
+      </div>
+    ) : (
+      <div class="max-w-2xl">
+        <h1 class="text-display-sm">
+          {view.cancelled ? "This appointment is cancelled." : `See you soon, ${view.name.split(" ")[0]}.`}
+        </h1>
+        <dl class="mt-8 divide-y divide-border rounded-2xl border border-border bg-card">
+          <div class="p-5 sm:px-7"><dt class="text-sm text-muted-foreground">Service</dt><dd class="font-display mt-1 text-xl text-espresso-deep">{view.service}</dd></div>
+          <div class="p-5 sm:px-7"><dt class="text-sm text-muted-foreground">When</dt><dd class:list={["font-display mt-1 text-xl text-espresso-deep", { "line-through": view.cancelled }]}>{view.when}</dd></div>
+          <div class="p-5 sm:px-7"><dt class="text-sm text-muted-foreground">Where</dt><dd class="mt-1 text-lg text-espresso-deep">{view.location}</dd></div>
+        </dl>
+        {view.cancelled ? (
+          <ButtonLink href="/book" size="hero" class="mt-8">Book a new time</ButtonLink>
+        ) : (
+          <>
+            {!view.past && (
+              <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                <ButtonLink href={view.ics} size="hero">Add to calendar</ButtonLink>
+                <ButtonLink href={view.google} size="hero" variant="outline" target="_blank" rel="noopener">Add to Google Calendar</ButtonLink>
+              </div>
+            )}
+            <div class="mt-12 border-t border-border pt-8">
+              <h2 class="text-2xl">Need to cancel?</h2>
+              {view.cancellable ? (
+                <CancelAppointment client:load id={id} token={token} />
+              ) : (
+                <p class="mt-3 text-lg text-foreground/80">It is within {view.cutoffHours} hours of your appointment, so please call <a href={`tel:${view.phone}`} class="underline underline-offset-4">{view.phone}</a> to change it.</p>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    )}
+  </section>
+</Base>

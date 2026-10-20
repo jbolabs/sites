@@ -1,0 +1,35 @@
+---
+/** The service menu, read live from the Services collection (featured only, or all). */
+import type { BlockComponentProps } from "emdash/ui";
+
+import ButtonLink from "@/components/button-link.astro";
+import SectionHeading from "@/components/section-heading.astro";
+import ServiceRow from "@/components/service-row.astro";
+import { getServices } from "@/lib/content";
+import type { PageContentServicesMenuBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentServicesMenuBlock>;
+
+const { value } = Astro.props;
+const { cacheHint, services } = await getServices();
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+}
+const shown = value.show === "all" ? services : services.filter((service) => service.data.featured === true);
+---
+
+{shown.length > 0 && (
+  <section class="py-20 sm:py-28">
+    <div class="container-page grid gap-12 lg:grid-cols-[1fr_1.6fr] lg:gap-20">
+      <div class="lg:sticky lg:top-32 lg:self-start">
+        <SectionHeading title={value.headline} intro={value.intro} />
+        {value.link_label && (
+          <ButtonLink href="/services" variant="outline" size="cta" class="mt-8">{value.link_label}</ButtonLink>
+        )}
+      </div>
+      <div class="border-b border-border">
+        {shown.map((service) => <ServiceRow service={service} />)}
+      </div>
+    </div>
+  </section>
+)}

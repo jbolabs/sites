@@ -1,0 +1,55 @@
+---
+/** The full service menu, grouped by category; the `services` page entry holds the title, intro, and sections below. */
+import { getSeoMeta } from "emdash";
+
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import ButtonLink from "@/components/button-link.astro";
+import PageHeader from "@/components/page-header.astro";
+import ServiceRow from "@/components/service-row.astro";
+import Base from "@/layouts/base.astro";
+import { getPage, getServices } from "@/lib/content";
+import { CATEGORY_LABELS, CATEGORY_ORDER } from "@/lib/labels";
+
+const [{ cacheHint, entry: page }, list] = await Promise.all([getPage("services"), getServices()]);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+  Astro.cache.set(list.cacheHint);
+}
+const groups = CATEGORY_ORDER.flatMap((category) => {
+  const services = list.services.filter((service) => service.data.category === category);
+  return services.length === 0 ? [] : [{ category, services }];
+});
+const title = page?.data.title ?? "Services and prices";
+const seo = page ? getSeoMeta(page, { defaultDescription: page.data.intro, path: "/services", siteUrl: Astro.url.origin }) : undefined;
+---
+
+<Base
+  title={seo?.title ?? title}
+  description={seo?.description}
+  image={seo?.ogImage}
+  robots={seo?.robots}
+  content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
+>
+  <PageHeader title={title} intro={page?.data.intro}>
+    <nav aria-label="Service categories" class="mt-8 flex flex-wrap gap-2">
+      {groups.map((group) => (
+        <a href={`#${group.category}`} class="rounded-full border border-espresso/20 px-4 py-2 text-ui hover:border-espresso hover:bg-card">{CATEGORY_LABELS[group.category]}</a>
+      ))}
+    </nav>
+  </PageHeader>
+  <div class="container-page py-16 sm:py-20">
+    {groups.map((group) => (
+      <section id={group.category} class="grid scroll-mt-28 gap-6 py-8 lg:grid-cols-[1fr_2.2fr] lg:gap-20">
+        <h2 class="text-3xl sm:text-4xl">{CATEGORY_LABELS[group.category]}</h2>
+        <div class="border-b border-border">
+          {group.services.map((service) => <ServiceRow service={service} />)}
+        </div>
+      </section>
+    ))}
+    <div class="mt-10 flex flex-col items-start gap-4 rounded-2xl bg-sand/70 p-8 sm:flex-row sm:items-center sm:justify-between">
+      <p class="max-w-xl text-lg">Not sure which service to choose? Book a free consultation and we will decide together.</p>
+      <ButtonLink href="/book?service=color-consultation" size="cta">Book a consultation</ButtonLink>
+    </div>
+  </div>
+  {page && <div {...page.edit.content}><PageBlocks value={page.data.content} /></div>}
+</Base>

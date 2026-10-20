@@ -5,6 +5,7 @@ export {
   LeadMail,
   LeadMailFromConfig,
   MAX_LEAD_ANSWERS,
+  isEmailAddress,
   leadNotificationText,
   leadFailureText,
   submitContact,
@@ -17,7 +18,11 @@ export {
   emailCloudflare,
   emailFromEnv,
 } from "./email.ts";
-export type { CloudflareEmailBinding, EmailMessage } from "./email.ts";
+export type {
+  CloudflareEmailBinding,
+  EmailAddress,
+  EmailMessage,
+} from "./email.ts";
 export { Lead, LeadNotSaved, LeadStore } from "./leads.ts";
 export { WaitUntil } from "./runtime.ts";
 export {

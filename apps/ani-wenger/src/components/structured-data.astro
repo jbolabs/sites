@@ -1,0 +1,70 @@
+---
+/**
+ * HairSalon JSON-LD on every page. EmDashHead adds the WebSite graph; this adds
+ * the business: Ani, where she works, her hours, and how to book. Unknown
+ * facts (the street address until Ani confirms it) are omitted, not guessed.
+ */
+import type { Studio } from "@/lib/content";
+import { openingHoursSpecification } from "@/lib/studio";
+import { site } from "../../site.config";
+
+interface Props {
+  origin: string;
+  studio: Studio | undefined;
+}
+
+interface PostalAddress {
+  readonly "@type": "PostalAddress";
+  readonly addressCountry: string;
+  readonly addressLocality: string;
+  readonly addressRegion: string;
+  streetAddress?: string;
+  postalCode?: string;
+}
+
+const { origin, studio } = Astro.props;
+const { business } = site;
+
+const salon = {
+  "@context": "https://schema.org",
+  "@id": `${origin}/#business`,
+  "@type": "HairSalon",
+  areaServed: business.areaServed.map((name) => ({ "@type": "City", name })),
+  description: site.description,
+  email: business.email,
+  founder: { "@type": "Person", jobTitle: "Master hairstylist", name: site.name },
+  image: `${origin}/og-default.jpg`,
+  logo: `${origin}/brand/logo.png`,
+  name: site.name,
+  potentialAction: {
+    "@type": "ReserveAction",
+    target: { "@type": "EntryPoint", urlTemplate: `${origin}/book` },
+  },
+  priceRange: "$$",
+  sameAs: [business.instagram],
+  telephone: business.telephone,
+  url: origin,
+};
+
+const postalAddress = (facts: Studio): PostalAddress => {
+  const address: PostalAddress = {
+    "@type": "PostalAddress",
+    addressCountry: "US",
+    addressLocality: facts.city,
+    addressRegion: facts.region ?? "CA",
+  };
+  if (facts.street) {
+    address.streetAddress = facts.street;
+  }
+  if (facts.postal_code) {
+    address.postalCode = facts.postal_code;
+  }
+  return address;
+};
+
+const data = studio
+  ? { ...salon, address: postalAddress(studio), openingHoursSpecification: openingHoursSpecification(studio) }
+  : salon;
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(data)} />

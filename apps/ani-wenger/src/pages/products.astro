@@ -1,0 +1,44 @@
+---
+/** Every product Ani recommends, grouped by what it helps with; the `products` page entry holds the title and intro. */
+import { getSeoMeta } from "emdash";
+
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import PageHeader from "@/components/page-header.astro";
+import ProductCard from "@/components/product-card.astro";
+import Base from "@/layouts/base.astro";
+import { getPage, getProducts } from "@/lib/content";
+import { TOPIC_LABELS, TOPIC_ORDER } from "@/lib/labels";
+
+const [{ cacheHint, entry: page }, list] = await Promise.all([getPage("products"), getProducts()]);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+  Astro.cache.set(list.cacheHint);
+}
+const groups = TOPIC_ORDER.flatMap((concern) => {
+  const products = list.products.filter((product) => product.data.concern === concern);
+  return products.length === 0 ? [] : [{ concern, products }];
+});
+const title = page?.data.title ?? "Products I recommend";
+const seo = page ? getSeoMeta(page, { defaultDescription: page.data.intro, path: "/products", siteUrl: Astro.url.origin }) : undefined;
+---
+
+<Base
+  title={seo?.title ?? title}
+  description={seo?.description}
+  image={seo?.ogImage}
+  robots={seo?.robots}
+  content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
+>
+  <PageHeader title={title} intro={page?.data.intro} />
+  <div class="container-page space-y-16 py-16 sm:py-20">
+    {groups.map((group) => (
+      <section aria-labelledby={`for-${group.concern}`}>
+        <h2 id={`for-${group.concern}`} class="text-3xl sm:text-4xl">For {TOPIC_LABELS[group.concern].toLowerCase()}</h2>
+        <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {group.products.map((product) => <ProductCard product={product} />)}
+        </div>
+      </section>
+    ))}
+  </div>
+  {page && <div {...page.edit.content}><PageBlocks value={page.data.content} /></div>}
+</Base>
