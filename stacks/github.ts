@@ -15,14 +15,14 @@
  * at deploy time through the `ci-prod` OIDC identity configured below, so no
  * Infisical value is copied into the GitHub `production` environment.
  */
-import { stageSecrets } from "@jakebodea/cloudflare-kit/infra";
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as GitHub from "alchemy/GitHub";
 import { Random, RandomProvider } from "alchemy/Random";
 import { Config, Effect, Layer } from "effect";
 
-import { deployTokens, infisical, repository } from "./config.ts";
+import { deployTokens, repository } from "./config.ts";
+import { ciProd, stageSecrets } from "./secrets.ts";
 
 /** What every site's Alchemy stack creates, on every stage. */
 const sitePermissions: Cloudflare.ApiToken.PermissionGroupRef[] = [
@@ -52,14 +52,14 @@ const productionPermissions: Cloudflare.ApiToken.PermissionGroupRef[] = [
 
 const account = { [`com.cloudflare.api.account.${repository.accountId}`]: "*" };
 
-interface DeployEnvironment {
+export interface DeployEnvironment {
   readonly id: string;
   readonly name: string;
   readonly branches: { customBranchPolicies: string[] } | null;
   readonly permissions: Cloudflare.ApiToken.PermissionGroupRef[];
 }
 
-const environments: DeployEnvironment[] = [
+export const environments: readonly DeployEnvironment[] = [
   {
     branches: null,
     id: "Preview",
@@ -95,7 +95,7 @@ export default Alchemy.Stack(
       GitHub.providers(),
       RandomProvider()
     ),
-    secrets: stageSecrets(infisical.projects),
+    secrets: stageSecrets,
     state: ciOnly,
   },
   Effect.gen(function* controlPlane() {
@@ -192,14 +192,14 @@ export default Alchemy.Stack(
           name: "INFISICAL_IDENTITY_ID",
           owner,
           repository: repo,
-          value: infisical.ciProdIdentityId,
+          value: ciProd.identityId,
         });
         yield* GitHub.Variable("ProductionInfisicalAudience", {
           environment: githubEnvironment,
           name: "INFISICAL_OIDC_AUDIENCE",
           owner,
           repository: repo,
-          value: infisical.ciOidcAudience,
+          value: ciProd.audience,
         });
         yield* GitHub.Secret("ProductionAnalyticsToken", {
           environment: githubEnvironment,

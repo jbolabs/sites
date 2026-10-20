@@ -18,7 +18,7 @@
  */
 import { execFileSync, spawnSync } from "node:child_process";
 
-import { infisical } from "../stacks/config.ts";
+import { infisical } from "../stacks/secrets.ts";
 
 const envValue = (name: string): string | undefined => {
   const value = process.env[name];
@@ -64,7 +64,7 @@ if (import.meta.main) {
     "infisical",
     [
       "run",
-      `--projectId=${infisical.projects.dev}`,
+      `--projectId=${infisical.dev}`,
       "--env=dev",
       "--silent",
       "--",

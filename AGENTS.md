@@ -44,12 +44,12 @@ The Alchemy profile comes from `ALCHEMY_PROFILE` (e.g. `ALCHEMY_PROFILE=admin`).
 
 ## Agent secrets (Infisical)
 
-- Each repo has two Infisical projects. `sites-dev` (env `dev`) holds development credentials; `sites-prod` (envs `preview`, `prod`) holds deployed-tier values. Their ids live in `stacks/config.ts` (`infisical`).
-- Identities are trust tiers: `agent-dev` (Universal Auth; `INFISICAL_CLIENT_ID`/`INFISICAL_CLIENT_SECRET` in the agent environment) is Viewer on every `*-dev` project only. `ci-prod` (GitHub OIDC, `main` of any jbolabs repo) is Viewer on every `*-prod` project. Agents never get `*-prod` access.
-- The free plan has no environment-scoped roles: the project is the access boundary. Never put prod or preview values in a `*-dev` project, or add a non-`dev` environment to one.
-- Alchemy loads secrets itself (`stageSecrets` in cloudflare-kit, Alchemy's `Infisical.Secrets`): local stages read `sites-dev`. The `prod` deploy job reads `sites-prod` through `ci-prod`, and PR jobs read no Infisical project.
-- Agent setup, once per machine: `bun run setup:infisical` adds `agent-dev` to your Alchemy profile. After that, `bun run app -- start` and `alchemy dev` need nothing else.
-- Agent run for plain commands that read `process.env` (not Alchemy): `bun run secrets -- <cmd>`, for example `bun run secrets -- bun run app -- start --content prod`. It never prints the token.
+- Secrets come from Infisical through Alchemy (`Infisical.Secrets` in each stack). `stacks/secrets.ts` holds the project ids and maps stage → source: `prod` reads `sites-prod`, `pr-*`/CI previews read nothing from Infisical, everything else reads `sites-dev`.
+- Who can read what: Alchemy `default` profile = `agent-dev` (`*-dev` only); `admin` profile = `operator` (all; the owner's Mac only, pass `--profile admin`); CI = `ci-prod` via GitHub OIDC, only in jobs using the `production` environment (main only).
+- Agent setup, once per machine: export `INFISICAL_CLIENT_ID`/`INFISICAL_CLIENT_SECRET`, then `bun run setup:infisical`.
+- Never add prod values to `sites-dev`, never give a PR job the `production` environment, and never read secrets via `process.env` in stacks (use `Config`).
+- Sites-specific: the operator's control-plane stage `ci` (`stacks/github.ts`) reads `sites-prod` env `preview` and writes it into the GitHub `preview` environment for PR previews. `PUBLISHED_CONTENT_EXPORT_TOKEN` is the one value kept in both projects, because local `--content prod` fetches the production exporter.
+- Plain commands that read `process.env` (the control app's `--content prod`) run as `bun run secrets -- <cmd>` with `sites-dev`.
 
 ## Never
 

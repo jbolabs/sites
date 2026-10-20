@@ -5,7 +5,7 @@
  * pins the Worker entry, but EmDash needs its own entry (cron-driven scheduled
  * publishing, the plugin bridge) and its own `/_image` endpoint (R2 media +
  * the Images binding). These Vite aliases splice EmDash back in. Verified with
- * alchemy / @alchemy.run/frontend-frameworks 2.0.0-beta.80 and emdash 1.1.0;
+ * alchemy / @alchemy.run/frontend-frameworks 2.0.0-beta.82 and emdash 1.1.0;
  * `.github/workflows/upgrade-smoke.yml` rebuilds against the latest releases
  * weekly to catch breakage.
  *

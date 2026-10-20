@@ -1,23 +1,24 @@
 /**
- * Where a stack's secrets come from, per stage, through Alchemy's native
- * Infisical provider (Effect Config, never `process.env`). Two Infisical
- * projects split by trust tier, because the free plan's only access boundary
- * is the project:
+ * Generic stage → Infisical source mapping for Alchemy's native provider
+ * (Effect Config, never `process.env`). A repo binds its own project ids in
+ * `stacks/secrets.ts`. Two projects split by trust tier, because the free
+ * plan's only access boundary is the project:
  *
- * - `prod` (CI on `main`, `ci-prod` identity over GitHub OIDC): the prod project, env `prod`.
+ * - `prod` (CI on `main`, `ci-prod` over GitHub OIDC): the prod project, env `prod`.
  * - `ci` (the operator's control-plane deploy of `stacks/github.ts`): the prod project, env
  *   `preview`, which it writes into the GitHub `preview` environment.
- * - Any other stage inside GitHub Actions (PR previews, cleanup, janitor, upgrade smoke):
- *   no Infisical at all. Agents push PR branches, so those jobs never read either project;
- *   they get Alchemy-minted GitHub environment secrets through the process environment.
- * - Any other stage elsewhere (local `dev-*`, `pr-*` from a shell): the dev project, env `dev`,
- *   with the Alchemy profile's Infisical identity (`agent-dev` on agent machines).
+ * - `pr-*`, and any other stage inside GitHub Actions (cleanup, janitor, upgrade smoke):
+ *   no Infisical. Agents push PR branches, so those never read either project; CI jobs get
+ *   Alchemy-minted GitHub environment secrets through the process environment.
+ * - Anything else (local `dev-*`): the dev project, env `dev`, with the Alchemy
+ *   profile's Infisical identity (`agent-dev` on agent machines).
  *
- * The process environment is always read last (Alchemy's default), so CI-injected
- * GitHub secrets and deliberately exported variables still apply.
+ * The process environment is always read last (Alchemy's default).
  */
 import type { StackSecrets } from "alchemy";
 import * as Infisical from "alchemy/Infisical";
+
+import { isPullRequestStage } from "./stage.ts";
 
 /** Infisical project UUIDs (a user token only resolves UUIDs, not slugs). */
 export interface SecretProjects {
@@ -45,13 +46,13 @@ export const secretSource = (
   if (stage === CONTROL_PLANE_STAGE) {
     return { environment: "preview", project: projects.prod };
   }
-  return inGitHubActions
+  return inGitHubActions || isPullRequestStage(stage)
     ? undefined
     : { environment: "dev", project: projects.dev };
 };
 
-/** The `secrets` option for an `Alchemy.Stack`. */
-export const stageSecrets =
+/** A `secrets` option for `Alchemy.Stack` bound to a repo's projects. */
+export const stageSecretsFor =
   (projects: SecretProjects): StackSecrets =>
   ({ stage }) => {
     const source = secretSource(

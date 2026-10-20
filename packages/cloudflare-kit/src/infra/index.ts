@@ -8,7 +8,7 @@ export {
   type SecretProjects,
   type SecretSource,
   secretSource,
-  stageSecrets,
+  stageSecretsFor,
 } from "./secrets.ts";
 export {
   devPort,

@@ -10,23 +10,6 @@ export const repository = {
 } as const;
 
 /**
- * Infisical, one project per trust tier (docs/stack.md "Secrets"). Not secrets:
- * ids only. `stageSecrets()` in cloudflare-kit maps each stage to a project.
- */
-export const infisical = {
-  /** GitHub OIDC audience the `ci-prod` identity trusts. */
-  ciOidcAudience: "https://github.com/jbolabs",
-  /** `ci-prod`: reads `*-prod` projects from GitHub Actions on `main` (OIDC). */
-  ciProdIdentityId: "23fa16cc-a7a1-4e35-8011-2f24b0e037ba",
-  projects: {
-    /** `sites-dev`, env `dev`: agents (`agent-dev`) and local stages. */
-    dev: "49d82a92-1821-44d4-bb5f-4252b411eadb",
-    /** `sites-prod`, envs `preview` and `prod`: CI on `main` and the operator only. */
-    prod: "cb46a5eb-7afc-4e8a-93b7-40a065c6d6c9",
-  },
-} as const;
-
-/**
  * Deploy tokens are minted per generation. Bump `generation` to rotate: the
  * next `ci` deploy mints fresh tokens, writes them to GitHub, and deletes the
  * previous generation. Rotate before `expiresOn`.

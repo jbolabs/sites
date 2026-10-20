@@ -19,19 +19,22 @@ describe(secretSource, () => {
     });
   });
 
-  it("reads the dev project for local development and PR stages", () => {
+  it("reads the dev project for local development stages", () => {
     expect(secretSource("dev-sites-infisical", projects, false)).toStrictEqual({
-      environment: "dev",
-      project: "dev-project-id",
-    });
-    expect(secretSource("pr-12", projects, false)).toStrictEqual({
       environment: "dev",
       project: "dev-project-id",
     });
   });
 
-  it("reads no Infisical project for PR stages in GitHub Actions", () => {
-    expect(secretSource("pr-12", projects, true)).toBeUndefined();
+  it("reads no Infisical project for PR stages, even from a shell", () => {
+    expect(secretSource("pr-12", projects, false)).toBeUndefined();
+    expect(secretSource("dev-x", projects, false)?.project).toBe(
+      "dev-project-id"
+    );
+  });
+
+  it("reads no Infisical project for non-production stages in GitHub Actions", () => {
+    expect(secretSource("dev-upgrade", projects, true)).toBeUndefined();
     expect(secretSource("prod", projects, true)?.project).toBe(
       "prod-project-id"
     );

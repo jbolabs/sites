@@ -13,14 +13,14 @@ Alchemy v2 ships `Infisical.Secrets`, a `secrets` provider that loads an Infisic
 
 ## Decision
 
-Every stack sets `secrets: stageSecrets(infisical.projects)` (`packages/cloudflare-kit/src/infra/secrets.ts`; project and identity ids live only in `stacks/config.ts`). By stage:
+Every stack sets `secrets: stageSecrets` from `stacks/secrets.ts`, which follows the shared jbolabs standard: it exports `infisical = { dev, prod }` (project UUIDs) and `stageSecrets`, and is the only place with ids and the stage mapping. The mapping itself is the generic `stageSecretsFor` in `packages/cloudflare-kit/src/infra/secrets.ts`. By stage:
 
 | Stage | Reads | Identity |
 | --- | --- | --- |
 | `prod` (CI on `main` only) | `sites-prod` env `prod` | `ci-prod` over GitHub OIDC |
 | `ci` (operator deploys `stacks/github.ts`) | `sites-prod` env `preview` | `operator` (`admin` profile) |
-| anything else inside GitHub Actions (`pr-*`, cleanup, janitor, upgrade smoke) | no Infisical | none; Alchemy-minted GitHub `preview` environment secrets |
-| anything else locally (`dev-*`, `pr-*` from a shell) | `sites-dev` env `dev` | Alchemy profile (`agent-dev` for agents) |
+| `pr-*` anywhere, and anything else inside GitHub Actions (cleanup, janitor, upgrade smoke) | no Infisical | none; Alchemy-minted GitHub `preview` environment secrets |
+| anything else locally (`dev-*`) | `sites-dev` env `dev` | Alchemy profile (`agent-dev` for agents) |
 
 The process environment is still read last (Alchemy's default), so GitHub environment secrets in CI and deliberately exported variables apply. The main-checkout `.env` mechanism (DotEnv provider, worktree symlinks, `.env.example`) is removed.
 
@@ -37,7 +37,7 @@ This replaces ADR 3's private setup through the main checkout's `.env`.
 
 - One Infisical project with `dev`/`preview`/`prod` environments: the free plan cannot restrict a role to an environment, so agents would read prod.
 - Keep `.env` with an `infisical run` wrapper around Alchemy: Alchemy already authenticates and loads Infisical natively, and a wrapper is one more thing agents must remember.
-- `sites-dev` for PR stages in CI: CI has no `agent-dev` credentials, and PR jobs need the Alchemy-minted GitHub preview values anyway.
+- `sites-dev` for `pr-*` stages: CI has no `agent-dev` credentials, PR stages need the Alchemy-minted GitHub preview values anyway, and nothing a PR stage reads lives in `sites-dev`.
 - Two `Infisical.Secrets` entries (`preview` and `prod`) for stage `ci`: unnecessary once production reads Infisical directly.
 
 ## Consequences
@@ -45,4 +45,4 @@ This replaces ADR 3's private setup through the main checkout's `.env`.
 - Every local stack start (`bun run app -- start`, `alchemy dev`) downloads `sites-dev` and fails without an Infisical identity in the Alchemy profile (or `INFISICAL_TOKEN`). Run `bun run setup:infisical` once per agent machine.
 - `sites-dev` must never hold a preview or prod value, and never gains a non-`dev` environment.
 - `PUBLISHED_CONTENT_EXPORT_TOKEN` already crosses tiers by design ([ADR 3](0003-published-production-content.md)): local `--content prod` fetches the production exporter, so the same value sits in `sites-dev` and `sites-prod`. It only reads already-published public content.
-- `ci-prod`'s OIDC subject must match the `production` job. A job with `environment: production` presents the subject `repo:jbolabs@305914027/sites@1406463205:environment:production`, not a `ref:` subject.
+- `ci-prod` trusts only the subject `repo:jbolabs@305914027/*:environment:production`, so the GitHub `production` environment's `main`-only branch policy is the guard keeping PR branches away from `sites-prod`. `stacks/github.test.ts` fails if that policy allows any other branch, and a PR job must never declare `environment: production`.

@@ -12,7 +12,6 @@ import {
   leadMail,
   emdashSecrets,
   siteObservability,
-  stageSecrets,
   writeBuildInputs,
   publishedContentDigest,
   siteState,
@@ -35,7 +34,8 @@ import { RandomProvider } from "alchemy/Random";
 import * as RemovalPolicy from "alchemy/RemovalPolicy";
 import { Config, Effect, Layer, Redacted } from "effect";
 
-import { infisical, studio } from "../../stacks/config.ts";
+import { studio } from "../../stacks/config.ts";
+import { stageSecrets } from "../../stacks/secrets.ts";
 import { site } from "./site.config.ts";
 import { BACKUP_CRON, EMDASH_CRON } from "./src/lib/schedule.ts";
 
@@ -45,7 +45,7 @@ export default Alchemy.Stack(
   site.id,
   {
     providers: Layer.mergeAll(Cloudflare.providers(), RandomProvider()),
-    secrets: stageSecrets(infisical.projects),
+    secrets: stageSecrets,
     state: siteState(),
   },
   Effect.gen(function* stack() {
