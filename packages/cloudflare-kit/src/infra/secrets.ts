@@ -1,54 +1,63 @@
 /**
- * Local secrets live in gitignored `.env` files in the MAIN checkout only.
- * Git worktrees resolve the main checkout through the git common dir, so every
- * worktree reads the same files without copying secrets around.
+ * Where a stack's secrets come from, per stage, through Alchemy's native
+ * Infisical provider (Effect Config, never `process.env`). Two Infisical
+ * projects split by trust tier, because the free plan's only access boundary
+ * is the project:
  *
- * Order (later wins): repo-root `.env`, then the site's own `.env`, then the
- * process environment (CI injects GitHub environment secrets there).
+ * - `prod` (CI on `main`, `ci-prod` identity over GitHub OIDC): the prod project, env `prod`.
+ * - `ci` (the operator's control-plane deploy of `stacks/github.ts`): the prod project, env
+ *   `preview`, which it writes into the GitHub `preview` environment.
+ * - Any other stage inside GitHub Actions (PR previews, cleanup, janitor, upgrade smoke):
+ *   no Infisical at all. Agents push PR branches, so those jobs never read either project;
+ *   they get Alchemy-minted GitHub environment secrets through the process environment.
+ * - Any other stage elsewhere (local `dev-*`, `pr-*` from a shell): the dev project, env `dev`,
+ *   with the Alchemy profile's Infisical identity (`agent-dev` on agent machines).
+ *
+ * The process environment is always read last (Alchemy's default), so CI-injected
+ * GitHub secrets and deliberately exported variables still apply.
  */
-import { execFileSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import path from "node:path";
+import type { StackSecrets } from "alchemy";
+import * as Infisical from "alchemy/Infisical";
 
-import * as Secrets from "alchemy/Secrets";
+/** Infisical project UUIDs (a user token only resolves UUIDs, not slugs). */
+export interface SecretProjects {
+  readonly dev: string;
+  readonly prod: string;
+}
 
-const git = (cwd: string, ...args: string[]): string =>
-  execFileSync("git", args, { cwd, encoding: "utf-8" }).trim();
+export interface SecretSource {
+  readonly project: string;
+  readonly environment: "dev" | "preview" | "prod";
+}
 
-/** Absolute path of the main checkout (not the current worktree), or undefined outside git. */
-export const mainCheckoutRoot = (cwd: string): string | undefined => {
-  try {
-    const commonDir = git(
-      cwd,
-      "rev-parse",
-      "--path-format=absolute",
-      "--git-common-dir"
+/** The control-plane stage `stacks/github.ts` deploys to. */
+export const CONTROL_PLANE_STAGE = "ci";
+
+/** Which Infisical project and environment `stage` reads, or `undefined` for none. */
+export const secretSource = (
+  stage: string,
+  projects: SecretProjects,
+  inGitHubActions: boolean
+): SecretSource | undefined => {
+  if (stage === "prod") {
+    return { environment: "prod", project: projects.prod };
+  }
+  if (stage === CONTROL_PLANE_STAGE) {
+    return { environment: "preview", project: projects.prod };
+  }
+  return inGitHubActions
+    ? undefined
+    : { environment: "dev", project: projects.dev };
+};
+
+/** The `secrets` option for an `Alchemy.Stack`. */
+export const stageSecrets =
+  (projects: SecretProjects): StackSecrets =>
+  ({ stage }) => {
+    const source = secretSource(
+      stage,
+      projects,
+      process.env.GITHUB_ACTIONS === "true"
     );
-    return path.dirname(commonDir);
-  } catch {
-    return undefined;
-  }
-};
-
-/** Existing `.env` files for `cwd`, resolved in the main checkout. */
-export const mainCheckoutEnvFiles = (cwd: string): string[] => {
-  const root = mainCheckoutRoot(cwd);
-  if (root === undefined) {
-    return [];
-  }
-  const worktreeRoot = git(cwd, "rev-parse", "--show-toplevel");
-  const sitePath = path.relative(worktreeRoot, cwd);
-  const candidates = [
-    path.join(root, ".env"),
-    path.join(root, sitePath, ".env"),
-  ];
-  return [...new Set(candidates)].filter((file) => existsSync(file));
-};
-
-/** The `secrets` option for a site's `Alchemy.Stack`. */
-export const siteSecrets = (cwd: string = process.cwd()) => {
-  const files = mainCheckoutEnvFiles(cwd);
-  return files.length === 0
-    ? [Secrets.ProcessEnv()]
-    : [Secrets.DotEnv({ path: files }), Secrets.ProcessEnv()];
-};
+    return source === undefined ? [] : [Infisical.Secrets({ ...source })];
+  };

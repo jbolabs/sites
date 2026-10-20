@@ -84,7 +84,7 @@ export const prepareProductionContent = async (
   const credential = process.env.PUBLISHED_CONTENT_EXPORT_TOKEN;
   if (credential === undefined || credential.length < 32) {
     throw new Error(
-      "Production content requires private PUBLISHED_CONTENT_EXPORT_TOKEN setup"
+      "Production content requires PUBLISHED_CONTENT_EXPORT_TOKEN: run this under `bun run secrets -- …` (sites-dev)"
     );
   }
   const response = await request(

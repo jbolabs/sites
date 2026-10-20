@@ -72,6 +72,7 @@
     "references": "bun scripts/sync-references.ts",
     "secrets": "bun scripts/dev-secrets.ts",
     "setup:worktree": "bun scripts/setup-worktree.ts",
+    "setup:infisical": "alchemy profile edit --no-input --add Infisical --method universal-auth --set clientId=env:INFISICAL_CLIENT_ID --set clientSecret=env:INFISICAL_CLIENT_SECRET",
     "prepare": "git rev-parse --git-dir >/dev/null 2>&1 && lefthook install || true",
     "app": "bun packages/control-app/src/cli.ts",
     "dev": "bun packages/control-app/src/cli.ts dev",

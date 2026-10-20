@@ -79,13 +79,15 @@ Why each client-site choice was made, and how it is built: [ADR 0001](adr/0001-c
 
 ## Secrets
 
-Two Infisical projects, one per trust tier ([ADR 4](adr/0004-infisical-secret-tiers.md)). No 1Password.
+Alchemy reads two Infisical projects, one per trust tier, through its native `Infisical.Secrets` provider ([ADR 4](adr/0004-infisical-secret-tiers.md)). No `.env` files, no 1Password.
 
-- **`sites-dev`** (env `dev`, id in the committed `.infisical.json`): development values, readable by the `agent-dev` machine identity. Run anything with them through `bun run secrets -- <cmd>` (`scripts/dev-secrets.ts`); no `.env` needed. Never holds a preview or prod value.
-- **`sites-prod`** (envs `preview`, `prod`, id `cb46a5eb-7afc-4e8a-93b7-40a065c6d6c9`): deployed-tier values, readable by `ci-prod` (GitHub OIDC, `main`) and the operator, never agents. Operator commands that mint or deploy them source it: `infisical run --projectId cb46a5eb-7afc-4e8a-93b7-40a065c6d6c9 --env prod -- bun alchemy deploy stacks/github.ts --stage ci`. It holds `PUBLISHED_CONTENT_EXPORT_TOKEN` in both `preview` and `prod`; every other deployed credential is minted by Alchemy (`stacks/`).
-- Local fallback (dev-only): one `.env` in the **main checkout** only. Worktrees get a symlink (`scripts/setup-worktree.ts` via `t3.json` `runOnWorktreeCreate` + lefthook `post-checkout`), and Alchemy's DotEnv provider reads the main checkout's file via `git rev-parse --path-format=absolute --git-common-dir` as a fallback. `siteSecrets()` reads the process environment last, so Infisical-injected values win over `.env`.
+- Every stack sets `secrets: stageSecrets(infisical.projects)` (cloudflare-kit `infra/secrets.ts`). Project and identity ids live only in `stacks/config.ts`. Values load into Effect Config, not `process.env`; the process environment is still read last.
+- **`sites-dev`** (env `dev`): local stages (`dev-*`, `pr-*` from a shell), read with the Alchemy profile's Infisical identity (`agent-dev` on agent machines; set it up once with `bun run setup:infisical`). Never holds a preview or prod value.
+- **`sites-prod`** (envs `preview`, `prod`): never readable by agents. Stage `prod` reads env `prod` in CI on `main` as `ci-prod` over GitHub OIDC (`production` job: `id-token: write`, `INFISICAL_IDENTITY_ID`/`INFISICAL_OIDC_AUDIENCE` written by `stacks/github.ts`). Stage `ci` (`stacks/github.ts`, run by the operator with the `admin` profile) reads env `preview`. Holds `PUBLISHED_CONTENT_EXPORT_TOKEN`, with the same value in both envs.
+- PR jobs and every other non-`prod` stage in GitHub Actions read no Infisical project: they use Alchemy-minted GitHub `preview` environment secrets.
+- Plain commands that read `process.env` themselves (the control app's `--content prod` fetch, optional `TURBO_*`) run under `bun run secrets -- <cmd>`, which uses `infisical run` against `sites-dev`.
 - CI: every workflow variable and secret is written by Alchemy in `stacks/`. `scripts/ci/workflow-env.test.ts` rejects references without a stack writer. Email addresses are committed configuration, not secrets.
-- Published export: private `PUBLISHED_CONTENT_EXPORT_TOKEN` (at least 32 random characters) shared through `sites-dev` (local `--content prod`; main-checkout `.env` as fallback), `sites-prod` (what `stacks/github.ts` mints from) and Alchemy-written production/preview GitHub environment secrets; production-only export and dev/pr-only bootstrap completion. One-time control-plane deployment plus normal CI production deployment is required.
+- Published export: private `PUBLISHED_CONTENT_EXPORT_TOKEN` (at least 32 random characters) in `sites-prod` (`prod` for the production exporter; `preview`, which `stacks/github.ts` writes to the GitHub `preview` environment for `production-content` PR previews) and `sites-dev` (local `--content prod`). Export is production-only, and bootstrap completion is dev/pr-only. It needs a one-time control-plane deployment, then a normal CI production deployment.
 - Generated secrets: `Alchemy.Random`. Shared rotatable secrets: Cloudflare Secrets Store.
 - Cloudflare credentials: Alchemy profiles (`~/.alchemy`), never exported env vars.
 
@@ -123,7 +125,7 @@ An agent's work isn't done until it's proven on the real running surface.
 
 - **`bun run app -- …` (control-app CLI + skill)**: `start` (local workerd, seeded, per-worktree port), `reset`, `login` (local test admin via Playwright virtual WebAuthn authenticator), `open/click/fill/snapshot`, `screenshot` (1280 + 375), `record`, `smoke`, `seo` (crawls every page's server-rendered HTML: titles, descriptions, canonicals, one H1, alt text, breadcrumbs, noindex, sitemap/orphans, redirects, 404s, image formats), `logs`; JSON output and artifacts under `.artifacts/`; `--url` targets a deployed stage.
 - **`bun run proof -- doctor|run|verify|publish`**: revision-bound proof receipts with path-derived risk tiers (ported from pcobooster). Visible changes need screenshots/video.
-- **Agent Alchemy profile**: scoped API token that can deploy/destroy `dev-*` and `pr-*`, refused for `prod`; no interactive logins ever needed.
+- **Agent Alchemy profile**: scoped API token that can deploy/destroy `dev-*` and `pr-*`, refused for `prod`, plus the `agent-dev` Infisical identity (`bun run setup:infisical`); no interactive logins ever needed.
 - AGENTS.md "Definition of done": check/typecheck/test → verify on the running surface → proof receipt → report what remains unverified.
 
 ## Agent docs

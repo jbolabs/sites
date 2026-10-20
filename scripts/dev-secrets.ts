@@ -1,35 +1,24 @@
 /**
- * Runs a command with the `sites-dev` Infisical project's `dev` secrets in its
- * environment, so agents need no `.env` file:
+ * Runs a non-Alchemy command with `sites-dev` (env `dev`) in its process
+ * environment:
  *
- *   bun run secrets -- bun run app -- start
+ *   bun run secrets -- bun run app -- start --content prod
  *
- * The project comes from the committed `.infisical.json` (the one place its id
- * lives). Credentials, in order: an existing `INFISICAL_TOKEN`, a machine
- * identity login from `INFISICAL_CLIENT_ID`/`INFISICAL_CLIENT_SECRET` (agents),
- * or the operator's `infisical login` session. The token is passed to the
- * child only through the environment and never printed. Values injected here
- * override the main checkout's `.env`, because `siteSecrets()` reads the
- * process environment last.
+ * Alchemy stacks never need this: they read Infisical themselves
+ * (`stageSecrets` in cloudflare-kit). It exists for plain Bun/CLI consumers that
+ * read `process.env`: the control app's production-content fetch
+ * (`PUBLISHED_CONTENT_EXPORT_TOKEN`) and, optionally, Turborepo's remote cache
+ * (`TURBO_*`).
  *
- * Dev only: `sites-dev` never holds preview or prod values (see docs/stack.md).
+ * Credentials, in order: an existing `INFISICAL_TOKEN`, a machine identity
+ * login from `INFISICAL_CLIENT_ID`/`INFISICAL_CLIENT_SECRET` (agents), or the
+ * operator's `infisical login` session. The token reaches the child only through
+ * the environment and is never printed. `infisical run` reports any child
+ * failure as exit code 1.
  */
 import { execFileSync, spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import path from "node:path";
 
-import { Schema } from "effect";
-
-const InfisicalConfig = Schema.Struct({
-  defaultEnvironment: Schema.Literal("dev"),
-  workspaceId: Schema.String,
-});
-
-const root = path.resolve(import.meta.dirname, "..");
-
-const config = Schema.decodeUnknownSync(InfisicalConfig)(
-  JSON.parse(readFileSync(path.join(root, ".infisical.json"), "utf-8"))
-);
+import { infisical } from "../stacks/config.ts";
 
 const envValue = (name: string): string | undefined => {
   const value = process.env[name];
@@ -75,8 +64,8 @@ if (import.meta.main) {
     "infisical",
     [
       "run",
-      `--projectId=${config.workspaceId}`,
-      `--env=${config.defaultEnvironment}`,
+      `--projectId=${infisical.projects.dev}`,
+      "--env=dev",
       "--silent",
       "--",
       ...command,

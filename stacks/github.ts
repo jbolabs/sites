@@ -5,21 +5,24 @@
  *
  *   ALCHEMY_PROFILE=admin bun alchemy deploy stacks/github.ts --stage ci
  *
- * Run it under `infisical run` against the `sites-prod` project's `prod` env
- * (exact command in docs/stack.md "Secrets"): `PUBLISHED_CONTENT_EXPORT_TOKEN`
- * comes from there, never from an agent's `.env`.
+ * Needs an Alchemy profile that can create Cloudflare API tokens and whose
+ * Infisical identity can read `sites-prod` (the operator's `admin` profile), and
+ * a GitHub login (`gh auth login`). Deploy once per repository, again to rotate.
  *
- * Needs an Alchemy profile that can create Cloudflare API tokens and a GitHub
- * login (`gh auth login`). Deploy once per repository, again to rotate.
+ * Stage `ci` reads `sites-prod` env `preview` (`stageSecrets`): the preview copy of
+ * `PUBLISHED_CONTENT_EXPORT_TOKEN` goes into the GitHub `preview` environment, since
+ * PR jobs must never read Infisical. Production reads `sites-prod` env `prod` itself
+ * at deploy time through the `ci-prod` OIDC identity configured below, so no
+ * Infisical value is copied into the GitHub `production` environment.
  */
-import { siteSecrets } from "@jakebodea/cloudflare-kit/infra";
+import { stageSecrets } from "@jakebodea/cloudflare-kit/infra";
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as GitHub from "alchemy/GitHub";
 import { Random, RandomProvider } from "alchemy/Random";
 import { Config, Effect, Layer } from "effect";
 
-import { deployTokens, repository } from "./config.ts";
+import { deployTokens, infisical, repository } from "./config.ts";
 
 /** What every site's Alchemy stack creates, on every stage. */
 const sitePermissions: Cloudflare.ApiToken.PermissionGroupRef[] = [
@@ -92,7 +95,7 @@ export default Alchemy.Stack(
       GitHub.providers(),
       RandomProvider()
     ),
-    secrets: siteSecrets(),
+    secrets: stageSecrets(infisical.projects),
     state: ciOnly,
   },
   Effect.gen(function* controlPlane() {
@@ -125,13 +128,16 @@ export default Alchemy.Stack(
           repository: repo,
         }
       );
-      yield* GitHub.Secret(`${environment.id}PublishedContentSecret`, {
-        environment: githubEnvironment,
-        name: "PUBLISHED_CONTENT_EXPORT_TOKEN",
-        owner,
-        repository: repo,
-        value: publishedExport,
-      });
+      if (environment.name === "preview") {
+        // PR previews with the `production-content` label fetch the production exporter.
+        yield* GitHub.Secret("PreviewPublishedContentSecret", {
+          environment: githubEnvironment,
+          name: "PUBLISHED_CONTENT_EXPORT_TOKEN",
+          owner,
+          repository: repo,
+          value: publishedExport,
+        });
+      }
       const cmsBootstrap = yield* Random(`${environment.id}CmsBootstrapToken`, {
         bytes: 32,
       });
@@ -180,6 +186,21 @@ export default Alchemy.Stack(
             ],
           }
         );
+        // Production deploys read `sites-prod` (env `prod`) through Infisical OIDC.
+        yield* GitHub.Variable("ProductionInfisicalIdentity", {
+          environment: githubEnvironment,
+          name: "INFISICAL_IDENTITY_ID",
+          owner,
+          repository: repo,
+          value: infisical.ciProdIdentityId,
+        });
+        yield* GitHub.Variable("ProductionInfisicalAudience", {
+          environment: githubEnvironment,
+          name: "INFISICAL_OIDC_AUDIENCE",
+          owner,
+          repository: repo,
+          value: infisical.ciOidcAudience,
+        });
         yield* GitHub.Secret("ProductionAnalyticsToken", {
           environment: githubEnvironment,
           name: "CF_ANALYTICS_API_TOKEN",
