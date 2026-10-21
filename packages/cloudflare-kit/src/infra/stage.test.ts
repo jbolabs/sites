@@ -10,6 +10,7 @@ import {
 const site = {
   domain: "example.com",
   id: "example",
+  stagingBaseDomain: "studio.test",
   workersSubdomain: "acme",
 };
 
@@ -33,6 +34,40 @@ describe(resolveStage, () => {
     expect(
       resolveStage({ ...site, domain: null }, "prod").domain
     ).toBeUndefined();
+  });
+
+  it("serves staging from the studio domain even with a production domain", () => {
+    expect(resolveStage(site, "staging")).toMatchObject({
+      domain: "example-staging.studio.test",
+      kind: "staging",
+      origin: "https://example-staging.studio.test",
+      production: false,
+      stage: "staging",
+      workerName: "example-staging",
+    });
+  });
+
+  it("uses branded staging before a production domain is configured", () => {
+    expect(resolveStage({ ...site, domain: null }, "staging").origin).toBe(
+      "https://example-staging.studio.test"
+    );
+    expect(() =>
+      resolveStage(
+        { domain: null, id: "example", workersSubdomain: "acme" },
+        "staging"
+      )
+    ).toThrow("Branded previews require a studio-owned stagingBaseDomain.");
+  });
+
+  it("owns client preview hostnames by PR number without changing production", () => {
+    expect(resolveStage(site, "client-pr-123")).toStrictEqual({
+      domain: "example-preview-123.studio.test",
+      kind: "client-preview",
+      origin: "https://example-preview-123.studio.test",
+      production: false,
+      stage: "client-pr-123",
+      workerName: "example-client-pr-123",
+    });
   });
 
   it("serves every other stage from workers.dev", () => {
@@ -69,6 +104,16 @@ describe(productionDeployRefusal, () => {
 
   it("refuses prod outside CI", () => {
     expect(productionDeployRefusal(prod, {})).toMatch(/Refusing/u);
+  });
+
+  it("refuses domainless production even in CI", () => {
+    expect(
+      productionDeployRefusal(resolveStage({ ...site, domain: null }, "prod"), {
+        CI: "true",
+      })
+    ).toBe(
+      "Refusing to deploy prod without a production domain. Use staging instead."
+    );
   });
 
   it("allows prod from CI or with the explicit override", () => {
