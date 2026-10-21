@@ -18,13 +18,21 @@ const SiteConfig = Schema.Struct({
   }),
 });
 const root = path.resolve(import.meta.dirname, "../..");
-const output = path.join(root, ".artifacts/ci/local-verification");
 const index = process.argv.indexOf("--sites");
 const sites = Schema.decodeUnknownSync(SiteList)(
   index === -1 ? "[]" : process.argv[index + 1]
 );
 const known = listSites(root);
 const prepare = process.argv.includes("--prepare");
+// Only the launcher can supply the runtime fingerprint used by Turbo's cache key.
+if (
+  process.argv.includes("--cached-task") &&
+  (process.env.VERIFY_RUNTIME ?? "") === ""
+) {
+  throw new Error(
+    "Run bun run verify:ci <site> to fingerprint the audit runtime"
+  );
+}
 let failed = false;
 
 for (const site of sites) {
@@ -55,6 +63,7 @@ if (!prepare) {
   for (const site of sites) {
     const directory = path.join(root, "apps", site);
     const cms = existsSync(path.join(directory, "seed/seed.json"));
+    const output = path.join(directory, ".artifacts/ci/local-verification");
     mkdirSync(output, { recursive: true });
     const started = performance.now();
     process.stdout.write(`${site}: starting required verification\n`);
