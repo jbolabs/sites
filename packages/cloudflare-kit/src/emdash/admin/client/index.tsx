@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import cmsAdmin from "virtual:cms-admin-config";
 
 import { Assistant } from "#assistant/assistant.tsx";
+import { installMobileNavigation } from "#assistant/mobile-navigation.ts";
 
 import { DEFAULT_PRESETS } from "../options.ts";
 
@@ -13,6 +14,10 @@ import assistantCss from "#assistant/assistant.css?inline";
  * root of its own beside the admin, since the admin has no header slot.
  */
 const ROOT_ID = "site-assistant";
+
+if (typeof document !== "undefined") {
+  installMobileNavigation();
+}
 
 if (typeof document !== "undefined" && cmsAdmin.assistant !== false) {
   const { assistant } = cmsAdmin;

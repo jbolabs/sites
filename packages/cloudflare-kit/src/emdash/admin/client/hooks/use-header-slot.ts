@@ -9,9 +9,7 @@ import { useSyncExternalStore } from "react";
 const SLOT_ATTRIBUTE = "data-site-assistant-slot";
 
 const findActions = (): Element | null =>
-  document.querySelector(
-    "header.sticky > div.flex.items-center.gap-2:last-child"
-  );
+  document.querySelector("[data-admin-header-actions]");
 
 const ensureSlot = (): HTMLElement | null => {
   const actions = findActions();

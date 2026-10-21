@@ -1,0 +1,82 @@
+diff --git a/dist/index.js b/dist/index.js
+index 5ed5f0b7d992686b02e1008608009d65c2f061c4..8f3b7ca31a45222b10c7ab245b224ec6e3e070ee 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -62140,13 +62140,13 @@ function ThemeToggle() {
+ 	});
+ 	return /* @__PURE__ */ jsxs(Button, {
+ 		variant: "ghost",
+-		shape: "square",
+-		size: "sm",
++		className: "w-full justify-start gap-2",
++		"data-admin-theme-toggle": "",
+ 		"aria-label": label,
+ 		onClick: toggleTheme,
+ 		title: label,
+ 		children: [resolvedTheme === "light" ? /* @__PURE__ */ jsx(Sun, { className: "h-4 w-4" }) : /* @__PURE__ */ jsx(Moon, { className: "h-4 w-4" }), /* @__PURE__ */ jsx("span", {
+-			className: "sr-only",
++			className: "",
+ 			children: label
+ 		})]
+ 	});
+@@ -62180,21 +62180,22 @@ function Header() {
+ 	});
+ 	const initials = ((user?.name || user?.email || "U")[0] ?? "U").toUpperCase();
+ 	return /* @__PURE__ */ jsxs("header", {
++		"data-admin-header": "",
+ 		className: "sticky top-0 z-10 flex h-[58px] items-center justify-end border-b bg-kumo-elevated px-4",
+ 		children: [/* @__PURE__ */ jsx(KumoSidebar.Trigger, { className: "me-auto cursor-pointer md:hidden rtl:rotate-180" }), /* @__PURE__ */ jsxs("div", {
+ 			className: "flex items-center gap-2",
++			"data-admin-header-actions": "",
+ 			children: [
+ 				/* @__PURE__ */ jsxs(LinkButton, {
+ 					variant: "ghost",
+ 					size: "sm",
+ 					href: "/",
+ 					external: true,
+-					children: [/* @__PURE__ */ jsx(ArrowSquareOut, { className: "h-4 w-4 me-1" }), _t({
++					children: [_t({
+ 						id: "4/SFQS",
+ 						message: "View Site"
+ 					})]
+ 				}),
+-				/* @__PURE__ */ jsx(ThemeToggle, {}),
+ 				/* @__PURE__ */ jsxs(Popover, {
+ 					open: userMenuOpen,
+ 					onOpenChange: setUserMenuOpen,
+@@ -62204,6 +62205,9 @@ function Header() {
+ 							variant: "ghost",
+ 							size: "sm",
+ 							className: "gap-2",
++							"data-admin-account": "",
++							"aria-label": "Account menu",
++							title: displayName,
+ 							children: [user?.avatarUrl ? /* @__PURE__ */ jsx("img", {
+ 								src: user.avatarUrl,
+ 								alt: "",
+@@ -62211,9 +62215,6 @@ function Header() {
+ 							}) : /* @__PURE__ */ jsx("div", {
+ 								className: "h-5 w-5 rounded-full bg-kumo-brand/10 flex items-center justify-center text-[10px] font-medium",
+ 								children: initials
+-							}), /* @__PURE__ */ jsx("span", {
+-								className: "hidden sm:inline max-w-[120px] truncate",
+-								children: displayName
+ 							})]
+ 						})
+ 					}), /* @__PURE__ */ jsxs(Popover.Content, {
+@@ -62233,6 +62234,7 @@ function Header() {
+ 							})]
+ 						}), /* @__PURE__ */ jsxs("div", {
+ 							className: "grid gap-1",
++							"data-admin-account-menu": "",
+ 							children: [
+ 								/* @__PURE__ */ jsxs(Link$2, {
+ 									to: "/settings/security",
+@@ -62252,6 +62254,7 @@ function Header() {
+ 										message: "Settings"
+ 									})]
+ 								}),
++								/* @__PURE__ */ jsx(ThemeToggle, {}),
+ 								/* @__PURE__ */ jsx("hr", { className: "my-1" }),
+ 								/* @__PURE__ */ jsxs("button", {
+ 									onClick: handleLogout,

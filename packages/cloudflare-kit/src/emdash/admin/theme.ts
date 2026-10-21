@@ -58,10 +58,15 @@ export const adminThemeCss = (theme: AdminTheme): string => {
 
 /** Inserts the theme `<style>` just before `</head>`; other HTML passes through untouched. */
 export const injectAdminTheme = (html: string, css: string): string => {
-  const head = html.indexOf("</head>");
+  // Match EmDash's viewport declaration; keep zoom enabled while exposing safe-area insets.
+  const document = html.replace(
+    'name="viewport" content="width=device-width, initial-scale=1.0"',
+    'name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"'
+  );
+  const head = document.indexOf("</head>");
   return head === -1
-    ? html
-    : `${html.slice(0, head)}<style id="site-admin-theme">${css}</style>${html.slice(head)}`;
+    ? document
+    : `${document.slice(0, head)}<style id="site-admin-theme">${css}</style>${document.slice(head)}`;
 };
 
 /**

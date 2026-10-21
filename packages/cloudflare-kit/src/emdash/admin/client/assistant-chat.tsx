@@ -28,6 +28,7 @@ import { AssistantSteps } from "#assistant/assistant-steps.tsx";
 import { isLongConversation } from "#assistant/conversation-size.ts";
 import { failureKind } from "#assistant/errors.ts";
 import type { FailureKind } from "#assistant/errors.ts";
+import { useMobileLayout } from "#assistant/hooks/use-mobile-layout.ts";
 import { messageSteps, messageText, savedDraft } from "#assistant/steps.ts";
 import {
   Alert,
@@ -230,6 +231,7 @@ export const AssistantChat = ({
     }
   );
   const [text, setText] = useState("");
+  const mobile = useMobileLayout();
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const busy = status === "submitted" || status === "streaming";
@@ -264,14 +266,14 @@ export const AssistantChat = ({
     <MessageScrollerProvider autoScroll>
       {/* One wrapper, so the sheet's gap does not push the conversation away from its top row. */}
       <div className="flex min-h-0 flex-1 flex-col">
-        {/* Title and description are for screen readers; the top row is only the two actions, level with the admin's top bar. */}
-        <SheetTitle className="sr-only">Assistant</SheetTitle>
+        {/* Name the full-screen panel so opening it keeps the user's context. */}
         <SheetDescription className="sr-only">
           {entry === undefined
             ? "Edits the site as drafts"
             : `Working on this ${entry.collection} entry`}
         </SheetDescription>
         <div className="flex h-14.5 shrink-0 items-center justify-end gap-1 px-4">
+          <SheetTitle className="mr-auto">Assistant</SheetTitle>
           <Tooltip>
             <TooltipTrigger
               render={
@@ -298,10 +300,10 @@ export const AssistantChat = ({
         </div>
         <div className="flex min-h-0 flex-1 flex-col">
           {messages.length === 0 ? (
-            <div className="flex flex-1 flex-col justify-end gap-5 px-4 pb-4">
-              <div className="flex flex-col gap-3">
+            <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 pb-4">
+              <div className="mt-auto flex shrink-0 flex-col gap-3">
                 <SparklesIcon className="text-primary size-6" />
-                <h2 className="text-2xl font-medium tracking-tight text-balance">
+                <h2 className="text-foreground text-2xl font-medium tracking-tight text-balance">
                   {entry === undefined
                     ? `What should we change on ${config.siteName}?`
                     : "What should we change on this page?"}
@@ -419,7 +421,12 @@ export const AssistantChat = ({
                     setText(event.target.value);
                   }}
                   onKeyDown={(event) => {
-                    if (event.key === "Enter" && !event.shiftKey) {
+                    if (
+                      event.key === "Enter" &&
+                      !event.shiftKey &&
+                      !mobile &&
+                      !event.nativeEvent.isComposing
+                    ) {
                       event.preventDefault();
                       formRef.current?.requestSubmit();
                     }
