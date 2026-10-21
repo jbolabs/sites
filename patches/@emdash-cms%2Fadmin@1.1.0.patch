@@ -1,14 +1,15 @@
 diff --git a/dist/index.js b/dist/index.js
-index 5ed5f0b7d992686b02e1008608009d65c2f061c4..7a65ca57cb61dfce342160bfe4cab001cdeee016 100644
+index 5ed5f0b7d992686b02e1008608009d65c2f061c4..78745a66fc144f8f77d76ddbcfdd577ec1b082c6 100644
 --- a/dist/index.js
 +++ b/dist/index.js
-@@ -40549,10 +40549,10 @@ function SidebarNav({ manifest }) {
+@@ -40548,11 +40548,11 @@ function SidebarNav({ manifest }) {
+ 			message: "Admin navigation"
  		}),
  		children: [
 -			/* @__PURE__ */ jsx(KumoSidebar.Header, {
-+			/* @__PURE__ */ jsxs(KumoSidebar.Header, {
 -				className: "px-[11px] transition-[padding] duration-(--sidebar-animation-duration) motion-reduce:transition-none group-not-data-[state=collapsed]/sidebar:px-3.5",
 -				children: /* @__PURE__ */ jsxs(Link$2, {
++			/* @__PURE__ */ jsxs(KumoSidebar.Header, {
 +				className: "admin-sidebar-header",
 +				children: [/* @__PURE__ */ jsx(KumoSidebar.Trigger, {}), /* @__PURE__ */ jsxs(Link$2, {
  					to: "/",
@@ -93,7 +94,7 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..7a65ca57cb61dfce342160bfe4cab001
  				/* @__PURE__ */ jsxs(Popover, {
  					open: userMenuOpen,
  					onOpenChange: setUserMenuOpen,
-@@ -62204,6 +62195,9 @@ function Header() {
+@@ -62204,16 +62195,18 @@ function Header() {
  							variant: "ghost",
  							size: "sm",
  							className: "gap-2",
@@ -103,8 +104,10 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..7a65ca57cb61dfce342160bfe4cab001
  							children: [user?.avatarUrl ? /* @__PURE__ */ jsx("img", {
  								src: user.avatarUrl,
  								alt: "",
-@@ -62211,9 +62205,6 @@ function Header() {
++								"data-admin-avatar": "",
+ 								className: "h-5 w-5 rounded-full object-cover"
  							}) : /* @__PURE__ */ jsx("div", {
++								"data-admin-avatar": "",
  								className: "h-5 w-5 rounded-full bg-kumo-brand/10 flex items-center justify-center text-[10px] font-medium",
  								children: initials
 -							}), /* @__PURE__ */ jsx("span", {
@@ -113,7 +116,7 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..7a65ca57cb61dfce342160bfe4cab001
  							})]
  						})
  					}), /* @__PURE__ */ jsxs(Popover.Content, {
-@@ -62233,6 +62224,7 @@ function Header() {
+@@ -62233,6 +62226,7 @@ function Header() {
  							})]
  						}), /* @__PURE__ */ jsxs("div", {
  							className: "grid gap-1",
@@ -121,7 +124,7 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..7a65ca57cb61dfce342160bfe4cab001
  							children: [
  								/* @__PURE__ */ jsxs(Link$2, {
  									to: "/settings/security",
-@@ -62252,6 +62244,7 @@ function Header() {
+@@ -62252,6 +62246,7 @@ function Header() {
  										message: "Settings"
  									})]
  								}),
@@ -129,7 +132,7 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..7a65ca57cb61dfce342160bfe4cab001
  								/* @__PURE__ */ jsx("hr", { className: "my-1" }),
  								/* @__PURE__ */ jsxs("button", {
  									onClick: handleLogout,
-@@ -62548,6 +62541,10 @@ function Shell({ children, manifest }) {
+@@ -62548,6 +62543,10 @@ function Shell({ children, manifest }) {
  	}, [_t, user]);
  	return /* @__PURE__ */ jsxs(KumoSidebar.Provider, {
  		defaultOpen: true,
