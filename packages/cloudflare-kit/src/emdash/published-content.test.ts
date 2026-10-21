@@ -211,10 +211,10 @@ describe("published content", () => {
   });
 
   // Three native SQLite migration/setup cycles exceed the unit-test deadline on shared CI runners.
-  it(
-    "exports live public rows and restores semantic relationships/SEO while retaining branch additions",
+  it.each(["dev-fixture", "pr-3", "client-pr-41"])(
+    "exports live public rows and restores semantic relationships/SEO while retaining branch additions (%s)",
     { timeout: 15_000 },
-    async () => {
+    async (stage) => {
       const source = await database();
       const target = await database();
       try {
@@ -352,16 +352,11 @@ describe("published content", () => {
         let result = await completeFresh(
           target,
           plan,
-          "dev-fixture",
+          stage,
           "access-electric"
         );
         while (!result.complete) {
-          result = await completeFresh(
-            target,
-            plan,
-            "dev-fixture",
-            "access-electric"
-          );
+          result = await completeFresh(target, plan, stage, "access-electric");
         }
         const about = await handleContentGet(target, "pages", "about", "en", {
           includeDrafts: false,
@@ -410,7 +405,7 @@ describe("published content", () => {
         const repeated = await completeFresh(
           target,
           plan,
-          "dev-fixture",
+          stage,
           "access-electric"
         );
         expect({

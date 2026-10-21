@@ -1,0 +1,39 @@
+name: Client preview cleanup
+
+on:
+  pull_request:
+    types: [closed, unlabeled]
+  schedule:
+    - cron: "43 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: write
+
+jobs:
+  cleanup:
+    if: vars.DEPLOYS_ENABLED == 'true' && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && (github.event.action == 'closed' || github.event.label.name == 'client-preview')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: client-preview
+    concurrency:
+      # Same lock as client deploys, including partial attempts recorded before a Worker exists.
+      group: main-site-deploy
+      queue: max
+      cancel-in-progress: false
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      GH_TOKEN: ${{ github.token }}
+      PR: ${{ github.event.pull_request.number }}
+    steps:
+      # Teardown uses trusted main code and Alchemy state, never a closed PR's app stack.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Reconcile client previews through Alchemy
+        run: bun scripts/ci/client-preview-cleanup.ts
