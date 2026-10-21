@@ -9,6 +9,16 @@ html[data-theme] [data-admin-header] {
 html[data-theme] [data-admin-header-actions] {
   gap: 0.375rem;
 }
+html[data-theme] [data-admin-header] [data-admin-icon-action] {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  justify-content: center;
+}
+html[data-theme] [data-admin-icon-action] svg {
+  width: 20px;
+  height: 20px;
+}
 html[data-theme] [data-admin-header] :is(button, a) {
   min-height: 44px;
   min-width: 44px;
@@ -26,17 +36,19 @@ html[data-theme] [data-admin-header] :is(button, a):is(:active, [aria-expanded=t
 }
 html[data-theme] [data-admin-header] [data-admin-account] {
   width: 44px;
+  justify-content: center;
   padding: 0;
   border-radius: 50%;
 }
 html[data-theme] [data-admin-header] [data-sidebar=trigger] {
   padding-inline: 0;
 }
-html[data-theme] [data-admin-account] > :is(div, img) {
-  width: 1.75rem;
-  height: 1.75rem;
+html[data-theme] [data-admin-account] [data-admin-avatar] {
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
   border-radius: 50%;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
 }
 html[data-theme] [data-admin-account-menu] :is(a, button) {
   min-height: 44px;
@@ -59,7 +71,7 @@ html[data-theme] [data-admin-theme-toggle] {
   }
 }
 @media (min-width: 768px) {
-  /* The desktop collapse control already lives in the sidebar footer. */
+  /* The desktop toggle stays in the sidebar header when collapsed. */
   html[data-theme] [data-admin-header] [data-sidebar=trigger] {
     display: none;
   }
