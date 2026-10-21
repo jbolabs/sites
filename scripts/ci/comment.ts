@@ -21,7 +21,6 @@ const CommentPages = Schema.fromJsonString(
     Schema.Array(Schema.Struct({ body: Schema.String, id: Schema.Number }))
   )
 );
-const MARKER = "<!-- marketing-previews -->";
 
 const flag = (name: string): string => {
   const index = process.argv.indexOf(name);
@@ -36,16 +35,25 @@ const root = path.resolve(import.meta.dirname, "../..");
 const pr = flag("--pr");
 const stage = flag("--stage");
 const repo = process.env.GITHUB_REPOSITORY ?? "";
-const deployments = Schema.decodeUnknownSync(Deployments)(
-  readFileSync(path.join(root, "deployments.json"), "utf-8")
-);
+const retired = process.argv.includes("--retired");
+const client = stage.startsWith("client-pr-");
+const MARKER = client
+  ? "<!-- marketing-client-previews -->"
+  : "<!-- marketing-previews -->";
+const deployments = retired
+  ? []
+  : Schema.decodeUnknownSync(Deployments)(
+      readFileSync(path.join(root, "deployments.json"), "utf-8")
+    );
 
 const rows = deployments
   .map(
     ({ site, url }) => `| ${site} | ${url ?? "deploy did not report a URL"} |`
   )
   .join("\n");
-const body = `${MARKER}
+const body = retired
+  ? `${MARKER}\nClient previews retired. Their cloud resources and hostnames have been removed.`
+  : `${MARKER}
 ### Previews (stage \`${stage}\`)
 
 | Site | URL |

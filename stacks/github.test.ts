@@ -20,7 +20,7 @@ describe("GitHub production environment", () => {
       environments
         .filter((environment) => environment.branches === null)
         .map((environment) => environment.name)
-    ).toStrictEqual(["preview"]);
+    ).toStrictEqual(["client-preview", "preview"]);
     expect(
       environments
         .filter((environment) => environment.name === "staging")
@@ -32,7 +32,7 @@ describe("GitHub production environment", () => {
     const routing = environments
       .filter((env) => env.permissions.includes("Workers Routes Write"))
       .map((env) => env.name);
-    expect(routing).toStrictEqual(["staging", "production"]);
+    expect(routing).toStrictEqual(["client-preview", "staging", "production"]);
   });
 
   it("keeps account permissions separate from zone permissions", () => {
@@ -46,7 +46,7 @@ describe("GitHub production environment", () => {
     }
   });
 
-  it.each(["staging", "production"])(
+  it.each(["client-preview", "staging", "production"])(
     "scopes %s domain permissions under the account's zones",
     (name) => {
       const environment = environments.find((item) => item.name === name);

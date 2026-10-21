@@ -13,11 +13,12 @@ const PullRequest = Schema.fromJsonString(
 /** Queued jobs consult current PR state after acquiring the shared Alchemy stage lock. */
 export const previewPolicy = (
   pull: typeof PullRequest.Type,
-  expectedHead?: string
+  expectedHead?: string,
+  previewLabel: "preview" | "client-preview" = "preview"
 ) => {
   const requested =
     pull.state === "OPEN" &&
-    pull.labels.some((label) => label.name === "preview");
+    pull.labels.some((label) => label.name === previewLabel);
   return {
     content: pull.labels.some((label) => label.name === "production-content")
       ? "prod"
@@ -39,7 +40,11 @@ if (import.meta.main) {
       { encoding: "utf-8" }
     )
   );
-  const policy = previewPolicy(pull, process.env.EXPECTED_HEAD);
+  const label = process.env.PREVIEW_LABEL ?? "preview";
+  if (label !== "preview" && label !== "client-preview") {
+    throw new Error("Unsupported preview label");
+  }
+  const policy = previewPolicy(pull, process.env.EXPECTED_HEAD, label);
   process.stdout.write(
     `deploy=${policy.deploy}\ndestroy=${policy.destroy}\ncontent=${policy.content}\n`
   );

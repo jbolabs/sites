@@ -13,6 +13,7 @@ Always get the user's go-ahead before deploying or destroying anything.
 | --- | --- | --- |
 | `dev-<worktree>` | `bun run app -- start` | Local, emulated, any time |
 | `pr-<n>` | CI on same-repo PRs labeled `preview`, affected sites only | Destroyed on label removal or PR close; janitor sweeps leftovers daily |
+| `client-pr-<n>` | Same-repo PR with `client-preview`, after required checks | `<app>-preview-<n>.jbolabs.com`; label removal/PR close destroys recorded resources; daily reconciliation retries |
 | named preview | `cd apps/<site> && ALCHEMY_PROFILE=admin bun alchemy deploy --stage <name>` | Ad-hoc demos; destroy when done |
 | `staging` | CI on merge to `main`, every affected app | Persistent `<app>-staging.jbolabs.com`, separate seeded CMS data |
 | `prod` | CI on merge to `main`, apps with `site.domain` only | Deploys alongside staging; the stack refuses domainless prod |
@@ -38,7 +39,7 @@ Inspect the plan, then remove `--dry-run` only for an authorized teardown. This 
 
 ## Published-content previews
 
-Add `production-content` alongside `preview` to opt a same-repository PR into published production content. Required credential-free checks remain seed-only. CI fetches fixed public source collections/fields, preflights this branch's schema/defaults, and bundles a native fresh seed. Existing completed stages preserve edits; this does not refresh them in place. Missing source/auth or incompatible content fails explicitly. Preview recreation requires separate destroy/deploy authorization.
+Add `production-content` alongside `preview` or `client-preview` to opt a same-repository PR into published production content. Required credential-free checks remain seed-only. CI fetches fixed public source collections/fields, preflights this branch's schema/defaults, and bundles a native fresh seed. Existing completed stages preserve edits; this does not refresh them in place. Missing source/auth or incompatible content fails explicitly. Preview recreation requires separate destroy/deploy authorization.
 
 One-time private setup: the operator sets `PUBLISHED_CONTENT_EXPORT_TOKEN` (random, at least 32 characters, the same value everywhere) in the `sites-prod` Infisical project (`preview` and `prod`) and in `sites-dev` for local `--content prod`. The separately authorized `stacks/github.ts` deployment (`ALCHEMY_PROFILE=admin`, stage `ci`, which reads `sites-prod`/`preview`) writes it to the GitHub `preview` environment, writes the production Infisical OIDC variables, and creates the opt-in label. A normal CI production deployment then reads `sites-prod`/`prod` over OIDC and exposes the production-only GET exporter. Never retrieve credentials through a full Alchemy state read. See [ADR 0003](../../../docs/adr/0003-published-production-content.md).
 

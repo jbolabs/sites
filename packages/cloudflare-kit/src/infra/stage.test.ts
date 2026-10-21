@@ -56,7 +56,18 @@ describe(resolveStage, () => {
         { domain: null, id: "example", workersSubdomain: "acme" },
         "staging"
       )
-    ).toThrow("Staging requires a studio-owned stagingBaseDomain.");
+    ).toThrow("Branded previews require a studio-owned stagingBaseDomain.");
+  });
+
+  it("owns client preview hostnames by PR number without changing production", () => {
+    expect(resolveStage(site, "client-pr-123")).toStrictEqual({
+      domain: "example-preview-123.studio.test",
+      kind: "client-preview",
+      origin: "https://example-preview-123.studio.test",
+      production: false,
+      stage: "client-pr-123",
+      workerName: "example-client-pr-123",
+    });
   });
 
   it("serves every other stage from workers.dev", () => {

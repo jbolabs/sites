@@ -27,6 +27,6 @@ describe("main release queue", () => {
       .map((line) => line.trim())
       .filter((line) => line.startsWith("queue:"))
       .map((line) => line.slice("queue:".length).trim());
-    expect(settings).toStrictEqual(["max", "max"]);
+    expect(settings).toStrictEqual(["max", "max", "max"]);
   });
 });

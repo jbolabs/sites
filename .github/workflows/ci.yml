@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 5
     concurrency:
       # Unrelated labels must neither cancel preview validation nor skip the required check.
-      group: affected-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
+      group: affected-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'client-preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     outputs:
       verify: ${{ steps.affected.outputs.verify }}
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
-      group: lint-test-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
+      group: lint-test-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'client-preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
-      group: verify-${{ matrix.site }}-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
+      group: verify-${{ matrix.site }}-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'client-preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     strategy:
       fail-fast: false
@@ -210,6 +210,83 @@ jobs:
         if: always()
         with:
           name: preview-verification
+          path: .artifacts/ci/
+          if-no-files-found: ignore
+
+  client-preview:
+    needs: check
+    # Fork PRs never get deploy credentials.
+    # Deploy jobs skip until `stacks/github.ts` has created the environments and tokens.
+    if: ${{ !cancelled() && needs.check.result == 'success' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && contains(github.event.pull_request.labels.*.name, 'client-preview') && (github.event.action != 'labeled' || github.event.label.name == 'client-preview' || github.event.label.name == 'production-content') && needs.check.outputs.deploy != '[]' && vars.DEPLOYS_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: client-preview
+    permissions:
+      contents: read
+      pull-requests: write
+      deployments: write
+    concurrency:
+      group: main-site-deploy
+      queue: max
+      cancel-in-progress: false
+    env:
+      CMS_BOOTSTRAP_TOKEN: ${{ secrets.CMS_BOOTSTRAP_TOKEN }}
+      PUBLISHED_CONTENT_EXPORT_TOKEN: ${{ secrets.PUBLISHED_CONTENT_EXPORT_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      STAGE: client-pr-${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      # Recheck after acquiring the stage lock: queued events can outlive their label or head.
+      - name: Check current preview request
+        id: policy
+        run: bun scripts/ci/preview-policy.ts >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+          PREVIEW_LABEL: client-preview
+      - name: Prepare published production content
+        if: steps.policy.outputs.deploy == 'true' && steps.policy.outputs.content == 'prod'
+        run: bun scripts/ci/prepare-content.ts --sites '${{ needs.check.outputs.deploy }}'
+      # Persist ownership before Alchemy can create even its first resource.
+      - name: Record client preview ownership
+        id: ownership
+        if: steps.policy.outputs.deploy == 'true'
+        run: bun scripts/ci/client-preview-records.ts >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+          SITES: ${{ needs.check.outputs.deploy }}
+      - name: Deploy affected sites
+        if: steps.policy.outputs.deploy == 'true'
+        env:
+          CONTENT_MODE: ${{ steps.policy.outputs.content }}
+        run: bun scripts/ci/deploy.ts --stage "$STAGE" --sites '${{ needs.check.outputs.deploy }}'
+      - name: Comment preview URLs
+        if: steps.policy.outputs.deploy == 'true'
+        run: bun scripts/ci/comment.ts --pr ${{ github.event.pull_request.number }} --stage "$STAGE"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Hosted smoke and SEO checks
+        env:
+          CONTENT_MODE: ${{ steps.policy.outputs.content }}
+        if: steps.policy.outputs.deploy == 'true'
+        run: bun scripts/ci/verify-previews.ts
+      - name: Mark client preview ready
+        if: steps.policy.outputs.deploy == 'true'
+        run: bun scripts/ci/client-preview-records.ts --success
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOYMENT_ID: ${{ steps.ownership.outputs.deployment }}
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: client-preview-verification
           path: .artifacts/ci/
           if-no-files-found: ignore
 

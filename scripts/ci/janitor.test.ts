@@ -13,6 +13,7 @@ describe(staleStages, () => {
           "jbolabs-pr-1",
           "jbolabs-pr-2",
           "access-electric-prod",
+          "access-electric-client-pr-2",
           "access-electric-dev-alice",
           "turbo-cache",
         ],

@@ -12,7 +12,7 @@ import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
 
-import { resolveStage } from "@jakebodea/cloudflare-kit/infra";
+import { resolveStage } from "@jakebodea/cloudflare-kit/infra/stage";
 import { listSites } from "@jakebodea/control-app/site";
 import { Schema } from "effect";
 import pLimit from "p-limit";

@@ -24,6 +24,8 @@ import { Config, Effect, Layer } from "effect";
 import { deployTokens, repository } from "./config.ts";
 import { ciProd, stageSecrets } from "./secrets.ts";
 
+const CLIENT_PREVIEW = "client-preview";
+
 /** What every site's Alchemy stack creates, on every stage. */
 const sitePermissions: Cloudflare.ApiToken.PermissionGroupRef[] = [
   "Account Settings Read",
@@ -65,6 +67,12 @@ export interface DeployEnvironment {
 }
 
 export const environments: readonly DeployEnvironment[] = [
+  {
+    branches: null,
+    id: "ClientPreview",
+    name: CLIENT_PREVIEW,
+    permissions: [...sitePermissions, ...domainPermissions],
+  },
   {
     branches: null,
     id: "Preview",
@@ -149,6 +157,14 @@ export default Alchemy.Stack(
       owner,
       repository: repo,
     });
+    yield* GitHub.Label("ClientPreviewLabel", {
+      color: "1d76db",
+      description:
+        "Create a branded client preview; removing the label retires it",
+      name: CLIENT_PREVIEW,
+      owner,
+      repository: repo,
+    });
     yield* GitHub.Label("ProductionContentLabel", {
       color: "5319e7",
       description: "Load published production content into a fresh PR preview",
@@ -169,15 +185,23 @@ export default Alchemy.Stack(
           repository: repo,
         }
       );
-      if (environment.name === "preview") {
+      if (
+        environment.name === "preview" ||
+        environment.name === CLIENT_PREVIEW
+      ) {
         // PR previews with the `production-content` label fetch the production exporter.
-        yield* GitHub.Secret("PreviewPublishedContentSecret", {
-          environment: githubEnvironment,
-          name: "PUBLISHED_CONTENT_EXPORT_TOKEN",
-          owner,
-          repository: repo,
-          value: publishedExport,
-        });
+        yield* GitHub.Secret(
+          environment.name === "preview"
+            ? "PreviewPublishedContentSecret"
+            : "ClientPreviewPublishedContentSecret",
+          {
+            environment: githubEnvironment,
+            name: "PUBLISHED_CONTENT_EXPORT_TOKEN",
+            owner,
+            repository: repo,
+            value: publishedExport,
+          }
+        );
       }
       const cmsBootstrap = yield* Random(`${environment.id}CmsBootstrapToken`, {
         bytes: 32,

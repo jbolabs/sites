@@ -9,9 +9,12 @@
  * - anything else (for example `ae-preview`): a named, long-lived preview.
  */
 
+const CLIENT_PREVIEW = "client-preview";
+
 export type StageKind =
   | "production"
   | "staging"
+  | typeof CLIENT_PREVIEW
   | "pull-request"
   | "development"
   | "named";
@@ -43,7 +46,8 @@ export interface StageSettings {
   readonly domain: string | undefined;
 }
 
-const PULL_REQUEST_STAGE = /^pr-[1-9]\d*$/u;
+const PULL_REQUEST_STAGE = /^(?:client-)?pr-[1-9]\d*$/u;
+const CLIENT_PREVIEW_STAGE = /^client-pr-(?<pull>[1-9]\d*)$/u;
 const DEVELOPMENT_STAGE = /^dev-[a-z0-9-]+$/u;
 const STAGE_NAME = /^[a-z][a-z0-9-]{0,30}$/u;
 
@@ -53,6 +57,9 @@ export const stageKind = (stage: string): StageKind => {
   }
   if (stage === "staging") {
     return "staging";
+  }
+  if (CLIENT_PREVIEW_STAGE.test(stage)) {
+    return CLIENT_PREVIEW;
   }
   if (PULL_REQUEST_STAGE.test(stage)) {
     return "pull-request";
@@ -76,16 +83,22 @@ export const resolveStage = (
   const production = kind === "production";
   const workerName = `${site.id}-${stage}`;
   if (
-    kind === "staging" &&
+    (kind === "staging" || kind === CLIENT_PREVIEW) &&
     (site.stagingBaseDomain === undefined || site.stagingBaseDomain === "")
   ) {
-    throw new Error("Staging requires a studio-owned stagingBaseDomain.");
+    throw new Error(
+      "Branded previews require a studio-owned stagingBaseDomain."
+    );
   }
   const productionDomain =
     production && site.domain !== null ? site.domain : undefined;
+  const brandedName =
+    kind === CLIENT_PREVIEW
+      ? `${site.id}-preview-${CLIENT_PREVIEW_STAGE.exec(stage)?.groups?.pull}`
+      : workerName;
   const domain =
-    kind === "staging"
-      ? `${workerName}.${site.stagingBaseDomain}`
+    kind === "staging" || kind === CLIENT_PREVIEW
+      ? `${brandedName}.${site.stagingBaseDomain}`
       : productionDomain;
   return {
     domain,
