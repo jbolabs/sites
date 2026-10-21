@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { affectedSites, lockfileSites } from "./affected.ts";
+import { affectedSites, comparisonSites, lockfileSites } from "./affected.ts";
 
 const sites = ["access-electric", "ms-homes"];
 
@@ -239,5 +239,29 @@ describe("built-output pruning", () => {
       deploy: ["access-electric", "ms-homes"],
       verify: ["access-electric", "ms-homes"],
     });
+  });
+});
+
+describe(comparisonSites, () => {
+  const onBase = new Set(["access-electric", "ms-homes"]);
+
+  it("builds nothing to compare when only a site's own files changed", () => {
+    expect(
+      comparisonSites(
+        ["apps/access-electric/src/pages/index.astro"],
+        ["access-electric"],
+        onBase
+      )
+    ).toStrictEqual([]);
+  });
+
+  it("compares existing candidates when shared code changed, skipping new sites", () => {
+    expect(
+      comparisonSites(
+        ["packages/cloudflare-kit/src/server/index.ts"],
+        ["access-electric", "ani-wenger", "ms-homes"],
+        onBase
+      )
+    ).toStrictEqual(["access-electric", "ms-homes"]);
   });
 });

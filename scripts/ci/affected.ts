@@ -147,6 +147,24 @@ export const affectedSites = (
   return { deploy, verify: tooling.length > 0 ? [...sites] : deploy };
 };
 
+/**
+ * The sites worth a comparison build. Only a shared change can leave a site's
+ * output untouched; a change inside `apps/<site>/` ships anyway, so building
+ * it twice would only add a minute to the commonest kind of PR. New sites
+ * have no base to compare with.
+ */
+export const comparisonSites = (
+  changedFiles: readonly string[],
+  candidates: readonly string[],
+  baseSites: ReadonlySet<string>
+): readonly string[] =>
+  changedFiles.some(
+    (file) =>
+      matchesAny(file, SHARED_PATHS) && !matchesAny(file, UNSHIPPED_PATHS)
+  )
+    ? candidates.filter((site) => baseSites.has(site))
+    : [];
+
 /** `$GITHUB_OUTPUT` lines for the `affected` job. */
 const outputLines = ({ deploy, verify }: Affected) =>
   `verify=${JSON.stringify(verify)}\ndeploy=${JSON.stringify(deploy)}\n`;
@@ -224,9 +242,11 @@ if (import.meta.main) {
       ? baseLockfileSites(base, head, root, sites)
       : undefined;
     const candidates = affectedSites(changed, sites, scope);
-    const existing = new Set(sitesAt(root, base));
-    const comparable = candidates.deploy.filter((site) => existing.has(site));
-    // A new site cannot match the base, so it needs no comparison build here.
+    const comparable = comparisonSites(
+      changed,
+      candidates.deploy,
+      new Set(sitesAt(root, base))
+    );
     const fingerprints = await compareRevisionFingerprints(
       root,
       base,
