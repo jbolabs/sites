@@ -515,3 +515,52 @@ describe("decoded authored scope literals", () => {
     ).toThrow("Authored scope token; retaining candidate");
   });
 });
+
+describe("authored decoding uncertainty", () => {
+  const css = [
+    {
+      bytes: Buffer.from("[data-astro-cid-abcdefgh]{color:red}"),
+      generated: true,
+      name: "client/_astro/page.PATHHASH.css",
+    },
+  ];
+
+  it("retains an escaped literal followed by another property", () => {
+    expect(() =>
+      deployableFiles(
+        ['renderComponent(null,null,null,{class:"astro-abcdefgh",other:"x"});'],
+        css,
+        [
+          Buffer.from(
+            String.raw`renderComponent(null,null,null,{class:"astro-\u0061bcdefgh",other:"x"});`
+          ),
+        ]
+      )
+    ).toThrow("Authored scope token; retaining candidate");
+  });
+
+  it("retains TypeScript angle assertions and folded spellings with trailing literals", () => {
+    expect(() =>
+      deployableFiles(
+        ['renderComponent(null,null,null,{class:"astro-abcdefgh"});'],
+        css,
+        [
+          Buffer.from(
+            String.raw`const assertion=<string>"ok";renderComponent(null,null,null,{class:"astro-\u0061bcdefgh"});`
+          ),
+        ]
+      )
+    ).toThrow("Authored scope token; retaining candidate");
+    expect(() =>
+      deployableFiles(
+        ['renderComponent(null,null,null,{class:"astro-abcdefgh",other:"x"});'],
+        css,
+        [
+          Buffer.from(
+            'const assertion=<string>"ok";renderComponent(null,null,null,{class:"astro-abcd"+"efgh",other:"x"});'
+          ),
+        ]
+      )
+    ).toThrow("Authored scope token; retaining candidate");
+  });
+});

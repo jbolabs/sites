@@ -413,31 +413,41 @@ const scopePositions = (source: string): ReadonlySet<number> => {
   return positions;
 };
 
+const AUTHORED_SCOPE = /(?:data-astro-cid-|astro-)(?<scope>[a-z0-9]{8})/gu;
+const ESCAPED_INPUT = /\\(?:u|x|\r?\n)/u;
+
 const authoredScopeText = (bytes: Uint8Array): string => {
   const raw = Buffer.from(bytes).toString("utf-8");
-  const file = ts.createSourceFile(
-    "input.tsx",
-    raw,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TSX
-  );
+  // Unknown source formats (Astro/CSS/MDX included) cannot establish complete
+  // decoding coverage. Retain escaped inputs instead of trusting a partial AST.
+  if (ESCAPED_INPUT.test(raw)) {
+    throw new Error("Authored scope token; retaining candidate");
+  }
   const literals: string[] = [];
-  const visit = (node: ts.Node) => {
-    if (
-      ts.isStringLiteralLike(node) ||
-      ts.isTemplateHead(node) ||
-      ts.isTemplateMiddle(node) ||
-      ts.isTemplateTail(node)
-    ) {
-      literals.push(node.text);
-    }
-    ts.forEachChild(node, visit);
-  };
-  visit(file);
-  // Concatenated literals can be folded by the bundler. Joining conservatively
-  // also catches split spellings; unrelated adjacent literals may retain a site.
-  return `${raw}\n${literals.join("")}`;
+  for (const kind of [ts.ScriptKind.TS, ts.ScriptKind.TSX]) {
+    const file = ts.createSourceFile(
+      "input",
+      raw,
+      ts.ScriptTarget.Latest,
+      true,
+      kind
+    );
+    const visit = (node: ts.Node) => {
+      if (
+        ts.isStringLiteralLike(node) ||
+        ts.isTemplateHead(node) ||
+        ts.isTemplateMiddle(node) ||
+        ts.isTemplateTail(node)
+      ) {
+        literals.push(node.text);
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(file);
+  }
+  // Keep individual boundaries as well as a conservative folded representation.
+  // AUTHORED_SCOPE intentionally has no trailing boundary: joining must only add coverage.
+  return [raw, ...literals, literals.join("")].join("\n");
 };
 
 /** Astro scopes and generated asset names depend on absolute installation paths.
@@ -464,7 +474,7 @@ export const deployableFiles = (
   // A scope present in authored input cannot safely be treated as compiler metadata.
   // This also protects unusual HTML/renderer syntax that resembles generated props.
   for (const bytes of authored) {
-    for (const match of authoredScopeText(bytes).matchAll(ASTRO_SCOPE)) {
+    for (const match of authoredScopeText(bytes).matchAll(AUTHORED_SCOPE)) {
       if (known.has(match.groups?.scope ?? "")) {
         throw new Error("Authored scope token; retaining candidate");
       }
@@ -823,7 +833,8 @@ export const sitePayload = async (
     .filter(
       (file) =>
         /\.(?:[cm]?[jt]sx?|astro|css|json|mdx?|html)$/u.test(file) &&
-        !file.includes(".test.")
+        !file.includes(".test.") &&
+        !/^packages\/(?:control-app|proof|config)\//u.test(file)
     )
     .map((file) => readFileSync(path.join(root, file)));
   return [
