@@ -1,0 +1,55 @@
+---
+import type { NavItem } from "@/lib/content";
+import MobileMenu from "@jakebodea/site-ui/mobile-menu";
+import ButtonLink from "./button-link.astro";
+import Wordmark from "./wordmark.astro";
+
+interface Props {
+  title: string;
+  items: readonly NavItem[];
+}
+
+const { items, title } = Astro.props;
+const current = Astro.url.pathname;
+const isActive = (url: string) =>
+  url === "/" ? current === "/" : current === url || current.startsWith(`${url}/`);
+---
+
+<header class="sticky top-0 z-40 border-b border-border/80 bg-background pt-[env(safe-area-inset-top,0px)]">
+  <div class="container-page flex h-16 items-center justify-between gap-6 sm:h-20">
+    <a href="/" class="shrink-0 rounded-sm" aria-label={`${title}, home`}>
+      <Wordmark class="text-[1.65rem] sm:text-[1.9rem]" />
+    </a>
+    <nav aria-label="Main" class="hidden items-center gap-1 lg:flex">
+      {
+        items.map((item) => (
+          <a
+            href={item.url}
+            aria-current={isActive(item.url) ? "page" : undefined}
+            class="rounded-md px-3 py-2 text-ui font-medium text-foreground/70 hover:text-foreground aria-[current=page]:text-espresso-deep aria-[current=page]:underline aria-[current=page]:decoration-clay aria-[current=page]:decoration-1 aria-[current=page]:underline-offset-8"
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <ButtonLink href="/book" size="cta" class="ml-4">Book now</ButtonLink>
+    </nav>
+    <div class="flex items-center gap-2 lg:hidden">
+      <ButtonLink href="/book" size="sm-cta">Book</ButtonLink>
+      <MobileMenu
+        client:media="(max-width: 1023px)"
+        items={items.map((item) => ({ href: item.url, label: item.label }))}
+        currentPath={current}
+        classNames={{
+          toggle: "text-espresso-deep lg:hidden",
+          overlay: "bg-background overscroll-contain lg:hidden",
+          nav: "container-page pt-8",
+          link: "font-display border-b border-border py-4 text-4xl text-espresso-deep/55 aria-[current=page]:text-espresso-deep",
+          footer: "container-page",
+        }}
+      >
+        <ButtonLink href="/book" size="hero" class="w-full">Book an appointment</ButtonLink>
+      </MobileMenu>
+    </div>
+  </div>
+</header>

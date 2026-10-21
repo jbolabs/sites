@@ -1,0 +1,42 @@
+---
+import { sanitizeHref } from "emdash";
+import { Image } from "emdash/ui";
+import type { BlockComponentProps } from "emdash/ui";
+
+import ButtonLink from "@/components/button-link.astro";
+import type { PageContentHeroBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentHeroBlock>;
+
+const { value } = Astro.props;
+const primary =
+  value.primary_cta_label && value.primary_cta_url
+    ? { href: sanitizeHref(value.primary_cta_url), label: value.primary_cta_label }
+    : undefined;
+const secondary =
+  value.secondary_cta_label && value.secondary_cta_url
+    ? { href: sanitizeHref(value.secondary_cta_url), label: value.secondary_cta_label }
+    : undefined;
+---
+
+<section class="overflow-hidden">
+  <div class="container-page grid items-center gap-10 pt-10 pb-16 sm:pt-14 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-16 lg:pb-24">
+    <div class="max-w-2xl">
+      <h1 class="text-[clamp(2.9rem,7.2vw,5.6rem)] leading-[0.98]">{value.headline}</h1>
+      {value.subheadline && <p class="mt-7 max-w-xl text-lg leading-relaxed text-foreground/75 sm:text-xl">{value.subheadline}</p>}
+      {(primary || secondary) && (
+        <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+          {primary && <ButtonLink href={primary.href} size="hero">{primary.label}</ButtonLink>}
+          {secondary && <ButtonLink href={secondary.href} size="hero" variant="outline">{secondary.label}</ButtonLink>}
+        </div>
+      )}
+      {value.note && <p class="mt-6 text-ui text-muted-foreground">{value.note}</p>}
+    </div>
+    {value.image && (
+      <div class="relative">
+        <div class="absolute -top-6 -right-6 hidden size-40 rounded-full bg-clay-soft lg:block" aria-hidden="true"></div>
+        <Image image={value.image} priority sizes="(min-width: 1024px) 45vw, 100vw" class="relative aspect-[4/5] w-full rounded-[2rem] object-cover sm:aspect-[5/4] lg:aspect-[4/5]" />
+      </div>
+    )}
+  </div>
+</section>

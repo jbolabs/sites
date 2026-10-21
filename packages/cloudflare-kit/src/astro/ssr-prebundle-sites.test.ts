@@ -2,12 +2,17 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { Schema } from "effect";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { ssrPrebundle } from "./ssr-prebundle.ts";
 
 const repoRoot = path.join(import.meta.dirname, "../../../..");
-const siteApps = ["access-electric", "equityfast", "ms-custom-homes"] as const;
+const siteApps = [
+  "access-electric",
+  "ani-wenger",
+  "equityfast",
+  "ms-custom-homes",
+] as const;
 
 const AstroConfigModule = Schema.Struct({
   default: Schema.Struct({
@@ -27,19 +32,26 @@ const AstroConfigModule = Schema.Struct({
   }),
 });
 
+const configUrl = (site: string) =>
+  pathToFileURL(path.join(repoRoot, "apps", site, "astro.config.ts")).href;
+
 describe("site astro.config ssrPrebundle", () => {
+  // The first astro.config import loads Astro, Vite, EmDash, and Alchemy cold (about 14 s on
+  // CI runners); pay it once here so each case times only its own config.
+  beforeAll(async () => {
+    await import(configUrl(siteApps[0]));
+  }, 90_000);
+
   it.each(siteApps)(
     "%s lists every SSR dep the helper computes",
-    // Dynamic `import()` of each site's astro.config can exceed 5s on CI runners.
+    // A warm import of one more site's astro.config can still exceed 5 s on CI runners.
     { timeout: 15_000 },
     async (site) => {
       const directory = path.join(repoRoot, "apps", site);
       const sourceDirectory = path.join(directory, "src");
       const expected = ssrPrebundle(sourceDirectory);
       const loaded = Schema.decodeUnknownSync(AstroConfigModule)(
-        await import(
-          pathToFileURL(path.join(directory, "astro.config.ts")).href
-        )
+        await import(configUrl(site))
       );
       expect(loaded.default.vite?.ssr?.optimizeDeps?.include).toStrictEqual(
         expected

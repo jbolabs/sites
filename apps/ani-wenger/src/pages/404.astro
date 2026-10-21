@@ -1,0 +1,17 @@
+---
+import ButtonLink from "@/components/button-link.astro";
+import Base from "@/layouts/base.astro";
+
+Astro.response.status = 404;
+---
+
+<Base title="Page not found" robots="noindex">
+  <section class="container-page flex min-h-[55svh] flex-col items-start justify-center gap-6 py-20">
+    <h1 class="text-[clamp(2.5rem,6vw,4rem)] leading-[1.04]">We could not find that page.</h1>
+    <p class="max-w-xl text-lg text-muted-foreground">It may have moved. The services and booking pages are good places to start.</p>
+    <div class="flex flex-wrap gap-3">
+      <ButtonLink href="/services" size="cta">See services</ButtonLink>
+      <ButtonLink href="/book" size="cta" variant="outline">Book an appointment</ButtonLink>
+    </div>
+  </section>
+</Base>

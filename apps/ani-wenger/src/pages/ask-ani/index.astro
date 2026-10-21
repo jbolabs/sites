@@ -1,0 +1,71 @@
+---
+/** Every Ask Ani answer, filterable by topic; the `ask-ani` page entry holds the title, intro, and sections below. */
+import { getSeoMeta } from "emdash";
+
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import PageHeader from "@/components/page-header.astro";
+import QuestionCard from "@/components/question-card.astro";
+import Base from "@/layouts/base.astro";
+import { getPage, getQuestions } from "@/lib/content";
+import { TOPIC_LABELS, TOPIC_ORDER } from "@/lib/labels";
+
+const [{ cacheHint, entry: page }, list] = await Promise.all([getPage("ask-ani"), getQuestions()]);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+  Astro.cache.set(list.cacheHint);
+}
+const topics = TOPIC_ORDER.filter((topic) => list.questions.some((question) => question.data.topic === topic));
+const title = page?.data.title ?? "Ask Ani";
+const seo = page ? getSeoMeta(page, { defaultDescription: page.data.intro, path: "/ask-ani", siteUrl: Astro.url.origin }) : undefined;
+---
+
+<Base
+  title={seo?.title ?? title}
+  description={seo?.description}
+  image={seo?.ogImage}
+  robots={seo?.robots}
+  content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
+>
+  <PageHeader title={title} intro={page?.data.intro} />
+  <section class="container-page py-16 sm:py-20" data-topic-filter>
+    {topics.length > 1 && (
+      <div role="group" aria-label="Filter by topic" class="mb-10 flex flex-wrap gap-2">
+        <a href="/ask-ani" data-topic="" aria-current="true" class="rounded-full border border-espresso/20 px-4 py-2 text-ui hover:border-espresso aria-[current=true]:border-espresso aria-[current=true]:bg-espresso aria-[current=true]:text-ivory">All topics</a>
+        {topics.map((topic) => (
+          <a href={`/ask-ani?topic=${topic}`} data-topic={topic} class="rounded-full border border-espresso/20 px-4 py-2 text-ui hover:border-espresso aria-[current=true]:border-espresso aria-[current=true]:bg-espresso aria-[current=true]:text-ivory">{TOPIC_LABELS[topic]}</a>
+        ))}
+      </div>
+    )}
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {list.questions.map((question) => (
+        <div data-question-topic={question.data.topic} class="contents [&[hidden]]:hidden">
+          <QuestionCard question={question} />
+        </div>
+      ))}
+    </div>
+  </section>
+  {page && <div {...page.edit.content}><PageBlocks value={page.data.content} /></div>}
+  <script>
+    // Topic chips filter in place; the links still work without JavaScript (the page shows every answer).
+    const root = document.querySelector<HTMLElement>("[data-topic-filter]");
+    const apply = (topic: string) => {
+      for (const chip of root?.querySelectorAll<HTMLAnchorElement>("[data-topic]") ?? []) {
+        chip.setAttribute("aria-current", String(chip.dataset.topic === topic));
+      }
+      for (const card of root?.querySelectorAll<HTMLElement>("[data-question-topic]") ?? []) {
+        card.hidden = topic !== "" && card.dataset.questionTopic !== topic;
+      }
+    };
+    apply(new URL(location.href).searchParams.get("topic") ?? "");
+    root?.addEventListener("click", (event) => {
+      const chip = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("[data-topic]") : null;
+      if (chip === null) {
+        return;
+      }
+      event.preventDefault();
+      const topic = chip.dataset.topic ?? "";
+      history.replaceState(null, "", topic === "" ? "/ask-ani" : `/ask-ani?topic=${topic}`);
+      apply(topic);
+    });
+  </script>
+</Base>

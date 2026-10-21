@@ -1,0 +1,102 @@
+---
+import { decodeSlug, getSeoMeta } from "emdash";
+import { Image, PortableText } from "emdash/ui";
+
+import Breadcrumbs from "@/components/breadcrumbs.astro";
+import ButtonLink from "@/components/button-link.astro";
+import ServiceRow from "@/components/service-row.astro";
+import Base from "@/layouts/base.astro";
+import { getServices, getService } from "@/lib/content";
+import { CATEGORY_LABELS, formatDuration, formatPrice } from "@/lib/labels";
+
+const slug = decodeSlug(Astro.params.slug);
+if (!slug) {
+  return Astro.rewrite("/404");
+}
+const [{ cacheHint, entry: service }, list] = await Promise.all([getService(slug), getServices()]);
+if (!service) {
+  return Astro.rewrite("/404");
+}
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+  Astro.cache.set(list.cacheHint);
+}
+const { data } = service;
+const seo = getSeoMeta(service, { defaultDescription: data.summary, path: `/services/${slug}`, siteUrl: Astro.url.origin });
+const price = formatPrice(data.price, data.price_from);
+const bookable = data.bookable !== false;
+const related = list.services
+  .filter((other) => other.data.category === data.category && other.id !== service.id)
+  .slice(0, 3);
+const origin = Astro.site?.origin ?? Astro.url.origin;
+interface ServiceJsonLd {
+  readonly "@context": string;
+  readonly "@type": string;
+  readonly description: string;
+  readonly name: string;
+  readonly provider: { readonly "@id": string };
+  readonly serviceType: string;
+  offers?: { readonly "@type": string; readonly price: string; readonly priceCurrency: string };
+}
+const serviceData: ServiceJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  description: data.summary,
+  name: data.title,
+  provider: { "@id": `${origin}/#business` },
+  serviceType: CATEGORY_LABELS[data.category],
+};
+if (data.price !== undefined && data.price > 0) {
+  serviceData.offers = { "@type": "Offer", price: String(data.price), priceCurrency: "USD" };
+}
+const jsonLd = JSON.stringify(serviceData);
+---
+
+<Base
+  title={seo.title}
+  description={seo.description}
+  image={seo.ogImage}
+  canonical={seo.canonical}
+  robots={seo.robots}
+  content={{ collection: "services", id: data.id, slug: service.id }}
+>
+  <section class="border-b border-border bg-linen">
+    <div class="container-page grid gap-10 py-12 sm:py-16 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:gap-16">
+      <div>
+        <Breadcrumbs crumbs={[{ label: "Home", path: "/" }, { label: "Services", path: "/services" }, { label: data.title, path: `/services/${slug}` }]} />
+        <h1 class="mt-6 text-[clamp(2.5rem,6vw,4.25rem)] leading-[1.02]">{data.title}</h1>
+        <p class="mt-5 max-w-xl text-lg leading-relaxed text-foreground/75 sm:text-xl">{data.summary}</p>
+        <dl class="mt-8 flex flex-wrap gap-x-10 gap-y-4">
+          <div><dt class="text-sm text-muted-foreground">Time</dt><dd class="text-lg text-espresso-deep">{formatDuration(data.duration_minutes)}</dd></div>
+          {price && <div><dt class="text-sm text-muted-foreground">Price</dt><dd class="text-lg text-espresso-deep">{price}</dd></div>}
+          <div><dt class="text-sm text-muted-foreground">Category</dt><dd class="text-lg text-espresso-deep">{CATEGORY_LABELS[data.category]}</dd></div>
+        </dl>
+        <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+          {bookable ? (
+            <ButtonLink href={`/book?service=${service.id}`} size="hero">Book this service</ButtonLink>
+          ) : (
+            <ButtonLink href="/contact" size="hero">Ask about this service</ButtonLink>
+          )}
+          <ButtonLink href="/services" size="hero" variant="outline">All services</ButtonLink>
+        </div>
+      </div>
+      {data.image && (
+        <Image image={data.image} priority sizes="(min-width: 1024px) 40vw, 100vw" class="aspect-[4/5] w-full rounded-[2rem] object-cover sm:aspect-[5/4] lg:aspect-[4/5]" />
+      )}
+    </div>
+  </section>
+  {data.body && data.body.length > 0 && (
+    <section class="container-page py-16 sm:py-20" {...service.edit.body}>
+      <div class="prose-site"><PortableText value={data.body} /></div>
+    </section>
+  )}
+  {related.length > 0 && (
+    <section class="container-page pb-20">
+      <h2 class="text-3xl">More {CATEGORY_LABELS[data.category].toLowerCase()}</h2>
+      <div class="mt-6 max-w-3xl border-b border-border">
+        {related.map((other) => <ServiceRow service={other} />)}
+      </div>
+    </section>
+  )}
+  <script type="application/ld+json" set:html={jsonLd} />
+</Base>

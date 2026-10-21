@@ -1,0 +1,46 @@
+---
+import { env } from "cloudflare:workers";
+import { getSeoMeta } from "emdash";
+
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import ContactForm from "@/components/islands/contact-form";
+import PageHeader from "@/components/page-header.astro";
+import Base from "@/layouts/base.astro";
+import { getPage } from "@/lib/content";
+import { telHref } from "@/lib/studio";
+import { site } from "../../site.config";
+
+const { cacheHint, entry: page } = await getPage("contact");
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+}
+const title = page?.data.title ?? "Contact";
+const seo = page ? getSeoMeta(page, { defaultDescription: page.data.intro, path: "/contact", siteUrl: Astro.url.origin }) : undefined;
+---
+
+<Base
+  title={seo?.title ?? title}
+  description={seo?.description}
+  image={seo?.ogImage}
+  robots={seo?.robots}
+  content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
+>
+  <PageHeader title={title} intro={page?.data.intro} />
+  <section class="container-page grid gap-12 py-14 sm:py-20 lg:grid-cols-[1.5fr_1fr]">
+    <ContactForm client:visible turnstileSiteKey={env.TURNSTILE_SITE_KEY} />
+    <aside class="space-y-6">
+      <div class="rounded-2xl bg-espresso-deep p-8 text-ivory/80">
+        <h2 class="text-2xl text-ivory">Prefer to book directly?</h2>
+        <p class="mt-3 leading-relaxed">Choose a service and a time online. You get a confirmation right away.</p>
+        <a href="/book" class="mt-5 inline-block font-medium text-champagne underline decoration-1 underline-offset-4 hover:text-ivory">Book an appointment</a>
+      </div>
+      <div class="space-y-2 px-1 leading-relaxed">
+        <h2 class="text-2xl">Call or text</h2>
+        <p><a href={telHref(site.phone)} class="text-lg text-espresso-deep hover:text-clay">{site.phone}</a></p>
+        <p><a href={`mailto:${site.business.email}`} class="break-all hover:text-clay">{site.business.email}</a></p>
+        <p class="pt-2 text-sm text-muted-foreground">Your details are used only to reply to you. See the <a href="/privacy" class="underline underline-offset-4">privacy notes</a>.</p>
+      </div>
+    </aside>
+  </section>
+  {page && <div {...page.edit.content}><PageBlocks value={page.data.content} /></div>}
+</Base>

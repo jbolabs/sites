@@ -1,0 +1,33 @@
+---
+/** Products marked Featured, read live from the collection. */
+import type { BlockComponentProps } from "emdash/ui";
+
+import ButtonLink from "@/components/button-link.astro";
+import ProductCard from "@/components/product-card.astro";
+import SectionHeading from "@/components/section-heading.astro";
+import { getProducts } from "@/lib/content";
+import type { PageContentProductsListBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentProductsListBlock>;
+
+const { value } = Astro.props;
+const { cacheHint, products } = await getProducts({ featured: true });
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+}
+---
+
+{products.length > 0 && (
+  <section class="py-20 sm:py-28">
+    <div class="container-page">
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <SectionHeading title={value.headline} intro={value.intro} />
+        {value.link_label && <ButtonLink href="/products" variant="outline" size="cta" class="self-start sm:self-auto">{value.link_label}</ButtonLink>}
+      </div>
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {products.map((product) => <ProductCard product={product} />)}
+      </div>
+      <p class="mt-6 text-sm text-muted-foreground">Some links earn a small commission at no cost to you.</p>
+    </div>
+  </section>
+)}

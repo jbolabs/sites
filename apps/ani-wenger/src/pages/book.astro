@@ -1,0 +1,73 @@
+---
+/** The booking flow; the `book` page entry holds the title, intro, and sections below. */
+import { env } from "cloudflare:workers";
+import { getSeoMeta } from "emdash";
+
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import BookingFlow from "@/components/islands/booking-flow";
+import PageHeader from "@/components/page-header.astro";
+import Base from "@/layouts/base.astro";
+import { getPage, getServices, getStudio } from "@/lib/content";
+import { toLocal } from "@/lib/booking/calendar";
+import { CATEGORY_LABELS, CATEGORY_ORDER } from "@/lib/labels";
+import { site } from "../../site.config";
+
+const [{ cacheHint, entry: page }, list, studio] = await Promise.all([getPage("book"), getServices(), getStudio()]);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+  Astro.cache.set(list.cacheHint);
+  Astro.cache.set(studio.cacheHint);
+}
+const services = CATEGORY_ORDER.flatMap((category) =>
+  list.services.flatMap((service) =>
+    service.data.category === category && service.data.bookable !== false
+      ? [
+          {
+            addOn: service.data.add_on === true,
+            asksForPhotos: service.data.ask_photos === true,
+            audience: service.data.audience,
+            bufferMinutes: service.data.buffer_minutes ?? 0,
+            category,
+            categoryLabel: CATEGORY_LABELS[category],
+            colorCorrection: service.data.color_correction === true,
+            durationMinutes: service.data.duration_minutes,
+            price: service.data.price ?? undefined,
+            priceFrom: service.data.price_from === true,
+            slug: service.id,
+            summary: service.data.summary,
+            title: service.data.title,
+          },
+        ]
+      : []
+  )
+);
+const title = page?.data.title ?? "Book an appointment";
+const seo = page ? getSeoMeta(page, { defaultDescription: page.data.intro, path: "/book", siteUrl: Astro.url.origin }) : undefined;
+const phone = studio.entry?.data.phone ?? site.phone;
+---
+
+<Base
+  title={seo?.title ?? title}
+  description={seo?.description}
+  image={seo?.ogImage}
+  robots={seo?.robots}
+  content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
+>
+  <PageHeader title={title} intro={page?.data.intro} />
+  <section class="container-page py-10 sm:py-20">
+    <BookingFlow
+      client:load
+      services={services}
+      initialService={Astro.url.searchParams.get("service") ?? undefined}
+      turnstileSiteKey={env.TURNSTILE_SITE_KEY}
+      timeZone={site.timeZone}
+      today={toLocal(new Date(), site.timeZone).date}
+      bookingNote={studio.entry?.data.booking_note ?? ""}
+      phone={phone}
+    />
+    <noscript>
+      <p class="mt-6 text-lg">Online booking needs JavaScript. Please call <a href={`tel:${phone}`} class="underline">{phone}</a> to book.</p>
+    </noscript>
+  </section>
+  {page && <div {...page.edit.content}><PageBlocks value={page.data.content} /></div>}
+</Base>
