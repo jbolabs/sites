@@ -52,9 +52,7 @@ export const siteAdminPlugin = (options: CmsAdminOptions): PluginDescriptor => {
     guide: options.guide ?? DEFAULT_GUIDE,
   };
   return {
-    ...(assistant && {
-      adminEntry: "@jakebodea/cloudflare-kit/emdash/admin/client",
-    }),
+    adminEntry: "@jakebodea/cloudflare-kit/emdash/admin/client",
     entrypoint: "@jakebodea/cloudflare-kit/emdash/admin/plugin",
     format: "native",
     id: SITE_ADMIN_PLUGIN_ID,

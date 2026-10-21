@@ -8,8 +8,10 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 
 import { AssistantChat } from "#assistant/assistant-chat.tsx";
+import { useAssistantViewport } from "#assistant/hooks/use-assistant-viewport.ts";
 import { useHeaderSlot } from "#assistant/hooks/use-header-slot.ts";
 import { usePathname } from "#assistant/hooks/use-location.ts";
+import { useMobileLayout } from "#assistant/hooks/use-mobile-layout.ts";
 import { useSidePane } from "#assistant/hooks/use-side-pane.ts";
 import { openEntryFromPath } from "#assistant/open-entry.ts";
 import { Button } from "#assistant/ui/button.tsx";
@@ -27,6 +29,8 @@ export const Assistant = ({
   readonly host: HTMLElement;
 }) => {
   const [open, setOpen] = useState(false);
+  const mobile = useMobileLayout();
+  useAssistantViewport(host, open && mobile);
   const slot = useHeaderSlot();
   const entry = openEntryFromPath(usePathname());
   useSidePane(open);
@@ -50,17 +54,19 @@ export const Assistant = ({
         )}
       <Sheet
         disablePointerDismissal
-        modal={false}
+        modal={mobile}
         onOpenChange={setOpen}
         open={open}
       >
         <SheetContent
           className="data-[side=right]:w-full data-[side=right]:sm:max-w-md"
           container={host}
-          // Straight to the message box, so the close button does not open wearing a focus ring.
-          initialFocus={() => host.querySelector("textarea")}
+          // Let phone users read first without immediately covering the panel with a keyboard.
+          initialFocus={() =>
+            host.querySelector(mobile ? "[data-slot=sheet-close]" : "textarea")
+          }
           showCloseButton={false}
-          showOverlay={false}
+          showOverlay={mobile}
         >
           <AssistantChat config={config} entry={entry} />
         </SheetContent>

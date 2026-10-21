@@ -32,6 +32,17 @@ describe(adminThemeCss, () => {
 });
 
 describe(injectAdminTheme, () => {
+  it("exposes phone safe areas while retaining the zoomable EmDash viewport", () => {
+    expect(
+      injectAdminTheme(
+        '<head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>',
+        "body{color:red}"
+      )
+    ).toBe(
+      '<head><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><style id="site-admin-theme">body{color:red}</style></head>'
+    );
+  });
+
   it("adds the stylesheet as the last element of <head>", () => {
     expect(
       injectAdminTheme(

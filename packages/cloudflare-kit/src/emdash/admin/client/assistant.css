@@ -65,9 +65,21 @@
 }
 
 /* Kumo caps every [role=dialog] at 100vw - 2rem on phones (unlayered); the side panel fills the screen there. */
-@media (max-width: 639px) {
+@media (max-width: 767px) {
   #site-assistant [data-slot="sheet-content"] {
+    width: 100%;
     max-width: none;
+    top: var(--site-assistant-top, 0px);
+    bottom: auto;
+    height: var(--site-assistant-height, 100dvh);
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    overscroll-behavior: contain;
+  }
+  :where(#site-assistant, [data-site-assistant-slot]) button {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
   }
 }
 
