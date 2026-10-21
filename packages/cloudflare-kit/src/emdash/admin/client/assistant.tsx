@@ -3,7 +3,6 @@
  * panel is non-modal, so the editor stays usable while the assistant works; on
  * desktop it is a rounded pane beside the page card (see `assistant.css`).
  */
-import { SparklesIcon } from "lucide-react";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -47,7 +46,6 @@ export const Assistant = ({
             size="sm"
             variant={open ? "secondary" : "ghost"}
           >
-            <SparklesIcon data-icon="inline-start" />
             Assistant
           </Button>,
           slot

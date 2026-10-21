@@ -1,7 +1,11 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "stream",
-  "globalDependencies": ["tsconfig.json", "packages/config/tsconfig.base.json"],
+  "globalDependencies": [
+    "tsconfig.json",
+    "packages/config/tsconfig.base.json",
+    "patches/**"
+  ],
   "tasks": {
     "typecheck": {
       "dependsOn": ["sync"],

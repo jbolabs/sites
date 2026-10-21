@@ -74,18 +74,6 @@ export const ADMIN_MOBILE_CSS = `
     content: "Menu";
     font-size: 14px;
   }
-  html[data-theme] header.sticky {
-    padding-inline: 0.75rem;
-  }
-  html[data-theme] header.sticky > div:last-child {
-    gap: 0.25rem;
-  }
-  /* Keep all actions available while allowing the top bar to wrap on very small screens. */
-  html[data-theme] header.sticky {
-    height: auto;
-    min-height: 58px;
-    flex-wrap: wrap;
-  }
   html[data-theme] [data-sidebar=sidebar][data-mobile=true] [data-sidebar=trigger] {
     width: auto;
     gap: 0.5rem;
@@ -94,20 +82,6 @@ export const ADMIN_MOBILE_CSS = `
   html[data-theme] [data-sidebar=sidebar][data-mobile=true] [data-sidebar=trigger]::after {
     content: "Close menu";
     font-size: 14px;
-  }
-}
-@media (max-width: 359px) {
-  html[data-theme] header.sticky {
-    padding-inline: 0.5rem;
-  }
-  /* Keep the top bar on one row; the link's text remains its accessible name. */
-  html[data-theme] header.sticky a[data-kumo-component=LinkButton] {
-    font-size: 0;
-    gap: 0;
-    padding-inline: 0.5rem;
-  }
-  html[data-theme] header.sticky a[data-kumo-component=LinkButton] svg {
-    margin-inline: 0;
   }
 }
 /* Capability-based: tablets with touch benefit too, regardless of viewport width. */
