@@ -1,5 +1,5 @@
 diff --git a/dist/index.js b/dist/index.js
-index 5ed5f0b7d992686b02e1008608009d65c2f061c4..78745a66fc144f8f77d76ddbcfdd577ec1b082c6 100644
+index 5ed5f0b7d992686b02e1008608009d65c2f061c4..d607acb7b383f27a5573b194dfc01d3fb050a390 100644
 --- a/dist/index.js
 +++ b/dist/index.js
 @@ -40548,11 +40548,11 @@ function SidebarNav({ manifest }) {
@@ -79,18 +79,27 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..78745a66fc144f8f77d76ddbcfdd577e
  			className: "flex items-center gap-2",
 +			"data-admin-header-actions": "",
  			children: [
- 				/* @__PURE__ */ jsxs(LinkButton, {
- 					variant: "ghost",
- 					size: "sm",
- 					href: "/",
- 					external: true,
+-				/* @__PURE__ */ jsxs(LinkButton, {
+-					variant: "ghost",
+-					size: "sm",
+-					href: "/",
+-					external: true,
 -					children: [/* @__PURE__ */ jsx(ArrowSquareOut, { className: "h-4 w-4 me-1" }), _t({
-+					children: [_t({
- 						id: "4/SFQS",
- 						message: "View Site"
- 					})]
- 				}),
+-						id: "4/SFQS",
+-						message: "View Site"
+-					})]
+-				}),
 -				/* @__PURE__ */ jsx(ThemeToggle, {}),
++				/* @__PURE__ */ jsx(LinkButton, {
++                    variant: "ghost",
++                    size: "sm",
++                    href: "/",
++                    external: true,
++                    "data-admin-icon-action": "",
++                    "aria-label": _t({ id: "4/SFQS", message: "View Site" }),
++                    title: _t({ id: "4/SFQS", message: "View Site" }),
++                    children: /* @__PURE__ */ jsx(ArrowSquareOut, { "aria-hidden": "true" })
++                }),
  				/* @__PURE__ */ jsxs(Popover, {
  					open: userMenuOpen,
  					onOpenChange: setUserMenuOpen,

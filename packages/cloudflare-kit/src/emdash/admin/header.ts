@@ -9,6 +9,16 @@ html[data-theme] [data-admin-header] {
 html[data-theme] [data-admin-header-actions] {
   gap: 0.375rem;
 }
+html[data-theme] [data-admin-header] [data-admin-icon-action] {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  justify-content: center;
+}
+html[data-theme] [data-admin-icon-action] svg {
+  width: 20px;
+  height: 20px;
+}
 html[data-theme] [data-admin-header] :is(button, a) {
   min-height: 44px;
   min-width: 44px;

@@ -3,6 +3,7 @@
  * panel is non-modal, so the editor stays usable while the assistant works; on
  * desktop it is a rounded pane beside the page card (see `assistant.css`).
  */
+import { SparklesIcon } from "lucide-react";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -40,13 +41,16 @@ export const Assistant = ({
         createPortal(
           <Button
             aria-expanded={open}
+            aria-label="Assistant"
+            data-admin-icon-action=""
             onClick={() => {
               setOpen((value) => !value);
             }}
-            size="sm"
+            size="icon"
+            title="Assistant"
             variant={open ? "secondary" : "ghost"}
           >
-            Assistant
+            <SparklesIcon aria-hidden="true" />
           </Button>,
           slot
         )}
