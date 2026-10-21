@@ -6,6 +6,7 @@ import {
   TURNSTILE_TEST_KEYS,
   WORKER_COMPATIBILITY,
   devPort,
+  isPullRequestStage,
   productionDeployRefusal,
   resolveStage,
   webAnalytics,
@@ -65,7 +66,7 @@ export default Alchemy.Stack(
     const emailFrom = studio.sender;
     writeBuildInputs(root, {
       contentDigest:
-        (dev || stage.stage.startsWith("pr-")) &&
+        (dev || isPullRequestStage(stage.stage)) &&
         process.env.CONTENT_MODE === "prod"
           ? publishedContentDigest(root, true)
           : "seed",
@@ -195,6 +196,8 @@ export default Alchemy.Stack(
       },
       name: stage.workerName,
       observability: siteObservability(stage),
+      // Client staging has only its branded hostname, including version URLs.
+      workersDev: stage.kind !== "staging" && stage.kind !== "client-preview",
     });
 
     return {

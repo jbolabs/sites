@@ -6,7 +6,7 @@
  * The browser resizes each photo and re-encodes it as JPEG, which also drops
  * location data, so the server only accepts small JPEGs. They live in their
  * own private R2 bucket (never the public media library) under random names;
- * like Ani's calendar feed, the address is the credential (ADR 5). The bucket
+ * like Ani's calendar feed, the address is the credential (ADR 8). The bucket
  * deletes them after a year.
  */
 import { Effect, Layer, Option, Schema } from "effect";

@@ -6,7 +6,7 @@
  * this row. Taking it is one atomic upsert that succeeds only when the row is
  * free or its holder has expired (a Worker that died mid-booking). The table
  * is created on first use, so every stage (and CI's local Worker) has it with
- * no migration step. See docs/adr/0005-appointment-booking.md.
+ * no migration step. See docs/adr/0008-appointment-booking.md.
  */
 import { Effect, Layer, Schedule, Schema } from "effect";
 

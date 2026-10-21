@@ -1,4 +1,4 @@
-# 5. Appointment booking: built on EmDash and D1, not a booking vendor
+# 8. Appointment booking: built on EmDash and D1, not a booking vendor
 
 - Status: proposed
 - Date: 2026-10-20

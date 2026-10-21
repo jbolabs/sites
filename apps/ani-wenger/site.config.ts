@@ -1,3 +1,5 @@
+import { studio } from "../../stacks/config.ts";
+
 /**
  * Everything that makes this site *this* site (as opposed to the template):
  * identity, domain, business facts for structured data, and contact routing.
@@ -56,7 +58,7 @@ export const site = {
   /**
    * Attached as a custom domain on the `prod` stage only. Unset until the zone is
    * on the Cloudflare account (attaching an unowned domain fails the deploy), so
-   * prod serves from workers.dev for now. aniwenger.com lapsed and was
+   * only staging deploys until then. aniwenger.com lapsed and was
    * re-registered by a domain reseller on 2025-10-29; it is not Ani's today.
    */
   domain: null,
@@ -70,10 +72,10 @@ export const site = {
   /**
    * Public base URL EmDash downloads seed images from when the stage cannot
    * serve them itself (local workerd: EmDash's SSRF guard refuses localhost).
-   * Deployed stages use their own `/_seed/media`.
+   * Deployed stages use their own `/_seed/media`. Staging is the site's
+   * persistent deployment until it has a production domain.
    */
-  localSeedMediaBase:
-    "https://ani-wenger-prod.jakebodea.workers.dev/_seed/media",
+  localSeedMediaBase: "https://ani-wenger-staging.jbolabs.com/_seed/media",
 
   name: "Ani Wenger",
 
@@ -82,9 +84,11 @@ export const site = {
 
   shortName: "Ani Wenger",
 
+  stagingBaseDomain: studio.domain,
+
   /** IANA zone the salon keeps its hours in; every booking time is wall-clock here. */
   timeZone: "America/Los_Angeles",
 
-  /** The Cloudflare account's workers.dev subdomain (non-prod stages live there). */
+  /** The Cloudflare account's workers.dev subdomain for developer previews. */
   workersSubdomain: "jakebodea",
 } as const;

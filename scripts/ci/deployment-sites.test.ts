@@ -53,6 +53,7 @@ describe(deploymentSites, () => {
     )(output);
     expect(planned.map(({ origin }) => origin).toSorted()).toStrictEqual([
       "https://access-electric-staging.jbolabs.com",
+      "https://ani-wenger-staging.jbolabs.com",
       "https://equityfast-staging.jbolabs.com",
       "https://ms-custom-homes-staging.jbolabs.com",
     ]);
