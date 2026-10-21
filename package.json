@@ -79,7 +79,8 @@
     "ci": "bun run check && turbo run typecheck test //#typecheck:root //#test:root",
     "proof": "bun packages/proof/src/cli.ts",
     "sync": "turbo run sync --output-logs=errors-only",
-    "check:markup": "bun packages/config/check-copy.ts && bun packages/config/check-style.ts && bun packages/config/check-scaffold.ts"
+    "check:markup": "bun packages/config/check-copy.ts && bun packages/config/check-style.ts && bun packages/config/check-scaffold.ts",
+    "verify:ci": "node scripts/ci/verify-ci.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
