@@ -26,7 +26,7 @@ env:
 jobs:
   affected:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     concurrency:
       # Unrelated labels must neither cancel preview validation nor skip the required check.
       group: affected-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
@@ -42,7 +42,7 @@ jobs:
       - uses: ./.github/actions/setup
       - name: Affected sites
         id: affected
-        # Sites to verify, and the subset whose Worker changed and so redeploys.
+        # Paths choose candidates; compare credential-free base/head builds to prune them.
         run: bun scripts/ci/affected.ts "$BASE" >> "$GITHUB_OUTPUT"
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -190,6 +190,14 @@ jobs:
       - name: Prepare published production content
         if: steps.policy.outputs.deploy == 'true' && steps.policy.outputs.content == 'prod'
         run: bun scripts/ci/prepare-content.ts --sites '${{ needs.check.outputs.deploy }}'
+      # Write before Alchemy: a failed deploy can still leave resources behind.
+      - name: Retain preview stack revisions for cleanup
+        if: steps.policy.outputs.deploy == 'true'
+        run: bun scripts/ci/preview-inventory.ts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          SITES: ${{ needs.check.outputs.deploy }}
       - name: Deploy affected sites
         if: steps.policy.outputs.deploy == 'true'
         env:
