@@ -2,13 +2,22 @@
  * Stage naming and per-stage origins, shared by every site's `alchemy.run.ts`
  * and the CI scripts so they agree on what a stage is called and where it lives.
  *
- * - `prod`: the live site on the custom domain, or on workers.dev until the site has one.
+ * - `prod`: the live site on its configured custom domain.
+ * - `staging`: the persistent client preview on the studio domain.
  * - `pr-<n>`: a pull request preview, destroyed when the PR closes.
  * - `dev-<worktree>`: a developer's `alchemy dev` stage (one per git worktree).
  * - anything else (for example `ae-preview`): a named, long-lived preview.
  */
 
-export type StageKind = "production" | "pull-request" | "development" | "named";
+const CLIENT_PREVIEW = "client-preview";
+
+export type StageKind =
+  | "production"
+  | "staging"
+  | typeof CLIENT_PREVIEW
+  | "pull-request"
+  | "development"
+  | "named";
 
 export interface SiteIdentity {
   /** Short kebab-case id; prefixes every Worker name (`<id>-<stage>`). */
@@ -16,11 +25,13 @@ export interface SiteIdentity {
   /**
    * Production hostname, attached as a custom domain on `prod` only. Leave it
    * unset until the zone is on the Cloudflare account: attaching a domain the
-   * account doesn't own fails the deploy, so prod serves from workers.dev instead.
+   * account doesn't own fails the deploy. Domainless sites deploy to staging only.
    */
   readonly domain: string | null;
-  /** The Cloudflare account's `workers.dev` subdomain, which non-prod stages are served from. */
+  /** The Cloudflare account's `workers.dev` subdomain for developer previews. */
   readonly workersSubdomain: string;
+  /** Studio-owned base domain for client staging, separate from the client's production domain. */
+  readonly stagingBaseDomain?: string;
 }
 
 export interface StageSettings {
@@ -31,17 +42,24 @@ export interface StageSettings {
   readonly workerName: string;
   /** Public origin visitors use for this stage. */
   readonly origin: string;
-  /** Custom domain to attach: the site's domain on `prod`, otherwise none. */
+  /** Custom hostname to attach for staging or production; other stages use workers.dev. */
   readonly domain: string | undefined;
 }
 
-const PULL_REQUEST_STAGE = /^pr-[1-9]\d*$/u;
+const PULL_REQUEST_STAGE = /^(?:client-)?pr-[1-9]\d*$/u;
+const CLIENT_PREVIEW_STAGE = /^client-pr-(?<pull>[1-9]\d*)$/u;
 const DEVELOPMENT_STAGE = /^dev-[a-z0-9-]+$/u;
 const STAGE_NAME = /^[a-z][a-z0-9-]{0,30}$/u;
 
 export const stageKind = (stage: string): StageKind => {
   if (stage === "prod") {
     return "production";
+  }
+  if (stage === "staging") {
+    return "staging";
+  }
+  if (CLIENT_PREVIEW_STAGE.test(stage)) {
+    return CLIENT_PREVIEW;
   }
   if (PULL_REQUEST_STAGE.test(stage)) {
     return "pull-request";
@@ -64,7 +82,24 @@ export const resolveStage = (
   const kind = stageKind(stage);
   const production = kind === "production";
   const workerName = `${site.id}-${stage}`;
-  const domain = production && site.domain !== null ? site.domain : undefined;
+  if (
+    (kind === "staging" || kind === CLIENT_PREVIEW) &&
+    (site.stagingBaseDomain === undefined || site.stagingBaseDomain === "")
+  ) {
+    throw new Error(
+      "Branded previews require a studio-owned stagingBaseDomain."
+    );
+  }
+  const productionDomain =
+    production && site.domain !== null ? site.domain : undefined;
+  const brandedName =
+    kind === CLIENT_PREVIEW
+      ? `${site.id}-preview-${CLIENT_PREVIEW_STAGE.exec(stage)?.groups?.pull}`
+      : workerName;
+  const domain =
+    kind === "staging" || kind === CLIENT_PREVIEW
+      ? `${brandedName}.${site.stagingBaseDomain}`
+      : productionDomain;
   return {
     domain,
     kind,
@@ -99,6 +134,9 @@ export const productionDeployRefusal = (
 ): string | undefined => {
   if (!settings.production) {
     return undefined;
+  }
+  if (settings.domain === undefined) {
+    return "Refusing to deploy prod without a production domain. Use staging instead.";
   }
   if (env.CI === "true" || env.ALLOW_PROD_DEPLOY === "1") {
     return undefined;

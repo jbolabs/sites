@@ -6,6 +6,10 @@ import { fileURLToPath } from "node:url";
 import { distilledCloudflare } from "@alchemy.run/frontend-frameworks/astro/cloudflare";
 import react from "@astrojs/react";
 import { d1, r2 } from "@emdash-cms/cloudflare";
+import {
+  WORKER_COMPATIBILITY,
+  readBuildInputs,
+} from "@jakebodea/cloudflare-kit/astro/build-inputs";
 import { ssrPrebundle } from "@jakebodea/cloudflare-kit/astro/ssr-prebundle";
 import {
   adminBranding,
@@ -19,10 +23,6 @@ import { emailPlugin } from "@jakebodea/cloudflare-kit/emdash/email-plugin";
 import { siteOwner } from "@jakebodea/cloudflare-kit/emdash/owner-integration";
 import { publishedContent } from "@jakebodea/cloudflare-kit/emdash/published-integration";
 import { seedMedia } from "@jakebodea/cloudflare-kit/emdash/seed-media";
-import {
-  WORKER_COMPATIBILITY,
-  readBuildInputs,
-} from "@jakebodea/cloudflare-kit/infra";
 import tailwindcss from "@tailwindcss/vite";
 import type { AstroUserConfig } from "astro";
 import { defineConfig, fontProviders } from "astro/config";

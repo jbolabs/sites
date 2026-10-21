@@ -39,4 +39,12 @@ describe(secretSource, () => {
       "prod-project-id"
     );
   });
+
+  it("never reads Infisical for a client PR preview, including from a shell", () => {
+    expect(secretSource("client-pr-123", projects, false)).toBeUndefined();
+    expect(secretSource("prod", projects, true)).toStrictEqual({
+      environment: "prod",
+      project: "prod-project-id",
+    });
+  });
 });
