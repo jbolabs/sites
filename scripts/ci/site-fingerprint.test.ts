@@ -13,6 +13,7 @@ import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
 import {
+  configurationSourceInputs,
   deployableFiles,
   deploymentResolutions,
   fingerprintFiles,
@@ -286,6 +287,20 @@ describe("registered runtime coverage", () => {
         'export const descriptor = {["entrypoint"]:"@jakebodea/cloudflare-kit/runtime"}; export default () => "DELIVERY_V2";'
       );
       expect(read()).toContain('"DELIVERY_V2"');
+      writeFileSync(
+        plugin,
+        'export const descriptor={format:"native"};descriptor.entrypoint="@jakebodea/cloudflare-kit/runtime";export default()=>"DELIVERY_V3";'
+      );
+      expect(read).toThrow(
+        "Unsupported runtime registration; retaining candidate"
+      );
+      writeFileSync(
+        plugin,
+        'export const descriptor={format:"native"};Reflect.set(descriptor,"entrypoint","@jakebodea/cloudflare-kit/runtime");export default()=>"DELIVERY_V4";'
+      );
+      expect(read).toThrow(
+        "Unsupported runtime registration; retaining candidate"
+      );
     } finally {
       rmSync(root, { force: true, recursive: true });
     }
@@ -364,7 +379,7 @@ describe("normalization safety", () => {
       registeredEntrypoints(
         'const plugin = {format:"native", [unknown]:"runtime"};'
       )
-    ).toThrow("Cannot resolve computed runtime registration");
+    ).toThrow("Unsupported runtime registration; retaining candidate");
   });
 });
 
@@ -562,5 +577,44 @@ describe("authored decoding uncertainty", () => {
         ]
       )
     ).toThrow("Authored scope token; retaining candidate");
+  });
+});
+
+describe("closed runtime registration boundary", () => {
+  it("retains candidates for assignments and reflective writes", () => {
+    expect(() =>
+      registeredEntrypoints('descriptor.entrypoint="./handler";')
+    ).toThrow("Unsupported runtime registration; retaining candidate");
+    expect(() =>
+      registeredEntrypoints('descriptor["entrypoint"]="./handler";')
+    ).toThrow("Unsupported runtime registration; retaining candidate");
+    expect(() =>
+      registeredEntrypoints('Reflect.set(descriptor,"entrypoint","./handler");')
+    ).toThrow("Unsupported runtime registration; retaining candidate");
+  });
+});
+
+describe(configurationSourceInputs, () => {
+  it("retains whole source including exports omitted from generated config code", () => {
+    expect(
+      configurationSourceInputs(
+        '{"sources":["packages/handler.ts"],"sourcesContent":["hello"]}',
+        process.cwd()
+      )
+    ).toStrictEqual([
+      [
+        "packages/handler.ts",
+        "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+      ],
+    ]);
+  });
+
+  it("rejects incomplete source maps", () => {
+    expect(() =>
+      configurationSourceInputs(
+        '{"sources":["packages/handler.ts"],"sourcesContent":[]}',
+        process.cwd()
+      )
+    ).toThrow("Incomplete configuration source map");
   });
 });

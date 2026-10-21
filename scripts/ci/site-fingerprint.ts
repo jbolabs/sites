@@ -654,6 +654,75 @@ export const deploymentResolutions = (
  * packages stay external and their exact lock resolutions are fingerprinted.
  * This covers stage-only branches (e.g. email) absent from the verification build.
  */
+const registrationKey = (node: ts.Node): boolean => {
+  const named =
+    (ts.isIdentifier(node) || ts.isStringLiteralLike(node)) &&
+    (node.text === "entrypoint" || /["']entrypoint["']\s*:/u.test(node.text));
+  if (!named) {
+    return false;
+  }
+  const property = ts.isComputedPropertyName(node.parent)
+    ? node.parent.parent
+    : node.parent;
+  return (
+    !ts.isPropertyAssignment(property) ||
+    propertyName(property.name) !== "entrypoint"
+  );
+};
+
+const objectEntrypoints = (
+  node: ts.ObjectLiteralExpression,
+  runtimeModule: boolean
+): readonly string[] => {
+  const entries: string[] = [];
+  const names = new Set(
+    node.properties.flatMap((property) =>
+      property.name === undefined ? [] : (propertyName(property.name) ?? [])
+    )
+  );
+  const native = node.properties.some(
+    (property) =>
+      ts.isPropertyAssignment(property) &&
+      propertyName(property.name) === "format" &&
+      ts.isStringLiteral(property.initializer) &&
+      property.initializer.text === "native"
+  );
+  if (native && !names.has("entrypoint")) {
+    throw new Error("Unsupported runtime registration; retaining candidate");
+  }
+  const plugin =
+    names.has("id") && (names.has("version") || names.has("capabilities"));
+  const descriptor = names.has("format") || names.has("pattern") || plugin;
+  for (const property of node.properties) {
+    const { name } = property;
+    const unknownName =
+      name !== undefined &&
+      ts.isComputedPropertyName(name) &&
+      propertyName(name) === undefined;
+    if (unknownName && (!runtimeModule || descriptor)) {
+      throw new Error("Cannot resolve computed runtime registration");
+    }
+    if (
+      property.name === undefined ||
+      propertyName(property.name) !== "entrypoint"
+    ) {
+      continue;
+    }
+    if (!ts.isPropertyAssignment(property)) {
+      throw new Error("Cannot resolve dynamic runtime entrypoint");
+    }
+    const value = property.initializer;
+    if (
+      !ts.isStringLiteral(value) &&
+      !ts.isNoSubstitutionTemplateLiteral(value)
+    ) {
+      throw new Error("Cannot resolve dynamic runtime entrypoint");
+    }
+    entries.push(value.text);
+  }
+  return entries;
+};
+
 export const registeredEntrypoints = (
   source: string,
   runtimeModule = false
@@ -667,42 +736,11 @@ export const registeredEntrypoints = (
   );
   const entries: string[] = [];
   const visit = (node: ts.Node) => {
+    if (registrationKey(node)) {
+      throw new Error("Unsupported runtime registration; retaining candidate");
+    }
     if (ts.isObjectLiteralExpression(node)) {
-      const names = new Set(
-        node.properties.flatMap((property) =>
-          property.name === undefined ? [] : (propertyName(property.name) ?? [])
-        )
-      );
-      const plugin =
-        names.has("id") && (names.has("version") || names.has("capabilities"));
-      const descriptor = names.has("format") || names.has("pattern") || plugin;
-      for (const property of node.properties) {
-        const { name } = property;
-        const unknownName =
-          name !== undefined &&
-          ts.isComputedPropertyName(name) &&
-          propertyName(name) === undefined;
-        if (unknownName && (!runtimeModule || descriptor)) {
-          throw new Error("Cannot resolve computed runtime registration");
-        }
-        if (
-          property.name === undefined ||
-          propertyName(property.name) !== "entrypoint"
-        ) {
-          continue;
-        }
-        if (!ts.isPropertyAssignment(property)) {
-          throw new Error("Cannot resolve dynamic runtime entrypoint");
-        }
-        const value = property.initializer;
-        if (
-          !ts.isStringLiteral(value) &&
-          !ts.isNoSubstitutionTemplateLiteral(value)
-        ) {
-          throw new Error("Cannot resolve dynamic runtime entrypoint");
-        }
-        entries.push(value.text);
-      }
+      entries.push(...objectEntrypoints(node, runtimeModule));
     }
     ts.forEachChild(node, visit);
   };
@@ -710,10 +748,63 @@ export const registeredEntrypoints = (
   return entries;
 };
 
+export const configurationSourceInputs = (
+  source: string,
+  root: string
+): readonly (readonly [string, string])[] => {
+  const map = Schema.decodeUnknownSync(
+    Schema.fromJsonString(
+      Schema.Struct({
+        sources: Schema.Array(Schema.String),
+        sourcesContent: Schema.Array(Schema.String),
+      })
+    )
+  )(source);
+  if (map.sources.length !== map.sourcesContent.length) {
+    throw new Error("Incomplete configuration source map");
+  }
+  return map.sources.map((name, index) => {
+    const absolute = path.resolve(realpathSync(process.cwd()), name);
+    const relative = path.relative(root, absolute);
+    if (relative.startsWith("..") || path.isAbsolute(relative)) {
+      throw new Error("Unknown configuration source location");
+    }
+    return [relative, digest(map.sourcesContent[index] ?? "")] as const;
+  });
+};
+
+const configurationOutputs = async (
+  outputs: readonly {
+    readonly kind: string;
+    readonly text: () => Promise<string>;
+  }[],
+  root: string
+) => {
+  const sources: string[] = [];
+  const sourceInputs = new Map<string, string>();
+  let sourceMaps = 0;
+  for (const output of outputs) {
+    const source = await output.text();
+    if (output.kind === "sourcemap") {
+      sourceMaps += 1;
+      for (const [name, hash] of configurationSourceInputs(source, root)) {
+        sourceInputs.set(name, hash);
+      }
+    } else {
+      sources.push(source.replaceAll(root, "<checkout>"));
+    }
+  }
+  if (sourceMaps !== sources.length || sourceInputs.size === 0) {
+    throw new Error("Incomplete configuration source maps");
+  }
+  return { sourceInputs, sources };
+};
+
 export const configuration = async (directory: string, site: string) => {
   const root = realpathSync(directory);
   const imports = new Set<string>();
   const assets = new Map<string, FingerprintFile>();
+  let sourceInputs = new Map<string, string>();
   const entrypoints = [
     path.join(root, "apps", site, "alchemy.run.ts"),
     path.join(root, "apps", site, "astro.config.ts"),
@@ -752,6 +843,7 @@ export const configuration = async (directory: string, site: string) => {
           },
         },
       ],
+      sourcemap: "external",
       target: "bun",
     });
   const entries = new Set(entrypoints);
@@ -766,12 +858,10 @@ export const configuration = async (directory: string, site: string) => {
         "Cannot fingerprint deployment configuration"
       );
     }
-    sources = await Promise.all(
-      result.outputs.map(async (output) => {
-        const source = await output.text();
-        return source.replaceAll(root, "<checkout>");
-      })
-    );
+    ({ sources, sourceInputs } = await configurationOutputs(
+      result.outputs,
+      root
+    ));
     const previous = entries.size;
     for (const source of sources) {
       for (const specifier of registeredEntrypoints(source, round > 0)) {
@@ -800,6 +890,11 @@ export const configuration = async (directory: string, site: string) => {
     resolutions: deploymentResolutions(decodeEntries(lock.packages), [
       ...imports,
     ]),
+    // Keep complete source of used config modules: registration factories may
+    // tree-shake their own production-only handlers from the config JS bundle.
+    sourceInputs: [...sourceInputs].toSorted(([left], [right]) =>
+      left.localeCompare(right)
+    ),
     sources,
   });
 };
