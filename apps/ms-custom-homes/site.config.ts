@@ -1,3 +1,5 @@
+import { studio } from "../../stacks/config.ts";
+
 /**
  * Everything that makes this site *this* site (as opposed to the template):
  * identity, domain, business facts for structured data, and contact routing.
@@ -45,7 +47,7 @@ export const site = {
   /**
    * Attached as a custom domain on the `prod` stage only. Unset until the zone is
    * on the Cloudflare account (attaching an unowned domain fails the deploy), so
-   * prod serves from workers.dev for now. Intended domain: mscustomhomesinc.net.
+   * only staging deploys until configured. Intended domain: mscustomhomesinc.net.
    */
   domain: null,
 
@@ -70,6 +72,8 @@ export const site = {
 
   shortName: "MS Custom Homes",
 
-  /** The Cloudflare account's workers.dev subdomain (non-prod stages live there). */
+  stagingBaseDomain: studio.domain,
+
+  /** The Cloudflare account's workers.dev subdomain for developer previews. */
   workersSubdomain: "jakebodea",
 } as const;
