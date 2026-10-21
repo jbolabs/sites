@@ -1,8 +1,57 @@
 diff --git a/dist/index.js b/dist/index.js
-index 5ed5f0b7d992686b02e1008608009d65c2f061c4..8f3b7ca31a45222b10c7ab245b224ec6e3e070ee 100644
+index 5ed5f0b7d992686b02e1008608009d65c2f061c4..7a65ca57cb61dfce342160bfe4cab001cdeee016 100644
 --- a/dist/index.js
 +++ b/dist/index.js
-@@ -62140,13 +62140,13 @@ function ThemeToggle() {
+@@ -40549,10 +40549,10 @@ function SidebarNav({ manifest }) {
+ 		}),
+ 		children: [
+-			/* @__PURE__ */ jsx(KumoSidebar.Header, {
++			/* @__PURE__ */ jsxs(KumoSidebar.Header, {
+-				className: "px-[11px] transition-[padding] duration-(--sidebar-animation-duration) motion-reduce:transition-none group-not-data-[state=collapsed]/sidebar:px-3.5",
+-				children: /* @__PURE__ */ jsxs(Link$2, {
++				className: "admin-sidebar-header",
++				children: [/* @__PURE__ */ jsx(KumoSidebar.Trigger, {}), /* @__PURE__ */ jsxs(Link$2, {
+ 					to: "/",
+-					className: "flex w-[calc(var(--sidebar-width)-1.75rem)] shrink-0 items-center gap-2 overflow-hidden py-1 ps-2.5 group-data-[state=collapsed]/sidebar:-translate-x-[3px] rtl:group-data-[state=collapsed]/sidebar:translate-x-[3px]",
++					className: "admin-sidebar-brand",
+ 					children: [/* @__PURE__ */ jsx(BrandIcon, {
+ 						logoUrl: manifest.admin?.logo,
+ 						siteName: manifest.admin?.siteName,
+@@ -40563,12 +40563,12 @@ function SidebarNav({ manifest }) {
+ 						children: /* @__PURE__ */ jsx("span", {
+ 							className: "min-w-0 overflow-hidden",
+ 							children: /* @__PURE__ */ jsx("span", {
+-								className: "block w-[calc(var(--sidebar-width)-4.5rem)] truncate font-semibold",
++								className: "block truncate font-semibold",
+ 								children: manifest.admin?.siteName || "EmDash"
+ 							})
+ 						})
+ 					})]
+-				})
++				})]
+ 			}),
+ 			/* @__PURE__ */ jsxs(KumoSidebar.Content, { children: [
+ 				/* @__PURE__ */ jsx(KumoSidebar.Group, {
+@@ -40612,17 +40612,7 @@ function SidebarNav({ manifest }) {
+ 					message: "Plugins"
+ 				}) }), /* @__PURE__ */ jsx(KumoSidebar.Menu, { children: renderNavItems(visiblePlugins) })] })
+ 			] }),
+-			/* @__PURE__ */ jsxs(KumoSidebar.Footer, {
+-				className: "gap-0",
+-				children: [/* @__PURE__ */ jsx(KumoSidebar.Trigger, { className: "rtl:rotate-180" }), /* @__PURE__ */ jsx("div", {
+-					className: "min-w-0 flex-1 overflow-hidden",
+-					children: /* @__PURE__ */ jsx("p", {
+-						"data-testid": "admin-version",
+-						className: "w-40 overflow-hidden truncate ps-2 text-[11px] text-kumo-subtle",
+-						children: formatAdminVersion(manifest.version, manifest.commit, manifest.admin?.footerLabel)
+-					})
+-				})]
+-			})
++			/* @__PURE__ */ jsx(KumoSidebar.ResizeHandle, {})
+ 		]
+ 	});
+ }
+@@ -62140,13 +62130,13 @@ function ThemeToggle() {
  	});
  	return /* @__PURE__ */ jsxs(Button, {
  		variant: "ghost",
@@ -19,7 +68,7 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..8f3b7ca31a45222b10c7ab245b224ec6
  			children: label
  		})]
  	});
-@@ -62180,21 +62180,22 @@ function Header() {
+@@ -62180,21 +62170,22 @@ function Header() {
  	});
  	const initials = ((user?.name || user?.email || "U")[0] ?? "U").toUpperCase();
  	return /* @__PURE__ */ jsxs("header", {
@@ -44,7 +93,7 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..8f3b7ca31a45222b10c7ab245b224ec6
  				/* @__PURE__ */ jsxs(Popover, {
  					open: userMenuOpen,
  					onOpenChange: setUserMenuOpen,
-@@ -62204,6 +62205,9 @@ function Header() {
+@@ -62204,6 +62195,9 @@ function Header() {
  							variant: "ghost",
  							size: "sm",
  							className: "gap-2",
@@ -54,7 +103,7 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..8f3b7ca31a45222b10c7ab245b224ec6
  							children: [user?.avatarUrl ? /* @__PURE__ */ jsx("img", {
  								src: user.avatarUrl,
  								alt: "",
-@@ -62211,9 +62215,6 @@ function Header() {
+@@ -62211,9 +62205,6 @@ function Header() {
  							}) : /* @__PURE__ */ jsx("div", {
  								className: "h-5 w-5 rounded-full bg-kumo-brand/10 flex items-center justify-center text-[10px] font-medium",
  								children: initials
@@ -64,7 +113,7 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..8f3b7ca31a45222b10c7ab245b224ec6
  							})]
  						})
  					}), /* @__PURE__ */ jsxs(Popover.Content, {
-@@ -62233,6 +62234,7 @@ function Header() {
+@@ -62233,6 +62224,7 @@ function Header() {
  							})]
  						}), /* @__PURE__ */ jsxs("div", {
  							className: "grid gap-1",
@@ -72,7 +121,7 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..8f3b7ca31a45222b10c7ab245b224ec6
  							children: [
  								/* @__PURE__ */ jsxs(Link$2, {
  									to: "/settings/security",
-@@ -62252,6 +62254,7 @@ function Header() {
+@@ -62252,6 +62244,7 @@ function Header() {
  										message: "Settings"
  									})]
  								}),
@@ -80,3 +129,14 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..8f3b7ca31a45222b10c7ab245b224ec6
  								/* @__PURE__ */ jsx("hr", { className: "my-1" }),
  								/* @__PURE__ */ jsxs("button", {
  									onClick: handleLogout,
+@@ -62548,6 +62541,10 @@ function Shell({ children, manifest }) {
+ 	}, [_t, user]);
+ 	return /* @__PURE__ */ jsxs(KumoSidebar.Provider, {
+ 		defaultOpen: true,
++		resizable: true,
++		defaultWidth: 260,
++		minWidth: 224,
++		maxWidth: 400,
+ 		side: sidebarSide,
+ 		style: {
+ 			"--sidebar-bg": "var(--color-kumo-elevated)",

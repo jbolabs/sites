@@ -22,9 +22,12 @@ export const installMobileNavigation = (): void => {
         : !collapsed;
       trigger.setAttribute("aria-expanded", String(expanded));
     }
-    nav
-      ?.querySelector("[data-sidebar=trigger]")
-      ?.setAttribute("aria-label", "Close menu");
+    const close = nav?.querySelector("[data-sidebar=trigger]");
+    close?.setAttribute("aria-label", "Close menu");
+    close?.setAttribute(
+      "aria-expanded",
+      String(nav?.dataset.state === "expanded")
+    );
   };
   // Kumo's trigger labels follow desktop collapse state, independently of the mobile drawer.
   const observer = new MutationObserver(syncLabels);

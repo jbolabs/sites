@@ -59,7 +59,7 @@ html[data-theme] [data-admin-theme-toggle] {
   }
 }
 @media (min-width: 768px) {
-  /* The desktop collapse control already lives in the sidebar footer. */
+  /* The desktop toggle stays in the sidebar header when collapsed. */
   html[data-theme] [data-admin-header] [data-sidebar=trigger] {
     display: none;
   }

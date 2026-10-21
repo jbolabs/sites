@@ -65,24 +65,6 @@ export const ADMIN_MOBILE_CSS = `
   html[data-theme] [data-sidebar=menu-button] {
     font-size: 15px;
   }
-  /* The menu remains recognizable without knowing the sidebar icon. */
-  html[data-theme] header [data-sidebar=trigger] {
-    width: auto;
-    gap: 0.375rem;
-  }
-  html[data-theme] header [data-sidebar=trigger]::after {
-    content: "Menu";
-    font-size: 14px;
-  }
-  html[data-theme] [data-sidebar=sidebar][data-mobile=true] [data-sidebar=trigger] {
-    width: auto;
-    gap: 0.5rem;
-    padding-inline: 0.75rem;
-  }
-  html[data-theme] [data-sidebar=sidebar][data-mobile=true] [data-sidebar=trigger]::after {
-    content: "Close menu";
-    font-size: 14px;
-  }
 }
 /* Capability-based: tablets with touch benefit too, regardless of viewport width. */
 @media (pointer: coarse) {
