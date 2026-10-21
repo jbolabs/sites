@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { rmSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 
@@ -7,11 +7,27 @@ import { listSites } from "@jakebodea/control-app/site";
 import { Predicate, Schema } from "effect";
 
 import { command } from "./command.ts";
+import { siteVerifyScript } from "./verify-script.ts";
 
 const root = path.resolve(import.meta.dirname, "../..");
 const [site, ...turboFlags] = process.argv.slice(2);
 if (site === undefined || !listSites(root).includes(site)) {
   throw new Error("Usage: bun run verify:ci <site> [turbo flags]");
+}
+// Turbo runs nothing, and reports success, for a package without the task's
+// script, so a site missing it would pass CI unverified.
+const SiteScripts = Schema.Struct({
+  scripts: Schema.Record(Schema.String, Schema.String),
+});
+const siteScripts = Schema.decodeUnknownSync(SiteScripts)(
+  JSON.parse(
+    readFileSync(path.join(root, "apps", site, "package.json"), "utf-8")
+  )
+).scripts;
+if (siteScripts["verify:ci"] !== siteVerifyScript(site)) {
+  throw new Error(
+    `apps/${site}/package.json needs "verify:ci": ${JSON.stringify(siteVerifyScript(site))}`
+  );
 }
 
 // Use the pinned LHCI's own discovery so we fingerprint the browser it audits.

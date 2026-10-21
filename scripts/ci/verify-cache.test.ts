@@ -1,10 +1,13 @@
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 
+import { listSites } from "@jakebodea/control-app/site";
 import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
 import { VERIFY_TOOLING_PATHS, affectedSites } from "./affected.ts";
+import { siteVerifyScript } from "./verify-script.ts";
 
 const root = path.resolve(import.meta.dirname, "../..");
 
@@ -98,5 +101,30 @@ describe("per-site verification cache", () => {
         ["access-electric", "equityfast"]
       )
     ).toStrictEqual({ deploy: [], verify: ["access-electric", "equityfast"] });
+  });
+});
+
+describe(siteVerifyScript, () => {
+  it("runs the cached local verification for exactly that site", () => {
+    expect(siteVerifyScript("ani-wenger")).toBe(
+      `node ../../scripts/ci/local-verify.ts --cached-task --sites '["ani-wenger"]'`
+    );
+  });
+
+  // Turbo silently skips a package without the script, so a new site would
+  // otherwise pass CI without being verified.
+  it("is defined by every site package", () => {
+    const scripts = listSites(root).map((site) => {
+      const manifest = Schema.decodeUnknownSync(
+        Schema.Struct({ scripts: Schema.Record(Schema.String, Schema.String) })
+      )(
+        JSON.parse(
+          readFileSync(path.join(root, "apps", site, "package.json"), "utf-8")
+        )
+      );
+      return [site, manifest.scripts["verify:ci"] === siteVerifyScript(site)];
+    });
+    expect(scripts.length).toBeGreaterThan(0);
+    expect(scripts.filter(([, ok]) => ok !== true)).toStrictEqual([]);
   });
 });
