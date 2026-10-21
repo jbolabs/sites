@@ -470,3 +470,48 @@ describe("authored scope collisions", () => {
     ).toThrow("Authored scope token; retaining candidate");
   });
 });
+
+describe("decoded authored scope literals", () => {
+  const css = [
+    {
+      bytes: Buffer.from("[data-astro-cid-abcdefgh]{color:red}"),
+      generated: true,
+      name: "client/_astro/page.PATHHASH.css",
+    },
+  ];
+
+  it("retains compiler-decoded Unicode in JSON responses", () => {
+    expect(() =>
+      deployableFiles(
+        [
+          'export default {fetch(){return Response.json({value:"<p data-astro-cid-abcdefgh>Hello</p>"})}}',
+        ],
+        css,
+        [
+          Buffer.from(
+            String.raw`export default {fetch(){return Response.json({value:"<p data-astro-cid-\u0061bcdefgh>Hello</p>"})}}`
+          ),
+        ]
+      )
+    ).toThrow("Authored scope token; retaining candidate");
+  });
+
+  it("retains decoded renderer-shaped props and folded literal concatenations", () => {
+    expect(() =>
+      deployableFiles(
+        ['renderComponent(null,null,null,{class:"astro-abcdefgh"});'],
+        css,
+        [
+          Buffer.from(
+            String.raw`renderComponent(null,null,null,{class:"astro-\u0061bcdefgh"});`
+          ),
+        ]
+      )
+    ).toThrow("Authored scope token; retaining candidate");
+    expect(() =>
+      deployableFiles(['const body="<p data-astro-cid-abcdefgh>";'], css, [
+        Buffer.from('const body="<p data-astro-" + "cid-abc" + "defgh>";'),
+      ])
+    ).toThrow("Authored scope token; retaining candidate");
+  });
+});

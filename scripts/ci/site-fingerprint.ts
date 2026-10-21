@@ -413,6 +413,33 @@ const scopePositions = (source: string): ReadonlySet<number> => {
   return positions;
 };
 
+const authoredScopeText = (bytes: Uint8Array): string => {
+  const raw = Buffer.from(bytes).toString("utf-8");
+  const file = ts.createSourceFile(
+    "input.tsx",
+    raw,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX
+  );
+  const literals: string[] = [];
+  const visit = (node: ts.Node) => {
+    if (
+      ts.isStringLiteralLike(node) ||
+      ts.isTemplateHead(node) ||
+      ts.isTemplateMiddle(node) ||
+      ts.isTemplateTail(node)
+    ) {
+      literals.push(node.text);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+  // Concatenated literals can be folded by the bundler. Joining conservatively
+  // also catches split spellings; unrelated adjacent literals may retain a site.
+  return `${raw}\n${literals.join("")}`;
+};
+
 /** Astro scopes and generated asset names depend on absolute installation paths.
  * Give scopes coherent identities in Worker traversal order. Give generated
  * assets identities by their content, retaining every byte and every reference.
@@ -437,9 +464,7 @@ export const deployableFiles = (
   // A scope present in authored input cannot safely be treated as compiler metadata.
   // This also protects unusual HTML/renderer syntax that resembles generated props.
   for (const bytes of authored) {
-    for (const match of Buffer.from(bytes)
-      .toString("utf-8")
-      .matchAll(ASTRO_SCOPE)) {
+    for (const match of authoredScopeText(bytes).matchAll(ASTRO_SCOPE)) {
       if (known.has(match.groups?.scope ?? "")) {
         throw new Error("Authored scope token; retaining candidate");
       }
@@ -795,7 +820,11 @@ export const sitePayload = async (
     { cwd: root, encoding: "utf-8" }
   )
     .split("\0")
-    .filter((file) => file !== "" && !file.includes(".test."))
+    .filter(
+      (file) =>
+        /\.(?:[cm]?[jt]sx?|astro|css|json|mdx?|html)$/u.test(file) &&
+        !file.includes(".test.")
+    )
     .map((file) => readFileSync(path.join(root, file)));
   return [
     ...deployableFiles(
