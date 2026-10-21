@@ -97,6 +97,9 @@ export const ADMIN_MOBILE_CSS = `
   }
 }
 @media (max-width: 359px) {
+  html[data-theme] header.sticky {
+    padding-inline: 0.5rem;
+  }
   /* Keep the top bar on one row; the link's text remains its accessible name. */
   html[data-theme] header.sticky a[data-kumo-component=LinkButton] {
     font-size: 0;
