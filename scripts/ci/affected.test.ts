@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { affectedSites, lockfileSites } from "./affected.ts";
+import { affectedSites, comparisonSites, lockfileSites } from "./affected.ts";
 
 const sites = ["access-electric", "ms-homes"];
 
@@ -140,5 +140,128 @@ describe(lockfileSites, () => {
       deploy: sites,
       verify: sites,
     });
+  });
+});
+
+describe("built-output pruning", () => {
+  it("prunes unused shared exports while keeping the site's changed output", () => {
+    expect(
+      affectedSites(
+        [
+          "packages/cloudflare-kit/src/server/index.ts",
+          "apps/access-electric/src/pages/index.astro",
+        ],
+        sites,
+        undefined,
+        {
+          base: { "access-electric": "worker-v1", "ms-homes": "same-worker" },
+          head: { "access-electric": "worker-v2", "ms-homes": "same-worker" },
+        }
+      )
+    ).toStrictEqual({
+      deploy: ["access-electric"],
+      verify: ["access-electric"],
+    });
+  });
+
+  it("re-verifies unchanged output when verification tooling changes", () => {
+    expect(
+      affectedSites(
+        [
+          "packages/cloudflare-kit/src/server/index.ts",
+          "packages/control-app/src/seo.ts",
+        ],
+        sites,
+        undefined,
+        {
+          base: { "access-electric": "same", "ms-homes": "same" },
+          head: { "access-electric": "same", "ms-homes": "same" },
+        }
+      )
+    ).toStrictEqual({ deploy: [], verify: ["access-electric", "ms-homes"] });
+  });
+
+  it("keeps all sites when shared runtime output changes", () => {
+    expect(
+      affectedSites(
+        ["packages/site-ui/src/mobile-menu.tsx"],
+        sites,
+        undefined,
+        {
+          base: { "access-electric": "old-a", "ms-homes": "old-b" },
+          head: { "access-electric": "new-a", "ms-homes": "new-b" },
+        }
+      )
+    ).toStrictEqual({
+      deploy: ["access-electric", "ms-homes"],
+      verify: ["access-electric", "ms-homes"],
+    });
+  });
+
+  it("fails closed for missing fingerprints and new sites; ignores deleted sites", () => {
+    expect(
+      affectedSites(
+        [
+          "packages/cloudflare-kit/src/server/index.ts",
+          "apps/deleted-site/alchemy.run.ts",
+        ],
+        sites,
+        undefined,
+        {
+          base: { "access-electric": "old" },
+          head: { "ms-homes": "new-site" },
+        }
+      )
+    ).toStrictEqual({
+      deploy: ["access-electric", "ms-homes"],
+      verify: ["access-electric", "ms-homes"],
+    });
+  });
+
+  it("does not add candidates from equal or changed fingerprints alone", () => {
+    expect(
+      affectedSites(
+        ["apps/access-electric/src/pages/index.astro"],
+        sites,
+        undefined,
+        {
+          base: { "access-electric": "same", "ms-homes": "old" },
+          head: { "access-electric": "same", "ms-homes": "new" },
+        }
+      )
+    ).toStrictEqual({ deploy: [], verify: [] });
+  });
+
+  it("includes shared stack changes and ignores site documentation", () => {
+    expect(
+      affectedSites(["stacks/config.ts", "apps/ms-homes/README.md"], sites)
+    ).toStrictEqual({
+      deploy: ["access-electric", "ms-homes"],
+      verify: ["access-electric", "ms-homes"],
+    });
+  });
+});
+
+describe(comparisonSites, () => {
+  const onBase = new Set(["access-electric", "ms-homes"]);
+
+  it("builds nothing to compare when only a site's own files changed", () => {
+    expect(
+      comparisonSites(
+        ["apps/access-electric/src/pages/index.astro"],
+        ["access-electric"],
+        onBase
+      )
+    ).toStrictEqual([]);
+  });
+
+  it("compares existing candidates when shared code changed, skipping new sites", () => {
+    expect(
+      comparisonSites(
+        ["packages/cloudflare-kit/src/server/index.ts"],
+        ["access-electric", "ani-wenger", "ms-homes"],
+        onBase
+      )
+    ).toStrictEqual(["access-electric", "ms-homes"]);
   });
 });

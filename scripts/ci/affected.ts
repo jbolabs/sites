@@ -5,23 +5,18 @@
  * - `verify`: sites whose required smoke, SEO and Lighthouse checks run.
  * - `deploy`: sites whose Worker could differ, so previews and prod redeploy them.
  *
- * A change inside `apps/<site>/` affects that site. Shared runtime code and
- * root config (packages, lockfile) affect every site, except a lockfile change
- * confined to sites' own workspace entries (adding a site, or a site taking a
- * catalog dependency another site already resolves), which affects only them.
- * The verification tooling re-verifies every site but deploys none. Tests,
- * docs and agent instructions affect none: tests run in `lint-test` and are
- * never bundled.
+ * Paths choose cheap candidates, then credential-free builds at the exact base
+ * and head prune sites whose Worker/assets and deployment inputs match. Unknown
+ * fingerprints fail closed. Verification tooling additionally checks every site.
  *
  *   bun scripts/ci/affected.ts <base-ref>     # prints `verify=[…]` and `deploy=[…]` lines
  */
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 
-import { listSites } from "@jakebodea/control-app/site";
 import { Schema } from "effect";
+
+import { compareRevisionFingerprints } from "./revision-build.ts";
 
 export interface Affected {
   readonly deploy: readonly string[];
@@ -30,7 +25,13 @@ export interface Affected {
 
 const SITE_PATH = /^apps\/(?<site>[^/]+)\//u;
 /** Never built into a Worker nor run by a site's verification. */
-const UNSHIPPED_PATHS = [/\.test\.tsx?$/u, /^packages\/proof\//u];
+const UNSHIPPED_PATHS = [
+  /\.test\.tsx?$/u,
+  /(?:^|\/)(?:README|CLAUDE|AGENTS)\.md$/u,
+  /^(?:docs|\.agents|\.claude)\//u,
+  /(?:^|\/)\.artifacts\//u,
+  /^packages\/proof\//u,
+];
 /** Checks every site (smoke, SEO, Lighthouse) but ships in none. */
 export const VERIFY_TOOLING_PATHS = [
   /^packages\/control-app\//u,
@@ -40,6 +41,11 @@ export const VERIFY_TOOLING_PATHS = [
 ];
 const SHARED_PATHS = [
   /^packages\//u,
+  /^stacks\//u,
+  /^patches\//u,
+  /^scripts\/ci\/(?:deploy|migrate|prepare-content)\.ts$/u,
+  // Exercise the real comparison when its implementation changes.
+  /^scripts\/ci\/(?:affected|revision-build|site-fingerprint)\.ts$/u,
   /^bun\.lock$/u,
   /^package\.json$/u,
   /^turbo\.json$/u,
@@ -106,7 +112,11 @@ export const affectedSites = (
   changedFiles: readonly string[],
   sites: readonly string[],
   /** From `lockfileSites`, when `bun.lock` changed only in sites' own entries. */
-  lockfileScope?: readonly string[]
+  lockfileScope?: readonly string[],
+  fingerprints?: {
+    readonly base: Readonly<Record<string, string | undefined>>;
+    readonly head: Readonly<Record<string, string | undefined>>;
+  }
 ): Affected => {
   const shipped = changedFiles
     .flatMap((file) =>
@@ -127,11 +137,34 @@ export const affectedSites = (
       return site === undefined ? [] : [site];
     })
   );
-  const deploy = runtime.some((file) => matchesAny(file, SHARED_PATHS))
+  const candidates = runtime.some((file) => matchesAny(file, SHARED_PATHS))
     ? [...sites]
     : sites.filter((site) => touched.has(site));
+  const deploy = candidates.filter((site) => {
+    const before = fingerprints?.base[site];
+    const after = fingerprints?.head[site];
+    return before === undefined || after === undefined || before !== after;
+  });
   return { deploy, verify: tooling.length > 0 ? [...sites] : deploy };
 };
+
+/**
+ * The sites worth a comparison build. Only a shared change can leave a site's
+ * output untouched; a change inside `apps/<site>/` ships anyway, so building
+ * it twice would only add a minute to the commonest kind of PR. New sites
+ * have no base to compare with.
+ */
+export const comparisonSites = (
+  changedFiles: readonly string[],
+  candidates: readonly string[],
+  baseSites: ReadonlySet<string>
+): readonly string[] =>
+  changedFiles.some(
+    (file) =>
+      matchesAny(file, SHARED_PATHS) && !matchesAny(file, UNSHIPPED_PATHS)
+  )
+    ? candidates.filter((site) => baseSites.has(site))
+    : [];
 
 /** `$GITHUB_OUTPUT` lines for the `affected` job. */
 const outputLines = ({ deploy, verify }: Affected) =>
@@ -150,64 +183,86 @@ const isCommit = (ref: string, cwd: string): boolean => {
   }
 };
 
-/** `lockfileSites` for `bun.lock` at `base` against the working tree's. */
+/** `lockfileSites` for `bun.lock` at `base` against `head`. */
 const baseLockfileSites = (
   base: string,
+  head: string,
   root: string,
   sites: readonly string[]
 ): readonly string[] | undefined => {
-  let before: string;
   try {
-    before = execFileSync("git", ["show", `${base}:bun.lock`], {
+    const before = execFileSync("git", ["show", `${base}:bun.lock`], {
       cwd: root,
       encoding: "utf-8",
       stdio: ["ignore", "pipe", "ignore"],
     });
+    const after = execFileSync("git", ["show", `${head}:bun.lock`], {
+      cwd: root,
+      encoding: "utf-8",
+    });
+    return lockfileSites(
+      decodeEntries(Bun.JSONC.parse(before)),
+      decodeEntries(Bun.JSONC.parse(after)),
+      sites
+    );
   } catch {
     return undefined;
   }
-  const after = readFileSync(path.join(root, "bun.lock"), "utf-8");
-  return lockfileSites(
-    decodeEntries(Bun.JSONC.parse(before)),
-    decodeEntries(Bun.JSONC.parse(after)),
-    sites
-  );
 };
 
+const sitesAt = (root: string, ref: string): readonly string[] =>
+  execFileSync("git", ["ls-tree", "-r", "--name-only", ref, "--", "apps"], {
+    cwd: root,
+    encoding: "utf-8",
+  })
+    .split("\n")
+    .flatMap(
+      (file) =>
+        /^apps\/(?<site>[^/]+)\/alchemy\.run\.ts$/u.exec(file)?.groups?.site ??
+        []
+    );
+
 if (import.meta.main) {
+  const started = performance.now();
   const base = process.argv[2] ?? "origin/main";
+  const head = process.argv[3] ?? "HEAD";
   const root = execFileSync("git", ["rev-parse", "--show-toplevel"], {
     encoding: "utf-8",
   }).trim();
-  const sites = listSites(root);
-  // A branch's first push (base 000…0) or a force-push leaves no base to diff against:
-  // treat everything as changed, as `turbo --affected` does.
+  const sites = sitesAt(root, head);
   if (isCommit(base, root)) {
-    const changed = execFileSync(
-      "git",
-      ["diff", "--name-only", `${base}...HEAD`],
-      {
-        cwd: root,
-        encoding: "utf-8",
-      }
-    )
+    // Exact endpoints also preserve push-to-main semantics: base=event.before,
+    // not merge-base. On PRs HEAD is GitHub's tested merge with the current base.
+    const changed = execFileSync("git", ["diff", "--name-only", base, head], {
+      cwd: root,
+      encoding: "utf-8",
+    })
       .split("\n")
       .filter((line) => line !== "");
-    process.stdout.write(
-      outputLines(
-        affectedSites(
-          changed,
-          sites,
-          changed.includes("bun.lock")
-            ? baseLockfileSites(base, root, sites)
-            : undefined
-        )
-      )
+    const scope = changed.includes("bun.lock")
+      ? baseLockfileSites(base, head, root, sites)
+      : undefined;
+    const candidates = affectedSites(changed, sites, scope);
+    const comparable = comparisonSites(
+      changed,
+      candidates.deploy,
+      new Set(sitesAt(root, base))
     );
+    const fingerprints = await compareRevisionFingerprints(
+      root,
+      base,
+      head,
+      comparable
+    );
+    const affected = affectedSites(changed, sites, scope, fingerprints);
+    process.stdout.write(outputLines(affected));
   } else {
     process.stderr.write(
       `base ${base} is not a commit here; every site is affected\n`
     );
     process.stdout.write(outputLines({ deploy: sites, verify: sites }));
   }
+  process.stderr.write(
+    `affected selection finished in ${((performance.now() - started) / 1000).toFixed(1)}s\n`
+  );
 }

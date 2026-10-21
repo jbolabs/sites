@@ -22,10 +22,11 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
     steps:
-      # Teardown runs main's code, never the closed PR's.
+      # Keep policy and orchestration on main; site stacks come from the pinned PR head.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
+          fetch-depth: 0
           persist-credentials: false
       - uses: ./.github/actions/setup
       # A label can be re-added or the PR reopened while cleanup waits for the stage lock.
@@ -35,6 +36,21 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
-      - name: Destroy preview stage (deploy.ts refuses prod)
+      # Same-repo gate, preview environment and stage lock match preview deploys.
+      # Main has no stack for a PR-only site. Pin the event SHA, never a mutable branch.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: steps.policy.outputs.destroy == 'true'
-        run: bun scripts/ci/deploy.ts --destroy --stage pr-${{ github.event.pull_request.number }} --sites all
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: .artifacts/cleanup-head
+          persist-credentials: false
+      - name: Install pinned PR stack dependencies
+        if: steps.policy.outputs.destroy == 'true'
+        working-directory: .artifacts/cleanup-head
+        run: bun install --frozen-lockfile
+      - name: Destroy preview stage (controller accepts only pr-N)
+        if: steps.policy.outputs.destroy == 'true'
+        run: bun scripts/ci/preview-cleanup.ts .artifacts/cleanup-head "$STAGE"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STAGE: pr-${{ github.event.pull_request.number }}
