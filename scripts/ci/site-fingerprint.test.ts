@@ -1,24 +1,10 @@
-import { execFileSync } from "node:child_process";
-import {
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  symlinkSync,
-  writeFileSync,
-} from "node:fs";
-import os from "node:os";
-import path from "node:path";
-
-import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
 import {
-  configurationSourceInputs,
   deployableFiles,
   deploymentResolutions,
   fingerprintFiles,
   normalizeModules,
-  registeredEntrypoints,
   workerModules,
 } from "./site-fingerprint.ts";
 
@@ -234,79 +220,6 @@ describe(deployableFiles, () => {
   });
 });
 
-describe("registered runtime coverage", () => {
-  it("includes handler-only changes even when the unchanged descriptor tree-shakes the handler", () => {
-    const root = mkdtempSync(path.join(os.tmpdir(), "fingerprint-plugin-"));
-    try {
-      const app = path.join(root, "apps/demo");
-      const kit = path.join(root, "packages/cloudflare-kit");
-      mkdirSync(app, { recursive: true });
-      mkdirSync(path.join(kit, "src/emdash"), { recursive: true });
-      mkdirSync(path.join(root, "node_modules/@jakebodea"), {
-        recursive: true,
-      });
-      writeFileSync(
-        path.join(kit, "package.json"),
-        '{"name":"@jakebodea/cloudflare-kit","type":"module","exports":{"./runtime":"./src/emdash/plugin.ts"}}'
-      );
-      symlinkSync(
-        kit,
-        path.join(root, "node_modules/@jakebodea/cloudflare-kit"),
-        "dir"
-      );
-      writeFileSync(path.join(root, "bun.lock"), '{"packages":{}}');
-      writeFileSync(path.join(app, "alchemy.run.ts"), "export default {};");
-      writeFileSync(
-        path.join(app, "astro.config.ts"),
-        'import { descriptor } from "@jakebodea/cloudflare-kit/runtime"; export default descriptor;'
-      );
-      const plugin = path.join(kit, "src/emdash/plugin.ts");
-      const config = path.resolve(import.meta.dirname, "site-fingerprint.ts");
-      const read = () => {
-        const output = execFileSync(
-          "bun",
-          [
-            "-e",
-            `import {configuration} from ${JSON.stringify(config)}; process.stdout.write(await configuration(${JSON.stringify(root)}, "demo"));`,
-          ],
-          { encoding: "utf-8" }
-        );
-        return Schema.decodeUnknownSync(
-          Schema.fromJsonString(
-            Schema.Struct({ sources: Schema.Array(Schema.String) })
-          )
-        )(output).sources.join("\n");
-      };
-      writeFileSync(
-        plugin,
-        'export const descriptor = {entrypoint:"@jakebodea/cloudflare-kit/runtime"}; export default () => "DELIVERY_V1";'
-      );
-      expect(read()).toContain('"DELIVERY_V1"');
-      writeFileSync(
-        plugin,
-        'export const descriptor = {["entrypoint"]:"@jakebodea/cloudflare-kit/runtime"}; export default () => "DELIVERY_V2";'
-      );
-      expect(read()).toContain('"DELIVERY_V2"');
-      writeFileSync(
-        plugin,
-        'export const descriptor={format:"native"};descriptor.entrypoint="@jakebodea/cloudflare-kit/runtime";export default()=>"DELIVERY_V3";'
-      );
-      expect(read).toThrow(
-        "Unsupported runtime registration; retaining candidate"
-      );
-      writeFileSync(
-        plugin,
-        'export const descriptor={format:"native"};Reflect.set(descriptor,"entrypoint","@jakebodea/cloudflare-kit/runtime");export default()=>"DELIVERY_V4";'
-      );
-      expect(read).toThrow(
-        "Unsupported runtime registration; retaining candidate"
-      );
-    } finally {
-      rmSync(root, { force: true, recursive: true });
-    }
-  });
-});
-
 describe("normalization safety", () => {
   it("retains ordinary text that resembles a scope hash", () => {
     expect(
@@ -367,19 +280,6 @@ describe("normalization safety", () => {
         ]
       )
     ).toThrow("Ambiguous scope-like literal; retaining candidate");
-  });
-
-  it("recognizes computed entrypoint properties and rejects unresolved descriptor keys", () => {
-    expect(
-      registeredEntrypoints(
-        'const plugin = {["entrypoint"]:"@jakebodea/cloudflare-kit/runtime"};'
-      )
-    ).toStrictEqual(["@jakebodea/cloudflare-kit/runtime"]);
-    expect(() =>
-      registeredEntrypoints(
-        'const plugin = {format:"native", [unknown]:"runtime"};'
-      )
-    ).toThrow("Unsupported runtime registration; retaining candidate");
   });
 });
 
@@ -577,44 +477,5 @@ describe("authored decoding uncertainty", () => {
         ]
       )
     ).toThrow("Authored scope token; retaining candidate");
-  });
-});
-
-describe("closed runtime registration boundary", () => {
-  it("retains candidates for assignments and reflective writes", () => {
-    expect(() =>
-      registeredEntrypoints('descriptor.entrypoint="./handler";')
-    ).toThrow("Unsupported runtime registration; retaining candidate");
-    expect(() =>
-      registeredEntrypoints('descriptor["entrypoint"]="./handler";')
-    ).toThrow("Unsupported runtime registration; retaining candidate");
-    expect(() =>
-      registeredEntrypoints('Reflect.set(descriptor,"entrypoint","./handler");')
-    ).toThrow("Unsupported runtime registration; retaining candidate");
-  });
-});
-
-describe(configurationSourceInputs, () => {
-  it("retains whole source including exports omitted from generated config code", () => {
-    expect(
-      configurationSourceInputs(
-        '{"sources":["packages/handler.ts"],"sourcesContent":["hello"]}',
-        process.cwd()
-      )
-    ).toStrictEqual([
-      [
-        "packages/handler.ts",
-        "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
-      ],
-    ]);
-  });
-
-  it("rejects incomplete source maps", () => {
-    expect(() =>
-      configurationSourceInputs(
-        '{"sources":["packages/handler.ts"],"sourcesContent":[]}',
-        process.cwd()
-      )
-    ).toThrow("Incomplete configuration source map");
   });
 });

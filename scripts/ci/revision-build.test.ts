@@ -5,7 +5,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { revisionPair } from "./revision-build.ts";
+import { comparisonBuildInputs, revisionPair } from "./revision-build.ts";
 
 describe(revisionPair, () => {
   it("freezes caller-relative HEAD refs before a comparison checkout moves HEAD", () => {
@@ -42,5 +42,21 @@ describe(revisionPair, () => {
     } finally {
       rmSync(root, { force: true, recursive: true });
     }
+  });
+});
+
+describe(comparisonBuildInputs, () => {
+  it("activates production-only email while preserving the prepared CI inputs", () => {
+    expect(
+      comparisonBuildInputs({
+        contentDigest: "seed",
+        seedMediaBase: "https://example.com/media",
+      })
+    ).toStrictEqual({
+      contentDigest: "seed",
+      emailFrom: "fingerprint@example.invalid",
+      emailFromName: "CI fingerprint",
+      seedMediaBase: "https://example.com/media",
+    });
   });
 });

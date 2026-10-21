@@ -1,7 +1,15 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import os from "node:os";
 import path from "node:path";
+
+import { Schema } from "effect";
 
 import { fingerprintFiles, sitePayload } from "./site-fingerprint.ts";
 
@@ -9,6 +17,18 @@ export interface RevisionFingerprints {
   readonly base: Readonly<Record<string, string>>;
   readonly head: Readonly<Record<string, string>>;
 }
+
+const InputValues = Schema.Record(Schema.String, Schema.Unknown);
+
+/** Compile the production-only CMS email runtime as well as the local Worker.
+ * This public inert sender activates its integration; builds never send mail.
+ * Keep all other prepared inputs identical to credential-free CI verification.
+ */
+export const comparisonBuildInputs = (inputs: typeof InputValues.Type) => ({
+  ...inputs,
+  emailFrom: "fingerprint@example.invalid",
+  emailFromName: "CI fingerprint",
+});
 
 /** Child logs must not become GitHub outputs or disclose a build script's env. */
 const command = (
@@ -60,6 +80,16 @@ const fingerprintRevision = async (
       "--sites",
       JSON.stringify(sites),
     ]);
+    for (const site of sites) {
+      const file = path.join(directory, "apps", site, ".build-inputs.json");
+      const inputs = Schema.decodeUnknownSync(
+        Schema.fromJsonString(InputValues)
+      )(readFileSync(file, "utf-8"));
+      writeFileSync(
+        file,
+        `${JSON.stringify(comparisonBuildInputs(inputs), null, 2)}\n`
+      );
+    }
     const output = command(directory, "bun", [
       "x",
       "turbo",
