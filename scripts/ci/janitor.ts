@@ -9,7 +9,7 @@
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 
-import { isPullRequestStage } from "@jakebodea/cloudflare-kit/infra/stage";
+import { stageKind } from "@jakebodea/cloudflare-kit/infra/stage";
 import { listSites } from "@jakebodea/control-app/site";
 import { Schema } from "effect";
 
@@ -31,7 +31,7 @@ export const staleStages = (
     const stage = site === undefined ? "" : name.slice(site.length + 1);
     const pull = Number(stage.slice("pr-".length));
     return site !== undefined &&
-      isPullRequestStage(stage) &&
+      stageKind(stage) === "pull-request" &&
       !previewPulls.has(pull)
       ? [{ site, stage }]
       : [];

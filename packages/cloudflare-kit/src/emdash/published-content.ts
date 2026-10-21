@@ -98,6 +98,9 @@ export const identityKey = (identity: Identity): string =>
   JSON.stringify([identity.collection, identity.slug, identity.locale]);
 export const importAlias = (identity: Identity): string =>
   `published:${encodeURIComponent(identityKey(identity))}`;
+const isFreshDestination = (stage: string): boolean =>
+  ["development", "pull-request", "client-preview"].includes(stageKind(stage));
+
 export const authorizedContentRequest = (
   request: Request,
   bindings: {
@@ -108,11 +111,11 @@ export const authorizedContentRequest = (
   },
   purpose: "export" | "complete"
 ): boolean => {
-  const kind = stageKind(bindings.STAGE ?? "");
+  const stage = bindings.STAGE ?? "";
   const allowed =
     purpose === "export"
-      ? kind === "production"
-      : ["development", "pull-request"].includes(kind);
+      ? stageKind(stage) === "production"
+      : isFreshDestination(stage);
   const credential =
     purpose === "export"
       ? bindings.PUBLISHED_CONTENT_EXPORT_TOKEN
@@ -1302,10 +1305,7 @@ export const completeFresh = async (
   trustedSite: string,
   storage?: Storage | null
 ): Promise<{ complete: boolean; index: number; total: number }> => {
-  if (
-    !["development", "pull-request"].includes(stageKind(trustedStage)) ||
-    trustedSite !== plan.site
-  ) {
+  if (!isFreshDestination(trustedStage) || trustedSite !== plan.site) {
     return fail("Destination stage/site mismatch");
   }
   const options = new OptionsRepository(db);

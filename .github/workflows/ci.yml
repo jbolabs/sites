@@ -5,12 +5,12 @@ on:
     types: [opened, synchronize, reopened, labeled]
   push:
     branches: [main]
-  # Re-runs the prod deploy for chosen sites (a failed deploy is not retried by a re-run
+  # Re-runs the staging and production deploys for chosen sites (a failed deploy is not retried by a re-run
   # of an old push, and a fix outside `apps/<site>/` marks no site affected).
   workflow_dispatch:
     inputs:
       sites:
-        description: 'Sites to deploy to prod, as a JSON array (e.g. ["access-electric"])'
+        description: 'Sites to release, as a JSON array (e.g. ["access-electric"])'
         required: true
         type: string
 
@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 10
     concurrency:
       # Unrelated labels must neither cancel preview validation nor skip the required check.
-      group: affected-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
+      group: affected-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'client-preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     outputs:
       verify: ${{ steps.affected.outputs.verify }}
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
-      group: lint-test-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
+      group: lint-test-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'client-preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -65,7 +65,8 @@ jobs:
             https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
           echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check --quiet
           tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
-          "$RUNNER_TEMP/actionlint" -color
+          # v1.7.12 predates GitHub's concurrency.queue; release-policy.test.ts checks it.
+          "$RUNNER_TEMP/actionlint" -color -ignore '^unexpected key "queue" for "concurrency" section\.'
       - name: Lint
         run: bun run lint:ci
       - name: Typecheck and test (affected, cached)
@@ -80,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
-      group: verify-${{ matrix.site }}-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
+      group: verify-${{ matrix.site }}-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'client-preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     strategy:
       fail-fast: false
@@ -220,6 +221,118 @@ jobs:
           path: .artifacts/ci/
           if-no-files-found: ignore
 
+  client-preview:
+    needs: check
+    # Fork PRs never get deploy credentials.
+    # Deploy jobs skip until `stacks/github.ts` has created the environments and tokens.
+    if: ${{ !cancelled() && needs.check.result == 'success' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && contains(github.event.pull_request.labels.*.name, 'client-preview') && (github.event.action != 'labeled' || github.event.label.name == 'client-preview' || github.event.label.name == 'production-content') && needs.check.outputs.deploy != '[]' && vars.DEPLOYS_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: client-preview
+    permissions:
+      contents: read
+      pull-requests: write
+      deployments: write
+    concurrency:
+      group: main-site-deploy
+      queue: max
+      cancel-in-progress: false
+    env:
+      CMS_BOOTSTRAP_TOKEN: ${{ secrets.CMS_BOOTSTRAP_TOKEN }}
+      PUBLISHED_CONTENT_EXPORT_TOKEN: ${{ secrets.PUBLISHED_CONTENT_EXPORT_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      STAGE: client-pr-${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      # Recheck after acquiring the stage lock: queued events can outlive their label or head.
+      - name: Check current preview request
+        id: policy
+        run: bun scripts/ci/preview-policy.ts >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+          PREVIEW_LABEL: client-preview
+      - name: Prepare published production content
+        if: steps.policy.outputs.deploy == 'true' && steps.policy.outputs.content == 'prod'
+        run: bun scripts/ci/prepare-content.ts --sites '${{ needs.check.outputs.deploy }}'
+      # Persist ownership before Alchemy can create even its first resource.
+      - name: Record client preview ownership
+        id: ownership
+        if: steps.policy.outputs.deploy == 'true'
+        run: bun scripts/ci/client-preview-records.ts >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+          SITES: ${{ needs.check.outputs.deploy }}
+      - name: Deploy affected sites
+        if: steps.policy.outputs.deploy == 'true'
+        env:
+          CONTENT_MODE: ${{ steps.policy.outputs.content }}
+        run: bun scripts/ci/deploy.ts --stage "$STAGE" --sites '${{ needs.check.outputs.deploy }}'
+      - name: Comment preview URLs
+        if: steps.policy.outputs.deploy == 'true'
+        run: bun scripts/ci/comment.ts --pr ${{ github.event.pull_request.number }} --stage "$STAGE"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Hosted smoke and SEO checks
+        env:
+          CONTENT_MODE: ${{ steps.policy.outputs.content }}
+        if: steps.policy.outputs.deploy == 'true'
+        run: bun scripts/ci/verify-previews.ts
+      - name: Mark client preview ready
+        if: steps.policy.outputs.deploy == 'true'
+        run: bun scripts/ci/client-preview-records.ts --success
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOYMENT_ID: ${{ steps.ownership.outputs.deployment }}
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: client-preview-verification
+          path: .artifacts/ci/
+          if-no-files-found: ignore
+
+  staging:
+    needs: check
+    if: ${{ !cancelled() && needs.check.result == 'success' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || needs.check.outputs.deploy != '[]') && vars.DEPLOYS_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging
+    permissions:
+      contents: read
+    concurrency:
+      # Both stages can upgrade Alchemy's account-wide state service.
+      group: main-site-deploy
+      queue: max
+      cancel-in-progress: false
+    env:
+      CMS_BOOTSTRAP_TOKEN: ${{ secrets.CMS_BOOTSTRAP_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Deploy affected sites to staging
+        run: bun scripts/ci/deploy.ts --stage staging --sites "$SITES"
+        env:
+          SITES: ${{ github.event_name == 'workflow_dispatch' && inputs.sites || needs.check.outputs.deploy }}
+      - name: Verify staging
+        run: bun scripts/ci/verify-previews.ts
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: staging-verification
+          path: .artifacts/ci/
+          if-no-files-found: ignore
+
   production:
     needs: check
     if: ${{ !cancelled() && needs.check.result == 'success' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || needs.check.outputs.deploy != '[]') && vars.DEPLOYS_ENABLED == 'true' }}
@@ -232,7 +345,8 @@ jobs:
       contents: read
       id-token: write
     concurrency:
-      group: production
+      group: main-site-deploy
+      queue: max
       cancel-in-progress: false
     env:
       CMS_BOOTSTRAP_TOKEN: ${{ secrets.CMS_BOOTSTRAP_TOKEN }}
