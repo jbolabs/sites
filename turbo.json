@@ -32,7 +32,7 @@
       "outputs": []
     },
     "build": {
-      "dependsOn": ["sync"],
+      "dependsOn": ["sync", "^build"],
       "inputs": [
         "$TURBO_DEFAULT$",
         ".build-inputs.json",
@@ -63,6 +63,55 @@
     "sync": {
       "cache": false,
       "outputs": []
+    },
+    "verify:ci": {
+      "dependsOn": ["build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".build-inputs.json",
+        "seed/**",
+        "public/**",
+        "!public/_seed/**",
+        "!**/*.md",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!.turbo/**",
+        "!node_modules/**",
+        "!.astro/**",
+        "!.alchemy/**",
+        "!.artifacts/**",
+        "!dist/**",
+        "$TURBO_ROOT$/scripts/ci/**",
+        "!$TURBO_ROOT$/scripts/ci/**/*.test.ts",
+        "$TURBO_ROOT$/packages/control-app/src/**",
+        "!$TURBO_ROOT$/packages/control-app/src/**/*.test.ts",
+        "$TURBO_ROOT$/packages/control-app/package.json",
+        "$TURBO_ROOT$/packages/control-app/*.ts",
+        "$TURBO_ROOT$/packages/control-app/*.json",
+        "$TURBO_ROOT$/packages/cloudflare-kit/src/**",
+        "!$TURBO_ROOT$/packages/cloudflare-kit/src/**/*.test.ts",
+        "$TURBO_ROOT$/lighthouserc.json",
+        "$TURBO_ROOT$/.github/workflows/ci.yml",
+        "$TURBO_ROOT$/.github/actions/setup/action.yml",
+        "$TURBO_ROOT$/bunfig.toml",
+        {
+          "mode": "dependencyOutputs",
+          "globs": ["dist/**"],
+          "from": ["build"]
+        }
+      ],
+      "outputs": [".artifacts/ci/local-verification/**"],
+      "env": [
+        "VERIFY_RUNTIME",
+        "NODE_ENV",
+        "NODE_OPTIONS",
+        "CONTENT_MODE",
+        "CHROME_PATH",
+        "LANG",
+        "LC_ALL",
+        "TZ"
+      ],
+      "passThroughEnv": []
     }
   }
 }

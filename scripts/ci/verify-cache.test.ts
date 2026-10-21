@@ -1,0 +1,102 @@
+import { execFileSync } from "node:child_process";
+import path from "node:path";
+
+import { Schema } from "effect";
+import { describe, expect, it } from "vitest";
+
+import { VERIFY_TOOLING_PATHS, affectedSites } from "./affected.ts";
+
+const root = path.resolve(import.meta.dirname, "../..");
+
+describe("per-site verification cache", () => {
+  it("hashes every tracked verification tool and the site's content, then restores isolated reports", () => {
+    const dry = Schema.decodeUnknownSync(
+      Schema.fromJsonString(
+        Schema.Struct({
+          tasks: Schema.Array(
+            Schema.Struct({
+              dependencies: Schema.Array(Schema.String),
+              hash: Schema.NullOr(Schema.String),
+              hashReason: Schema.optionalKey(Schema.String),
+              inputs: Schema.Record(Schema.String, Schema.String),
+              resolvedTaskDefinition: Schema.Struct({
+                env: Schema.Array(Schema.String),
+                outputs: Schema.Array(Schema.String),
+                passThroughEnv: Schema.NullOr(Schema.Array(Schema.String)),
+              }),
+              taskId: Schema.String,
+            })
+          ),
+        })
+      )
+    )(
+      execFileSync(
+        "bunx",
+        [
+          "turbo",
+          "run",
+          "verify:ci",
+          "--filter=@sites/access-electric",
+          "--cache=local:rw",
+          "--dry=json",
+        ],
+        { cwd: root, encoding: "utf-8" }
+      )
+    );
+    const task = dry.tasks.find(
+      ({ taskId }) => taskId === "@sites/access-electric#verify:ci"
+    );
+    expect(task).toMatchObject({
+      dependencies: ["@sites/access-electric#build"],
+      hash: null,
+      hashReason: "Deferred because dependencyOutputs hashing mode was used.",
+      resolvedTaskDefinition: {
+        outputs: [".artifacts/ci/local-verification/**"],
+        passThroughEnv: [],
+      },
+    });
+    expect(task?.resolvedTaskDefinition.env).toContain("VERIFY_RUNTIME");
+    expect(task?.resolvedTaskDefinition.env).toContain("CONTENT_MODE");
+    const inputs = Object.keys(task?.inputs ?? {}).map((file) =>
+      path.posix.normalize(`apps/access-electric/${file}`)
+    );
+    expect(inputs).toStrictEqual(
+      expect.arrayContaining([
+        "apps/access-electric/seed/seed.json",
+        "apps/access-electric/site.config.ts",
+        "scripts/ci/local-worker.ts",
+        "scripts/ci/local-verify.ts",
+        "scripts/ci/verify-ci.ts",
+        "scripts/ci/lighthouse.ts",
+        "scripts/ci/control-check.ts",
+        "scripts/ci/command.ts",
+        "packages/control-app/src/seo.ts",
+        "lighthouserc.json",
+      ])
+    );
+    const files = execFileSync("git", ["ls-files"], {
+      cwd: root,
+      encoding: "utf-8",
+    })
+      .trim()
+      .split("\n")
+      .filter(
+        (file) =>
+          !file.endsWith(".test.ts") &&
+          !file.endsWith(".test.tsx") &&
+          VERIFY_TOOLING_PATHS.some((pattern) => pattern.test(file))
+      );
+    for (const file of files) {
+      expect(
+        inputs,
+        `${file} triggers verification and must invalidate it`
+      ).toContain(file);
+    }
+    expect(
+      affectedSites(
+        ["scripts/ci/lighthouse.ts", "scripts/ci/command.ts"],
+        ["access-electric", "equityfast"]
+      )
+    ).toStrictEqual({ deploy: [], verify: ["access-electric", "equityfast"] });
+  });
+});

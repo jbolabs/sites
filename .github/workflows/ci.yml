@@ -92,27 +92,41 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup
-      - name: Prepare local verification build inputs
-        run: bun scripts/ci/local-verify.ts --prepare --sites "[\"$SITE\"]"
-        env:
-          SITE: ${{ matrix.site }}
-      - name: Build (cached)
-        run: bunx turbo run build --filter="@sites/$SITE"
-        env:
-          SITE: ${{ matrix.site }}
       # Miniflare supports Node; use its native runtime rather than Bun's subprocess emulation.
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: "24"
+          # A major-only range picks different cached patches on different runners.
+          # Keep the audit runtime stable; VERIFY_RUNTIME still hashes the actual version.
+          node-version: "24.22.0"
+      # Runner images also carry different Chrome patches. Playwright's locked
+      # package selects a fixed browser revision instead of the system install.
+      - name: Install pinned audit browser
+        run: bunx playwright-core install --with-deps chromium --no-shell
+      # Ubuntu's AppArmor policy blocks user namespaces for downloaded Chrome.
+      # This disposable runner audits only our local Worker; allow namespaces so
+      # Chrome keeps its sandbox, with the same Lighthouse settings and budgets.
+      # https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md
+      - name: Allow the pinned browser sandbox
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - name: Required smoke, SEO and Lighthouse
-        run: node scripts/ci/local-verify.ts --sites "[\"$SITE\"]"
+        run: |
+          CHROME_PATH="$(node --input-type=module -e 'import { chromium } from "playwright-core"; process.stdout.write(chromium.executablePath())')"
+          export CHROME_PATH
+          bun run verify:ci "$SITE" --summarize
         env:
           SITE: ${{ matrix.site }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: required-site-verification-${{ matrix.site }}
-          path: .artifacts/ci/local-verification/
+          path: apps/${{ matrix.site }}/.artifacts/ci/local-verification/
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: verification-cache-inputs-${{ matrix.site }}
+          path: .turbo/runs/*.json
+          include-hidden-files: true
           if-no-files-found: ignore
 
   # The ruleset requires one `check` context; this gathers the parallel jobs into it.

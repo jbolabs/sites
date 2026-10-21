@@ -32,9 +32,10 @@ const SITE_PATH = /^apps\/(?<site>[^/]+)\//u;
 /** Never built into a Worker nor run by a site's verification. */
 const UNSHIPPED_PATHS = [/\.test\.tsx?$/u, /^packages\/proof\//u];
 /** Checks every site (smoke, SEO, Lighthouse) but ships in none. */
-const VERIFY_TOOLING_PATHS = [
+export const VERIFY_TOOLING_PATHS = [
   /^packages\/control-app\//u,
-  /^scripts\/ci\/local-(?:verify|worker)\.ts$/u,
+  /^scripts\/ci\/.*\.ts$/u,
+  /^\.github\/(?:workflows\/ci\.yml|actions\/setup\/action\.yml)$/u,
   /^lighthouserc\.json$/u,
 ];
 const SHARED_PATHS = [
