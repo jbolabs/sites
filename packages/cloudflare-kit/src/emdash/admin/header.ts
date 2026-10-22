@@ -34,7 +34,8 @@ html[data-theme] [data-admin-icon-action] svg {
 html[data-theme] [data-admin-header] :is(button, a):not(:focus-visible) {
   box-shadow: none;
 }
-html[data-theme] [data-admin-header] :is(button, a):is(:active, [aria-expanded=true]) {
+/* The menu toggle's X already shows it is open. */
+html[data-theme] [data-admin-header] :is(button, a):is(:active, [aria-expanded=true]):not([data-admin-menu-toggle]) {
   background: var(--color-kumo-tint);
 }
 html[data-theme] [data-admin-header] [data-admin-account] {

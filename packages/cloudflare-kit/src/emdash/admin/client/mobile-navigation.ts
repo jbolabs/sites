@@ -13,13 +13,13 @@ export const installMobileNavigation = (): void => {
         trigger.closest<HTMLElement>("[data-sidebar-wrapper]")?.dataset
           .state === "collapsed";
       const desktopLabel = collapsed ? "Expand sidebar" : "Collapse sidebar";
+      const navOpen = nav?.dataset.state === "expanded";
+      const mobileLabel = navOpen ? "Close menu" : "Open menu";
       trigger.setAttribute(
         "aria-label",
-        mobile.matches ? "Menu" : desktopLabel
+        mobile.matches ? mobileLabel : desktopLabel
       );
-      const expanded = mobile.matches
-        ? nav?.dataset.state === "expanded"
-        : !collapsed;
+      const expanded = mobile.matches ? navOpen : !collapsed;
       trigger.setAttribute("aria-expanded", String(expanded));
     }
     const close = nav?.querySelector("[data-sidebar=trigger]");
@@ -39,6 +39,20 @@ export const installMobileNavigation = (): void => {
   });
   mobile.addEventListener("change", syncLabels);
   syncLabels();
+  // Kumo closes the open menu when focus leaves it, so pressing the header toggle would close
+  // it on focus and reopen it on click. Keeping focus in the menu lets the click close it.
+  document.addEventListener("mousedown", (event) => {
+    if (
+      mobile.matches &&
+      event.target instanceof Element &&
+      event.target.closest("header [data-sidebar=trigger]") !== null &&
+      document.querySelector(
+        "[data-sidebar=sidebar][data-mobile=true][data-side=left][data-state=expanded]"
+      ) !== null
+    ) {
+      event.preventDefault();
+    }
+  });
   document.addEventListener("click", (event) => {
     if (!(event.target instanceof Element) || event.button !== 0) {
       return;
