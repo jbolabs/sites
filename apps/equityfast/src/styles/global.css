@@ -257,7 +257,7 @@
 
 /* The estimator's split bar: segments glide to their new share. */
 @utility transition-grow {
-  transition: flex-grow 500ms var(--ease-out-strong);
+  transition: flex-grow 250ms var(--ease-out-strong);
 }
 
 /* Staggers the opener's lines: `stagger-1` waits one beat (70ms), `stagger-2` two. */
@@ -269,35 +269,44 @@
  * Scroll reveals (src/lib/reveal.ts). Only elements below the fold at load
  * are hidden, so nothing on screen flashes and nothing hides without
  * JavaScript. `data-reveal` rises as one piece; `data-reveal-group` rises
- * its children in turn (cards in a grid).
+ * its children in turn (cards in a grid). An animation, not a transition, so
+ * it never replaces an element's own transitions (a card's hover shadow).
  */
-[data-reveal],
-[data-reveal-group] > * {
-  transition:
-    opacity 700ms var(--ease-out-strong),
-    translate 700ms var(--ease-out-strong);
-}
-
 [data-reveal="hidden"],
 [data-reveal-group="hidden"] > * {
   opacity: 0;
-  translate: 0 18px;
 }
 
-[data-reveal-group] > :nth-child(2) {
-  transition-delay: 60ms;
-}
-[data-reveal-group] > :nth-child(3) {
-  transition-delay: 120ms;
-}
-[data-reveal-group] > :nth-child(4) {
-  transition-delay: 180ms;
-}
-[data-reveal-group] > :nth-child(n + 5) {
-  transition-delay: 240ms;
+[data-reveal="shown"],
+[data-reveal-group="shown"] > * {
+  animation: reveal 700ms var(--ease-out-strong) both;
 }
 
-/* FAQ answers open and close smoothly where the browser can size to `auto`; elsewhere they snap. */
+[data-reveal-group="shown"] > :nth-child(2) {
+  animation-delay: 60ms;
+}
+[data-reveal-group="shown"] > :nth-child(3) {
+  animation-delay: 120ms;
+}
+[data-reveal-group="shown"] > :nth-child(4) {
+  animation-delay: 180ms;
+}
+[data-reveal-group="shown"] > :nth-child(n + 5) {
+  animation-delay: 240ms;
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+}
+
+/*
+ * FAQ answers open and close smoothly where the browser can size to `auto`;
+ * elsewhere they snap. Height is the one layout property animated: an
+ * accordion has to push the questions below it.
+ */
 :root {
   interpolate-size: allow-keywords;
 }
@@ -306,8 +315,8 @@ details::details-content {
   block-size: 0;
   overflow: clip;
   transition:
-    block-size 300ms var(--ease-out-strong),
-    content-visibility 300ms allow-discrete;
+    block-size 250ms var(--ease-out-strong),
+    content-visibility 250ms allow-discrete;
 }
 
 details[open]::details-content {
@@ -334,11 +343,28 @@ details[open]::details-content {
     transition: none;
   }
 
-  /* tw-animate entrances (dialog, form steps, panels): keep the fade, drop the travel and zoom. */
-  .animate-in {
+  /* Reveals fade without rising. */
+  [data-reveal="shown"],
+  [data-reveal-group="shown"] > * {
+    animation: fade 300ms ease both;
+  }
+
+  /*
+   * tw-animate entrances and exits (dialog, form steps, panels): keep the
+   * fade, drop the travel and zoom. The dialog applies its classes only
+   * while open or closing (`data-open:animate-in`), so it is named too.
+   */
+  .animate-in,
+  .animate-out,
+  [data-slot="dialog-content"],
+  [data-slot="dialog-overlay"] {
     --tw-enter-translate-x: 0;
     --tw-enter-translate-y: 0;
     --tw-enter-scale: 1;
     --tw-enter-blur: 0;
+    --tw-exit-translate-x: 0;
+    --tw-exit-translate-y: 0;
+    --tw-exit-scale: 1;
+    --tw-exit-blur: 0;
   }
 }
