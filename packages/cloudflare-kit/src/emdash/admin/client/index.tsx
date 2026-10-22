@@ -23,9 +23,12 @@ if (typeof document !== "undefined" && cmsAdmin.assistant !== false) {
   const { assistant } = cmsAdmin;
   // Inlined, not imported for effect: Vite would emit it as a chunk the public
   // pages also link, and its :root token map turned their backgrounds see-through.
+  // First in <head>: both builds share Tailwind's `utilities` layer, so a later
+  // sheet's plain `.hidden` would beat the admin's own `sm:inline` and hide its
+  // desktop labels. The admin's utilities come after and win shared class names.
   const style = document.createElement("style");
   style.textContent = assistantCss;
-  document.head.append(style);
+  document.head.prepend(style);
   const host = document.createElement("div");
   host.id = ROOT_ID;
   document.body.append(host);

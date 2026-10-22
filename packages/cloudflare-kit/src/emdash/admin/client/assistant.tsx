@@ -51,6 +51,7 @@ export const Assistant = ({
             variant={open ? "secondary" : "ghost"}
           >
             <SparklesIcon aria-hidden="true" />
+            <span data-admin-action-label="">Assistant</span>
           </Button>,
           slot
         )}

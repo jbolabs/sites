@@ -65,6 +65,39 @@ export const ADMIN_MOBILE_CSS = `
   html[data-theme] [data-sidebar=menu-button] {
     font-size: 15px;
   }
+  /* The editor already fills the phone; its distraction-free toggle only took a row of its own. */
+  html[data-theme] main form [data-sidebar-wrapper][data-side=right] > div > div:first-child > div:last-child > button {
+    display: none;
+  }
+  /* Three counts read at a glance side by side instead of filling the first screen. */
+  html[data-theme] main div:has(> [data-testid=dashboard-metric]) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+  html[data-theme] [data-testid=dashboard-metric] > div:first-child {
+    padding: 0.75rem 0.75rem 0.5rem;
+    overflow: hidden;
+    font-size: 0.8125rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  html[data-theme] [data-testid=dashboard-metric] > div:last-child {
+    padding: 0.75rem;
+    font-size: 1.5rem;
+  }
+  /* Search gets its own full-width row at a touch height; filters follow it. */
+  html[data-theme] main label:has(> input[type=search]) {
+    flex-basis: 100%;
+    height: 44px;
+  }
+  /* Lists scroll sideways: titles keep a readable width and other columns stay on one line. */
+  html[data-theme] main div:has(> table) :is(th, td) {
+    white-space: nowrap;
+  }
+  html[data-theme] main div:has(> table) td:nth-child(2) {
+    min-width: 12rem;
+    white-space: normal;
+  }
 }
 /* Capability-based: tablets with touch benefit too, regardless of viewport width. */
 @media (pointer: coarse) {
