@@ -1,6 +1,7 @@
 /** EmDash owns the navigation root; use its trigger rather than changing drawer classes. */
 export const installMobileNavigation = (): void => {
   const mobile = matchMedia("(max-width: 767px)");
+  let wasOpen = false;
   const syncLabels = () => {
     const trigger = document.querySelector<HTMLButtonElement>(
       "header [data-sidebar=trigger]"
@@ -22,6 +23,27 @@ export const installMobileNavigation = (): void => {
       const expanded = mobile.matches ? navOpen : !collapsed;
       trigger.setAttribute("aria-expanded", String(expanded));
     }
+    // Kumo focuses the menu's own toggle on open, which phones hide; start at the first link instead.
+    const open = mobile.matches && nav?.dataset.state === "expanded";
+    if (open && !wasOpen) {
+      requestAnimationFrame(() => {
+        nav
+          ?.querySelector<HTMLElement>("[data-sidebar=content] a[href]")
+          ?.focus({ preventScroll: true });
+      });
+    }
+    // Closing makes the focused link inert, which drops focus to <body>; hand it back to the toggle.
+    if (!open && wasOpen) {
+      requestAnimationFrame(() => {
+        if (
+          document.activeElement === document.body ||
+          nav?.contains(document.activeElement) === true
+        ) {
+          trigger?.focus({ preventScroll: true });
+        }
+      });
+    }
+    wasOpen = open;
     const close = nav?.querySelector("[data-sidebar=trigger]");
     close?.setAttribute("aria-label", "Close menu");
     close?.setAttribute(

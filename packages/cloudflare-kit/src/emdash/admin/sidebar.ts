@@ -40,10 +40,12 @@ html[data-theme] .emdash-sidebar [data-sidebar=resize-handle] {
     border: 0;
     translate: none;
     opacity: 0;
+    pointer-events: none;
     transition: opacity 200ms ease-out;
   }
   html[data-theme] .emdash-sidebar[data-mobile][data-state=expanded] {
     opacity: 1;
+    pointer-events: auto;
   }
   html[data-theme] .emdash-sidebar[data-mobile] [data-sidebar=content] {
     padding: 0.5rem 0.5rem 1.5rem;
@@ -58,7 +60,8 @@ html[data-theme] .emdash-sidebar [data-sidebar=resize-handle] {
   html[data-theme] [data-sidebar-wrapper][data-side=left] > [data-sidebar-backdrop] {
     display: none;
   }
-  html:has(.emdash-sidebar[data-mobile][data-state=expanded]) body {
+  /* The admin scrolls inside <main>, not the body. */
+  html:has(.emdash-sidebar[data-mobile][data-state=expanded]) :is(body, main) {
     overflow: hidden;
   }
   html[data-theme] [data-admin-header] [data-sidebar=trigger] {
