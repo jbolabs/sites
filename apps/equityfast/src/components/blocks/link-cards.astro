@@ -13,10 +13,10 @@ const { value } = Astro.props;
 
 <section class="section-y bg-canvas">
   <div class="container-page">
-    <h2 class="headline-section">{value.headline}</h2>
-    <ul class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <h2 class="headline-section" data-reveal>{value.headline}</h2>
+    <ul class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-reveal-group>
       {value.items.map((item) => (
-        <li class="group relative flex min-h-64 flex-col rounded-3xl border border-line bg-white p-7 transition-[border-color,box-shadow] duration-300 hover:border-ink/15 hover:shadow-lift focus-within:border-ink/15">
+        <li class="group relative flex min-h-64 flex-col rounded-3xl border border-line bg-white p-7 transition-shadow duration-200 hover:border-ink/15 hover:shadow-lift focus-within:border-ink/15">
           <h3 class="text-xl">
             {item.url ? <a href={sanitizeHref(item.url)} class="after:absolute after:inset-0 after:rounded-3xl focus-visible:outline-none">{item.title}</a> : item.title}
           </h3>
@@ -24,7 +24,7 @@ const { value } = Astro.props;
           {item.url && (
             <div class="mt-8 flex items-center gap-4 text-sm font-medium" aria-hidden="true">
               {item.link_label && <span>{item.link_label}</span>}
-              <span class="ml-auto flex size-10 items-center justify-center rounded-full border border-line transition-colors duration-300 group-hover:border-ink group-hover:bg-ink group-hover:text-white">
+              <span class="ml-auto flex size-10 items-center justify-center rounded-full border border-line group-hover:border-ink group-hover:bg-ink group-hover:text-white">
                 <ArrowUpRight class="size-4 transition-transform duration-300 group-hover:rotate-45" />
               </span>
             </div>

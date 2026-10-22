@@ -11,8 +11,9 @@ const sliderVariants = {
   },
   brand: {
     indicator: "bg-sky",
+    // Grows a touch while held: the thumb answers the finger.
     thumb:
-      "size-6 border-4 border-white bg-ink shadow-[0_2px_10px_rgb(0_0_0/0.25)]",
+      "size-6 border-4 border-white bg-ink shadow-[0_2px_10px_rgb(0_0_0/0.25)] transition-[scale,box-shadow] duration-150 ease-out-strong active:scale-115 data-dragging:scale-115",
     track: "bg-line data-horizontal:h-1.5",
   },
 } as const;

@@ -24,14 +24,14 @@ const jsonLd = JSON.stringify({
 
 <section class="section-y">
   <div class="container-page grid *:min-w-0 gap-10 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
-    <h2 class="headline-section lg:sticky lg:top-28 lg:self-start">{value.headline}</h2>
-    <div class="border-t border-line">
+    <h2 class="headline-section lg:sticky lg:top-28 lg:self-start" data-reveal>{value.headline}</h2>
+    <div class="border-t border-line" data-reveal>
       {value.items.map((item, index) => (
         <details class="group border-b border-line" open={index === 0}>
           <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-6 text-left text-lg font-medium tracking-tight text-ink marker:hidden sm:text-xl [&::-webkit-details-marker]:hidden">
             {item.question}
-            <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-canvas transition-colors group-open:bg-ink group-open:text-white">
-              <Plus class="size-4 transition-transform duration-300 group-open:rotate-45" aria-hidden="true" />
+            <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-canvas group-open:bg-ink group-open:text-white">
+              <Plus class="ease-out-strong size-4 transition-transform duration-300 group-open:rotate-45" aria-hidden="true" />
             </span>
           </summary>
           <p class="max-w-2xl pb-7 text-lg leading-relaxed text-graphite">{item.answer}</p>

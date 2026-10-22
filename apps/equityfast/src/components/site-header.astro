@@ -45,7 +45,7 @@ const switchHref = alternates[other] ?? localePath(other, "/");
           <a
             href={item.url}
             aria-current={isActive(item.url) ? "page" : undefined}
-            class="rounded-full px-3.5 py-2 text-[15px] font-medium whitespace-nowrap text-graphite transition-colors hover:text-ink aria-[current=page]:bg-canvas aria-[current=page]:text-ink"
+            class="rounded-full px-3.5 py-2 text-[15px] font-medium whitespace-nowrap text-graphite hover:text-ink aria-[current=page]:bg-canvas aria-[current=page]:text-ink"
           >
             {item.label}
           </a>
@@ -53,14 +53,14 @@ const switchHref = alternates[other] ?? localePath(other, "/");
       }
     </nav>
     <div class="ml-auto flex items-center gap-1.5 xl:ml-3">
-      <a href={site.business.instagram} rel="noopener me" target="_blank" class="hidden size-10 items-center justify-center rounded-full text-graphite transition-colors hover:bg-canvas hover:text-ink sm:flex" aria-label="Instagram @equityfast">
+      <a href={site.business.instagram} rel="noopener me" target="_blank" class="hidden size-10 items-center justify-center rounded-full text-graphite hover:bg-canvas hover:text-ink sm:flex" aria-label="Instagram @equityfast">
         <InstagramIcon class="size-[18px]" />
       </a>
       <a
         href={switchHref}
         hreflang={other}
         lang={other}
-        class="flex h-9 items-center rounded-full border border-line px-3 text-xs font-medium text-ink uppercase transition-colors hover:border-ink/40"
+        class="flex h-9 items-center rounded-full border border-line px-3 text-xs font-medium text-ink uppercase hover:border-ink/40"
       >
         <span class="sr-only">{t.switchTo}</span>
         <span aria-hidden="true">{other}</span>

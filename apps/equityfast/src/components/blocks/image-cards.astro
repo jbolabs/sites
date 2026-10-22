@@ -14,8 +14,8 @@ const { value } = Astro.props;
 
 <section class="section-y bg-canvas">
   <div class="container-page">
-    <Headline text={value.headline} accent={value.headline_accent} inline />
-    <ul class="mt-12 grid gap-4 md:grid-cols-3">
+    <div data-reveal><Headline text={value.headline} accent={value.headline_accent} inline /></div>
+    <ul class="mt-12 grid gap-4 md:grid-cols-3" data-reveal-group>
       {value.items.map((item) => (
         <li class="flex flex-col overflow-hidden rounded-3xl border border-line bg-white">
           <div class="relative m-2 aspect-[4/3] overflow-hidden rounded-[1.25rem] bg-canvas">

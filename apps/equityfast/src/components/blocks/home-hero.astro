@@ -27,10 +27,10 @@ const showEstimator = value.show_estimator !== false;
   <div class="glow-sky-top absolute inset-x-0 top-0 -z-10 h-[40rem]" aria-hidden="true"></div>
   <div class="container-page grid *:min-w-0 items-center gap-12 pt-12 pb-16 sm:pt-16 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-20 lg:pb-20">
     <div>
-      <h1 class="text-display font-medium">{value.headline}</h1>
-      {value.tagline && <p class="text-display font-medium text-balance text-graphite/70">{value.tagline}</p>}
-      {value.intro && <p class="mt-7 max-w-xl text-lg leading-relaxed text-graphite sm:text-xl">{value.intro}</p>}
-      <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+      <h1 class="text-display animate-rise font-medium">{value.headline}</h1>
+      {value.tagline && <p class="text-display stagger-1 animate-rise font-medium text-balance text-graphite/70">{value.tagline}</p>}
+      {value.intro && <p class="stagger-2 mt-7 max-w-xl animate-rise text-lg leading-relaxed text-graphite sm:text-xl">{value.intro}</p>}
+      <div class="stagger-3 mt-9 flex animate-rise flex-col gap-3 sm:flex-row">
         {value.apply_label && <ButtonLink href={apply} data-apply variant="accent" size="hero">{value.apply_label}</ButtonLink>}
         {value.secondary_cta_label && value.secondary_cta_url && (
           <ButtonLink href={sanitizeHref(value.secondary_cta_url)} variant="outline-ink" size="hero">{value.secondary_cta_label}</ButtonLink>
@@ -38,9 +38,9 @@ const showEstimator = value.show_estimator !== false;
       </div>
     </div>
     {(showEstimator || value.image) && (
-      <div class="relative isolate overflow-hidden rounded-[2rem] bg-ink p-3 sm:p-8 lg:p-10">
+      <div class="stagger-2 relative isolate animate-lift overflow-hidden rounded-[2rem] bg-ink p-3 sm:p-8 lg:p-10">
         {value.image && (
-          <Image image={value.image} alt="" priority sizes="(min-width: 1024px) 50vw, 100vw" class="absolute inset-0 -z-20 size-full! object-cover" />
+          <Image image={value.image} alt="" priority sizes="(min-width: 1024px) 50vw, 100vw" class="absolute inset-0 -z-20 size-full! animate-settle object-cover" />
         )}
         <div class="absolute inset-0 -z-10 bg-linear-to-t from-ink/55 via-ink/10 to-ink/0" aria-hidden="true"></div>
         {showEstimator ? (

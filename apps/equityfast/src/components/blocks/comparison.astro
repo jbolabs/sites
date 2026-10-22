@@ -12,8 +12,8 @@ const { value } = Astro.props;
 
 <section class="section-y">
   <div class="container-page">
-    <Headline text={value.headline} accent={value.headline_accent} />
-    <div class="mt-12 overflow-hidden rounded-3xl border border-line">
+    <div data-reveal><Headline text={value.headline} accent={value.headline_accent} /></div>
+    <div class="mt-12 overflow-hidden rounded-3xl border border-line" data-reveal>
       <table class="w-full text-left">
         <caption class="sr-only">{value.headline}</caption>
         <thead class="hidden border-b border-line bg-canvas text-sm sm:table-header-group">

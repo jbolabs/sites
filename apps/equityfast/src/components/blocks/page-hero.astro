@@ -19,15 +19,15 @@ const { value } = Astro.props;
 <section class="relative isolate overflow-hidden bg-white">
   <div class="glow-sky-top absolute inset-x-0 top-0 -z-10 h-[40rem]" aria-hidden="true"></div>
   <div class="container-page grid *:min-w-0 gap-8 pt-14 sm:pt-20 lg:grid-cols-[1.5fr_1fr] lg:items-end lg:gap-16 lg:pt-24">
-    <Headline as="h1" text={value.headline} accent={value.headline_accent} class="text-display!" />
-    <div class="lg:pb-3">
+    <Headline as="h1" text={value.headline} accent={value.headline_accent} class="text-display! animate-rise" />
+    <div class="stagger-1 animate-rise lg:pb-3">
       {value.intro && <p class="max-w-xl text-lg leading-relaxed text-graphite sm:text-xl">{value.intro}</p>}
       {value.apply_label && <ButtonLink href={applyHref(Astro.currentLocale)} data-apply variant="accent" size="hero" class="mt-8">{value.apply_label}</ButtonLink>}
     </div>
   </div>
   {value.image ? (
     <div class="container-page mt-12 sm:mt-16">
-      <div class="overflow-hidden rounded-[2rem] bg-canvas">
+      <div class="animate-unclip overflow-hidden rounded-[2rem] bg-canvas">
         <Image image={value.image} alt="" priority sizes="(min-width: 1280px) 1232px, 100vw" class="aspect-[4/3] size-full! object-cover sm:aspect-[21/9]" />
       </div>
     </div>

@@ -107,7 +107,7 @@ const EquitySplit = ({
         <span
           key={share.key}
           className={cn(
-            "ease-out-quint h-full grow-(--share) basis-0 rounded-full transition-all duration-500",
+            "transition-grow h-full grow-(--share) basis-0 rounded-full",
             share.swatch
           )}
           style={{

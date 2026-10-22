@@ -10,7 +10,7 @@ const { value } = Astro.props;
 ---
 
 <section class="section-y text-center">
-  <div class="container-page max-w-5xl">
+  <div class="container-page max-w-5xl" data-reveal-group>
     <h2 class="text-[clamp(2.5rem,6.4vw,5rem)] leading-[1] tracking-[-0.045em]">
       {value.headline}{value.headline_accent && <> <span class="text-graphite/70">{value.headline_accent}</span></>}
     </h2>

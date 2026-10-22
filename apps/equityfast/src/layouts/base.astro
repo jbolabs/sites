@@ -102,8 +102,10 @@ const breadcrumbs = crumbs === undefined ? undefined : JSON.stringify(breadcrumb
     <EmDashBodyEnd page={page} />
     <script>
       import { mountSeamlessEdges } from "@jakebodea/site-ui/seamless-edges";
+      import { mountReveal } from "@/lib/reveal";
 
       mountSeamlessEdges();
+      mountReveal();
     </script>
   </body>
 </html>

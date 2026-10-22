@@ -14,7 +14,7 @@ const { value } = Astro.props;
 
 <section class="section-y bg-canvas">
   <div class="container-page grid *:min-w-0 gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
-    <div class="lg:sticky lg:top-28 lg:self-start">
+    <div class="lg:sticky lg:top-28 lg:self-start" data-reveal>
       <Headline text={value.headline} accent={value.headline_accent} />
       {value.body && <p class="mt-6 max-w-md text-lg leading-relaxed text-graphite">{value.body}</p>}
       {value.link_label && value.link_url && (
@@ -24,7 +24,7 @@ const { value } = Astro.props;
         </a>
       )}
     </div>
-    <div>
+    <div data-reveal>
       <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-line bg-line sm:grid-cols-3">
         {value.items.map((item) => (
           <div class="bg-white p-5 hyphens-auto max-sm:odd:last:col-span-2 sm:p-7 sm:[&:nth-child(3n+1):last-child]:col-span-3 sm:[&:nth-child(3n+2):last-child]:col-span-2">

@@ -11,8 +11,8 @@ const { value } = Astro.props;
 
 <section class="section-y">
   <div class="container-page grid *:min-w-0 gap-10 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
-    <h2 class="headline-section lg:sticky lg:top-28 lg:self-start">{value.headline}</h2>
-    <ol class="space-y-10 border-l border-line pl-8">
+    <h2 class="headline-section lg:sticky lg:top-28 lg:self-start" data-reveal>{value.headline}</h2>
+    <ol class="space-y-10 border-l border-line pl-8" data-reveal-group>
       {value.items.map((item) => (
         <li class="relative">
           <span class="absolute top-1 -left-[38px] size-3 rounded-full bg-sky ring-4 ring-white" aria-hidden="true"></span>

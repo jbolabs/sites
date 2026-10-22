@@ -9,6 +9,8 @@ import { prefillAmount } from "@/lib/application-rules";
 import { budgetCeiling, planTotals, projectGain } from "@/lib/planner";
 import { cn } from "@/lib/utils";
 
+import { useTweenedNumber } from "./use-tweened-number";
+
 export interface PlannerProject {
   readonly name: string;
   readonly blurb: string;
@@ -74,7 +76,7 @@ const BudgetPanel = ({
   return (
     <div
       id={panelId(project.name)}
-      className="border-line border-t bg-white p-5"
+      className="border-line animate-in fade-in slide-in-from-top-1 ease-out-strong border-t bg-white p-5 duration-200"
     >
       <p className="text-graphite text-sm font-semibold">{strings.drag}</p>
       <div className="mt-3 flex items-center gap-4">
@@ -153,6 +155,7 @@ const PlanSummary = ({
     totals.blendedReturn === undefined
       ? "-"
       : `${Math.round(totals.blendedReturn * 100)}%`;
+  const gainShown = useTweenedNumber(totals.gain);
   const lines = [
     { label: strings.total, value: usd(totals.budget) },
     { label: strings.valueAbove, value: usd(totals.aboveCost) },
@@ -162,10 +165,13 @@ const PlanSummary = ({
   return (
     <aside className="border-line shadow-float min-w-0 rounded-3xl border bg-white p-5 sm:p-7 lg:sticky lg:top-28">
       <p className="text-graphite text-sm">{strings.gained}</p>
-      <output
-        aria-live="polite"
-        className="text-ink tracking-figure mt-2 block text-5xl leading-none font-medium tabular-nums"
+      <p
+        aria-hidden="true"
+        className="text-ink tracking-figure mt-2 text-5xl leading-none font-medium tabular-nums"
       >
+        {usd(gainShown)}
+      </p>
+      <output aria-live="polite" className="sr-only">
         {usd(totals.gain)}
       </output>
       <dl className="mt-6 divide-y border-t">

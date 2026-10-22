@@ -27,7 +27,7 @@ const number = (index: number) => String(index + 1).padStart(2, "0");
           {value.body && <p class="mt-6 max-w-md text-lg text-white/70">{value.body}</p>}
           {value.apply_label && <ButtonLink href={applyHref(Astro.currentLocale)} data-apply variant="inverse" size="hero" class="mt-9">{value.apply_label}</ButtonLink>}
         </div>
-        <ol class="space-y-3">
+        <ol class="space-y-3" data-reveal-group>
           {value.items.map((item, index) => (
             <li class="flex gap-6 rounded-3xl border border-white/10 bg-white/[0.04] p-7">
               <p class="font-mono text-sm text-sky" aria-hidden="true">{number(index)}</p>
@@ -44,9 +44,11 @@ const number = (index: number) => String(index + 1).padStart(2, "0");
 ) : (
   <section class="section-y">
     <div class="container-page">
+      <div data-reveal>
       <Headline text={value.headline} accent={value.headline_accent} class="max-w-3xl" />
       {value.body && <p class="mt-6 max-w-2xl text-lg text-graphite">{value.body}</p>}
-      <ol class="mt-12 grid gap-4 md:grid-cols-3">
+      </div>
+      <ol class="mt-12 grid gap-4 md:grid-cols-3" data-reveal-group>
         {value.items.map((item, index) => (
           <li class="flex flex-col rounded-3xl bg-canvas p-7 sm:p-8">
             <p class="font-mono text-sm text-sky-ink" aria-hidden="true">{number(index)}</p>

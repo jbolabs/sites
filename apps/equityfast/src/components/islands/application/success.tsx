@@ -19,8 +19,12 @@ const ApplicationSuccess = ({
   readonly renderTitle: (title: string) => ReactNode;
   readonly strings: UiStrings["form"];
 }) => (
-  <div className="py-4 text-center" aria-live="polite">
-    <div className="bg-sky-wash mx-auto flex size-14 items-center justify-center rounded-full">
+  <div
+    className="animate-in fade-in slide-in-from-bottom-2 ease-out-strong py-4 text-center duration-500"
+    aria-live="polite"
+  >
+    {/* The one celebratory beat in the flow: the check settles in with a slight overshoot. */}
+    <div className="bg-sky-wash animate-in fade-in zoom-in-75 ease-overshoot mx-auto flex size-14 items-center justify-center rounded-full duration-700">
       <CheckIcon className="text-sky-ink size-7" aria-hidden="true" />
     </div>
     <div className="mt-5">

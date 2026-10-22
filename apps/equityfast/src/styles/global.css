@@ -93,7 +93,14 @@
   --text-display--line-height: 0.98;
   --text-display--letter-spacing: -0.045em;
 
-  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  /*
+   * Motion. Strong ease-out for anything entering or answering a touch;
+   * strong ease-in-out for things that move on screen (the photo reveal).
+   */
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  /* A slight overshoot, kept for the one celebratory moment (the application's success check). */
+  --ease-overshoot: cubic-bezier(0.34, 1.4, 0.64, 1);
 
   /* Big figures (the estimate, the planner's total). */
   --tracking-figure: -0.04em;
@@ -102,6 +109,45 @@
   --shadow-lift: 0 24px 60px -30px rgb(14 20 36 / 0.35);
 
   --animate-ticker: ticker 48s linear infinite;
+  /* Page openers, once per load: lines rise, the estimate lifts, photos settle or unclip. */
+  --animate-rise: rise 700ms var(--ease-out-strong) both;
+  --animate-lift: lift 900ms var(--ease-out-strong) both;
+  --animate-settle: settle 1600ms var(--ease-out-strong) both;
+  --animate-unclip: unclip 1100ms var(--ease-in-out-strong) both;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+      filter: blur(4px);
+    }
+  }
+
+  /* Large surfaces rise without blur: blurring a photo layer is costly in Safari. */
+  @keyframes lift {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.98);
+    }
+  }
+
+  @keyframes settle {
+    from {
+      transform: scale(1.06);
+    }
+  }
+
+  @keyframes unclip {
+    from {
+      clip-path: inset(7% 4% 0 4% round 2rem);
+    }
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
 
   @keyframes ticker {
     to {
@@ -209,8 +255,90 @@
   }
 }
 
+/* The estimator's split bar: segments glide to their new share. */
+@utility transition-grow {
+  transition: flex-grow 500ms var(--ease-out-strong);
+}
+
+/* Staggers the opener's lines: `stagger-1` waits one beat (70ms), `stagger-2` two. */
+@utility stagger-* {
+  animation-delay: calc(--value(integer) * 70ms);
+}
+
+/*
+ * Scroll reveals (src/lib/reveal.ts). Only elements below the fold at load
+ * are hidden, so nothing on screen flashes and nothing hides without
+ * JavaScript. `data-reveal` rises as one piece; `data-reveal-group` rises
+ * its children in turn (cards in a grid).
+ */
+[data-reveal],
+[data-reveal-group] > * {
+  transition:
+    opacity 700ms var(--ease-out-strong),
+    translate 700ms var(--ease-out-strong);
+}
+
+[data-reveal="hidden"],
+[data-reveal-group="hidden"] > * {
+  opacity: 0;
+  translate: 0 18px;
+}
+
+[data-reveal-group] > :nth-child(2) {
+  transition-delay: 60ms;
+}
+[data-reveal-group] > :nth-child(3) {
+  transition-delay: 120ms;
+}
+[data-reveal-group] > :nth-child(4) {
+  transition-delay: 180ms;
+}
+[data-reveal-group] > :nth-child(n + 5) {
+  transition-delay: 240ms;
+}
+
+/* FAQ answers open and close smoothly where the browser can size to `auto`; elsewhere they snap. */
+:root {
+  interpolate-size: allow-keywords;
+}
+
+details::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition:
+    block-size 300ms var(--ease-out-strong),
+    content-visibility 300ms allow-discrete;
+}
+
+details[open]::details-content {
+  block-size: auto;
+}
+
+/* Reduced motion: no movement, only short fades where they help. */
 @media (prefers-reduced-motion: reduce) {
   .animate-ticker {
     animation: none;
+  }
+
+  .animate-rise,
+  .animate-lift {
+    animation: fade 300ms ease both;
+  }
+
+  .animate-settle,
+  .animate-unclip {
+    animation: none;
+  }
+
+  details::details-content {
+    transition: none;
+  }
+
+  /* tw-animate entrances (dialog, form steps, panels): keep the fade, drop the travel and zoom. */
+  .animate-in {
+    --tw-enter-translate-x: 0;
+    --tw-enter-translate-y: 0;
+    --tw-enter-scale: 1;
+    --tw-enter-blur: 0;
   }
 }
