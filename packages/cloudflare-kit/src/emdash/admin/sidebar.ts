@@ -25,12 +25,6 @@ html[data-theme] .emdash-sidebar[data-state=collapsed]:not([data-mobile]) .admin
 html[data-theme] .emdash-sidebar [data-sidebar=resize-handle] {
   touch-action: none;
 }
-@media (min-width: 768px) {
-  /* EmDash's bundled CSS does not include Kumo's sm:block utility on every site. */
-  html[data-theme] .emdash-sidebar [data-sidebar=resize-handle] {
-    display: block;
-  }
-}
 @media (max-width: 767px) {
   html[data-theme] .emdash-sidebar[data-mobile] {
     width: min(var(--sidebar-width), calc(100vw - 32px));
