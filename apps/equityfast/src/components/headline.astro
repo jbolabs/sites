@@ -1,8 +1,8 @@
 ---
 /**
  * A block headline in the site's two-tone style: the first line in ink, the
- * accent line quieter (graphite on light, faded white on ink). Search engines
- * and screen readers read it as one heading.
+ * accent line in the wordmark's sky blue, echoing "EQUITY" and "FAST" in the
+ * logo. Search engines and screen readers read it as one heading.
  */
 interface Props {
   as?: "h1" | "h2" | "h3";
@@ -22,7 +22,7 @@ const { accent, as: Tag = "h2", class: className, inline = false, text, tone = "
   {text}{accent && (
     <>
       {inline ? " " : <br />}
-      <span class:list={[tone === "dark" ? "text-white/50" : "text-graphite/70"]}>{accent}</span>
+      <span class:list={[tone === "dark" ? "text-sky" : "headline-accent"]}>{accent}</span>
     </>
   )}
 </Tag>

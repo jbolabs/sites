@@ -11,8 +11,10 @@
  * EquityFast design tokens: a light, fintech-minimal system. Near-black ink
  * on white and a cool off-white canvas, with one accent: the sky blue of the
  * "FAST" in the wordmark. shadcn/ui primitives read the semantic names
- * (--primary, --muted, ...), so restyling starts here. `--sky-ink` is a
- * darker sky for text on white: the logo's sky reaches only about 2.5:1 there.
+ * (--primary, --muted, ...), so restyling starts here. The logo's sky reaches
+ * only about 2.4:1 on white, so text on light surfaces uses deeper steps:
+ * `--sky-display` (3.2:1, large type: the headline accents that echo the
+ * wordmark) and `--sky-ink` (4.5:1+, small text).
  */
 :root {
   --brand-ink: oklch(0.2 0.03 265);
@@ -21,6 +23,7 @@
   --brand-canvas: oklch(0.982 0.004 247);
   --brand-line: oklch(0.925 0.007 255);
   --brand-sky: oklch(0.72 0.099 233);
+  --brand-sky-display: oklch(0.645 0.12 233);
   --brand-sky-ink: oklch(0.52 0.125 243);
   --brand-sky-wash: oklch(0.955 0.025 233);
 
@@ -55,6 +58,7 @@
   --color-canvas: var(--brand-canvas);
   --color-line: var(--brand-line);
   --color-sky: var(--brand-sky);
+  --color-sky-display: var(--brand-sky-display);
   --color-sky-ink: var(--brand-sky-ink);
   --color-sky-wash: var(--brand-sky-wash);
 
@@ -201,6 +205,15 @@
 /* Vertical rhythm shared by the content sections. */
 @utility section-y {
   @apply py-20 sm:py-28;
+}
+
+/*
+ * The second line of a two-tone headline, in the wordmark's sky like "FAST"
+ * in the logo. Large type only: `--sky-display` passes 3:1, not 4.5:1. On ink
+ * surfaces the logo's own sky is used instead (see headline.astro).
+ */
+@utility headline-accent {
+  color: var(--brand-sky-display);
 }
 
 /* A faint sky glow for dark panels and page openers. */

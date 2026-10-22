@@ -1,7 +1,7 @@
 ---
 /**
- * Home opener: the headline (the page's h1) with the tagline as its quiet
- * second line, intro, two buttons, and the quick equity estimate floating on
+ * Home opener: the headline (the page's h1) with the tagline as its sky-blue
+ * second line (like "FAST" in the wordmark), intro, two buttons, and the quick equity estimate floating on
  * the CMS photo in a rounded frame. Light, with a faint sky glow.
  */
 import { sanitizeHref } from "emdash";
@@ -28,7 +28,7 @@ const showEstimator = value.show_estimator !== false;
   <div class="container-page grid *:min-w-0 items-center gap-12 pt-12 pb-16 sm:pt-16 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-20 lg:pb-20">
     <div>
       <h1 class="text-display animate-rise font-medium">{value.headline}</h1>
-      {value.tagline && <p class="text-display stagger-1 animate-rise font-medium text-balance text-graphite/70">{value.tagline}</p>}
+      {value.tagline && <p class="text-display stagger-1 animate-rise headline-accent font-medium text-balance">{value.tagline}</p>}
       {value.intro && <p class="stagger-2 mt-7 max-w-xl animate-rise text-lg leading-relaxed text-graphite sm:text-xl">{value.intro}</p>}
       <div class="stagger-3 mt-9 flex animate-rise flex-col gap-3 sm:flex-row">
         {value.apply_label && <ButtonLink href={apply} data-apply variant="accent" size="hero">{value.apply_label}</ButtonLink>}
