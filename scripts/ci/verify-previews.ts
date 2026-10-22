@@ -4,8 +4,8 @@
  * budgets already run in the required per-site verification jobs. Reads `deployments.json` from
  * `scripts/ci/deploy.ts`; results land in `.artifacts/ci/`.
  *
- *   bun scripts/ci/verify-previews.ts               # previews
- *   bun scripts/ci/verify-previews.ts --production  # same hosted checks
+ *   bun scripts/ci/verify-previews.ts               # previews and staging: must send noindex
+ *   bun scripts/ci/verify-previews.ts --production  # production: must be indexable
  */
 import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -29,6 +29,8 @@ mkdirSync(output, { recursive: true });
 const deployments = Schema.decodeUnknownSync(Deployments)(
   readFileSync(path.join(root, "deployments.json"), "utf-8")
 );
+
+const seoFlags = process.argv.includes("--production") ? ["--production"] : [];
 
 const sites = pLimit(3);
 const results = await Promise.all(
@@ -58,7 +60,13 @@ const results = await Promise.all(
           );
           const checks = await Promise.all([
             controlCheck({ name: "smoke", origin: url, output, site }),
-            controlCheck({ name: "seo", origin: url, output, site }),
+            controlCheck({
+              flags: seoFlags,
+              name: "seo",
+              origin: url,
+              output,
+              site,
+            }),
           ]);
           return !checks.includes(false);
         } catch (error) {

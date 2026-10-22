@@ -65,4 +65,64 @@ describe(controlCheck, () => {
       }
     }
   );
+
+  it.each([
+    { findings: [], flags: [] },
+    {
+      findings: [
+        {
+          detail:
+            "production sends X-Robots-Tag: noindex, nofollow (auditing another stage? drop --production)",
+          rule: "indexable",
+        },
+      ],
+      flags: ["--production"],
+    },
+  ])(
+    "audits a noindex stage against the stage it is told ($flags)",
+    async ({ flags, findings }) => {
+      const output = mkdtempSync(path.join(tmpdir(), "seo-stage-"));
+      const server = createServer((request, response) => {
+        const origin = `http://${request.headers.host}`;
+        response.setHeader("x-robots-tag", "noindex, nofollow");
+        if (request.url === "/robots.txt") {
+          response.end(
+            `User-agent: *\nAllow: /\nSitemap: ${origin}/sitemap.xml\n`
+          );
+        } else if (request.url === "/sitemap.xml") {
+          response.end(`<urlset><url><loc>${origin}/</loc></url></urlset>`);
+        } else {
+          response.setHeader("content-type", "text/html");
+          response.end(
+            `<!doctype html><html><head><title>Fixture site</title><meta name="description" content="A complete description for a rendered site used to test the SEO command."><link rel="canonical" href="${origin}/"></head><body><h1>Fixture page</h1></body></html>`
+          );
+        }
+      });
+      try {
+        server.listen(0, "localhost");
+        await once(server, "listening");
+        const address = Schema.decodeUnknownSync(
+          Schema.Struct({ port: Schema.Number })
+        )(server.address());
+        await controlCheck({
+          flags,
+          name: "seo",
+          origin: `http://localhost:${address.port}`,
+          output,
+          site: "access-electric",
+        });
+        const report = Schema.decodeUnknownSync(Report)(
+          readFileSync(path.join(output, "access-electric-seo.json"), "utf-8")
+        );
+        expect(
+          report.findings.filter((item) =>
+            ["indexable", "preview-noindex"].includes(item.rule)
+          )
+        ).toStrictEqual(findings);
+      } finally {
+        server.close();
+        rmSync(output, { force: true, recursive: true });
+      }
+    }
+  );
 });

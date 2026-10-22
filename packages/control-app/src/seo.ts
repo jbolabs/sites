@@ -17,22 +17,12 @@ export interface SeoFinding {
   readonly detail: string;
 }
 
-/**
- * Non-production stages live on workers.dev or localhost. Production is the
- * custom domain, or `<site>-prod.<account>.workers.dev` for a site without one
- * (Worker names are `<site>-<stage>`).
- */
-export const isProductionOrigin = (origin: string): boolean => {
-  const { hostname } = new URL(origin);
-  if (hostname.endsWith(".workers.dev")) {
-    return hostname.split(".")[0]?.endsWith("-prod") ?? false;
-  }
-  return hostname !== "localhost";
-};
-
 export interface SeoOptions {
   readonly origin: string;
-  /** Production must be indexable; every other stage must not be. */
+  /**
+   * Production must be indexable; every other stage must not be. Callers say which stage they
+   * audit: hostnames cannot tell (staging and previews also use branded custom domains).
+   */
   readonly production: boolean;
   /** Local CI checks page content; deployed audits also check stage policy and timing. */
   readonly checks?: "content" | "all";
@@ -350,7 +340,7 @@ const indexingChecks: Check = (page, options) => {
       add(
         "indexable",
         "error",
-        `production sends X-Robots-Tag: ${page.robotsHeader}`
+        `production sends X-Robots-Tag: ${page.robotsHeader} (auditing another stage? drop --production)`
       ),
     ];
   }
@@ -358,8 +348,8 @@ const indexingChecks: Check = (page, options) => {
     return [
       add(
         "preview-noindex",
-        "warning",
-        "non-production stage is indexable; send X-Robots-Tag: noindex"
+        "error",
+        "non-production stage is indexable; send X-Robots-Tag: noindex (auditing production? pass --production)"
       ),
     ];
   }

@@ -9,7 +9,8 @@ Most of the checklist is automated. `bun run app -- seo` crawls every sitemap pa
 
 ```bash
 bun run app -- seo                    # local dev stage
-bun run app -- seo --url https://…    # any deployed stage; production rules apply to the custom domain and <site>-prod.*.workers.dev
+bun run app -- seo --url https://…    # a deployed non-production stage (staging, previews): must send noindex
+bun run app -- seo --url https://<domain> --production   # production: must be indexable
 ```
 
 Errors must be zero. Warnings are judgment calls: fix them in code, or leave them to editors when they're about content (a long project name: the editor sets an SEO title in the entry's SEO panel).
@@ -46,7 +47,7 @@ Also enforced: titles ≤ 60 characters (`documentTitle()` drops the site suffix
 Do these once per site, right after the first production deploy. Ask the user before touching DNS or any account.
 
 1. **Search Console**: add a _Domain_ property for the apex domain. The domain is on Cloudflare, so verify with the TXT record. Submit `https://<domain>/sitemap.xml`. Then import the property into Bing Webmaster Tools (it also feeds ChatGPT search and Copilot).
-2. **Run** `bun run app -- seo --url https://<domain>`: zero errors, and production rules apply.
+2. **Run** `bun run app -- seo --url https://<domain> --production`: zero errors.
 3. **Old site**: if the client had one, crawl its URLs and 301 each one to its new equivalent in a single hop. Check a handful in Search Console's URL inspection a week later.
 
 ## Copy review (before launch and whenever copy changes)
