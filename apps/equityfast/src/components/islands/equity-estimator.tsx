@@ -118,7 +118,7 @@ const EquitySplit = ({
     </div>
     <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
       {shares.map((share) => (
-        <div key={share.key} className="min-w-0">
+        <div key={share.key} className="flex min-w-0 flex-col justify-between">
           <dt className="text-graphite flex items-start gap-1.5 leading-tight">
             <span
               className={cn("mt-1 size-2 shrink-0 rounded-full", share.swatch)}

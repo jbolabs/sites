@@ -91,7 +91,7 @@ const breadcrumbs = crumbs === undefined ? undefined : JSON.stringify(breadcrumb
   </head>
   <body class="flex min-h-svh flex-col">
     <EmDashBodyStart page={page} />
-    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-60 focus:bg-white focus:px-4 focus:py-2 focus:text-navy focus:shadow">{t.skipToContent}</a>
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-60 focus:bg-white focus:px-4 focus:py-2 focus:text-ink focus:shadow">{t.skipToContent}</a>
     <SiteHeader locale={locale} items={chrome.primary} alternates={alternates} />
     <main id="main" class="flex-1">
       <slot />

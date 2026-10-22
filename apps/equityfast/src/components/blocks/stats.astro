@@ -17,7 +17,7 @@ const { value } = Astro.props;
         {value.items.map((item) => (
           <div class="flex flex-col-reverse gap-3 lg:border-l lg:border-white/10 lg:px-8 lg:first:border-l-0 lg:first:pl-0">
             <dt class="text-sm text-white/60">{item.label}</dt>
-            <dd class="text-[clamp(2.25rem,4vw,3.5rem)] leading-[1.02] font-medium tracking-[-0.045em] text-balance tabular-nums">{item.value}</dd>
+            <dd class="text-[clamp(1.875rem,4vw,3.5rem)] break-words leading-[1.02] font-medium tracking-[-0.045em] text-balance tabular-nums">{item.value}</dd>
           </div>
         ))}
       </dl>

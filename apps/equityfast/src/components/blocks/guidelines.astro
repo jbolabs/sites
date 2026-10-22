@@ -27,7 +27,7 @@ const { value } = Astro.props;
     <div>
       <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-line bg-line sm:grid-cols-3">
         {value.items.map((item) => (
-          <div class="bg-white p-5 hyphens-auto sm:p-7">
+          <div class="bg-white p-5 hyphens-auto max-sm:odd:last:col-span-2 sm:p-7 sm:[&:nth-child(3n+1):last-child]:col-span-3 sm:[&:nth-child(3n+2):last-child]:col-span-2">
             <dt class="text-sm text-graphite">{item.label}</dt>
             <dd class="mt-3 text-lg leading-snug font-medium tracking-tight sm:text-xl">{item.value}</dd>
           </div>
