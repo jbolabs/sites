@@ -1,7 +1,7 @@
 /**
  * Deploys sites to one stage from CI and reports their URLs.
  *
- *   bun scripts/ci/deploy.ts --stage pr-42 --sites '["access-electric"]'
+ *   bun scripts/ci/deploy.ts --stage pr-42 --sites '["ms-custom-homes"]'
  *   bun scripts/ci/deploy.ts --stage pr-42 --destroy --sites all
  *
  * Writes `deployments.json` ([{ site, url }]) for later steps (smoke, comment).

@@ -11,9 +11,9 @@ const config = `export const site = { id: "equityfast", name: "EquityFast" };`;
 describe(infrastructureLine, () => {
   it("reads the infrastructure headline from the stack comment", () => {
     const file = `/**
- * Access Electric infrastructure (one Alchemy stack):
+ * MS Custom Homes infrastructure (one Alchemy stack):
  */`;
-    expect(infrastructureLine(file)).toBe("Access Electric infrastructure");
+    expect(infrastructureLine(file)).toBe("MS Custom Homes infrastructure");
   });
 });
 
@@ -29,7 +29,7 @@ describe(headerMatchesSite, () => {
 
   it("rejects the reference site name", () => {
     expect(
-      headerMatchesSite("Access Electric infrastructure (one stack)", {
+      headerMatchesSite("MS Custom Homes infrastructure (one stack)", {
         id: "equityfast",
         name: "EquityFast",
       })
@@ -40,7 +40,7 @@ describe(headerMatchesSite, () => {
 describe(findScaffoldViolations, () => {
   it("flags a mismatched alchemy header", () => {
     const alchemy = `/**
- * Access Electric infrastructure:
+ * MS Custom Homes infrastructure:
  */`;
     expect(
       findScaffoldViolations("apps/equityfast", config, alchemy)

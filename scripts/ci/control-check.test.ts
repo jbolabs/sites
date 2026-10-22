@@ -81,11 +81,11 @@ describe(controlCheck, () => {
           name: "seo",
           origin: `http://localhost:${address.port}`,
           output,
-          site: "access-electric",
+          site: "ms-custom-homes",
         });
         expect(passed).toBe(valid);
         const report = Schema.decodeUnknownSync(Report)(
-          readFileSync(path.join(output, "access-electric-seo.json"), "utf-8")
+          readFileSync(path.join(output, "ms-custom-homes-seo.json"), "utf-8")
         );
         expect(report.errors).toBe(valid ? 0 : 1);
         expect(report.findings).toStrictEqual(
@@ -139,10 +139,10 @@ describe(controlCheck, () => {
           name: "seo",
           origin: `http://localhost:${address.port}`,
           output,
-          site: "access-electric",
+          site: "ms-custom-homes",
         });
         const report = Schema.decodeUnknownSync(Report)(
-          readFileSync(path.join(output, "access-electric-seo.json"), "utf-8")
+          readFileSync(path.join(output, "ms-custom-homes-seo.json"), "utf-8")
         );
         expect(
           report.findings.filter((item) =>
