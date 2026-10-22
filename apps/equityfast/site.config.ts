@@ -45,12 +45,12 @@ export const site = {
     "EquityFast home equity lines of credit, powered by E Mortgage Capital, Inc. NMLS #1416824.",
 
   /**
-   * Attached as a custom domain on the `prod` stage only. Unset until the zone is
-   * on the Cloudflare account (attaching an unowned domain fails the deploy), so
-   * only staging deploys until configured. Current site:
-   * equityfast.emortgagecapital.com (a subdomain of the client's zone).
+   * Attached as a custom domain on the `prod` stage only. The zone must be
+   * active on the Cloudflare account before prod deploys (attaching an unowned
+   * domain fails the deploy). Registered at GoDaddy, nameservers on Cloudflare.
+   * The previous site lives at equityfast.emortgagecapital.com.
    */
-  domain: null,
+  domain: "equityfast.homes",
 
   /** Prefixes Worker names (`equityfast-<stage>`) and the Alchemy stack. */
   id: "equityfast",
