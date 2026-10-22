@@ -29,15 +29,20 @@ const number = (index: number) => String(index + 1).padStart(2, "0");
           {value.body && <p class="mt-6 max-w-md text-lg text-white/70">{value.body}</p>}
           {value.apply_label && <ButtonLink href={applyHref(Astro.currentLocale)} data-apply variant="inverse" size="hero" class="mt-9">{value.apply_label}</ButtonLink>}
         </div>
-        {/* Ring and title share each step's first grid row, centered, so the digit sits level with the title at any size. */}
+        {/*
+          Each ring sits at the top of its step and the title's padding centers its
+          first line on the ring (48px: 10px + 28px line + 10px, or 8 + 32 + 8 at sm),
+          so the digit stays level with the title however long it runs, and the
+          line under the ring always starts clear of it.
+        */}
         <ol class="lg:py-2" data-reveal-group>
           {value.items.map((item, index) => (
-            <li class="relative grid grid-cols-[3rem_1fr] items-center gap-x-5 pb-10 last:pb-0 sm:gap-x-7">
+            <li class="relative grid grid-cols-[3rem_1fr] items-start gap-x-5 pb-10 last:pb-0 sm:gap-x-7">
               {index < value.items.length - 1 && (
                 <span class="absolute top-14 bottom-1 left-[23.5px] w-px bg-linear-to-b from-sky/60 to-white/10" aria-hidden="true"></span>
               )}
               <span class="flex size-12 items-center justify-center rounded-full border border-sky/40 bg-sky/10 text-lg leading-none font-medium text-sky tabular-nums" aria-hidden="true">{index + 1}</span>
-              <h3 class="text-xl text-white sm:text-2xl">{item.title}</h3>
+              <h3 class="py-2.5 text-xl text-white sm:py-2 sm:text-2xl">{item.title}</h3>
               <p class="col-start-2 max-w-md leading-relaxed text-white/65">{item.body}</p>
             </li>
           ))}
