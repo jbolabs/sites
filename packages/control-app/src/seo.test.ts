@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { internalPath, isProductionOrigin, pageFindings } from "./seo.ts";
+import { internalPath, pageFindings } from "./seo.ts";
 
 type Page = Parameters<typeof pageFindings>[0];
 
@@ -79,17 +79,6 @@ describe(pageFindings, () => {
 });
 
 describe("origins", () => {
-  it("treats localhost and non-prod workers.dev stages as non-production", () => {
-    expect(isProductionOrigin("http://localhost:4591")).toBeFalsy();
-    expect(
-      isProductionOrigin("https://site-pr-4.acct.workers.dev")
-    ).toBeFalsy();
-    expect(isProductionOrigin("https://example.com")).toBeTruthy();
-    expect(
-      isProductionOrigin("https://site-prod.acct.workers.dev")
-    ).toBeTruthy();
-  });
-
   it("keeps same-origin paths only", () => {
     expect(internalPath("/contact?x=1#top", "https://example.com")).toBe(
       "/contact"

@@ -21,7 +21,7 @@ import {
   startWithContent,
 } from "./content.ts";
 import { seedStage } from "./seed.ts";
-import { auditSeo, isProductionOrigin } from "./seo.ts";
+import { auditSeo } from "./seo.ts";
 import { readState, stop, tailLog } from "./server.ts";
 import { resolveSite } from "./site.ts";
 import type { SiteContext } from "./site.ts";
@@ -47,7 +47,8 @@ const USAGE = `Usage: bun run app -- <command> [--site <name>] [--url <origin>] 
   logs [--lines 80]       tail the dev server log
 
 --url targets a deployed stage instead of local dev; --auth reuses the CMS session.
-seo --content-only skips deployed indexing headers and response timing.
+seo --content-only skips deployed indexing headers and response timing; a deployed stage must
+send noindex unless seo gets --production, which requires it to be indexable.
 `;
 
 interface Args {
@@ -56,7 +57,12 @@ interface Args {
   readonly flags: ReadonlyMap<string, string>;
 }
 
-const BOOLEAN_FLAGS = new Set(["auth", "content-only", "no-submit"]);
+const BOOLEAN_FLAGS = new Set([
+  "auth",
+  "content-only",
+  "no-submit",
+  "production",
+]);
 
 export const parseArgs = (argv: readonly string[]): Args => {
   const flags = new Map<string, string>();
@@ -188,7 +194,7 @@ const commands = {
     const report = await auditSeo({
       checks: args.flags.has("content-only") ? "content" : "all",
       origin,
-      production: isProductionOrigin(origin),
+      production: args.flags.has("production"),
     });
     const errors = report.findings.filter((item) => item.severity === "error");
     const byRule = Object.groupBy(
