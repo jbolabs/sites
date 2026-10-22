@@ -35,7 +35,7 @@ type Status =
   | { readonly state: "error"; readonly message: string };
 
 const defaultTitle = (title: string) => (
-  <h2 className="text-navy text-question font-semibold">{title}</h2>
+  <h2 className="text-ink text-question font-medium tracking-tight">{title}</h2>
 );
 
 const address = (
@@ -214,7 +214,7 @@ const ApplicationForm = ({
       <div ref={heading} tabIndex={-1} className="outline-none">
         {renderTitle(copy.title)}
       </div>
-      <p className="text-slate-blue mt-2 text-base leading-relaxed">
+      <p className="text-graphite mt-2 text-base leading-relaxed">
         {"sub" in copy ? copy.sub : t.saves}
       </p>
       <div className="mt-5 flex gap-1" aria-hidden="true">
@@ -223,7 +223,7 @@ const ApplicationForm = ({
             key={key}
             className={cn(
               "h-1 flex-1 rounded-full",
-              position <= index ? "bg-navy" : "bg-border"
+              position <= index ? "bg-ink" : "bg-line"
             )}
           />
         ))}
@@ -251,9 +251,7 @@ const ApplicationForm = ({
       {last && (
         <div className="mt-6">
           <div ref={turnstileRef} className="min-h-16" />
-          <p className="text-slate-blue mt-2 text-center text-xs">
-            {t.security}
-          </p>
+          <p className="text-graphite mt-2 text-center text-xs">{t.security}</p>
         </div>
       )}
 
@@ -275,7 +273,7 @@ const ApplicationForm = ({
         {previous !== undefined && (
           <Button
             type="button"
-            variant="outline-navy"
+            variant="outline-ink"
             size="cta"
             onClick={() => {
               go(previous);
@@ -296,7 +294,7 @@ const ApplicationForm = ({
           {submitLabel(last, sending, t)}
         </Button>
       </div>
-      <p className="text-slate-blue mt-5 text-center text-xs">{t.disclaimer}</p>
+      <p className="text-graphite mt-5 text-center text-xs">{t.disclaimer}</p>
     </form>
   );
 };

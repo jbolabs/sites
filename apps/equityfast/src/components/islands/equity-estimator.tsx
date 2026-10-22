@@ -10,6 +10,8 @@ import {
 } from "@/lib/application-rules";
 import { cn } from "@/lib/utils";
 
+import { useTweenedNumber } from "./use-tweened-number";
+
 interface EquityEstimatorProps {
   readonly strings: UiStrings["estimator"];
   readonly applyHref: string;
@@ -54,13 +56,12 @@ const DollarSlider = ({
   return (
     <div>
       <div className="flex items-baseline justify-between gap-3">
-        <span
-          id={id}
-          className="tracking-label text-xs font-semibold text-white/75 uppercase"
-        >
+        <span id={id} className="text-graphite text-sm">
           {label}
         </span>
-        <span className="text-lg font-semibold tabular-nums">{usd(value)}</span>
+        <span className="font-mono text-base font-medium tabular-nums">
+          {usd(value)}
+        </span>
       </div>
       <Slider
         variant="brand"
@@ -79,33 +80,124 @@ const DollarSlider = ({
   );
 };
 
+interface Share {
+  readonly key: string;
+  readonly label: string;
+  readonly swatch: string;
+  readonly value: number;
+}
+
 /**
- * The hero's quick estimate: two sliders and the line they imply. The CTA
- * is a real link to the application carrying the amount, so it works
- * before (or without) hydration; the dialog opens over it once loaded.
+ * How the home's value splits: what is owed, the estimated line, and the
+ * equity left untouched. The bar is decoration; the legend carries the numbers.
+ */
+const EquitySplit = ({
+  shares,
+  total,
+}: {
+  readonly shares: readonly Share[];
+  readonly total: number;
+}) => (
+  <div className="mt-6">
+    <div
+      className="bg-canvas flex h-2.5 gap-0.5 overflow-hidden rounded-full"
+      aria-hidden="true"
+    >
+      {shares.map((share) => (
+        <span
+          key={share.key}
+          className={cn(
+            "ease-out-quint h-full grow-(--share) basis-0 rounded-full transition-all duration-500",
+            share.swatch
+          )}
+          style={{
+            "--share": total > 0 ? share.value / total : 0,
+          }}
+        />
+      ))}
+    </div>
+    <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
+      {shares.map((share) => (
+        <div key={share.key} className="min-w-0">
+          <dt className="text-graphite flex items-start gap-1.5 leading-tight">
+            <span
+              className={cn("mt-1 size-2 shrink-0 rounded-full", share.swatch)}
+              aria-hidden="true"
+            />
+            <span>{share.label}</span>
+          </dt>
+          <dd className="mt-1 font-mono font-medium tabular-nums">
+            {usd(share.value)}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+);
+
+/**
+ * The hero's quick estimate: two sliders, the line they imply (gliding to
+ * each new value), and how the home's value splits. The CTA is a real link
+ * to the application carrying the amount, so it works before (or without)
+ * hydration; the dialog opens over it once loaded.
  */
 const EquityEstimator = ({ applyHref, strings }: EquityEstimatorProps) => {
   const [home, setHome] = useState(HOME_VALUE.start);
   const [balance, setBalance] = useState(BALANCE.start);
   const line = availableLine(home, balance);
+  const shown = useTweenedNumber(line);
   const amount = prefillAmount(Math.max(line, MIN_AMOUNT));
+  const owed = Math.min(balance, home);
+  const shares: readonly Share[] = [
+    {
+      key: "mortgage",
+      label: strings.mortgageShare,
+      swatch: "bg-ink",
+      value: owed,
+    },
+    { key: "line", label: strings.lineShare, swatch: "bg-sky", value: line },
+    {
+      key: "kept",
+      label: strings.kept,
+      swatch: "bg-line",
+      value: Math.max(0, home - owed - line),
+    },
+  ];
+  const inRange = line >= MIN_AMOUNT;
 
   return (
-    <div className="border border-white/15 bg-white/8 p-6 text-white shadow-2xl backdrop-blur-md sm:p-8">
-      <p className="tracking-label text-xs font-semibold text-white/75 uppercase">
-        {strings.line}
-      </p>
-      <output
-        aria-live="polite"
-        className="text-figure mt-1 block font-semibold tabular-nums"
+    <div className="text-ink shadow-float rounded-3xl bg-white p-6 ring-1 ring-black/5 sm:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <p className="text-graphite text-sm">{strings.line}</p>
+        <p
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
+            inRange ? "bg-sky-wash text-sky-ink" : "bg-canvas text-graphite"
+          )}
+        >
+          <span
+            className={cn(
+              "size-1.5 rounded-full",
+              inRange ? "bg-sky-ink" : "bg-graphite"
+            )}
+            aria-hidden="true"
+          />
+          {inRange ? strings.within : strings.below}
+        </p>
+      </div>
+      <p
+        className="text-figure tracking-figure mt-3 font-medium tabular-nums"
+        aria-hidden="true"
       >
+        {usd(shown)}
+      </p>
+      <output aria-live="polite" className="sr-only">
         {usd(line)}
       </output>
-      <p className="text-sky mt-2 text-sm font-semibold">
-        {line >= MIN_AMOUNT ? strings.within : strings.below}
-      </p>
 
-      <div className="mt-7 space-y-6">
+      <EquitySplit shares={shares} total={home} />
+
+      <div className="border-line mt-7 space-y-6 border-t pt-6">
         <DollarSlider
           label={strings.homeValue}
           range={HOME_VALUE}
@@ -131,7 +223,7 @@ const EquityEstimator = ({ applyHref, strings }: EquityEstimatorProps) => {
       >
         {strings.cta}
       </a>
-      <p className="mt-4 text-center text-xs leading-relaxed text-white/70">
+      <p className="text-graphite mt-4 text-center text-xs leading-relaxed">
         {strings.note}
       </p>
     </div>

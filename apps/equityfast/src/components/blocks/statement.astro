@@ -9,12 +9,12 @@ type Props = BlockComponentProps<PageContentStatementBlock>;
 const { value } = Astro.props;
 ---
 
-<section class="py-20 text-center sm:py-28">
+<section class="section-y text-center">
   <div class="container-page max-w-5xl">
-    <h2 class="text-[clamp(2.5rem,6.5vw,4.5rem)] leading-none tracking-[0.04em] uppercase">
-      {value.headline}{value.headline_accent && <> <span class="text-sky-ink">{value.headline_accent}</span></>}
+    <h2 class="text-[clamp(2.5rem,6.4vw,5rem)] leading-[1] tracking-[-0.045em]">
+      {value.headline}{value.headline_accent && <> <span class="text-graphite/70">{value.headline_accent}</span></>}
     </h2>
-    {value.lead && <p class="mx-auto mt-8 max-w-4xl text-[clamp(1.5rem,3.4vw,2.6rem)] leading-tight text-navy">{value.lead}</p>}
-    {value.body && <p class="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-slate-blue">{value.body}</p>}
+    {value.lead && <p class="mx-auto mt-8 max-w-3xl text-[clamp(1.25rem,2.4vw,1.75rem)] leading-snug tracking-tight text-ink/80">{value.lead}</p>}
+    {value.body && <p class="mx-auto mt-6 max-w-2xl leading-relaxed text-graphite">{value.body}</p>}
   </div>
 </section>

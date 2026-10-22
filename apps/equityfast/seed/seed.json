@@ -30,7 +30,7 @@
             },
             {
               "slug": "tagline",
-              "label": "Tagline (the gold pill under the wordmark)",
+              "label": "Tagline (the quieter second line under the headline)",
               "type": "string"
             },
             {
@@ -58,7 +58,7 @@
             },
             {
               "slug": "image",
-              "label": "Background photo",
+              "label": "Photo behind the quick estimate",
               "type": "image"
             },
             {
@@ -1336,7 +1336,7 @@
               "_type": "home_hero",
               "_version": 1,
               "_key": "hero",
-              "headline": "Get EquityFast: home equity, reimagined",
+              "headline": "Home equity, reimagined.",
               "tagline": "Your equity. Your terms.",
               "intro": "Skip the paperwork, and skip the appraisal on loans under $400K.* Get a competitive-rate HELOC with instant, tech-verified income and terms you control.",
               "apply_label": "Start My Request",
@@ -1435,8 +1435,8 @@
               "_type": "statement",
               "_version": 1,
               "_key": "statement",
-              "headline": "Your Equity.",
-              "headline_accent": "Your Terms.",
+              "headline": "One line.",
+              "headline_accent": "Endless uses.",
               "lead": "Fund renovations, consolidate high-interest debt, support family, or build a safety net, and pay interest only on what you actually draw.",
               "body": "Consolidate high-interest debt, fund renovations without the need of an appraisal*, support family, invest in another property, or build a safety net. More importantly, pay interest only on what you actually draw."
             },
@@ -1549,7 +1549,7 @@
               "_type": "home_hero",
               "_version": 1,
               "_key": "hero",
-              "headline": "Obtenga EquityFast: la equidad de su vivienda, reinventada",
+              "headline": "La equidad de su vivienda, reinventada.",
               "tagline": "Su equidad. Sus términos.",
               "intro": "Olvídese del papeleo y del avalúo en préstamos menores a $400K.* Obtenga un HELOC con tasa competitiva, ingresos verificados al instante con tecnología y términos que usted controla.",
               "apply_label": "Iniciar Mi Solicitud",
@@ -1648,8 +1648,8 @@
               "_type": "statement",
               "_version": 1,
               "_key": "statement",
-              "headline": "Su Equidad.",
-              "headline_accent": "Sus Términos.",
+              "headline": "Una línea.",
+              "headline_accent": "Usos sin límite.",
               "lead": "Financie renovaciones, consolide deudas de alto interés, apoye a su familia o cree un fondo de reserva, y pague intereses solo sobre lo que realmente retire.",
               "body": "Consolide deudas con intereses altos, financie renovaciones sin necesidad de avalúo*, apoye a su familia, invierta en otra propiedad o cree un fondo de reserva, y lo más importante, pague intereses solo sobre lo que realmente retire."
             },

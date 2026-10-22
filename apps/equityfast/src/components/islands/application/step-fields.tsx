@@ -164,7 +164,7 @@ const StepFields = (props: StepFieldsProps) => {
             format={formatDollars}
             extra={{ inputMode: "numeric", placeholder: "$75,000" }}
           />
-          <p className="text-slate-blue mt-2 text-xs">{t.amountHelp}</p>
+          <p className="text-graphite mt-2 text-xs">{t.amountHelp}</p>
         </div>
       );
     }
@@ -183,7 +183,7 @@ const StepFields = (props: StepFieldsProps) => {
             label={
               <>
                 {t.middleName}{" "}
-                <span className="text-slate-blue text-sm font-normal">
+                <span className="text-graphite text-sm font-normal">
                   ({t.optional})
                 </span>
               </>
@@ -226,7 +226,7 @@ const StepFields = (props: StepFieldsProps) => {
           />
           <label
             className={cn(
-              "bg-mist text-navy flex cursor-pointer items-start gap-3 rounded-sm border-2 px-4 py-3.5 text-base leading-relaxed",
+              "bg-canvas text-ink flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3.5 text-base leading-relaxed",
               problems.includes("consent")
                 ? "border-destructive"
                 : "border-border"

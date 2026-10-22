@@ -1,8 +1,8 @@
 ---
 /**
- * A block headline in the site's two-tone style: the first line in the
- * surrounding color, the accent line in sky blue. Search engines and screen
- * readers read it as one heading.
+ * A block headline in the site's two-tone style: the first line in ink, the
+ * accent line quieter (graphite on light, faded white on ink). Search engines
+ * and screen readers read it as one heading.
  */
 interface Props {
   as?: "h1" | "h2" | "h3";
@@ -10,7 +10,7 @@ interface Props {
   accent?: string | null | undefined;
   /** Put the accent on its own line (the default) or run it on after the text. */
   inline?: boolean;
-  /** Sky on navy, the darker sky ink on white. */
+  /** Light surfaces (the default) or ink. */
   tone?: "light" | "dark";
   class?: string;
 }
@@ -18,11 +18,11 @@ interface Props {
 const { accent, as: Tag = "h2", class: className, inline = false, text, tone = "light" } = Astro.props;
 ---
 
-<Tag class:list={["headline-section", className]}>
+<Tag class:list={["headline-section", tone === "dark" && "text-white", className]}>
   {text}{accent && (
     <>
       {inline ? " " : <br />}
-      <span class:list={[tone === "dark" ? "text-sky" : "text-sky-ink"]}>{accent}</span>
+      <span class:list={[tone === "dark" ? "text-white/50" : "text-graphite/70"]}>{accent}</span>
     </>
   )}
 </Tag>

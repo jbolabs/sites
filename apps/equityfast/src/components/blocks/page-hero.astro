@@ -1,5 +1,8 @@
 ---
-/** Page opener (the page's h1): two-tone headline, intro, optional application button, over a photo. */
+/**
+ * Page opener (the page's h1): a large two-tone headline beside the intro and
+ * optional application button, then the CMS photo in a wide rounded frame.
+ */
 import { Image } from "emdash/ui";
 import type { BlockComponentProps } from "emdash/ui";
 
@@ -13,14 +16,22 @@ type Props = BlockComponentProps<PageContentPageHeroBlock>;
 const { value } = Astro.props;
 ---
 
-<section class="relative isolate flex min-h-[min(78svh,760px)] items-end overflow-hidden bg-navy-deep text-white">
-  {value.image && (
-    <Image image={value.image} alt="" priority sizes="100vw" class="absolute inset-0 -z-20 size-full! object-cover" />
-  )}
-  <div class="absolute inset-0 -z-10 bg-linear-to-b from-navy/55 via-navy/75 to-navy-deep" aria-hidden="true"></div>
-  <div class="container-page pt-32 pb-16 sm:pb-20 lg:pb-24">
-    <Headline as="h1" text={value.headline} accent={value.headline_accent} tone="dark" class="text-[clamp(2.75rem,8vw,5.5rem)]! leading-[0.98]! text-white [&>span]:italic" />
-    {value.intro && <p class="mt-7 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl">{value.intro}</p>}
-    {value.apply_label && <ButtonLink href={applyHref(Astro.currentLocale)} data-apply variant="accent" size="hero" class="mt-9">{value.apply_label}</ButtonLink>}
+<section class="relative isolate overflow-hidden bg-white">
+  <div class="glow-sky-top absolute inset-x-0 top-0 -z-10 h-[40rem]" aria-hidden="true"></div>
+  <div class="container-page grid *:min-w-0 gap-8 pt-14 sm:pt-20 lg:grid-cols-[1.5fr_1fr] lg:items-end lg:gap-16 lg:pt-24">
+    <Headline as="h1" text={value.headline} accent={value.headline_accent} class="text-display!" />
+    <div class="lg:pb-3">
+      {value.intro && <p class="max-w-xl text-lg leading-relaxed text-graphite sm:text-xl">{value.intro}</p>}
+      {value.apply_label && <ButtonLink href={applyHref(Astro.currentLocale)} data-apply variant="accent" size="hero" class="mt-8">{value.apply_label}</ButtonLink>}
+    </div>
   </div>
+  {value.image ? (
+    <div class="container-page mt-12 sm:mt-16">
+      <div class="overflow-hidden rounded-[2rem] bg-canvas">
+        <Image image={value.image} alt="" priority sizes="(min-width: 1280px) 1232px, 100vw" class="aspect-[4/3] size-full! object-cover sm:aspect-[21/9]" />
+      </div>
+    </div>
+  ) : (
+    <div class="pb-6" aria-hidden="true"></div>
+  )}
 </section>

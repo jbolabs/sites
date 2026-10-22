@@ -47,7 +47,7 @@ const dialogContentVariants = {
    * widget fits a 375px screen.
    */
   application:
-    "bg-white text-navy ring-navy/10 max-h-[calc(100svh-2rem)] max-w-[calc(100%-1rem)] gap-0 overflow-x-hidden overflow-y-auto rounded-sm p-5 shadow-2xl sm:max-w-lg sm:p-8",
+    "bg-white text-ink ring-ink/10 max-h-[calc(100svh-2rem)] max-w-[calc(100%-1rem)] gap-0 overflow-x-hidden overflow-y-auto rounded-3xl p-5 shadow-2xl sm:max-w-lg sm:p-8",
 } as const;
 
 function DialogContent({
@@ -135,9 +135,9 @@ function DialogFooter({
 
 const dialogTitleVariants = {
   default: "font-medium",
-  /** Large navy question heading, leaving room for the close button. */
+  /** Large ink question heading, leaving room for the close button. */
   application:
-    "text-navy pr-10 text-[clamp(1.5rem,5vw,1.875rem)] leading-tight font-semibold",
+    "text-ink pr-10 text-[clamp(1.5rem,5vw,1.875rem)] leading-tight font-medium tracking-tight",
 } as const;
 
 function DialogTitle({

@@ -96,10 +96,10 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-// Site addition: `large` is the application form's bold navy label.
+// Site addition: `large` is the application form's ink label.
 const fieldLabelSizes = {
   default: "",
-  large: "text-navy text-base font-bold",
+  large: "text-ink text-base font-medium",
 } as const;
 
 function FieldLabel({
