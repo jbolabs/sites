@@ -5,7 +5,7 @@
 
 ## Context
 
-[ADR 5](0005-main-staging.md) runs the staging and production jobs independently after the required checks, sharing one serialized queue. A failed staging verification therefore stops nothing: production deploys the same release regardless. From #58 to #66 every main release ended with staging red (a false SEO error, fixed in #66), and nobody noticed for two days, because nothing depended on staging passing. Had the failure been real, production would have shipped it.
+[ADR 5](0005-main-staging.md) runs the staging and production jobs independently after the required checks, sharing one serialized queue. A failed staging verification therefore stops nothing: production deploys the same release regardless. From #58 until #66 fixed it, every main release that deployed staging ended red on a false SEO error, and nobody noticed for two days, because nothing depended on staging passing. Had the failure been real, production would have shipped it.
 
 ## Decision
 
