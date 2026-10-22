@@ -1,7 +1,8 @@
 ---
 /**
- * Closing call to action. Centered on navy (optionally with the Instagram
- * link), split (text left, buttons right), or boxed (a navy panel on white).
+ * Closing call to action. Centered in an ink panel with a sky glow
+ * (optionally with the Instagram link), split (text left, buttons right, in
+ * the same panel), or boxed (a quiet canvas panel).
  */
 import { sanitizeHref } from "emdash";
 import type { BlockComponentProps } from "emdash/ui";
@@ -24,46 +25,50 @@ const secondary = value.secondary_cta_label && value.secondary_cta_url ? { href:
 ---
 
 {layout === "centered" && (
-  <section class="bg-navy-deep py-20 text-center text-white sm:py-28">
-    <div class="container-page max-w-4xl">
-      <h2 class="headline-section text-white">{value.headline}</h2>
-      {value.body && <p class="mx-auto mt-5 max-w-xl text-lg text-white/80">{value.body}</p>}
-      <div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        {value.apply_label && <ButtonLink href={apply} data-apply variant="accent" size="hero">{value.apply_label}</ButtonLink>}
-        {secondary && <ButtonLink href={secondary.href} variant="outline-inverse" size="hero">{secondary.label}</ButtonLink>}
+  <section class="py-16 sm:py-24">
+    <div class="container-page">
+      <div data-reveal class="glow-sky relative overflow-hidden rounded-[2rem] bg-ink px-6 py-20 text-center text-white sm:px-12 sm:py-28">
+        <h2 class="headline-section mx-auto max-w-3xl text-white">{value.headline}</h2>
+        {value.body && <p class="mx-auto mt-5 max-w-xl text-lg text-white/70">{value.body}</p>}
+        <div class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          {value.apply_label && <ButtonLink href={apply} data-apply variant="inverse" size="hero">{value.apply_label}</ButtonLink>}
+          {secondary && <ButtonLink href={secondary.href} variant="outline-inverse" size="hero">{secondary.label}</ButtonLink>}
+        </div>
+        {value.show_social && (
+          <a href={site.business.instagram} rel="noopener me" target="_blank" class="mt-8 inline-flex items-center gap-2 text-sm text-white/60 hover:text-white">
+            <InstagramIcon class="size-4" />{t.followUs}
+          </a>
+        )}
       </div>
-      {value.show_social && (
-        <a href={site.business.instagram} rel="noopener me" target="_blank" class="mt-7 inline-flex items-center gap-2 text-xs font-semibold tracking-label text-white/85 uppercase hover:text-gold">
-          <InstagramIcon class="size-4" />{t.followUs}
-        </a>
-      )}
     </div>
   </section>
 )}
 {layout === "split" && (
-  <section class="bg-linear-to-r from-navy-deep to-navy py-16 text-white sm:py-20">
-    <div class="container-page flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-      <div>
-        <h2 class="text-[clamp(1.9rem,3.6vw,2.6rem)] leading-tight text-white">{value.headline}</h2>
-        {value.body && <p class="mt-3 text-lg text-white/80">{value.body}</p>}
-      </div>
-      <div class="flex flex-col gap-3 sm:flex-row">
-        {secondary && <ButtonLink href={secondary.href} variant="outline-inverse" size="cta">{secondary.label}</ButtonLink>}
-        {value.apply_label && <ButtonLink href={apply} data-apply variant="accent" size="cta">{value.apply_label}</ButtonLink>}
+  <section class="py-16 sm:py-24">
+    <div class="container-page">
+      <div data-reveal class="glow-sky flex flex-col gap-8 overflow-hidden rounded-[2rem] bg-ink px-6 py-12 text-white sm:px-12 sm:py-16 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 class="text-[clamp(1.9rem,3.6vw,2.75rem)] leading-tight tracking-[-0.035em] text-white">{value.headline}</h2>
+          {value.body && <p class="mt-3 text-lg text-white/70">{value.body}</p>}
+        </div>
+        <div class="flex shrink-0 flex-col gap-3 sm:flex-row">
+          {secondary && <ButtonLink href={secondary.href} variant="outline-inverse" size="cta">{secondary.label}</ButtonLink>}
+          {value.apply_label && <ButtonLink href={apply} data-apply variant="inverse" size="cta">{value.apply_label}</ButtonLink>}
+        </div>
       </div>
     </div>
   </section>
 )}
 {layout === "boxed" && (
-  <section class="pb-20 sm:pb-24">
+  <section class="pb-20 sm:pb-28">
     <div class="container-page">
-      <div class="flex flex-col gap-8 bg-navy p-8 text-white sm:p-10 lg:flex-row lg:items-center lg:justify-between">
+      <div data-reveal class="flex flex-col gap-8 rounded-3xl border border-line bg-canvas p-8 sm:p-10 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 class="text-2xl font-semibold tracking-[0.02em] text-white uppercase sm:text-3xl">{value.headline}</h2>
-          {value.body && <p class="mt-2 text-white/80">{value.body}</p>}
+          <h2 class="text-2xl tracking-[-0.03em] sm:text-3xl">{value.headline}</h2>
+          {value.body && <p class="mt-2 text-graphite">{value.body}</p>}
         </div>
-        <div class="flex flex-col gap-3 sm:flex-row">
-          {secondary && <ButtonLink href={secondary.href} variant="outline-inverse" size="cta">{secondary.label}</ButtonLink>}
+        <div class="flex shrink-0 flex-col gap-3 sm:flex-row">
+          {secondary && <ButtonLink href={secondary.href} variant="outline-ink" size="cta">{secondary.label}</ButtonLink>}
           {value.apply_label && <ButtonLink href={apply} data-apply variant="accent" size="cta">{value.apply_label}</ButtonLink>}
         </div>
       </div>

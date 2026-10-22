@@ -1,8 +1,9 @@
 ---
 /**
- * A strip of selling points that scrolls sideways (CSS only; still under
- * reduced motion). The list is rendered twice for a seamless loop; the copy
- * is hidden from assistive tech so each point is read once.
+ * A tape of selling points that scrolls sideways, like a rate sheet (CSS
+ * only; still under reduced motion). The list is rendered twice for a
+ * seamless loop; the copy is hidden from assistive tech so each point is
+ * read once. The edges fade so the tape slides in and out of view.
  */
 import type { BlockComponentProps } from "emdash/ui";
 
@@ -13,13 +14,13 @@ type Props = BlockComponentProps<PageContentTickerBlock>;
 const { value } = Astro.props;
 ---
 
-<div class="overflow-hidden border-y border-white/10 bg-navy-deep py-3.5 text-white">
-  <div class="flex w-max animate-ticker motion-reduce:w-full motion-reduce:flex-wrap motion-reduce:justify-center">
+<div class="overflow-hidden border-y border-line bg-white py-4 [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
+  <div class="flex w-max animate-ticker hover:[animation-play-state:paused] motion-reduce:w-full motion-reduce:flex-wrap motion-reduce:justify-center">
     {[false, true].map((copy) => (
       <ul class:list={["flex shrink-0 items-center", copy && "motion-reduce:hidden"]} aria-hidden={copy ? "true" : undefined}>
         {value.items.map((item) => (
-          <li class="flex items-center gap-3 px-6 text-xs font-semibold tracking-label whitespace-nowrap text-white/85 uppercase">
-            <span class="size-1.5 rounded-full bg-gold" aria-hidden="true"></span>{item.text}
+          <li class="flex items-center gap-3 px-7 font-mono text-[13px] whitespace-nowrap text-ink/75">
+            <span class="size-1.5 rotate-45 bg-sky" aria-hidden="true"></span>{item.text}
           </li>
         ))}
       </ul>

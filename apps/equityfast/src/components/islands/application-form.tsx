@@ -35,7 +35,7 @@ type Status =
   | { readonly state: "error"; readonly message: string };
 
 const defaultTitle = (title: string) => (
-  <h2 className="text-navy text-question font-semibold">{title}</h2>
+  <h2 className="text-ink text-question font-medium tracking-tight">{title}</h2>
 );
 
 const address = (
@@ -133,6 +133,8 @@ const ApplicationForm = ({
   );
   const [problems, setProblems] = useState<readonly string[]>([]);
   const [status, setStatus] = useState<Status>({ state: "editing" });
+  // Which way the last step change went, so the next question slides in from that side.
+  const [direction, setDirection] = useState<"forward" | "back">("forward");
   const heading = useRef<HTMLDivElement>(null);
 
   const steps = stepsFor(answers);
@@ -156,6 +158,7 @@ const ApplicationForm = ({
   };
 
   const go = (next: StepKey) => {
+    setDirection(steps.indexOf(next) < index ? "back" : "forward");
     setStepKey(next);
     writeDraft({ answers, step: next });
     setProblems([]);
@@ -208,22 +211,29 @@ const ApplicationForm = ({
   const copy = t.steps[step];
   const sending = status.state === "sending";
   const previous = steps[index - 1];
+  // A quick slide (200ms) keeps step changes from teleporting; the key replays it per question.
+  const enter = cn(
+    "animate-in fade-in ease-out-strong duration-200",
+    direction === "forward" ? "slide-in-from-right-3" : "slide-in-from-left-3"
+  );
 
   return (
     <form onSubmit={onSubmit} noValidate>
       <div ref={heading} tabIndex={-1} className="outline-none">
-        {renderTitle(copy.title)}
+        <div key={step} className={enter}>
+          {renderTitle(copy.title)}
+          <p className="text-graphite mt-2 text-base leading-relaxed">
+            {"sub" in copy ? copy.sub : t.saves}
+          </p>
+        </div>
       </div>
-      <p className="text-slate-blue mt-2 text-base leading-relaxed">
-        {"sub" in copy ? copy.sub : t.saves}
-      </p>
       <div className="mt-5 flex gap-1" aria-hidden="true">
         {steps.map((key, position) => (
           <span
             key={key}
             className={cn(
               "h-1 flex-1 rounded-full",
-              position <= index ? "bg-navy" : "bg-border"
+              position <= index ? "bg-ink" : "bg-line"
             )}
           />
         ))}
@@ -232,7 +242,7 @@ const ApplicationForm = ({
         {index + 1} / {steps.length}
       </p>
 
-      <div className="mt-6">
+      <div key={step} className={cn("mt-6", enter)}>
         <StepFields
           step={step}
           title={copy.title}
@@ -251,31 +261,31 @@ const ApplicationForm = ({
       {last && (
         <div className="mt-6">
           <div ref={turnstileRef} className="min-h-16" />
-          <p className="text-slate-blue mt-2 text-center text-xs">
-            {t.security}
-          </p>
+          <p className="text-graphite mt-2 text-center text-xs">{t.security}</p>
         </div>
       )}
 
       {problems.length > 0 && (
-        <FieldError className="mt-4">{t.errorInvalid}</FieldError>
+        <div className="animate-in fade-in slide-in-from-top-1 ease-out-strong mt-4 duration-200">
+          <FieldError>{t.errorInvalid}</FieldError>
+        </div>
       )}
       {status.state === "error" && (
-        <FieldError variant="banner" className="mt-4">
-          {status.message}
-        </FieldError>
+        <div className="animate-in fade-in slide-in-from-top-1 ease-out-strong mt-4 duration-200">
+          <FieldError variant="banner">{status.message}</FieldError>
+        </div>
       )}
       {turnstileFailed && (
-        <FieldError variant="banner" className="mt-4">
-          {t.turnstileFailed}
-        </FieldError>
+        <div className="animate-in fade-in slide-in-from-top-1 ease-out-strong mt-4 duration-200">
+          <FieldError variant="banner">{t.turnstileFailed}</FieldError>
+        </div>
       )}
 
       <div className="mt-6 flex items-center gap-3">
         {previous !== undefined && (
           <Button
             type="button"
-            variant="outline-navy"
+            variant="outline-ink"
             size="cta"
             onClick={() => {
               go(previous);
@@ -296,7 +306,7 @@ const ApplicationForm = ({
           {submitLabel(last, sending, t)}
         </Button>
       </div>
-      <p className="text-slate-blue mt-5 text-center text-xs">{t.disclaimer}</p>
+      <p className="text-graphite mt-5 text-center text-xs">{t.disclaimer}</p>
     </form>
   );
 };
