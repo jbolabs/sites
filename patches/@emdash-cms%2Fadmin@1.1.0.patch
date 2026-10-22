@@ -75,7 +75,8 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..d607acb7b383f27a5573b194dfc01d3f
  	return /* @__PURE__ */ jsxs("header", {
 +		"data-admin-header": "",
  		className: "sticky top-0 z-10 flex h-[58px] items-center justify-end border-b bg-kumo-elevated px-4",
- 		children: [/* @__PURE__ */ jsx(KumoSidebar.Trigger, { className: "me-auto cursor-pointer md:hidden rtl:rotate-180" }), /* @__PURE__ */ jsxs("div", {
+-		children: [/* @__PURE__ */ jsx(KumoSidebar.Trigger, { className: "me-auto cursor-pointer md:hidden rtl:rotate-180" }), /* @__PURE__ */ jsxs("div", {
++		children: [/* @__PURE__ */ jsxs(KumoSidebar.Trigger, { className: "me-auto cursor-pointer md:hidden", "data-admin-menu-toggle": "", children: [/* @__PURE__ */ jsx("span", { "data-admin-menu-bar": "", "aria-hidden": "true" }), /* @__PURE__ */ jsx("span", { "data-admin-menu-bar": "", "aria-hidden": "true" })] }), /* @__PURE__ */ jsxs("div", {
  			className: "flex items-center gap-2",
 +			"data-admin-header-actions": "",
  			children: [
@@ -90,7 +91,7 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..d607acb7b383f27a5573b194dfc01d3f
 -					})]
 -				}),
 -				/* @__PURE__ */ jsx(ThemeToggle, {}),
-+				/* @__PURE__ */ jsx(LinkButton, {
++				/* @__PURE__ */ jsxs(LinkButton, {
 +                    variant: "ghost",
 +                    size: "sm",
 +                    href: "/",
@@ -98,7 +99,7 @@ index 5ed5f0b7d992686b02e1008608009d65c2f061c4..d607acb7b383f27a5573b194dfc01d3f
 +                    "data-admin-icon-action": "",
 +                    "aria-label": _t({ id: "4/SFQS", message: "View Site" }),
 +                    title: _t({ id: "4/SFQS", message: "View Site" }),
-+                    children: /* @__PURE__ */ jsx(ArrowSquareOut, { "aria-hidden": "true" })
++                    children: [/* @__PURE__ */ jsx(ArrowSquareOut, { "aria-hidden": "true" }), /* @__PURE__ */ jsx("span", { "data-admin-action-label": "", children: _t({ id: "4/SFQS", message: "View Site" }) })]
 +                }),
  				/* @__PURE__ */ jsxs(Popover, {
  					open: userMenuOpen,

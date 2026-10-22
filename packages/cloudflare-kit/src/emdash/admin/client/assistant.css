@@ -15,7 +15,8 @@
 /* The admin marks dark mode on <html data-mode="dark">. */
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
-:root {
+/* Above a plain :root: this sheet loads first, and in dev the site's own global.css (same token names) follows it. */
+html[data-theme] {
   --background: var(--color-kumo-base);
   --foreground: var(--text-color-kumo-default);
   --card: var(--color-kumo-base);
