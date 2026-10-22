@@ -1,6 +1,6 @@
 # 5. Main releases deploy every app to staging and domain-qualified apps to production
 
-- Status: accepted; staging hostname and credentials superseded by [ADR 6](0006-branded-client-staging.md)
+- Status: accepted; staging hostname and credentials superseded by [ADR 6](0006-branded-client-staging.md); independent staging and production jobs superseded by [ADR 9](0009-production-waits-on-staging.md)
 - Date: 2026-10-20
 
 ## Context

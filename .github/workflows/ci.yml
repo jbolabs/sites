@@ -348,8 +348,9 @@ jobs:
           if-no-files-found: ignore
 
   production:
-    needs: check
-    if: ${{ !cancelled() && needs.check.result == 'success' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || needs.check.outputs.deploy != '[]') && vars.DEPLOYS_ENABLED == 'true' }}
+    # Production ships only what staging just deployed and verified (ADR 0009).
+    needs: [check, staging]
+    if: ${{ !cancelled() && needs.check.result == 'success' && needs.staging.result == 'success' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || needs.check.outputs.deploy != '[]') && vars.DEPLOYS_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production
