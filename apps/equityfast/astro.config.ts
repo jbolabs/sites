@@ -65,16 +65,24 @@ const buildCaches = standalone
 const bodyFont = {
   cssVariable: "--font-body",
   fallbacks: ["ui-sans-serif", "system-ui", "sans-serif"],
-  name: "Jost",
+  name: "Geist",
   provider: fontProviders.google(),
-  styles: ["normal", "italic"],
-  weights: [400, 500, 600, 700],
+  weights: [400, 500, 600],
+} satisfies NonNullable<AstroUserConfig["fonts"]>[number];
+
+/** Figures and the ticker: tabular, like a rate sheet. */
+const numericFont = {
+  cssVariable: "--font-numeric",
+  fallbacks: ["ui-monospace", "SFMono-Regular", "monospace"],
+  name: "Geist Mono",
+  provider: fontProviders.google(),
+  weights: [400, 500],
 } satisfies NonNullable<AstroUserConfig["fonts"]>[number];
 
 export default defineConfig({
   ...(buildCaches && { cacheDir: buildCaches.astro }),
   devToolbar: { enabled: false },
-  fonts: [bodyFont, adminFont],
+  fonts: [bodyFont, numericFont, adminFont],
   /**
    * English at `/`, Spanish under `/es/`. EmDash reads this config: each locale
    * is its own CMS entry linked as a translation, and EmDash emits the

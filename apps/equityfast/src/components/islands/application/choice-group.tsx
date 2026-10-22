@@ -29,7 +29,7 @@ const ChoiceGroup = ({
       <label
         key={option}
         className={cn(
-          "has-data-checked:border-navy has-data-checked:bg-mist text-navy has-focus-visible:ring-sky/40 flex min-h-14 cursor-pointer items-center gap-4 rounded-sm border-2 bg-white px-5 text-lg font-semibold has-focus-visible:ring-4",
+          "has-data-checked:border-ink has-data-checked:bg-canvas text-ink has-focus-visible:ring-sky/40 flex min-h-14 cursor-pointer items-center gap-4 rounded-xl border bg-white px-5 text-lg font-medium has-focus-visible:ring-4",
           invalid && value === "" ? "border-destructive" : "border-border"
         )}
       >

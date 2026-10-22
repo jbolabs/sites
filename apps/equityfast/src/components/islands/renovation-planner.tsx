@@ -9,6 +9,8 @@ import { prefillAmount } from "@/lib/application-rules";
 import { budgetCeiling, planTotals, projectGain } from "@/lib/planner";
 import { cn } from "@/lib/utils";
 
+import { useTweenedNumber } from "./use-tweened-number";
+
 export interface PlannerProject {
   readonly name: string;
   readonly blurb: string;
@@ -59,7 +61,7 @@ const BudgetPanel = ({
 }) => {
   const gain = projectGain(project);
   const facts = [
-    { label: strings.spent, tone: "text-navy", value: usd(project.budget) },
+    { label: strings.spent, tone: "text-ink", value: usd(project.budget) },
     {
       label: strings.equityAdded,
       tone: "text-emerald-700",
@@ -74,9 +76,9 @@ const BudgetPanel = ({
   return (
     <div
       id={panelId(project.name)}
-      className="border-navy/15 border-t bg-white p-5"
+      className="border-line animate-in fade-in slide-in-from-top-1 ease-out-strong border-t bg-white p-5 duration-200"
     >
-      <p className="text-slate-blue text-sm font-semibold">{strings.drag}</p>
+      <p className="text-graphite text-sm font-semibold">{strings.drag}</p>
       <div className="mt-3 flex items-center gap-4">
         <Slider
           variant="brand"
@@ -103,20 +105,18 @@ const BudgetPanel = ({
         />
       </div>
       <div
-        className="bg-mist mt-3 h-2 overflow-hidden rounded-full"
+        className="bg-canvas mt-3 h-2 overflow-hidden rounded-full"
         aria-hidden="true"
       >
         <div
-          className="from-sky to-navy h-full origin-left scale-x-(--share) rounded-full bg-linear-to-r transition-transform duration-300"
+          className="from-sky to-sky-ink h-full origin-left scale-x-(--share) rounded-full bg-linear-to-r transition-transform duration-300"
           style={{ "--share": Math.min(1, gain / largestGain) }}
         />
       </div>
       <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
         {facts.map((fact) => (
-          <div key={fact.label} className="bg-mist rounded-sm px-2 py-2">
-            <dt className="text-slate-blue text-2xs font-semibold tracking-wider uppercase">
-              {fact.label}
-            </dt>
+          <div key={fact.label} className="bg-canvas rounded-lg px-2 py-2">
+            <dt className="text-graphite text-2xs">{fact.label}</dt>
             <dd className={cn("text-sm font-semibold tabular-nums", fact.tone)}>
               {fact.value}
             </dd>
@@ -155,6 +155,7 @@ const PlanSummary = ({
     totals.blendedReturn === undefined
       ? "-"
       : `${Math.round(totals.blendedReturn * 100)}%`;
+  const gainShown = useTweenedNumber(totals.gain);
   const lines = [
     { label: strings.total, value: usd(totals.budget) },
     { label: strings.valueAbove, value: usd(totals.aboveCost) },
@@ -162,14 +163,15 @@ const PlanSummary = ({
     { label: strings.count, value: String(totals.count) },
   ];
   return (
-    <aside className="border-navy min-w-0 border-2 bg-white p-5 shadow-xl sm:p-7 lg:sticky lg:top-28">
-      <p className="text-slate-blue text-xs font-semibold tracking-wider uppercase">
-        {strings.gained}
-      </p>
-      <output
-        aria-live="polite"
-        className="text-navy mt-1 block text-5xl leading-none font-semibold tabular-nums"
+    <aside className="border-line shadow-float min-w-0 rounded-3xl border bg-white p-5 sm:p-7 lg:sticky lg:top-28">
+      <p className="text-graphite text-sm">{strings.gained}</p>
+      <p
+        aria-hidden="true"
+        className="text-ink tracking-figure mt-2 text-5xl leading-none font-medium tabular-nums"
       >
+        {usd(gainShown)}
+      </p>
+      <output aria-live="polite" className="sr-only">
         {usd(totals.gain)}
       </output>
       <dl className="mt-6 divide-y border-t">
@@ -178,8 +180,8 @@ const PlanSummary = ({
             key={line.label}
             className="flex items-center justify-between py-3"
           >
-            <dt className="text-slate-blue">{line.label}</dt>
-            <dd className="text-navy font-semibold tabular-nums">
+            <dt className="text-graphite">{line.label}</dt>
+            <dd className="text-ink font-semibold tabular-nums">
               {line.value}
             </dd>
           </div>
@@ -203,7 +205,7 @@ const PlanSummary = ({
         {strings.reset}
       </Button>
       {disclaimer !== undefined && (
-        <p className="text-slate-blue mt-4 text-xs leading-relaxed">
+        <p className="text-graphite mt-4 text-xs leading-relaxed">
           {disclaimer}
         </p>
       )}
@@ -248,10 +250,10 @@ const RenovationPlanner = ({
     <div className="grid gap-8 lg:grid-cols-[1fr_360px] lg:items-start">
       <div className="min-w-0">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="text-slate-blue text-sm font-semibold">
+          <h3 className="text-graphite text-sm font-semibold">
             {strings.pick}
           </h3>
-          <p className="text-slate-blue text-xs">{strings.pickHelp}</p>
+          <p className="text-graphite text-xs">{strings.pickHelp}</p>
         </div>
         <ul className="mt-4 grid gap-3">
           {rows.map((project) => {
@@ -261,10 +263,8 @@ const RenovationPlanner = ({
               <li
                 key={project.name}
                 className={cn(
-                  "overflow-hidden rounded-sm border-2",
-                  active
-                    ? "border-navy bg-mist shadow-md"
-                    : "border-border bg-white"
+                  "overflow-hidden rounded-2xl border",
+                  active ? "border-ink bg-canvas" : "border-border bg-white"
                 )}
               >
                 <Button
@@ -278,13 +278,13 @@ const RenovationPlanner = ({
                   }}
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="text-navy block text-base leading-snug font-semibold">
+                    <span className="text-ink block text-base leading-snug font-medium">
                       {project.name}
                     </span>
                     <span
                       className={cn(
                         "mt-1 block text-sm leading-snug font-normal",
-                        active ? "text-navy/75" : "text-slate-blue"
+                        active ? "text-ink/75" : "text-graphite"
                       )}
                     >
                       {active ? summary(project) : project.blurb}
@@ -292,15 +292,15 @@ const RenovationPlanner = ({
                   </span>
                   <span
                     className={cn(
-                      "shrink-0 px-2.5 py-1 text-xs font-semibold tabular-nums",
-                      active ? "bg-gold text-navy-deep" : "bg-mist text-navy"
+                      "shrink-0 rounded-full px-2.5 py-1 font-mono text-xs tabular-nums",
+                      active ? "bg-ink text-white" : "bg-canvas text-ink"
                     )}
                   >
                     {project.roiPercent}%
                   </span>
                   <ChevronDownIcon
                     className={cn(
-                      "text-slate-blue mt-0.5 size-5 transition-transform",
+                      "text-graphite mt-0.5 size-5 transition-transform",
                       expanded && "rotate-180"
                     )}
                     aria-hidden="true"

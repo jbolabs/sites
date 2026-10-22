@@ -8,56 +8,58 @@
 @custom-variant data-vertical (&[data-orientation="vertical"]);
 
 /*
- * EquityFast design tokens, taken from the current site: deep navy, sky blue
- * (the "FAST" in the wordmark), gold, and the CTA orange. shadcn/ui primitives
- * read the semantic names (--primary, --muted, ...), so restyling starts here.
- * `--brand-sky-ink` is a darker sky for text on white: the original sky only
- * reaches about 2.5:1 there, below the 3:1 large-text minimum.
+ * EquityFast design tokens: a light, fintech-minimal system. Near-black ink
+ * on white and a cool off-white canvas, with one accent: the sky blue of the
+ * "FAST" in the wordmark. shadcn/ui primitives read the semantic names
+ * (--primary, --muted, ...), so restyling starts here. The logo's sky reaches
+ * only about 2.4:1 on white, so text on light surfaces uses deeper steps:
+ * `--sky-display` (3.2:1, large type: the headline accents that echo the
+ * wordmark) and `--sky-ink` (4.5:1+, small text).
  */
 :root {
-  --brand-navy: oklch(0.29 0.126 268.5);
-  --brand-navy-deep: oklch(0.24 0.14 269);
-  --brand-navy-soft: oklch(0.36 0.12 268);
+  --brand-ink: oklch(0.2 0.03 265);
+  --brand-ink-soft: oklch(0.31 0.03 265);
+  --brand-graphite: oklch(0.5 0.022 265);
+  --brand-canvas: oklch(0.982 0.004 247);
+  --brand-line: oklch(0.925 0.007 255);
   --brand-sky: oklch(0.72 0.099 233);
-  --brand-sky-ink: oklch(0.55 0.11 238);
-  --brand-gold: oklch(0.83 0.16 84);
-  --brand-orange: oklch(0.82 0.17 79);
-  --brand-slate: oklch(0.47 0.036 268);
-  --brand-mist: oklch(0.97 0.017 227);
+  --brand-sky-display: oklch(0.645 0.12 233);
+  --brand-sky-ink: oklch(0.52 0.125 243);
+  --brand-sky-wash: oklch(0.955 0.025 233);
 
   --background: oklch(1 0 0);
-  --foreground: var(--brand-navy);
+  --foreground: var(--brand-ink);
   --card: oklch(1 0 0);
-  --card-foreground: var(--brand-navy);
+  --card-foreground: var(--brand-ink);
   --popover: oklch(1 0 0);
-  --popover-foreground: var(--brand-navy);
-  --primary: var(--brand-navy);
+  --popover-foreground: var(--brand-ink);
+  --primary: var(--brand-ink);
   --primary-foreground: oklch(1 0 0);
-  --secondary: var(--brand-mist);
-  --secondary-foreground: var(--brand-navy);
-  --muted: var(--brand-mist);
-  --muted-foreground: var(--brand-slate);
-  --accent: var(--brand-orange);
-  --accent-foreground: var(--brand-navy-deep);
+  --secondary: var(--brand-canvas);
+  --secondary-foreground: var(--brand-ink);
+  --muted: var(--brand-canvas);
+  --muted-foreground: var(--brand-graphite);
+  --accent: var(--brand-sky);
+  --accent-foreground: var(--brand-ink);
   --destructive: oklch(0.55 0.21 27);
-  --border: oklch(0.91 0.013 255);
-  --input: oklch(0.88 0.015 255);
+  --border: var(--brand-line);
+  --input: oklch(0.89 0.01 255);
   --ring: var(--brand-sky);
-  --radius: 0.25rem;
+  --radius: 0.875rem;
 }
 
 @theme inline {
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-numeric), ui-monospace, monospace;
 
-  --color-navy: var(--brand-navy);
-  --color-navy-deep: var(--brand-navy-deep);
-  --color-navy-soft: var(--brand-navy-soft);
+  --color-ink: var(--brand-ink);
+  --color-ink-soft: var(--brand-ink-soft);
+  --color-graphite: var(--brand-graphite);
+  --color-canvas: var(--brand-canvas);
+  --color-line: var(--brand-line);
   --color-sky: var(--brand-sky);
   --color-sky-ink: var(--brand-sky-ink);
-  --color-gold: var(--brand-gold);
-  --color-orange: var(--brand-orange);
-  --color-slate-blue: var(--brand-slate);
-  --color-mist: var(--brand-mist);
+  --color-sky-wash: var(--brand-sky-wash);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -78,21 +80,77 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --radius-sm: calc(var(--radius) - 2px);
-  --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 2px);
-  --radius-xl: calc(var(--radius) + 6px);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 
-  /* Tracked caps labels and buttons. */
-  --tracking-label: 0.2em;
   --text-2xs: 0.625rem;
   /* The application's question heading and the estimator's big figures. */
   --text-question: clamp(1.5rem, 5vw, 1.875rem);
   --text-question--line-height: 1.2;
-  --text-figure: clamp(2.25rem, 5vw, 3rem);
+  --text-figure: clamp(2.75rem, 6vw, 3.75rem);
   --text-figure--line-height: 1;
+  /* Page openers: the h1 of every page. */
+  --text-display: clamp(2.75rem, 5.6vw, 4.75rem);
+  --text-display--line-height: 0.98;
+  --text-display--letter-spacing: -0.045em;
 
-  --animate-ticker: ticker 40s linear infinite;
+  /*
+   * Motion. Strong ease-out for anything entering or answering a touch;
+   * strong ease-in-out for things that move on screen (the photo reveal).
+   */
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  /* A slight overshoot, kept for the one celebratory moment (the application's success check). */
+  --ease-overshoot: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  /* Big figures (the estimate, the planner's total). */
+  --tracking-figure: -0.04em;
+  /* Floating white cards: the estimator, planner summary, application. */
+  --shadow-float: 0 40px 90px -40px rgb(14 20 36 / 0.5);
+  --shadow-lift: 0 24px 60px -30px rgb(14 20 36 / 0.35);
+
+  --animate-ticker: ticker 48s linear infinite;
+  /* Page openers, once per load: lines rise, the estimate lifts, photos settle or unclip. */
+  --animate-rise: rise 700ms var(--ease-out-strong) both;
+  --animate-lift: lift 900ms var(--ease-out-strong) both;
+  --animate-settle: settle 1600ms var(--ease-out-strong) both;
+  --animate-unclip: unclip 1100ms var(--ease-in-out-strong) both;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+      filter: blur(4px);
+    }
+  }
+
+  /* Large surfaces rise without blur: blurring a photo layer is costly in Safari. */
+  @keyframes lift {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.98);
+    }
+  }
+
+  @keyframes settle {
+    from {
+      transform: scale(1.06);
+    }
+  }
+
+  @keyframes unclip {
+    from {
+      clip-path: inset(7% 4% 0 4% round 2rem);
+    }
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
 
   @keyframes ticker {
     to {
@@ -114,13 +172,14 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     -webkit-tap-highlight-color: transparent;
+    font-feature-settings: "ss01";
   }
 
   h1,
   h2,
   h3,
   h4 {
-    @apply text-navy font-normal text-balance;
+    @apply text-ink font-medium tracking-tight text-balance;
   }
 
   p {
@@ -129,7 +188,7 @@
 }
 
 @utility container-page {
-  @apply mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-16;
+  @apply mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12;
 }
 
 /* Bottom padding that clears the iPhone home indicator. */
@@ -139,20 +198,58 @@
 
 /* Section headline scale shared by the content blocks. */
 @utility headline-section {
-  @apply text-[clamp(2rem,4.4vw,3.25rem)] leading-[1.04] tracking-tight;
+  @apply text-[clamp(2.125rem,4.4vw,3.5rem)] leading-[1.02] font-medium tracking-[-0.035em];
+}
+
+/* Vertical rhythm shared by the content sections. */
+@utility section-y {
+  @apply py-20 sm:py-28;
+}
+
+/*
+ * The second line of a two-tone headline, in the wordmark's sky like "FAST"
+ * in the logo. Large type only: `--sky-display` passes 3:1, not 4.5:1. On ink
+ * surfaces the logo's own sky is used instead (see headline.astro).
+ */
+@utility headline-accent {
+  color: var(--brand-sky-display);
+}
+
+/* A faint sky glow for dark panels and page openers. */
+@utility glow-sky {
+  background-image:
+    radial-gradient(
+      60% 80% at 85% 0%,
+      color-mix(in oklch, var(--brand-sky) 38%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      40% 60% at 0% 100%,
+      color-mix(in oklch, var(--brand-sky) 16%, transparent),
+      transparent 70%
+    );
+}
+
+/* The same glow behind a light opener, fading out before the content below. */
+@utility glow-sky-top {
+  background-image: radial-gradient(
+    55% 70% at 80% 0%,
+    color-mix(in oklch, var(--brand-sky) 30%, transparent),
+    transparent 75%
+  );
 }
 
 /* Long-form copy from the CMS (Portable Text): numbered legal sections. */
 @utility prose-site {
-  @apply text-foreground/85 max-w-3xl text-lg leading-relaxed;
+  @apply text-ink/80 max-w-3xl text-lg leading-relaxed;
   counter-reset: section;
 
   & h2 {
-    @apply text-navy mt-12 mb-3 text-2xl first:mt-0 sm:text-3xl;
+    @apply text-ink mt-14 mb-3 text-2xl first:mt-0 sm:text-3xl;
     counter-increment: section;
 
     &::before {
-      @apply text-sky-ink tracking-label mb-2 block text-xs font-semibold;
+      @apply text-sky-ink mb-3 block font-mono text-sm;
       content: counter(section, decimal-leading-zero);
     }
   }
@@ -162,7 +259,7 @@
   }
 
   & a {
-    @apply text-navy font-medium underline underline-offset-4;
+    @apply text-ink decoration-sky font-medium underline underline-offset-4;
   }
 
   & ul {
@@ -170,8 +267,116 @@
   }
 }
 
+/* The estimator's split bar: segments glide to their new share. */
+@utility transition-grow {
+  transition: flex-grow 250ms var(--ease-out-strong);
+}
+
+/* Staggers the opener's lines: `stagger-1` waits one beat (70ms), `stagger-2` two. */
+@utility stagger-* {
+  animation-delay: calc(--value(integer) * 70ms);
+}
+
+/*
+ * Scroll reveals (src/lib/reveal.ts). Only elements below the fold at load
+ * are hidden, so nothing on screen flashes and nothing hides without
+ * JavaScript. `data-reveal` rises as one piece; `data-reveal-group` rises
+ * its children in turn (cards in a grid). An animation, not a transition, so
+ * it never replaces an element's own transitions (a card's hover shadow).
+ */
+[data-reveal="hidden"],
+[data-reveal-group="hidden"] > * {
+  opacity: 0;
+}
+
+[data-reveal="shown"],
+[data-reveal-group="shown"] > * {
+  animation: reveal 700ms var(--ease-out-strong) both;
+}
+
+[data-reveal-group="shown"] > :nth-child(2) {
+  animation-delay: 60ms;
+}
+[data-reveal-group="shown"] > :nth-child(3) {
+  animation-delay: 120ms;
+}
+[data-reveal-group="shown"] > :nth-child(4) {
+  animation-delay: 180ms;
+}
+[data-reveal-group="shown"] > :nth-child(n + 5) {
+  animation-delay: 240ms;
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+}
+
+/*
+ * FAQ answers open and close smoothly where the browser can size to `auto`;
+ * elsewhere they snap. Height is the one layout property animated: an
+ * accordion has to push the questions below it.
+ */
+:root {
+  interpolate-size: allow-keywords;
+}
+
+details::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition:
+    block-size 250ms var(--ease-out-strong),
+    content-visibility 250ms allow-discrete;
+}
+
+details[open]::details-content {
+  block-size: auto;
+}
+
+/* Reduced motion: no movement, only short fades where they help. */
 @media (prefers-reduced-motion: reduce) {
   .animate-ticker {
     animation: none;
+  }
+
+  .animate-rise,
+  .animate-lift {
+    animation: fade 300ms ease both;
+  }
+
+  .animate-settle,
+  .animate-unclip {
+    animation: none;
+  }
+
+  details::details-content {
+    transition: none;
+  }
+
+  /* Reveals fade without rising. */
+  [data-reveal="shown"],
+  [data-reveal-group="shown"] > * {
+    animation: fade 300ms ease both;
+  }
+
+  /*
+   * tw-animate entrances and exits (dialog, form steps, panels): keep the
+   * fade, drop the travel and zoom. The dialog applies its classes only
+   * while open or closing (`data-open:animate-in`), so it is named too.
+   */
+  .animate-in,
+  .animate-out,
+  [data-slot="dialog-content"],
+  [data-slot="dialog-overlay"] {
+    --tw-enter-translate-x: 0;
+    --tw-enter-translate-y: 0;
+    --tw-enter-scale: 1;
+    --tw-enter-blur: 0;
+    --tw-exit-translate-x: 0;
+    --tw-exit-translate-y: 0;
+    --tw-exit-scale: 1;
+    --tw-exit-blur: 0;
   }
 }

@@ -7,10 +7,10 @@ import { cn } from "@/lib/utils";
 // `compact` is the planner's small right-aligned dollar box.
 const inputVariants = {
   compact:
-    "border-border bg-mist text-navy h-10 w-28 shrink-0 rounded-sm border-2 text-right font-semibold md:text-sm",
+    "border-border bg-canvas text-ink h-10 w-28 shrink-0 rounded-lg border text-right font-medium tabular-nums md:text-sm",
   default: "",
   large:
-    "h-13 rounded-sm border-2 px-4 text-lg font-medium md:text-lg text-navy placeholder:text-slate-blue/60 focus-visible:border-navy focus-visible:ring-sky/30",
+    "h-13 rounded-xl border px-4 text-lg md:text-lg text-ink placeholder:text-graphite/60 focus-visible:border-ink focus-visible:ring-sky/30",
 } as const;
 
 function Input({

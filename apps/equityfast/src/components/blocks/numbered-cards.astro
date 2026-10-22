@@ -1,7 +1,10 @@
 ---
 /**
- * Numbered points (01, 02, ...). Light: a three-up grid under the headline.
- * Navy: the headline and button stay beside a column of step cards.
+ * Numbered points. Light: a three-up row of canvas cards, each led by a large
+ * sky numeral (01, 02, ...). Navy (ink): the headline and button stay beside
+ * a connected stepper, numbers in rings joined by a line, so the steps read
+ * as one sequence. The `<ol>` carries the order for assistive tech; the
+ * drawn numbers are decoration.
  */
 import type { BlockComponentProps } from "emdash/ui";
 
@@ -13,40 +16,53 @@ import type { PageContentNumberedCardsBlock } from "../../../emdash-env";
 type Props = BlockComponentProps<PageContentNumberedCardsBlock>;
 
 const { value } = Astro.props;
-const navy = value.tone === "navy";
+const dark = value.tone === "navy";
 const number = (index: number) => String(index + 1).padStart(2, "0");
 ---
 
-{navy ? (
-  <section class="bg-linear-to-b from-navy to-navy-deep py-20 text-white sm:py-24">
-    <div class="container-page grid *:min-w-0 gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
-      <div class="lg:sticky lg:top-32 lg:self-start">
-        <Headline text={value.headline} accent={value.headline_accent} tone="dark" class="text-white" />
-        {value.body && <p class="mt-6 max-w-lg text-lg text-white/80">{value.body}</p>}
-        {value.apply_label && <ButtonLink href={applyHref(Astro.currentLocale)} data-apply variant="accent" size="hero" class="mt-9">{value.apply_label}</ButtonLink>}
+{dark ? (
+  <section class="py-6 sm:py-8">
+    <div class="container-page">
+      <div class="glow-sky grid *:min-w-0 gap-12 overflow-hidden rounded-[2rem] bg-ink px-6 py-16 text-white sm:px-12 sm:py-20 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+        <div class="lg:sticky lg:top-32 lg:self-start">
+          <Headline text={value.headline} accent={value.headline_accent} tone="dark" />
+          {value.body && <p class="mt-6 max-w-md text-lg text-white/70">{value.body}</p>}
+          {value.apply_label && <ButtonLink href={applyHref(Astro.currentLocale)} data-apply variant="inverse" size="hero" class="mt-9">{value.apply_label}</ButtonLink>}
+        </div>
+        {/*
+          Each ring sits at the top of its step and the title's padding centers its
+          first line on the ring (48px: 10px + 28px line + 10px, or 8 + 32 + 8 at sm),
+          so the digit stays level with the title however long it runs, and the
+          line under the ring always starts clear of it.
+        */}
+        <ol class="lg:py-2" data-reveal-group>
+          {value.items.map((item, index) => (
+            <li class="relative grid grid-cols-[3rem_1fr] items-start gap-x-5 pb-10 last:pb-0 sm:gap-x-7">
+              {index < value.items.length - 1 && (
+                <span class="absolute top-14 bottom-1 left-[23.5px] w-px bg-linear-to-b from-sky/60 to-white/10" aria-hidden="true"></span>
+              )}
+              <span class="flex size-12 items-center justify-center rounded-full border border-sky/40 bg-sky/10 text-lg leading-none font-medium text-sky tabular-nums" aria-hidden="true">{index + 1}</span>
+              <h3 class="py-2.5 text-xl text-white sm:py-2 sm:text-2xl">{item.title}</h3>
+              <p class="col-start-2 max-w-md leading-relaxed text-white/65">{item.body}</p>
+            </li>
+          ))}
+        </ol>
       </div>
-      <ol class="space-y-5">
-        {value.items.map((item, index) => (
-          <li class="border border-gold/40 bg-white/8 p-8">
-            <p class="text-3xl font-semibold text-gold" aria-hidden="true">{number(index)}</p>
-            <h3 class="mt-3 text-2xl text-white">{item.title}</h3>
-            <p class="mt-2 text-lg text-white/80">{item.body}</p>
-          </li>
-        ))}
-      </ol>
     </div>
   </section>
 ) : (
-  <section class="py-20 sm:py-24">
+  <section class="section-y">
     <div class="container-page">
+      <div data-reveal>
       <Headline text={value.headline} accent={value.headline_accent} class="max-w-3xl" />
-      {value.body && <p class="mt-6 max-w-2xl text-lg text-slate-blue">{value.body}</p>}
-      <ol class="mt-12 grid gap-10 md:grid-cols-3">
+      {value.body && <p class="mt-6 max-w-2xl text-lg text-graphite">{value.body}</p>}
+      </div>
+      <ol class="mt-12 grid gap-4 md:grid-cols-3" data-reveal-group>
         {value.items.map((item, index) => (
-          <li class="border-t-2 border-navy pt-6">
-            <p class="text-sm font-semibold tracking-label text-sky-ink" aria-hidden="true">{number(index)}</p>
-            <h3 class="mt-3 text-2xl">{item.title}</h3>
-            <p class="mt-3 leading-relaxed text-slate-blue">{item.body}</p>
+          <li class="flex flex-col rounded-3xl bg-canvas p-7 sm:p-8">
+            <p class="headline-accent text-[clamp(3.5rem,6vw,4.5rem)] leading-none font-medium tracking-[-0.05em] tabular-nums" aria-hidden="true">{number(index)}</p>
+            <h3 class="mt-10 text-2xl tracking-[-0.03em]">{item.title}</h3>
+            <p class="mt-3 leading-relaxed text-graphite">{item.body}</p>
           </li>
         ))}
       </ol>

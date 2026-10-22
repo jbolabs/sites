@@ -77,11 +77,12 @@ const breadcrumbs = crumbs === undefined ? undefined : JSON.stringify(breadcrumb
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0b0b5e" />
+    <meta name="theme-color" content="#ffffff" />
     <title>{fullTitle}</title>
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <Font cssVariable="--font-body" preload />
+    <Font cssVariable="--font-numeric" />
     <EmDashHead page={page} />
     <meta property="og:locale" content={LANGUAGE_TAG[locale].replace("-", "_")} />
     {Object.entries(LANGUAGE_TAG).filter(([code]) => code !== locale).map(([, tag]) => <meta property="og:locale:alternate" content={tag.replace("-", "_")} />)}
@@ -90,7 +91,7 @@ const breadcrumbs = crumbs === undefined ? undefined : JSON.stringify(breadcrumb
   </head>
   <body class="flex min-h-svh flex-col">
     <EmDashBodyStart page={page} />
-    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-60 focus:bg-white focus:px-4 focus:py-2 focus:text-navy focus:shadow">{t.skipToContent}</a>
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-60 focus:bg-white focus:px-4 focus:py-2 focus:text-ink focus:shadow">{t.skipToContent}</a>
     <SiteHeader locale={locale} items={chrome.primary} alternates={alternates} />
     <main id="main" class="flex-1">
       <slot />
@@ -101,8 +102,10 @@ const breadcrumbs = crumbs === undefined ? undefined : JSON.stringify(breadcrumb
     <EmDashBodyEnd page={page} />
     <script>
       import { mountSeamlessEdges } from "@jakebodea/site-ui/seamless-edges";
+      import { mountReveal } from "@/lib/reveal";
 
       mountSeamlessEdges();
+      mountReveal();
     </script>
   </body>
 </html>

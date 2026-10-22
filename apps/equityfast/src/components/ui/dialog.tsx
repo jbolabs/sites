@@ -31,7 +31,7 @@ function DialogOverlay({
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        "data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs",
+        "data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 fixed inset-0 isolate z-50 bg-black/10 duration-200 data-closed:duration-150 supports-backdrop-filter:backdrop-blur-xs",
         className
       )}
       {...props}
@@ -47,7 +47,7 @@ const dialogContentVariants = {
    * widget fits a 375px screen.
    */
   application:
-    "bg-white text-navy ring-navy/10 max-h-[calc(100svh-2rem)] max-w-[calc(100%-1rem)] gap-0 overflow-x-hidden overflow-y-auto rounded-sm p-5 shadow-2xl sm:max-w-lg sm:p-8",
+    "bg-white text-ink ring-ink/10 max-h-[calc(100svh-2rem)] max-w-[calc(100%-1rem)] gap-0 overflow-x-hidden overflow-y-auto rounded-3xl p-5 shadow-2xl sm:max-w-lg sm:p-8",
 } as const;
 
 function DialogContent({
@@ -69,7 +69,7 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl text-sm ring-1 duration-100 outline-none sm:max-w-sm",
+          "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 ease-out-strong fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl text-sm ring-1 duration-200 outline-none data-closed:duration-150 sm:max-w-sm",
           dialogContentVariants[variant],
           className
         )}
@@ -135,9 +135,9 @@ function DialogFooter({
 
 const dialogTitleVariants = {
   default: "font-medium",
-  /** Large navy question heading, leaving room for the close button. */
+  /** Large ink question heading, leaving room for the close button. */
   application:
-    "text-navy pr-10 text-[clamp(1.5rem,5vw,1.875rem)] leading-tight font-semibold",
+    "text-ink pr-10 text-[clamp(1.5rem,5vw,1.875rem)] leading-tight font-medium tracking-tight",
 } as const;
 
 function DialogTitle({
