@@ -10,6 +10,7 @@ import {
   productionDeployRefusal,
   resolveStage,
   webAnalytics,
+  googleTagManager,
   leadMail,
   emdashSecrets,
   siteObservability,
@@ -23,7 +24,8 @@ import {
  *   D1 (EmDash content) + R2 (media) + Images binding + session KV (auto)
  *   + Turnstile widget + every-minute cron (EmDash scheduled publishing)
  *   + Workers AI + AI Gateway for the CMS assistant (deployed stages only)
- *   prod only: custom domain, retained backups bucket + daily backup cron
+ *   prod only: custom domain, retained backups bucket + daily backup cron,
+ *   the agency's Tag Manager container behind Cloudflare's Google tag gateway
  *
  * Deploy: `bun alchemy deploy --stage <stage> --profile <profile>` from this
  * directory (see .agents/skills/deploy). Never export CLOUDFLARE_* variables.
@@ -100,6 +102,10 @@ export default Alchemy.Stack(
     const assistant = yield* assistantAi(stage);
     const bindings = {
       ...(yield* webAnalytics(stage)),
+      ...(yield* googleTagManager(stage, {
+        endpoint: site.gtmEndpoint,
+        id: site.gtmContainerId,
+      })),
       ...leadMail(stage, {
         alertInbox: studio.alertInbox,
         emailFrom,

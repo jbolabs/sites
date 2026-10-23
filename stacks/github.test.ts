@@ -43,19 +43,28 @@ describe("GitHub production environment", () => {
         "com.cloudflare.api.account.984b82870acd18daf8bda97bad966b38": "*",
       });
       expect(policy?.permissionGroups).not.toContain("DNS Write");
+      expect(policy?.permissionGroups).not.toContain("Zaraz Edit");
     }
   });
 
-  it.each(["client-preview", "staging", "production"])(
+  it.each([
+    ["client-preview", ["Zone Read", "DNS Write", "Workers Routes Write"]],
+    ["staging", ["Zone Read", "DNS Write", "Workers Routes Write"]],
+    // Google tag gateway is a zone setting Cloudflare guards with the Zaraz groups.
+    [
+      "production",
+      ["Zone Read", "DNS Write", "Workers Routes Write", "Zaraz Edit"],
+    ],
+  ])(
     "scopes %s domain permissions under the account's zones",
-    (name) => {
+    (name, groups) => {
       const environment = environments.find((item) => item.name === name);
       if (environment === undefined) {
         throw new Error(`Missing ${name} environment`);
       }
       expect(deployPolicies(environment)[1]).toStrictEqual({
         effect: "allow",
-        permissionGroups: ["Zone Read", "DNS Write", "Workers Routes Write"],
+        permissionGroups: groups,
         resources: {
           "com.cloudflare.api.account.984b82870acd18daf8bda97bad966b38": {
             "com.cloudflare.api.account.zone.*": "*",

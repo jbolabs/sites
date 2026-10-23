@@ -73,6 +73,7 @@ Why each client-site choice was made, and how it is built: [ADR 0001](adr/0001-c
 
 - **Client traffic**: Cloudflare Web Analytics, one prod-only `Cloudflare.Rum.Site` per site. Cookieless, no consent banner. Dev and preview collect nothing.
 - **Client stats**: `@eisbachcode/emdash-plugin-analytics` in the EmDash admin. Its settings come from Worker bindings, never the settings form. Dev and preview show demo data.
+- **Agency tags** (a client whose marketing agency owns a Google Tag Manager container; first used by `apps/equityfast`): the container loads on prod only, through `googleTagManager` and `google-tag-manager.astro`, and Cloudflare's Google tag gateway serves it first-party from the client's zone (`Cloudflare.GoogleTagGateway`). Not Zaraz. See [ADR 0010](adr/0010-agency-tag-manager.md).
 - **Client alerts**: a contact submission that may be lost is logged with the lead and emailed to the committed `studio.alertInbox` (`alerts@jbolabs.com`) on prod. Alerts name the site and include its origin. No PostHog or Axiom on client sites.
 - **Logs and traces**: Cloudflare Workers Logs and traces on every stage, through `siteObservability`.
 - **Products**: PostHog for funnels, replay, flags, experiments, and errors, through a custom Alchemy provider on `@distilled.cloud/posthog`. Axiom when a product needs log search and retention beyond Workers Logs.
