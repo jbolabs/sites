@@ -20,3 +20,30 @@ export const retirementSite = (site: string, stage: string): void => {
     throw new Error(`Refusing retirement of ${site}/${stage}`);
   }
 };
+
+/**
+ * Pre-monorepo buckets recorded without `forceDestroy`, so R2 refuses to delete
+ * them while they hold media. Deploying the retirement stack re-declares each
+ * one with `forceDestroy` (owner approved discarding the media), then destroy
+ * empties and deletes it.
+ */
+const FORCE_EMPTY_BUCKETS: ReadonlyMap<string, string> = new Map([
+  [
+    "AccessElectric/live_jakebodea",
+    "accesselectric-bucket-live-jakebodea-jx3taprabzlbumwo",
+  ],
+  [
+    "BlackSwanRealty/live_jakebodea",
+    "blackswanrealty-bucket-live-jakebodea-fmt3sbj54itxgzt5",
+  ],
+  [
+    "MsCustomHomes/live_jakebodea",
+    "mscustomhomes-bucket-live-jakebodea-xr62b3r54swd3nfc",
+  ],
+]);
+
+/** The legacy bucket a retired stage must force-empty, if any. */
+export const forceEmptyBucket = (
+  site: string,
+  stage: string
+): string | undefined => FORCE_EMPTY_BUCKETS.get(`${site}/${stage}`);

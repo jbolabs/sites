@@ -8,7 +8,7 @@ import * as Cloudflare from "alchemy/Cloudflare";
 import { RandomProvider } from "alchemy/Random";
 import { Effect, Layer } from "effect";
 
-import { retirementSite } from "./retirement-policy.ts";
+import { forceEmptyBucket, retirementSite } from "./retirement-policy.ts";
 
 const site = process.env.RETIRE_SITE ?? "";
 
@@ -19,7 +19,15 @@ export default Alchemy.Stack(
     state: Cloudflare.state(),
   },
   Effect.gen(function* retirement() {
-    retirementSite(site, yield* Alchemy.Stage);
+    const stage = yield* Alchemy.Stage;
+    retirementSite(site, stage);
+    const bucket = forceEmptyBucket(site, stage);
+    if (bucket !== undefined) {
+      yield* Cloudflare.R2.Bucket("Bucket", {
+        forceDestroy: true,
+        name: bucket,
+      });
+    }
     return {};
   })
 );

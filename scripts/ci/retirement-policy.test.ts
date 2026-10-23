@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { retirementSite } from "./retirement-policy.ts";
+import { forceEmptyBucket, retirementSite } from "./retirement-policy.ts";
 
 describe(retirementSite, () => {
   it("accepts reviewed stages and refuses their neighbours", () => {
@@ -26,5 +26,12 @@ describe(retirementSite, () => {
     expect(() => {
       retirementSite(site, stage);
     }).toThrow(`Refusing retirement of ${site}/${stage}`);
+  });
+
+  it("force-empties only the recorded legacy buckets", () => {
+    expect(forceEmptyBucket("BlackSwanRealty", "live_jakebodea")).toBe(
+      "blackswanrealty-bucket-live-jakebodea-fmt3sbj54itxgzt5"
+    );
+    expect(forceEmptyBucket("access-electric", "prod")).toBeUndefined();
   });
 });
