@@ -116,6 +116,7 @@ export default Alchemy.Stack(
 
       CMS_OWNER_EMAIL: studio.cmsOwnerEmail,
       CMS_OWNER_SITE: site.id,
+      CMS_PREVIOUS_OWNER_EMAILS: studio.previousCmsOwnerEmails.join(","),
       DB: database,
       // EmDash's /_image endpoint resizes media with this binding.
       IMAGES: Cloudflare.Images.Images("IMAGES"),

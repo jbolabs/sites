@@ -133,6 +133,7 @@ export default Alchemy.Stack(
 
       CMS_OWNER_EMAIL: studio.cmsOwnerEmail,
       CMS_OWNER_SITE: site.id,
+      CMS_PREVIOUS_OWNER_EMAILS: studio.previousCmsOwnerEmails.join(","),
       DB: database,
       HAIR_PHOTOS: hairPhotos,
       // EmDash's /_image endpoint resizes media with this binding.
