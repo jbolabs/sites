@@ -12,6 +12,9 @@ export interface MediaFile {
   readonly id: string;
   readonly src?: string | undefined;
   readonly meta?: { readonly storageKey?: unknown } | undefined;
+  /** Pixel size EmDash caches on the media value, when known. */
+  readonly width?: number | undefined;
+  readonly height?: number | undefined;
 }
 
 /** Where EmDash serves a media file (mirrors EmDash's own resolution). */

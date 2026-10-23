@@ -69,4 +69,23 @@ describe(socialImage, () => {
       "https://example.com/brand/card.jpg"
     );
   });
+
+  it("skips an entry photo too small for a large card", () => {
+    expect(
+      socialImage({
+        fallback,
+        origin,
+        photo: { height: 233, id: "small.png", width: 385 },
+      })
+    ).toBe("https://example.com/og-default.png");
+    expect(
+      socialImage({
+        fallback,
+        origin,
+        photo: { height: 630, id: "big.png", width: 1200 },
+      })
+    ).toBe(
+      "https://example.com/_image?href=%2F_emdash%2Fapi%2Fmedia%2Ffile%2Fbig.png&w=1200&f=jpeg"
+    );
+  });
 });

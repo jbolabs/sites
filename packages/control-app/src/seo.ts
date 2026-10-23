@@ -1,3 +1,5 @@
+import { SOCIAL_IMAGE_MIN } from "@jakebodea/cloudflare-kit/social-image";
+
 /**
  * Technical SEO audit of a running stage: crawls every sitemap page plus
  * every internal link and checks what a search engine (and an answer engine)
@@ -79,7 +81,6 @@ const OPTIMIZED_ENDPOINT = /\/_image\?/u;
 const ICON_RELS = new Set(["icon", "apple-touch-icon"]);
 const APPLE_TOUCH_SIZE = 180;
 /** Open Graph / X large-card sizes: below the minimum, previews fall back to a thumbnail. */
-const SOCIAL_MIN = { height: 315, width: 600 };
 const SOCIAL_SIZE = { height: 630, width: 1200 };
 const SOCIAL_MAX_BYTES = 5_000_000;
 /** WhatsApp drops previews above roughly this size. */
@@ -679,11 +680,11 @@ const geometryFindings = (
       add("warning", `is ${format}; some link previews show only PNG or JPEG`)
     );
   }
-  if (width < SOCIAL_MIN.width || height < SOCIAL_MIN.height) {
+  if (width < SOCIAL_IMAGE_MIN.width || height < SOCIAL_IMAGE_MIN.height) {
     found.push(
       add(
         "error",
-        `is ${width}x${height}; large cards need ${SOCIAL_MIN.width}x${SOCIAL_MIN.height} or more`
+        `is ${width}x${height}; large cards need ${SOCIAL_IMAGE_MIN.width}x${SOCIAL_IMAGE_MIN.height} or more`
       )
     );
   } else if (width < SOCIAL_SIZE.width) {
