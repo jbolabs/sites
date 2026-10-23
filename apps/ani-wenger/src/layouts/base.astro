@@ -9,6 +9,8 @@ import "@/styles/global.css";
 import { Font } from "astro:assets";
 import { EmDashBodyEnd, EmDashBodyStart, EmDashHead } from "emdash/ui";
 import { createPublicPageContext } from "emdash/page";
+import { socialImage } from "@jakebodea/cloudflare-kit/social-image";
+import type { MediaFile } from "@jakebodea/cloudflare-kit/social-image";
 import { documentTitle, metaDescription } from "@jakebodea/cloudflare-kit/seo";
 
 import WebAnalyticsBeacon from "@jakebodea/cloudflare-kit/astro/web-analytics-beacon.astro";
@@ -22,7 +24,10 @@ interface Props {
   /** Page title without the site name. Omit on the home page. */
   title?: string | undefined;
   description?: string | null | undefined;
+  /** The editor's SEO image (`getSeoMeta().ogImage`). */
   image?: string | null | undefined;
+  /** The entry's photo, the link-preview image when the editor set no SEO image. */
+  photo?: MediaFile | null | undefined;
   canonical?: string | null | undefined;
   robots?: string | null | undefined;
   content?: { collection: string; id: string; slug?: string | null } | undefined;
@@ -30,7 +35,7 @@ interface Props {
   pageType?: "website" | "article" | undefined;
 }
 
-const { canonical, content, description, image, pageType, robots, title } = Astro.props;
+const { canonical, content, description, image, pageType, photo, robots, title } = Astro.props;
 const chrome = await getSiteChrome(site.name);
 if (Astro.cache?.enabled) {
   for (const hint of chrome.cacheHints) {
@@ -42,7 +47,7 @@ const origin = Astro.site?.origin ?? Astro.url.origin;
 const fullTitle = title === undefined ? `${chrome.title} | Hairstylist in Irvine, CA` : documentTitle(title, site.shortName);
 // Editors write descriptions of any length; this keeps the snippet within what search engines show.
 const pageDescription = metaDescription(description ?? chrome.tagline ?? site.description, site.descriptionContext);
-const ogImage = image ?? `${origin}/og-default.jpg`;
+const ogImage = socialImage({ fallback: "/og-default.jpg", image, origin, photo, siteDefault: chrome.socialImage });
 
 const page = createPublicPageContext({
   Astro,

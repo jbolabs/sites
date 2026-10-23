@@ -42,7 +42,8 @@ const USAGE = `Usage: bun run app -- <command> [--site <name>] [--url <origin>] 
   record <path>           scroll-through video (--width 375)
   smoke                   pages, 404, admin, images, lead form action, cron (--no-submit skips writes)
   seo                     technical SEO audit: titles, descriptions, canonicals, H1s, alt text,
-                          image formats, layout shift, breadcrumbs, orphans, redirects, robots.txt
+                          image formats, layout shift, breadcrumbs, orphans, redirects, robots.txt,
+                          link-preview images (og:image) and favicons
   seed --url <origin>     seed a fresh stage and verify its owner (CMS_BOOTSTRAP_TOKEN required)
   logs [--lines 80]       tail the dev server log
 
