@@ -118,6 +118,10 @@ export default Alchemy.Stack(
       CMS_OWNER_SITE: site.id,
       CMS_PREVIOUS_OWNER_EMAILS: studio.previousCmsOwnerEmails.join(","),
       DB: database,
+      // Applications reach E Mortgage Capital's CRM from prod only, so test leads never do.
+      FLOW_AG_API_KEY: stage.production
+        ? yield* Config.Redacted("FLOW_AG_API_KEY")
+        : Redacted.make(""),
       // EmDash's /_image endpoint resizes media with this binding.
       IMAGES: Cloudflare.Images.Images("IMAGES"),
       MEDIA: media,
