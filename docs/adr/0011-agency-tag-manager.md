@@ -1,4 +1,4 @@
-# 10. Agency tags: the client's own Tag Manager container, served through Cloudflare's Google tag gateway
+# 11. Agency tags: the client's own Tag Manager container, served through Cloudflare's Google tag gateway
 
 - Status: accepted
 - Date: 2026-10-23
