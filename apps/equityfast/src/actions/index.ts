@@ -3,6 +3,7 @@ import { ActionError, defineAction } from "astro:actions";
 import { Cause, Effect, Exit, Option, Schema } from "effect";
 
 import { ApplicationForm, toContactForm } from "@/lib/application";
+import { forwardToFlowAg } from "@/lib/flow-ag";
 import { contactLayer, waitUntil } from "@/lib/server";
 
 const header = (request: Request, name: string) =>
@@ -29,7 +30,8 @@ const decodeLocale = Schema.decodeUnknownOption(
 export const server = {
   /**
    * The HELOC application. Validation lives in `ApplicationForm` (Effect
-   * Schema); the lead then goes through the shared contact pipeline.
+   * Schema); the lead then goes through the shared contact pipeline, and once
+   * it is saved, on to E Mortgage Capital's CRM (Flow AG).
    */
   apply: defineAction({
     accept: "json",
@@ -41,15 +43,22 @@ export const server = {
         onSome: (value) => value.locale,
       });
       const messages = MESSAGES[locale];
+      const requestId = header(request, "cf-ray") ?? crypto.randomUUID();
+      const sourcePath = new URL(request.headers.get("referer") ?? context.url)
+        .pathname;
       const program = Schema.decodeUnknownEffect(ApplicationForm)(input).pipe(
-        Effect.flatMap((form) =>
-          submitContact(toContactForm(form), {
+        Effect.flatMap((form) => {
+          const contact = toContactForm(form);
+          return submitContact(contact, {
             remoteIp: header(request, "cf-connecting-ip"),
-            requestId: header(request, "cf-ray") ?? crypto.randomUUID(),
-            sourcePath: new URL(request.headers.get("referer") ?? context.url)
-              .pathname,
-          })
-        ),
+            requestId,
+            sourcePath,
+          }).pipe(
+            Effect.tap(({ leadId }) =>
+              forwardToFlowAg(form, contact, { leadId, requestId, sourcePath })
+            )
+          );
+        }),
         Effect.withSpan("action.apply")
       );
       const exit = await runRequest(program, contactLayer(), waitUntil);
