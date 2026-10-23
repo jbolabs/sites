@@ -200,6 +200,7 @@ describe("link previews", () => {
     expect(
       decodeEntities("/_image?href=a.png&amp;w=1200&#38;f=jpeg&#x27;")
     ).toBe("/_image?href=a.png&w=1200&f=jpeg'");
+    expect(decodeEntities("a&#99999999;b&lt;")).toBe("a&#99999999;b<");
   });
 });
 

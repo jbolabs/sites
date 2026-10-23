@@ -98,13 +98,14 @@ const NAMED = new Map([
   ["quot", '"'],
 ]);
 
+const MAX_CODE_POINT = 0x10_ff_ff;
+
 const decodeEntity = (match: RegExpExecArray): string => {
   const { decimal, hex, name } = match.groups ?? {};
-  if (decimal !== undefined) {
-    return String.fromCodePoint(Number(decimal));
-  }
-  if (hex !== undefined) {
-    return String.fromCodePoint(Number.parseInt(hex, 16));
+  const code =
+    decimal === undefined ? Number.parseInt(hex ?? "", 16) : Number(decimal);
+  if (Number.isInteger(code) && code <= MAX_CODE_POINT) {
+    return String.fromCodePoint(code);
   }
   return NAMED.get(name?.toLowerCase() ?? "") ?? match[0];
 };
