@@ -1,10 +1,12 @@
 /**
  * Forwards applications to E Mortgage Capital's CRM, Flow AG, through its
- * Universal Lead API (`POST /api/v1/accept-lead`, documented at
- * flowag.emortgagecapital.com/api-docs). This runs after the lead is saved in
- * the CMS, so a Flow AG outage never loses an application: the failure is
- * logged and emailed to the studio alert inbox, and the visitor still sees
- * success.
+ * Universal Lead API (`POST /api/v1/accept-lead`). This runs after the lead
+ * is saved in the CMS, so a Flow AG outage never loses an application: the
+ * failure is logged and emailed to the studio alert inbox, and the visitor
+ * still sees success.
+ *
+ * API docs (fields, aliases, errors, dry runs):
+ * https://flowag.emortgagecapital.com/api-docs
  *
  * The key travels in the `X-Api-Key` header, which the docs prefer over the
  * `?key=` query parameter because query strings land in access logs. It is
