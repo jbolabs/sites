@@ -62,7 +62,7 @@ const fixtureCookie = async (
     .join("; ");
 };
 
-for (const site of ["access-electric", "ms-custom-homes"]) {
+for (const site of ["ms-custom-homes"]) {
   const worker = await localWorker(path.join(root, "apps", site), true, {
     publicHtmlCacheTtl: "2",
     stage: "prod",

@@ -50,7 +50,7 @@ export const selectedContent = (site: SiteContext): ContentMode => {
 export const parseContentMode = (value: string): ContentMode =>
   Schema.decodeUnknownSync(State.fields.mode)(value);
 const cmsSite = (site: SiteContext): PublishedSite => {
-  if (site.name !== "access-electric" && site.name !== "ms-custom-homes") {
+  if (site.name !== "ms-custom-homes") {
     throw new Error("This site has no published-content policy");
   }
   return site.name;

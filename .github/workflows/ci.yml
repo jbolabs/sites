@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       sites:
-        description: 'Sites to release, as a JSON array (e.g. ["access-electric"])'
+        description: 'Sites to release, as a JSON array (e.g. ["ms-custom-homes"])'
         required: true
         type: string
 

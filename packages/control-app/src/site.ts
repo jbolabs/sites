@@ -14,7 +14,7 @@ import {
 } from "@jakebodea/cloudflare-kit/infra/stage";
 
 export interface SiteContext {
-  /** Directory name under `apps/`, e.g. `access-electric`. */
+  /** Directory name under `apps/`, e.g. `ms-custom-homes`. */
   readonly name: string;
   /** Absolute path of the site's app directory. */
   readonly directory: string;

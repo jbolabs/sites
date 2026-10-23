@@ -1,6 +1,6 @@
 # Marketing sites
 
-A monorepo of client marketing sites. Each site is an Astro + EmDash CMS app on Cloudflare Workers, deployed with Alchemy v2. Server code is Effect 4. The reference site is `apps/access-electric`.
+A monorepo of client marketing sites. Each site is an Astro + EmDash CMS app on Cloudflare Workers, deployed with Alchemy v2. Server code is Effect 4. The reference site is `apps/ms-custom-homes`.
 
 Current choices: [docs/stack.md](docs/stack.md). Why each one-way choice was made: [docs/adr/](docs/adr/). Domain terms: [CONTEXT.md](CONTEXT.md).
 

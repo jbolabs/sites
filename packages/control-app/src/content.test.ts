@@ -26,7 +26,7 @@ describe("local content activation", () => {
       artifacts: path.join(root, "artifacts"),
       cms: true,
       directory: path.join(root, "site"),
-      name: "access-electric",
+      name: "ms-custom-homes",
       origin: "http://localhost:65431",
       port: 65_431,
       root,

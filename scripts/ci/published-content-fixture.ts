@@ -30,10 +30,10 @@ import { smoke } from "../../packages/control-app/src/smoke.ts";
 import { controlCheck } from "./control-check.ts";
 import { LOCAL_CMS_BOOTSTRAP_TOKEN, localWorker } from "./local-worker.ts";
 
-const RELATION_TITLE = "Production relationship project";
-const SITE = "access-electric";
+const PROJECT_TITLE = "Production published project";
+const SITE = "ms-custom-homes";
 const root = path.resolve(import.meta.dirname, "../..");
-const directory = path.join(root, "apps/access-electric");
+const directory = path.join(root, "apps/ms-custom-homes");
 const output = path.join(root, ".artifacts/prod-content/worker");
 mkdirSync(output, { recursive: true });
 rmSync(path.join(output, "results.json"), { force: true });
@@ -64,7 +64,7 @@ const restore = (file: string, data: Buffer | undefined): void => {
 try {
   writeBuildInputs(directory, {
     contentDigest: "seed",
-    seedMediaBase: "https://accesselectricinc.com/media",
+    seedMediaBase: "https://mscustomhomesinc.net/media",
   });
   writeFileSync(path.join(output, "seed-build.log"), build());
   source = await localWorker(directory, true, {
@@ -130,8 +130,8 @@ try {
     )(await response.json());
   };
   const project = await call("/_emdash/api/content/projects", {
-    data: { progress: "completed", title: RELATION_TITLE },
-    slug: "relationship-fixture",
+    data: { progress: "completed", title: PROJECT_TITLE },
+    slug: "published-project-fixture",
   });
   await call(
     `/_emdash/api/content/projects/${project.data.item.id}/publish`,
@@ -139,7 +139,7 @@ try {
   );
   // Cross the old 120-entry completion ceiling through real native content APIs.
   await Promise.all(
-    Array.from({ length: 45 }, async (_, index) => {
+    Array.from({ length: 120 }, async (_, index) => {
       const extra = await call("/_emdash/api/content/projects", {
         data: {
           progress: "completed",
@@ -152,15 +152,6 @@ try {
         {}
       );
     })
-  );
-  const category = await call(
-    "/_emdash/api/content/categories/k-12-schools",
-    { references: { projects: [project.data.item.id] } },
-    "PUT"
-  );
-  await call(
-    `/_emdash/api/content/categories/${category.data.item.id}/publish`,
-    {}
   );
   const lead = await call("/_emdash/api/content/leads", {
     data: {
@@ -180,9 +171,9 @@ try {
     {
       seo: {
         description:
-          "Access Electric delivers commercial electrical construction with experienced crews and decades of project experience across Southern California.",
+          "MS Custom Homes builds custom homes and remodels with experienced crews and decades of project experience across Southern California.",
         image: `/_emdash/api/media/file/${seoMedia.storage_key}`,
-        title: "About Access Electric | Licensed Electrical Contractor",
+        title: "About MS Custom Homes | Custom Home Builder",
       },
     },
     "PUT"
@@ -219,7 +210,7 @@ try {
   const unauthorized = await request(`${source.origin}/_content/published`);
   assert.equal(unauthorized.status, 401);
   const mismatch = await request(
-    `${source.origin}/_content/published?site=ms-custom-homes`,
+    `${source.origin}/_content/published?site=another-site`,
     { headers: { authorization: `Bearer ${credential}` } }
   );
   assert.equal(mismatch.status, 400);
@@ -305,7 +296,7 @@ try {
   writeFileSync(planFile, JSON.stringify({ ...plan, snapshot }));
   writeBuildInputs(directory, {
     contentDigest: publishedContentDigest(directory),
-    seedMediaBase: "https://accesselectricinc.com/media",
+    seedMediaBase: "https://mscustomhomesinc.net/media",
   });
   writeFileSync(path.join(output, "published-build.log"), build());
   destination = await localWorker(directory, true, {
@@ -378,9 +369,7 @@ try {
   assert.equal(seoImage.status, 200);
   const seoPage = await request(`${destination.origin}/about`);
   const seoHtml = await seoPage.text();
-  assert.ok(
-    seoHtml.includes("About Access Electric | Licensed Electrical Contractor")
-  );
+  assert.ok(seoHtml.includes("About MS Custom Homes | Custom Home Builder"));
   assert.ok(
     seoHtml.includes(`/_emdash/api/media/file/${seoImageRow.storage_key}`)
   );
@@ -404,15 +393,13 @@ try {
   checks.push(
     "existing stage seeding preserves content and destination owner receipt"
   );
-  const relationships = await request(
-    `${destination.origin}/portfolio/k-12-schools`
+  const projectPage = await request(
+    `${destination.origin}/projects/published-project-fixture`
   );
-  const relationshipHtml = await relationships.text();
-  assert.ok(relationshipHtml.includes(RELATION_TITLE));
-  writeFileSync(path.join(output, "relationship.html"), relationshipHtml);
-  checks.push(
-    "published category relationship resolves to target project ID and renders on its actual page"
-  );
+  const projectHtml = await projectPage.text();
+  assert.ok(projectHtml.includes(PROJECT_TITLE));
+  writeFileSync(path.join(output, "project.html"), projectHtml);
+  checks.push("published project renders on its actual page");
   const smokeReport = await smoke({
     cms: true,
     local: false,
@@ -432,7 +419,7 @@ try {
   });
   assert.equal(seoPassed, true);
   checks.push(
-    "running production-content Worker passes page/relationship/image smoke and rendered SEO; no form or email requests"
+    "running production-content Worker passes page/project/image smoke and rendered SEO; no form or email requests"
   );
   const freshAgain = await localWorker(directory, true, {
     publicMediaSource: {
@@ -448,12 +435,12 @@ try {
     );
     assert.equal(freshSeed.seeded, true);
     const repeatedPage = await request(
-      `${freshAgain.origin}/portfolio/k-12-schools`
+      `${freshAgain.origin}/projects/published-project-fixture`
     );
     const repeatedHtml = await repeatedPage.text();
-    assert.ok(repeatedHtml.includes(RELATION_TITLE));
+    assert.ok(repeatedHtml.includes(PROJECT_TITLE));
     checks.push(
-      "a second fresh native load renders the same semantic relationship"
+      "a second fresh native load renders the same published project"
     );
   } finally {
     await freshAgain.runtime.dispose();

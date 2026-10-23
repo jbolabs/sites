@@ -48,7 +48,7 @@ const handleRequest: APIRoute = async function handleRequest({ request }) {
   }
   try {
     const site = bindings.CMS_OWNER_SITE;
-    if (site !== "access-electric" && site !== "ms-custom-homes") {
+    if (site !== "ms-custom-homes") {
       return ownershipDenied("Site has no public content policy", 409);
     }
     const policy = contentPolicy(site);
