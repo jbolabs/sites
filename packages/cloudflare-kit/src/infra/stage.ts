@@ -44,6 +44,11 @@ export interface StageSettings {
   readonly origin: string;
   /** Custom hostname to attach for staging or production; other stages use workers.dev. */
   readonly domain: string | undefined;
+  /**
+   * Whether the Worker keeps its workers.dev URLs (stable and per-version). Off
+   * whenever a hostname is attached, so a domain stage has exactly one origin.
+   */
+  readonly workersDev: boolean;
 }
 
 const PULL_REQUEST_STAGE = /^(?:client-)?pr-[1-9]\d*$/u;
@@ -110,6 +115,7 @@ export const resolveStage = (
     production,
     stage,
     workerName,
+    workersDev: domain === undefined,
   };
 };
 
