@@ -80,6 +80,54 @@ export const isProvisionedOwner = async (
   );
 };
 
+const previousOwnerEmails = (config: OwnerConfig): readonly string[] =>
+  (config.CMS_PREVIOUS_OWNER_EMAILS ?? "")
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(
+      (email) => email !== "" && email !== config.CMS_OWNER_EMAIL.toLowerCase()
+    );
+
+/**
+ * Move an owner provisioned under an earlier owner email to the current one.
+ * Only an Admin whose receipt verifies for that earlier email qualifies, so a
+ * publicly created account is never adopted. The user id (and its passkeys)
+ * stays; the receipt is re-signed for the new email, which starts unverified.
+ */
+const migratePreviousOwner = async (
+  db: Database,
+  config: OwnerConfig
+): Promise<void> => {
+  const users = new UserRepository(db);
+  const candidates = await Promise.all(
+    previousOwnerEmails(config).map(async (previous) => {
+      const user = await users.findByEmail(previous);
+      const provisioned =
+        user !== null &&
+        user.role === ADMIN_ROLE &&
+        (await validReceipt({ ...config, CMS_OWNER_EMAIL: previous }, user));
+      return provisioned ? { previous, user } : undefined;
+    })
+  );
+  const match = candidates.find((candidate) => candidate !== undefined);
+  if (match === undefined) {
+    return;
+  }
+  await db
+    .updateTable("users")
+    .set({
+      data: JSON.stringify({
+        ...match.user.data,
+        studioOwner: await receiptSignature(config, match.user.id),
+      }),
+      email: config.CMS_OWNER_EMAIL.toLowerCase(),
+      email_verified: 0,
+    })
+    .where("id", "=", match.user.id)
+    .where("email", "=", match.previous)
+    .execute();
+};
+
 export const provisionOwner = async (
   db: Database,
   config: OwnerConfig
@@ -95,6 +143,7 @@ export const provisionOwner = async (
   let owner = existingOwner;
   const setupComplete = complete === true || complete === "true";
   if (owner === null && (setupComplete || (await users.count()) > 0)) {
+    await migratePreviousOwner(db, config);
     owner = await users.findByEmail(email);
     if (owner === null) {
       throw new OwnershipError({

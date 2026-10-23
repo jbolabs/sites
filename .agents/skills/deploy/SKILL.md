@@ -28,14 +28,13 @@ bun run app -- smoke --url <stage url>
 
 Preview scheduling is disabled by default. To test scheduled CMS publishing deliberately, supply `PREVIEW_SCHEDULED_PUBLISHING=1` to the non-production Alchemy deploy; remove it on the next deploy to clear the triggers (`crons: []`). Production keeps its minute publishing tick and daily backup.
 
-The two retired legacy stages have a restricted teardown-only entrypoint, avoiding application secrets/build setup during deletion:
+Stages whose app stack can't destroy them (code gone or superseded) use a teardown-only entrypoint limited to the allowlist in `scripts/ci/retirement-policy.ts`:
 
 ```bash
-RETIRE_SITE=access-electric ALCHEMY_PROFILE=admin bun alchemy destroy scripts/ci/retire-preview.alchemy.ts --stage ae-preview --dry-run
-RETIRE_SITE=ms-custom-homes ALCHEMY_PROFILE=admin bun alchemy destroy scripts/ci/retire-preview.alchemy.ts --stage preview --dry-run
+RETIRE_SITE=<stack> ALCHEMY_PROFILE=admin bun alchemy destroy scripts/ci/retire-preview.alchemy.ts --stage <stage> --dry-run
 ```
 
-Inspect the plan, then remove `--dry-run` only for an authorized teardown. This helper refuses all other site/stage pairs. Ordinary PR cleanup still uses each site stack and its per-PR lock.
+Inspect the plan, then remove `--dry-run` only for an authorized teardown. Add a pair to the allowlist (reviewed in a PR) before retiring it; the helper refuses all others. Ordinary PR cleanup still uses each site stack and its per-PR lock.
 
 ## Published-content previews
 

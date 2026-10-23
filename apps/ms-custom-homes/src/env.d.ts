@@ -21,6 +21,7 @@ declare global {
       CF_VERSION_METADATA: { readonly id: string };
       CMS_OWNER_EMAIL: string;
       CMS_OWNER_SITE: string;
+      CMS_PREVIOUS_OWNER_EMAILS?: string;
       CMS_BOOTSTRAP_TOKEN: string;
       STAGE: string;
       SITE_ORIGIN: string;

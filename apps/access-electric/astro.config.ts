@@ -122,6 +122,10 @@ export default defineConfig({
               }),
             ]),
       ],
+      // Outbound CMS links (magic links, invites) and the passkey rpId use this
+      // origin. Without it EmDash falls back to the URL stored at first setup, which
+      // stays on workers.dev for a site set up before its domain was attached.
+      siteUrl: inputs.origin,
       storage: r2({ binding: "MEDIA" }),
     }),
   ],

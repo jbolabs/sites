@@ -22,7 +22,9 @@ describe(resolveStage, () => {
       origin: "https://example.com",
       production: true,
       stage: "prod",
+      workerDomain: { aliases: ["www.example.com"], name: "example.com" },
       workerName: "example-prod",
+      workersDev: false,
     });
   });
 
@@ -30,6 +32,7 @@ describe(resolveStage, () => {
     expect(resolveStage({ ...site, domain: null }, "prod")).toMatchObject({
       origin: "https://example-prod.acme.workers.dev",
       production: true,
+      workersDev: true,
     });
     expect(
       resolveStage({ ...site, domain: null }, "prod").domain
@@ -44,6 +47,7 @@ describe(resolveStage, () => {
       production: false,
       stage: "staging",
       workerName: "example-staging",
+      workersDev: false,
     });
   });
 
@@ -66,14 +70,17 @@ describe(resolveStage, () => {
       origin: "https://example-preview-123.studio.test",
       production: false,
       stage: "client-pr-123",
+      workerDomain: "example-preview-123.studio.test",
       workerName: "example-client-pr-123",
+      workersDev: false,
     });
   });
 
   it("serves every other stage from workers.dev", () => {
-    expect(resolveStage(site, "pr-42").origin).toBe(
-      "https://example-pr-42.acme.workers.dev"
-    );
+    expect(resolveStage(site, "pr-42")).toMatchObject({
+      origin: "https://example-pr-42.acme.workers.dev",
+      workersDev: true,
+    });
     expect(resolveStage(site, "ae-preview").kind).toBe("named");
   });
 

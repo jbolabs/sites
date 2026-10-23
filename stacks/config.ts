@@ -27,8 +27,14 @@ export const deployTokens = {
  */
 export const studio = {
   alertInbox: "alerts@jbolabs.com",
-  cmsOwnerEmail: "jakebodea@gmail.com",
+  cmsOwnerEmail: "jake@jbolabs.com",
   domain: "jbolabs.com",
+  /**
+   * Earlier owner emails. A site whose owner was provisioned under one of these
+   * has that account moved to `cmsOwnerEmail` on its next seed (same user, same
+   * passkeys). Remove an entry once every stage has deployed with the new email.
+   */
+  previousCmsOwnerEmails: ["jakebodea@gmail.com"],
   sender: "sites@mail.jbolabs.com",
   sendingSubdomain: "mail.jbolabs.com",
 } as const;

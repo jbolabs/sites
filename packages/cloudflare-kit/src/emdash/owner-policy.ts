@@ -16,6 +16,8 @@ export const OwnerConfig = Schema.Struct({
     )
   ),
   CMS_OWNER_SITE: Schema.NonEmptyString,
+  /** Comma-separated earlier owner emails whose provisioned account may be moved to CMS_OWNER_EMAIL. */
+  CMS_PREVIOUS_OWNER_EMAILS: Schema.optionalKey(Schema.String),
   SITE_ORIGIN: Schema.NonEmptyString,
   STAGE: Schema.NonEmptyString,
 });

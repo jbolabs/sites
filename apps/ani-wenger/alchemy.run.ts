@@ -133,6 +133,7 @@ export default Alchemy.Stack(
 
       CMS_OWNER_EMAIL: studio.cmsOwnerEmail,
       CMS_OWNER_SITE: site.id,
+      CMS_PREVIOUS_OWNER_EMAILS: studio.previousCmsOwnerEmails.join(","),
       DB: database,
       HAIR_PHOTOS: hairPhotos,
       // EmDash's /_image endpoint resizes media with this binding.
@@ -176,7 +177,7 @@ export default Alchemy.Stack(
         publishCron: EMDASH_CRON,
       }),
       dev: { port, strictPort: true },
-      domain: stage.domain,
+      domain: stage.workerDomain,
       env,
       memo: {
         // Hash the app, the lockfile, workspace packages it imports (auto), and the
@@ -196,8 +197,7 @@ export default Alchemy.Stack(
       },
       name: stage.workerName,
       observability: siteObservability(stage),
-      // Client staging has only its branded hostname, including version URLs.
-      workersDev: stage.kind !== "staging" && stage.kind !== "client-preview",
+      workersDev: stage.workersDev,
     });
 
     return {
