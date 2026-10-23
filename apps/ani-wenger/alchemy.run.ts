@@ -177,7 +177,7 @@ export default Alchemy.Stack(
         publishCron: EMDASH_CRON,
       }),
       dev: { port, strictPort: true },
-      domain: stage.domain,
+      domain: stage.workerDomain,
       env,
       memo: {
         // Hash the app, the lockfile, workspace packages it imports (auto), and the

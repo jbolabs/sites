@@ -8,7 +8,10 @@
  */
 import handler from "@emdash-cms/cloudflare/worker";
 import { fetchPublicHtml } from "@jakebodea/cloudflare-kit/emdash/public-html";
-import { siteScheduled } from "@jakebodea/cloudflare-kit/emdash/worker";
+import {
+  canonicalRedirect,
+  siteScheduled,
+} from "@jakebodea/cloudflare-kit/emdash/worker";
 
 import { BACKUP_CRON } from "./lib/schedule.ts";
 
@@ -19,6 +22,10 @@ const SWITCHING_PROTOCOLS = 101;
 
 export default {
   async fetch(request, env, ctx) {
+    const redirect = canonicalRedirect(request, env.SITE_ORIGIN);
+    if (redirect !== undefined) {
+      return redirect;
+    }
     const response = await fetchPublicHtml(
       request,
       env,

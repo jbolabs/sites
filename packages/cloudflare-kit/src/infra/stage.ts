@@ -45,6 +45,14 @@ export interface StageSettings {
   /** Custom hostname to attach for staging or production; other stages use workers.dev. */
   readonly domain: string | undefined;
   /**
+   * The Worker's `domain` prop: the hostname plus, on prod, `www.<domain>` as an
+   * alias the Worker redirects to the apex (`canonicalRedirect`).
+   */
+  readonly workerDomain:
+    | string
+    | { readonly name: string; readonly aliases: string[] }
+    | undefined;
+  /**
    * Whether the Worker keeps its workers.dev URLs (stable and per-version). Off
    * whenever a hostname is attached, so a domain stage has exactly one origin.
    */
@@ -114,6 +122,10 @@ export const resolveStage = (
         : `https://${domain}`,
     production,
     stage,
+    workerDomain:
+      productionDomain === undefined
+        ? domain
+        : { aliases: [`www.${productionDomain}`], name: productionDomain },
     workerName,
     workersDev: domain === undefined,
   };

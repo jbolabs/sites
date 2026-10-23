@@ -22,6 +22,7 @@ describe(resolveStage, () => {
       origin: "https://example.com",
       production: true,
       stage: "prod",
+      workerDomain: { aliases: ["www.example.com"], name: "example.com" },
       workerName: "example-prod",
       workersDev: false,
     });
@@ -69,6 +70,7 @@ describe(resolveStage, () => {
       origin: "https://example-preview-123.studio.test",
       production: false,
       stage: "client-pr-123",
+      workerDomain: "example-preview-123.studio.test",
       workerName: "example-client-pr-123",
       workersDev: false,
     });

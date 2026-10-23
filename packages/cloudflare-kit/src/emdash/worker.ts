@@ -5,6 +5,8 @@ import type { KitEmDashEnv } from "../env.ts";
 import { runBackup } from "../server/backup.ts";
 import { syncAnalyticsPluginSettings } from "./analytics.ts";
 
+export { canonicalRedirect } from "./canonical.ts";
+
 type SiteEnv = KitEmDashEnv & {
   readonly STAGE: string;
   readonly DB: D1Database;

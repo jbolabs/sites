@@ -9,7 +9,10 @@
  */
 import handler from "@emdash-cms/cloudflare/worker";
 import { fetchPublicHtml } from "@jakebodea/cloudflare-kit/emdash/public-html";
-import { siteScheduled } from "@jakebodea/cloudflare-kit/emdash/worker";
+import {
+  canonicalRedirect,
+  siteScheduled,
+} from "@jakebodea/cloudflare-kit/emdash/worker";
 
 import { sendReminders } from "./lib/booking/booking.ts";
 import { runSchedule } from "./lib/booking/run.ts";
@@ -23,6 +26,10 @@ const scheduled = siteScheduled({ backupCron: BACKUP_CRON });
 
 export default {
   async fetch(request, env, ctx) {
+    const redirect = canonicalRedirect(request, env.SITE_ORIGIN);
+    if (redirect !== undefined) {
+      return redirect;
+    }
     const response = await fetchPublicHtml(
       request,
       env,
