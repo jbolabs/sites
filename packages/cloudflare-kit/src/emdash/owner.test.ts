@@ -53,25 +53,28 @@ describe(provisionOwner, () => {
     ).resolves.toBeTruthy();
   });
 
-  it("refuses to adopt an earlier-email account it did not provision", async () => {
-    const db = await seededDatabase();
-    await new UserRepository(db).create({
-      email: "old@example.test",
-      name: "Someone",
-      role: 50,
-    });
-    await new OptionsRepository(db).set("emdash:setup_complete", true);
+  it.each([50, 40] as const)(
+    "refuses to adopt an unprovisioned role-%i account under an earlier email",
+    async (role) => {
+      const db = await seededDatabase();
+      await new UserRepository(db).create({
+        email: "old@example.test",
+        name: "Someone",
+        role,
+      });
+      await new OptionsRepository(db).set("emdash:setup_complete", true);
 
-    await expect(
-      provisionOwner(db, config("new@example.test", "old@example.test"))
-    ).rejects.toThrow(
-      "Existing CMS accounts require a reviewed owner migration."
-    );
-    const users = await db.selectFrom("users").select("email").execute();
-    expect(users.map((row) => ({ ...row }))).toStrictEqual([
-      { email: "old@example.test" },
-    ]);
-  });
+      await expect(
+        provisionOwner(db, config("new@example.test", "old@example.test"))
+      ).rejects.toThrow(
+        "Existing CMS accounts require a reviewed owner migration."
+      );
+      const users = await db.selectFrom("users").select("email").execute();
+      expect(users.map((row) => ({ ...row }))).toStrictEqual([
+        { email: "old@example.test" },
+      ]);
+    }
+  );
 
   it("provisions a fresh site straight onto the current email", async () => {
     const db = await seededDatabase();
