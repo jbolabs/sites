@@ -1,4 +1,3 @@
-import { request } from "./http.ts";
 /**
  * Technical SEO audit of a running stage: crawls every sitemap page plus
  * every internal link and checks what a search engine (and an answer engine)
@@ -6,6 +5,9 @@ import { request } from "./http.ts";
  * The checklist and the manual items (Search Console, backlinks, copy) live
  * in `.agents/skills/seo/SKILL.md`.
  */
+import { request } from "./http.ts";
+import { imageSize } from "./image-size.ts";
+import type { ImageSize } from "./image-size.ts";
 import { discoverPaths } from "./sitemap.ts";
 
 export type Severity = "error" | "warning";
@@ -44,6 +46,16 @@ interface PageFacts {
   readonly images: readonly ImageFacts[];
   readonly jsonLdTypes: readonly string[];
   readonly invalidJsonLd: number;
+  /** What a link preview (Open Graph / X card) shows for this page. */
+  readonly social: SocialFacts;
+  /** `<link rel>` → href for `icon` and `apple-touch-icon`. */
+  readonly icons: Readonly<Record<string, string>>;
+}
+
+interface SocialFacts {
+  readonly image?: string | undefined;
+  readonly title?: string | undefined;
+  readonly card?: string | undefined;
 }
 
 interface ImageFacts {
@@ -64,7 +76,54 @@ const BREADCRUMB_DEPTH = 2;
 const MODERN_IMAGE =
   /(?:\.(?:webp|avif|svg)(?:\?|$))|(?:[?&]f=(?:webp|avif)\b)/u;
 const OPTIMIZED_ENDPOINT = /\/_image\?/u;
+const ICON_RELS = new Set(["icon", "apple-touch-icon"]);
+const APPLE_TOUCH_SIZE = 180;
+/** Open Graph / X large-card sizes: below the minimum, previews fall back to a thumbnail. */
+const SOCIAL_MIN = { height: 315, width: 600 };
+const SOCIAL_SIZE = { height: 630, width: 1200 };
+const SOCIAL_MAX_BYTES = 5_000_000;
+/** WhatsApp drops previews above roughly this size. */
+const SOCIAL_LIGHT_BYTES = 600_000;
+const SOCIAL_RULE = "social-image";
+const ABSOLUTE_URL = /^https?:\/\//u;
 const TYPE_FIELD = /"@type"\s*:\s*"(?<type>[A-Za-z]+)"/gu;
+
+const ENTITY =
+  /&(?:#(?<decimal>\d+)|#x(?<hex>[\da-f]+)|(?<name>amp|quot|apos|lt|gt));/giu;
+const NAMED = new Map([
+  ["amp", "&"],
+  ["apos", "'"],
+  ["gt", ">"],
+  ["lt", "<"],
+  ["quot", '"'],
+]);
+
+const decodeEntity = (match: RegExpExecArray): string => {
+  const { decimal, hex, name } = match.groups ?? {};
+  if (decimal !== undefined) {
+    return String.fromCodePoint(Number(decimal));
+  }
+  if (hex !== undefined) {
+    return String.fromCodePoint(Number.parseInt(hex, 16));
+  }
+  return NAMED.get(name?.toLowerCase() ?? "") ?? match[0];
+};
+
+/** HTMLRewriter hands attribute values over raw; `&amp;` in a URL must read as `&`. */
+export const decodeEntities = (value: string): string => {
+  let decoded = "";
+  let consumed = 0;
+  for (const match of value.matchAll(ENTITY)) {
+    decoded += value.slice(consumed, match.index) + decodeEntity(match);
+    consumed = match.index + match[0].length;
+  }
+  return decoded + value.slice(consumed);
+};
+
+const attribute = (
+  element: { getAttribute: (name: string) => string | null },
+  name: string
+): string => decodeEntities(element.getAttribute(name) ?? "");
 
 const isNoindex = (page: PageFacts): boolean => page.robots.includes("noindex");
 
@@ -93,6 +152,10 @@ const parsePage = async (
   const jsonLdBlocks: string[] = [];
   const links: string[] = [];
   const images: ImageFacts[] = [];
+  let socialImage: string | undefined;
+  let socialTitle: string | undefined;
+  let socialCard: string | undefined;
+  const icons: Record<string, string> = {};
   const rewriter = new HTMLRewriter()
     .on("head title", {
       element: () => {
@@ -119,7 +182,32 @@ const parsePage = async (
     })
     .on('link[rel="canonical"]', {
       element: (element) => {
-        canonical = element.getAttribute("href") ?? "";
+        canonical = attribute(element, "href");
+      },
+    })
+    .on('meta[property="og:image"]', {
+      element: (element) => {
+        socialImage = attribute(element, "content");
+      },
+    })
+    .on('meta[property="og:title"]', {
+      element: (element) => {
+        socialTitle = attribute(element, "content");
+      },
+    })
+    .on('meta[name="twitter:card"]', {
+      element: (element) => {
+        socialCard = attribute(element, "content");
+      },
+    })
+    .on("link[rel][href]", {
+      element: (element) => {
+        const rel = element.getAttribute("rel") ?? "";
+        for (const token of rel.toLowerCase().split(/\s+/u)) {
+          if (ICON_RELS.has(token) && icons[token] === undefined) {
+            icons[token] = attribute(element, "href");
+          }
+        }
       },
     })
     .on("h1", {
@@ -129,7 +217,7 @@ const parsePage = async (
     })
     .on("a[href]", {
       element: (element) => {
-        links.push(element.getAttribute("href") ?? "");
+        links.push(attribute(element, "href"));
       },
     })
     .on("img", {
@@ -141,7 +229,7 @@ const parsePage = async (
             : null,
           sized:
             element.hasAttribute("width") && element.hasAttribute("height"),
-          src: element.getAttribute("src") ?? "",
+          src: attribute(element, "src"),
         });
       },
     })
@@ -162,6 +250,7 @@ const parsePage = async (
     canonical,
     description,
     h1Count,
+    icons,
     images,
     invalidJsonLd: jsonLdBlocks.length - valid.length,
     jsonLdTypes: valid.flatMap((block) =>
@@ -173,6 +262,7 @@ const parsePage = async (
     path,
     robots,
     robotsHeader: response.headers.get("x-robots-tag") ?? "",
+    social: { card: socialCard, image: socialImage, title: socialTitle },
     status: response.status,
     title: title.trim(),
     ttfbMs,
@@ -214,6 +304,7 @@ const fetchPage = async (origin: string, path: string): Promise<PageFacts> => {
   } catch {
     return {
       h1Count: 0,
+      icons: {},
       images: [],
       invalidJsonLd: 0,
       jsonLdTypes: [],
@@ -221,6 +312,7 @@ const fetchPage = async (origin: string, path: string): Promise<PageFacts> => {
       path,
       robots: "",
       robotsHeader: "",
+      social: {},
       status: NO_RESPONSE,
       title: "",
       ttfbMs: Math.round(performance.now() - started),
@@ -429,6 +521,32 @@ const imageChecks: Check = (page) => {
   ]);
 };
 
+const socialChecks: Check = (page) => {
+  const add = at(page);
+  const { card, image, title } = page.social;
+  const found: SeoFinding[] = [];
+  if (image === undefined || image === "") {
+    found.push(add(SOCIAL_RULE, "error", "missing og:image"));
+  } else if (!ABSOLUTE_URL.test(image)) {
+    found.push(
+      add(SOCIAL_RULE, "error", `og:image must be absolute: ${image}`)
+    );
+  }
+  if (title === undefined || title === "") {
+    found.push(add(SOCIAL_RULE, "error", "missing og:title"));
+  }
+  if (card !== "summary_large_image") {
+    found.push(
+      add(
+        SOCIAL_RULE,
+        "error",
+        `twitter:card is ${card ?? "missing"}; want summary_large_image`
+      )
+    );
+  }
+  return found;
+};
+
 /** Rules that look at one page in isolation. */
 export const pageFindings = (
   page: PageFacts,
@@ -451,9 +569,13 @@ export const pageFindings = (
         : `HTTP ${page.status}`;
     return [add("no-broken-links", "error", detail)];
   }
-  return [headChecks, indexingChecks, structureChecks, imageChecks].flatMap(
-    (check) => check(page, options)
-  );
+  return [
+    headChecks,
+    indexingChecks,
+    structureChecks,
+    imageChecks,
+    socialChecks,
+  ].flatMap((check) => check(page, options));
 };
 
 const duplicates = (
@@ -479,6 +601,256 @@ const duplicates = (
         ]
       : []
   );
+};
+
+export interface FetchedImage {
+  readonly status: number;
+  readonly bytes: number;
+  readonly size?: ImageSize | undefined;
+  /** Vector icons have no pixel size; browsers scale them. */
+  readonly svg?: boolean;
+}
+
+const fetchImage = async (url: string): Promise<FetchedImage> => {
+  try {
+    const response = await request(url);
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    return {
+      bytes: bytes.byteLength,
+      size: response.ok ? imageSize(bytes) : undefined,
+      status: response.status,
+      svg: (response.headers.get("content-type") ?? "").includes("image/svg"),
+    };
+  } catch {
+    return { bytes: 0, status: NO_RESPONSE };
+  }
+};
+
+const loadFailure = (image: FetchedImage): string | undefined => {
+  if (image.status === NO_RESPONSE) {
+    return "did not load";
+  }
+  if (image.status !== 200) {
+    return `answers HTTP ${image.status}`;
+  }
+  return image.size === undefined
+    ? "is not a PNG, JPEG, WebP or GIF"
+    : undefined;
+};
+
+/** Miniflare's Images emulation returns `/_image` sources untouched, so only deployed stages resize. */
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
+
+/** Formats every link preview shows; EmDash's `/_image` names JPEG `jpeg`. */
+const PREVIEW_FORMATS = new Set(["png", "jpeg"]);
+
+/**
+ * `/_image` URLs say what they will return, so local audits check the request where they
+ * cannot measure the result.
+ */
+const transformFindings = (url: URL): string[] => {
+  if (url.pathname !== "/_image") {
+    return [];
+  }
+  const width = Number(url.searchParams.get("w") ?? "0");
+  const format = url.searchParams.get("f") ?? "webp";
+  return [
+    ...(PREVIEW_FORMATS.has(format)
+      ? []
+      : [`asks /_image for ${format}; use f=jpeg (previews skip WebP/AVIF)`]),
+    ...(width >= SOCIAL_SIZE.width
+      ? []
+      : [`asks /_image for w=${width}; use w=${SOCIAL_SIZE.width}`]),
+  ];
+};
+
+const geometryFindings = (
+  image: FetchedImage,
+  add: (severity: Severity, detail: string) => SeoFinding
+): SeoFinding[] => {
+  if (image.size === undefined) {
+    return [];
+  }
+  const { format, height, width } = image.size;
+  const found: SeoFinding[] = [];
+  if (!PREVIEW_FORMATS.has(format)) {
+    found.push(
+      add("warning", `is ${format}; some link previews show only PNG or JPEG`)
+    );
+  }
+  if (width < SOCIAL_MIN.width || height < SOCIAL_MIN.height) {
+    found.push(
+      add(
+        "error",
+        `is ${width}x${height}; large cards need ${SOCIAL_MIN.width}x${SOCIAL_MIN.height} or more`
+      )
+    );
+  } else if (width < SOCIAL_SIZE.width) {
+    found.push(
+      add("warning", `is ${width}x${height}; use ${SOCIAL_SIZE.width} wide`)
+    );
+  }
+  if (height > width) {
+    found.push(
+      add(
+        "warning",
+        `is ${width}x${height}; previews crop portrait images to 1.91:1`
+      )
+    );
+  }
+  if (image.bytes > SOCIAL_MAX_BYTES) {
+    found.push(add("error", `is ${image.bytes} bytes; keep it under 5 MB`));
+  } else if (image.bytes > SOCIAL_LIGHT_BYTES) {
+    found.push(
+      add(
+        "warning",
+        `is ${image.bytes} bytes; WhatsApp skips previews over about 600 KB`
+      )
+    );
+  }
+  return found;
+};
+
+/**
+ * What a link preview does with one og:image (shared by every page in `path`).
+ * `measured: false` trusts an `/_image` request without measuring the bytes.
+ */
+export const socialImageFindings = (
+  image: FetchedImage,
+  url: string,
+  path: string,
+  measured = true
+): SeoFinding[] => {
+  const add = (severity: Severity, detail: string): SeoFinding =>
+    finding(SOCIAL_RULE, severity, path, `og:image ${detail}: ${url}`);
+  const failure = loadFailure(image);
+  if (failure !== undefined) {
+    return [add("error", failure)];
+  }
+  const parsed = URL.canParse(url) ? new URL(url) : undefined;
+  const transformed = parsed?.pathname === "/_image";
+  return [
+    ...(parsed === undefined ? [] : transformFindings(parsed)).map((detail) =>
+      add("error", detail)
+    ),
+    ...(measured || !transformed ? geometryFindings(image, add) : []),
+  ];
+};
+
+const iconFinding = (severity: Severity, detail: string): SeoFinding =>
+  finding("icons", severity, "/", detail);
+
+export interface FetchedIcon {
+  readonly url: string;
+  readonly image: FetchedImage;
+}
+
+/** Browser tab and home-screen icons, read from the home page; `icon` absent means no link. */
+export const iconFindings = (rel: string, icon?: FetchedIcon): SeoFinding[] => {
+  if (icon === undefined) {
+    return [iconFinding("error", `no <link rel="${rel}">`)];
+  }
+  const { image, url } = icon;
+  if (image.status === 200 && image.svg === true && rel === "icon") {
+    return [];
+  }
+  const failure = loadFailure(image);
+  if (failure !== undefined || image.size === undefined) {
+    return [
+      iconFinding("error", `${rel} ${failure ?? "is unreadable"}: ${url}`),
+    ];
+  }
+  const { height, width } = image.size;
+  if (
+    rel === "apple-touch-icon" &&
+    (width !== APPLE_TOUCH_SIZE || height !== APPLE_TOUCH_SIZE)
+  ) {
+    return [
+      iconFinding(
+        "warning",
+        `${rel} is ${width}x${height}; iOS wants ${APPLE_TOUCH_SIZE}x${APPLE_TOUCH_SIZE}`
+      ),
+    ];
+  }
+  return width === height
+    ? []
+    : [iconFinding("warning", `${rel} is ${width}x${height}; make it square`)];
+};
+
+/**
+ * Where the audit fetches a page's asset. Stages render absolute URLs on their configured
+ * origin, which can differ from the one being audited (a local port, a preview proxy).
+ */
+const assetUrl = (
+  href: string,
+  page: PageFacts,
+  origin: string
+): string | undefined => {
+  if (!URL.canParse(href, `${origin}${page.path}`)) {
+    return undefined;
+  }
+  const url = new URL(href, `${origin}${page.path}`);
+  const site =
+    page.canonical !== undefined && URL.canParse(page.canonical)
+      ? new URL(page.canonical).origin
+      : origin;
+  return url.origin === site
+    ? new URL(`${url.pathname}${url.search}`, origin).href
+    : url.href;
+};
+
+const inBatches = async <T, R>(
+  items: readonly T[],
+  run: (item: T) => Promise<R>
+): Promise<R[]> => {
+  const results: R[] = [];
+  for (let start = 0; start < items.length; start += CRAWL_CONCURRENCY) {
+    results.push(
+      ...(await Promise.all(
+        items.slice(start, start + CRAWL_CONCURRENCY).map(run)
+      ))
+    );
+  }
+  return results;
+};
+
+const assetFindings = async (
+  served: readonly PageFacts[],
+  options: SeoOptions
+): Promise<SeoFinding[]> => {
+  const { origin } = options;
+  const byImage = new Map<string, string[]>();
+  for (const page of served) {
+    const { image } = page.social;
+    if (image !== undefined && ABSOLUTE_URL.test(image)) {
+      byImage.set(image, [...(byImage.get(image) ?? []), page.path]);
+    }
+  }
+  const social = await inBatches([...byImage], async ([image, paths]) => {
+    const page = served.find((candidate) => candidate.path === paths[0]);
+    const url = page === undefined ? image : assetUrl(image, page, origin);
+    return url === undefined
+      ? []
+      : socialImageFindings(
+          await fetchImage(url),
+          image,
+          paths.join(", "),
+          !LOCAL_HOSTS.has(new URL(origin).hostname)
+        );
+  });
+  const home = served.find((page) => page.path === "/");
+  if (home === undefined) {
+    return social.flat();
+  }
+  const icons = await inBatches([...ICON_RELS], async (rel) => {
+    const href = home.icons[rel];
+    const url = href === undefined ? href : assetUrl(href, home, origin);
+    if (href === undefined || url === undefined) {
+      return iconFindings(rel);
+    }
+    return iconFindings(rel, { image: await fetchImage(url), url: href });
+  });
+  return [...social.flat(), ...icons.flat()];
 };
 
 const ROBOTS_RULE = "robots-txt";
@@ -524,6 +896,7 @@ export const auditSeo = async (
     ...[...pages.values()].flatMap((page) => pageFindings(page, options)),
     ...duplicates(served, "title"),
     ...duplicates(served, "description"),
+    ...(await assetFindings(served, options)),
   ];
   if (sitemap.length === 0) {
     findings.push(

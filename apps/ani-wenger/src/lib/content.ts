@@ -21,6 +21,8 @@ export interface NavItem {
 
 export interface SiteChrome {
   readonly title: string;
+  /** Settings → SEO → Default OG image; the layout falls back to `public/og-default.*`. */
+  readonly socialImage: string | undefined;
   readonly tagline: string;
   readonly primary: readonly NavItem[];
   readonly footer: readonly NavItem[];
@@ -52,6 +54,7 @@ export const getSiteChrome = async (
     ],
     footer: menuItems(footer.data),
     primary: menuItems(primary.data),
+    socialImage: settings.data.seo?.defaultOgImage?.url,
     studio: studio.entry?.data,
     tagline: settings.data.tagline ?? "",
     title: settings.data.title ?? fallbackTitle,

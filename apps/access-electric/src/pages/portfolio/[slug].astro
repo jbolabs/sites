@@ -43,6 +43,7 @@ const robots = isCurrent ? "noindex, follow" : seo?.robots;
   title={seo?.title ?? title}
   description={seo?.description ?? metaFallback}
   image={seo?.ogImage}
+  photo={entry?.data.cover_image}
   robots={robots}
   content={entry ? { collection: "categories", id: entry.data.id, slug: entry.id } : undefined}
 >

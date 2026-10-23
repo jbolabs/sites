@@ -53,7 +53,8 @@ const seo = getSeoMeta(project, {
 <Base
   title={seo.title}
   description={seo.description}
-  image={seo.ogImage ?? galleryImages[0]?.src}
+  image={seo.ogImage}
+  photo={photos[0]}
   canonical={seo.canonical}
   robots={seo.robots}
   content={{ collection: "projects", id: project.data.id, slug: project.id }}
