@@ -1,0 +1,27 @@
+---
+/**
+ * Google Tag Manager: `part="head"` goes high in `<head>`, `part="body"` right
+ * after `<body>` opens, as Google asks. Renders only when the stage binds a
+ * container (prod) and only on the site's own hostname, so a workers.dev alias
+ * never sends the client's agency stray data.
+ */
+import { env } from "cloudflare:workers";
+import { Option } from "effect";
+
+import { containerScript, googleTagManagerFromEnv, noscriptFrameUrl } from "../google-tag-manager.ts";
+
+interface Props {
+  part: "head" | "body";
+}
+
+const { part } = Astro.props;
+const container = googleTagManagerFromEnv(env);
+const host = new URL(env.SITE_ORIGIN).hostname;
+const allowedHost = Astro.url.hostname === host || Astro.url.hostname === `www.${host}`;
+const containerId = allowedHost ? Option.getOrUndefined(container) : undefined;
+---
+
+{containerId !== undefined && part === "head" && <script is:inline set:html={containerScript(containerId)} />}
+{containerId !== undefined && part === "body" && (
+  <noscript><iframe src={noscriptFrameUrl(containerId)} height="0" width="0" style="display:none;visibility:hidden" title="Google Tag Manager"></iframe></noscript>
+)}

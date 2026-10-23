@@ -52,6 +52,14 @@ export const site = {
    */
   domain: "equityfast.homes",
 
+  /**
+   * Kaleidico's (the client's marketing agency) Tag Manager container, live on
+   * prod only. They manage the tags inside it; Cloudflare's Google tag gateway
+   * serves it first-party from `gtmEndpoint`, a path no page may use.
+   */
+  gtmContainerId: "GTM-5CF5JZTT",
+  gtmEndpoint: "/metrics",
+
   /** Prefixes Worker names (`equityfast-<stage>`) and the Alchemy stack. */
   id: "equityfast",
 
