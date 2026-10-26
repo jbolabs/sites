@@ -33,3 +33,6 @@ jobs:
         run: |
           bun run app -- reset --site ms-custom-homes
           bun run app -- smoke --site ms-custom-homes
+      - name: Dev server log
+        if: failure()
+        run: bun run app -- logs --site ms-custom-homes --lines 200

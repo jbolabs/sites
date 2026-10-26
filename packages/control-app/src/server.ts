@@ -47,6 +47,14 @@ const ANSI_COLOR = /\u001B\[[0-9;]*m/gu;
 /** Boots settle in ~10 s warm and ~15 s cold; anything near this is stuck. */
 const READY_TIMEOUT_MS = 120_000;
 /**
+ * With no Vite dependency cache (a fresh CI runner, a new checkout) the first
+ * boot optimizes every dependency and its first render alone can outlast a
+ * request: ~3 min on a 4-core runner. Wedges are still caught by the log.
+ */
+const COLD_READY_TIMEOUT_MS = 360_000;
+const viteCache = (site: SiteContext) =>
+  path.join(site.directory, "node_modules", ".vite");
+/**
  * A dependency the SSR optimizer discovers at runtime re-optimizes mid-boot and
  * can wedge the server for good: Vite closes an environment, Astro's fonts
  * plugin clears its font data on that close (`FontFamilyNotFound` on every
@@ -144,9 +152,10 @@ type Warmth = "warm" | "wedged" | "timeout";
 const waitUntilWarm = async (
   site: SiteContext,
   origin: string,
-  logOffset: number
+  logOffset: number,
+  timeoutMs: number
 ): Promise<Warmth> => {
-  const deadline = Date.now() + READY_TIMEOUT_MS;
+  const deadline = Date.now() + timeoutMs;
   let streak = 0;
   while (streak < WARM_STREAK) {
     if (isWedged(logSince(site, logOffset))) {
@@ -248,11 +257,15 @@ export const stop = async (site: SiteContext): Promise<boolean> => {
 /** Starts `alchemy dev` for this worktree's stage in the background, or reuses a running one. */
 export const start = async (site: SiteContext): Promise<DevState> => {
   const running = readState(site);
+  const timeoutMs = existsSync(viteCache(site))
+    ? READY_TIMEOUT_MS
+    : COLD_READY_TIMEOUT_MS;
   let state = running ?? spawnServer(site);
   let warmth = await waitUntilWarm(
     site,
     state.origin,
-    running === undefined ? 0 : logSize(site)
+    running === undefined ? 0 : logSize(site),
+    timeoutMs
   );
   for (
     let restart = 0;
@@ -264,7 +277,7 @@ export const start = async (site: SiteContext): Promise<DevState> => {
     );
     await stop(site);
     state = spawnServer(site);
-    warmth = await waitUntilWarm(site, state.origin, 0);
+    warmth = await waitUntilWarm(site, state.origin, 0, READY_TIMEOUT_MS);
   }
   if (warmth !== "warm") {
     throw notReady(state.origin);
