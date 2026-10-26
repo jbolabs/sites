@@ -155,7 +155,7 @@ const world = Effect.gen(function* world() {
       replyTo: "aniwenger@gmail.com",
       siteName: "Ani Wenger",
       siteOrigin: "https://aniwenger.example",
-      studioInbox: Option.some("ani@example.com"),
+      studioInbox: Option.some(["ani@example.com"]),
     }),
     Layer.succeed(Email, {
       send: (message) => Ref.update(sent, (all) => [...all, message]),
@@ -208,7 +208,7 @@ describe(bookAppointment, () => {
             "aniwenger@gmail.com",
           ],
           [
-            "ani@example.com",
+            ["ani@example.com"],
             "New booking: Pat Rivera, Tuesday, October 27 at 10:00 AM",
             "pat@example.com",
           ],
@@ -303,8 +303,8 @@ describe(bookAppointment, () => {
             { kind: "goal", path: "/hair-photos/photo-2.jpg" },
           ],
         ]);
-        const toAni = (yield* Ref.get(sent)).find(
-          (message) => message.to === "ani@example.com"
+        const toAni = (yield* Ref.get(sent)).find((message) =>
+          message.to.includes("ani@example.com")
         );
         expect(toAni?.text).toContain(
           [

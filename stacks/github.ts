@@ -50,12 +50,20 @@ const domainPermissions: Cloudflare.ApiToken.PermissionGroupRef[] = [
   "Workers Routes Write",
 ];
 
-/** Production also enables Web Analytics. */
+/** Production also enables Web Analytics and, per zone, Google tag gateway (`googleTagManager`). */
 const productionPermissions: Cloudflare.ApiToken.PermissionGroupRef[] = [
   // Rum site creation is expected to require this; the first production deploy must verify it.
   "Account Settings Write",
   ...domainPermissions,
+  // Cloudflare's API accepts only the Zaraz groups for the google-tag-gateway config.
+  "Zaraz Edit",
 ];
+
+/** Permissions scoped to the account's zones rather than the account itself. */
+const zonePermissions = new Set<Cloudflare.ApiToken.PermissionGroupRef>([
+  ...domainPermissions,
+  "Zaraz Edit",
+]);
 
 const account = { [`com.cloudflare.api.account.${repository.accountId}`]: "*" };
 
@@ -99,13 +107,13 @@ export const deployPolicies = (
   environment: DeployEnvironment
 ): Cloudflare.ApiToken.Policy[] => {
   const zones = environment.permissions.filter((permission) =>
-    domainPermissions.includes(permission)
+    zonePermissions.has(permission)
   );
   const policies: Cloudflare.ApiToken.Policy[] = [
     {
       effect: "allow",
       permissionGroups: environment.permissions.filter(
-        (permission) => !domainPermissions.includes(permission)
+        (permission) => !zonePermissions.has(permission)
       ),
       resources: account,
     },

@@ -52,7 +52,6 @@ describe(deploymentSites, () => {
       )
     )(output);
     expect(planned.map(({ origin }) => origin).toSorted()).toStrictEqual([
-      "https://access-electric-staging.jbolabs.com",
       "https://ani-wenger-staging.jbolabs.com",
       "https://equityfast-staging.jbolabs.com",
       "https://ms-custom-homes-staging.jbolabs.com",
@@ -62,10 +61,10 @@ describe(deploymentSites, () => {
   it("loads the app configs used by the real deployment command", async () => {
     const configured = await loadDeploymentSites(
       new URL("../../", import.meta.url).pathname,
-      ["access-electric", "equityfast", "ms-custom-homes"]
+      ["ani-wenger", "equityfast", "ms-custom-homes"]
     );
     expect(deploymentSites(configured, "staging")).toStrictEqual([
-      "access-electric",
+      "ani-wenger",
       "equityfast",
       "ms-custom-homes",
     ]);

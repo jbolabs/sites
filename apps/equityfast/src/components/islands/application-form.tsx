@@ -1,3 +1,4 @@
+import { pushDataLayerEvent } from "@jakebodea/cloudflare-kit/data-layer";
 import { actions, isInputError } from "astro:actions";
 import { LoaderCircleIcon } from "lucide-react";
 import { useRef, useState } from "react";
@@ -172,6 +173,8 @@ const ApplicationForm = ({
     const { error } = await submitApplication(answers, locale, token);
     if (error === undefined) {
       clearDraft();
+      // The agency's ad conversions (Tag Manager, prod only).
+      pushDataLayerEvent("application_submitted");
       setStatus({ firstName: answers.firstName.trim(), state: "sent" });
       return;
     }

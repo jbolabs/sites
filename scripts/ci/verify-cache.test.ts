@@ -39,7 +39,7 @@ describe("per-site verification cache", () => {
           "turbo",
           "run",
           "verify:ci",
-          "--filter=@sites/access-electric",
+          "--filter=@sites/ms-custom-homes",
           "--cache=local:rw",
           "--dry=json",
         ],
@@ -47,10 +47,10 @@ describe("per-site verification cache", () => {
       )
     );
     const task = dry.tasks.find(
-      ({ taskId }) => taskId === "@sites/access-electric#verify:ci"
+      ({ taskId }) => taskId === "@sites/ms-custom-homes#verify:ci"
     );
     expect(task).toMatchObject({
-      dependencies: ["@sites/access-electric#build"],
+      dependencies: ["@sites/ms-custom-homes#build"],
       hash: null,
       hashReason: "Deferred because dependencyOutputs hashing mode was used.",
       resolvedTaskDefinition: {
@@ -61,12 +61,12 @@ describe("per-site verification cache", () => {
     expect(task?.resolvedTaskDefinition.env).toContain("VERIFY_RUNTIME");
     expect(task?.resolvedTaskDefinition.env).toContain("CONTENT_MODE");
     const inputs = Object.keys(task?.inputs ?? {}).map((file) =>
-      path.posix.normalize(`apps/access-electric/${file}`)
+      path.posix.normalize(`apps/ms-custom-homes/${file}`)
     );
     expect(inputs).toStrictEqual(
       expect.arrayContaining([
-        "apps/access-electric/seed/seed.json",
-        "apps/access-electric/site.config.ts",
+        "apps/ms-custom-homes/seed/seed.json",
+        "apps/ms-custom-homes/site.config.ts",
         "scripts/ci/local-worker.ts",
         "scripts/ci/local-verify.ts",
         "scripts/ci/verify-ci.ts",
@@ -98,9 +98,9 @@ describe("per-site verification cache", () => {
     expect(
       affectedSites(
         ["scripts/ci/lighthouse.ts", "scripts/ci/command.ts"],
-        ["access-electric", "equityfast"]
+        ["ms-custom-homes", "equityfast"]
       )
-    ).toStrictEqual({ deploy: [], verify: ["access-electric", "equityfast"] });
+    ).toStrictEqual({ deploy: [], verify: ["ms-custom-homes", "equityfast"] });
   });
 });
 

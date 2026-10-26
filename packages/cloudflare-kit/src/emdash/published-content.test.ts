@@ -29,7 +29,7 @@ type Tables =
   ConstructorParameters<typeof ContentRepository>[0] extends Kysely<infer T>
     ? T
     : never;
-const branchSeed = (site = "access-electric") =>
+const branchSeed = (site = "ms-custom-homes") =>
   decodeSeed(
     JSON.parse(
       readFileSync(
@@ -38,6 +38,54 @@ const branchSeed = (site = "access-electric") =>
       )
     )
   );
+/**
+ * No shipped site publishes semantic references any more, so the relationship
+ * round trip runs against a branch seed and policy that add a category
+ * collection linking to projects (the shape Access Electric used to ship).
+ */
+const withCategories = (branch: ReturnType<typeof branchSeed>) => {
+  branch.collections?.push({
+    fields: [
+      { label: "Name", required: true, slug: "title", type: "string" },
+      {
+        label: "Projects",
+        slug: "projects",
+        type: "reference",
+        validation: { relation: "category_projects" },
+      },
+    ],
+    label: "Categories",
+    labelSingular: "Category",
+    slug: "categories",
+    supports: ["drafts", "revisions", "seo"],
+  });
+  branch.relations = [
+    {
+      childCollection: "projects",
+      childLabel: "Projects",
+      childLabelSingular: "Project",
+      parentCollection: "categories",
+      parentLabel: "Categories",
+      parentLabelSingular: "Category",
+      slug: "category_projects",
+    },
+  ];
+  const base = contentPolicy("ms-custom-homes");
+  return {
+    ...base,
+    collections: {
+      ...base.collections,
+      categories: [
+        { slug: "title", type: "string" },
+        {
+          slug: "projects",
+          type: "reference",
+          validation: { relation: "category_projects" },
+        },
+      ],
+    },
+  };
+};
 const database = async () => {
   const db = new Kysely<Tables>({
     dialect: createDialect({ url: ":memory:" }),
@@ -157,12 +205,12 @@ describe("published content", () => {
         },
       ],
       menus: [],
-      origin: contentPolicy("access-electric").origin,
+      origin: contentPolicy("ms-custom-homes").origin,
       settings: {},
-      site: "access-electric",
+      site: "ms-custom-homes",
       version: 1,
     });
-    const plan = composeFreshSeed(branch, snapshot, "access-electric");
+    const plan = composeFreshSeed(branch, snapshot, "ms-custom-homes");
     expect(plan.seed.content?.projects?.[0]?.data.gallery).toStrictEqual([
       {
         _key: "slide",
@@ -182,12 +230,12 @@ describe("published content", () => {
       const snapshot = decodeSnapshot({
         entries: [],
         menus: [],
-        origin: contentPolicy("access-electric").origin,
+        origin: contentPolicy("ms-custom-homes").origin,
         settings: {},
-        site: "access-electric",
+        site: "ms-custom-homes",
         version: 1,
       });
-      const plan = composeFreshSeed(branchSeed(), snapshot, "access-electric");
+      const plan = composeFreshSeed(branchSeed(), snapshot, "ms-custom-homes");
       await applySeed(target, plan.seed, {
         includeContent: true,
         skipMediaDownload: true,
@@ -200,7 +248,7 @@ describe("published content", () => {
           target,
           { ...plan, identity: crypto.randomUUID() },
           "dev-fixture",
-          "access-electric"
+          "ms-custom-homes"
         )
       ).rejects.toThrow(
         "Native seed belongs to another published content plan"
@@ -219,6 +267,7 @@ describe("published content", () => {
       const target = await database();
       try {
         const branch = branchSeed();
+        const policy = withCategories(branch);
         await applySeed(source, {
           blockTypes: branch.blockTypes,
           collections: branch.collections,
@@ -268,18 +317,30 @@ describe("published content", () => {
         await new OptionsRepository(source).set("studio:published-content", {
           receipt: "source-receipt",
         });
-        const snapshot = await exportPublished(source, "access-electric", {
-          menus: [
-            {
-              items: [
-                { label: "Schools", type: "custom", url: "/portfolio/schools" },
-              ],
-              label: "Primary",
-              name: "primary",
+        const snapshot = await exportPublished(
+          source,
+          "ms-custom-homes",
+          {
+            menus: [
+              {
+                items: [
+                  {
+                    label: "Schools",
+                    type: "custom",
+                    url: "/portfolio/schools",
+                  },
+                ],
+                label: "Primary",
+                name: "primary",
+              },
+            ],
+            settings: {
+              tagline: "Published tagline",
+              title: "Published title",
             },
-          ],
-          settings: { tagline: "Published tagline", title: "Published title" },
-        });
+          },
+          policy
+        );
         const serialized = JSON.stringify(snapshot);
         expect(
           [
@@ -340,7 +401,12 @@ describe("published content", () => {
           },
         ];
         branch.content = { pages: [starter] };
-        const plan = composeFreshSeed(branch, snapshot, "access-electric");
+        const plan = composeFreshSeed(
+          branch,
+          snapshot,
+          "ms-custom-homes",
+          policy
+        );
         await validateFreshPlan(plan);
         await applySeed(target, plan.seed, {
           includeContent: true,
@@ -353,10 +419,10 @@ describe("published content", () => {
           target,
           plan,
           stage,
-          "access-electric"
+          "ms-custom-homes"
         );
         while (!result.complete) {
-          result = await completeFresh(target, plan, stage, "access-electric");
+          result = await completeFresh(target, plan, stage, "ms-custom-homes");
         }
         const about = await handleContentGet(target, "pages", "about", "en", {
           includeDrafts: false,
@@ -406,7 +472,7 @@ describe("published content", () => {
           target,
           plan,
           stage,
-          "access-electric"
+          "ms-custom-homes"
         );
         expect({
           repeated,
@@ -420,10 +486,10 @@ describe("published content", () => {
           revisions: before,
         });
         await expect(
-          completeFresh(target, plan, "prod", "access-electric")
+          completeFresh(target, plan, "prod", "ms-custom-homes")
         ).rejects.toThrow("Destination stage/site mismatch");
         await expect(
-          completeFresh(target, plan, "pr-3", "ms-custom-homes")
+          completeFresh(target, plan, "pr-3", "another-site")
         ).rejects.toThrow("Destination stage/site mismatch");
       } finally {
         await source.destroy();
@@ -432,54 +498,52 @@ describe("published content", () => {
     }
   );
 
-  it.each(["access-electric", "ms-custom-homes"] as const)(
-    "exports only the approved collections for %s",
-    async (site) => {
-      const db = await database();
-      try {
-        const seed = branchSeed(site);
-        await applySeed(db, {
-          blockTypes: seed.blockTypes,
-          collections: seed.collections,
-          relations: seed.relations,
-          version: "1",
-        });
-        await handleContentCreate(db, "pages", {
-          data: { content: [], title: "Public page" },
-          slug: "public-page",
-          status: "published",
-        });
-        await handleContentCreate(db, "leads", {
-          data: {
-            email: "private@example.test",
-            message: "Private",
-            title: "Private lead",
-          },
-          slug: "published-lead",
-          status: "published",
-        });
-        await handleContentCreate(db, "pages", {
-          data: { content: [], title: "Draft page" },
-          slug: "draft-page",
-        });
-        const result = await exportPublished(db, site, {
-          menus: [],
-          settings: {},
-        });
-        expect(
-          result.entries.map((entry) => ({
-            collection: entry.collection,
-            slug: entry.slug,
-            title: entry.data.title,
-          }))
-        ).toStrictEqual([
-          { collection: "pages", slug: "public-page", title: "Public page" },
-        ]);
-      } finally {
-        await db.destroy();
-      }
+  it("exports only the approved collections for ms-custom-homes", async () => {
+    const site = "ms-custom-homes";
+    const db = await database();
+    try {
+      const seed = branchSeed(site);
+      await applySeed(db, {
+        blockTypes: seed.blockTypes,
+        collections: seed.collections,
+        relations: seed.relations,
+        version: "1",
+      });
+      await handleContentCreate(db, "pages", {
+        data: { content: [], title: "Public page" },
+        slug: "public-page",
+        status: "published",
+      });
+      await handleContentCreate(db, "leads", {
+        data: {
+          email: "private@example.test",
+          message: "Private",
+          title: "Private lead",
+        },
+        slug: "published-lead",
+        status: "published",
+      });
+      await handleContentCreate(db, "pages", {
+        data: { content: [], title: "Draft page" },
+        slug: "draft-page",
+      });
+      const result = await exportPublished(db, site, {
+        menus: [],
+        settings: {},
+      });
+      expect(
+        result.entries.map((entry) => ({
+          collection: entry.collection,
+          slug: entry.slug,
+          title: entry.data.title,
+        }))
+      ).toStrictEqual([
+        { collection: "pages", slug: "public-page", title: "Public page" },
+      ]);
+    } finally {
+      await db.destroy();
     }
-  );
+  });
 
   it("normalizes native MS published project boolean columns without accepting unrelated fields", async () => {
     const db = await database();
@@ -551,9 +615,9 @@ describe("published content", () => {
           },
         ],
         menus: [],
-        origin: contentPolicy("access-electric").origin,
+        origin: contentPolicy("ms-custom-homes").origin,
         settings: {},
-        site: "access-electric",
+        site: "ms-custom-homes",
         version: 1,
       });
       const fields = branch.collections?.find(
@@ -569,7 +633,7 @@ describe("published content", () => {
         type: "string",
       });
       await expect(
-        validateFreshPlan(composeFreshSeed(branch, snapshot, "access-electric"))
+        validateFreshPlan(composeFreshSeed(branch, snapshot, "ms-custom-homes"))
       ).rejects.toThrow("required_branch");
       fields.pop();
       const title = fields.find((field) => field.slug === "title");
@@ -578,7 +642,7 @@ describe("published content", () => {
       }
       title.type = "integer";
       expect(() =>
-        composeFreshSeed(branch, snapshot, "access-electric")
+        composeFreshSeed(branch, snapshot, "ms-custom-homes")
       ).toThrow("incompatible field type");
       title.type = "string";
       const versioned = decodeSnapshot({
@@ -594,13 +658,13 @@ describe("published content", () => {
         ],
       });
       expect(() =>
-        composeFreshSeed(branch, versioned, "access-electric")
+        composeFreshSeed(branch, versioned, "ms-custom-homes")
       ).toThrow("no retained branch version");
       expect(() =>
         composeFreshSeed(
           branch,
-          { ...snapshot, site: "ms-custom-homes" },
-          "access-electric"
+          { ...snapshot, origin: "https://another-site.example.test" },
+          "ms-custom-homes"
         )
       ).toThrow("Published source/site mismatch");
     }

@@ -53,7 +53,7 @@ export const PublishedSnapshot = Schema.Struct({
   menus: Schema.Array(RecordValue),
   origin: Schema.NonEmptyString,
   settings: RecordValue,
-  site: Schema.Literals(["access-electric", "ms-custom-homes"]),
+  site: Schema.Literal("ms-custom-homes"),
   version: Schema.Literal(1),
 });
 export type PublishedSnapshot = typeof PublishedSnapshot.Type;
@@ -89,7 +89,7 @@ const fail = (message: string): never => {
   throw new PublishedContentError({ message });
 };
 export const contentPolicy = (site: string): Policy => {
-  if (site !== "access-electric" && site !== "ms-custom-homes") {
+  if (site !== "ms-custom-homes") {
     return fail("This site has no published-content policy");
   }
   return policies[site];
@@ -471,9 +471,10 @@ const publicSettings = async (
 export const exportPublished = async (
   db: Database,
   site: PublishedSite,
-  presentation: Presentation
+  presentation: Presentation,
+  /** Only tests pass one: no shipped site has semantic references today. */
+  policy: Policy = contentPolicy(site)
 ): Promise<PublishedSnapshot> => {
-  const policy = contentPolicy(site);
   const rows: ContentItem[] = [];
   for (const collection of Object.keys(policy.collections)) {
     rows.push(...(await readLiveRows(db, collection)));
@@ -1030,9 +1031,10 @@ class FreshComposer {
 export const composeFreshSeed = (
   branch: SeedFile,
   snapshot: PublishedSnapshot,
-  site: PublishedSite
+  site: PublishedSite,
+  /** Only tests pass one: no shipped site has semantic references today. */
+  policy: Policy = contentPolicy(site)
 ): FreshPlan => {
-  const policy = contentPolicy(site);
   if (snapshot.site !== site || snapshot.origin !== policy.origin) {
     return fail("Published source/site mismatch");
   }

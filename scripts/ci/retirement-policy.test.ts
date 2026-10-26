@@ -12,12 +12,15 @@ describe(retirementSite, () => {
     }).not.toThrow();
     expect(() => {
       retirementSite("access-electric", "staging");
-    }).toThrow("Refusing retirement of access-electric/staging");
+    }).not.toThrow();
+    expect(() => {
+      retirementSite("access-electric", "preview");
+    }).toThrow("Refusing retirement of access-electric/preview");
   });
 
   it.each([
     ["equityfast", "prod"],
-    ["access-electric", "staging"],
+    ["access-electric", "preview"],
     ["ms-custom-homes", "preview"],
     ["agape-church", "pr-53"],
     ["jbolabs", "prod"],

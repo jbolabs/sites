@@ -10,7 +10,9 @@ import {
   productionDeployRefusal,
   resolveStage,
   webAnalytics,
+  googleTagManager,
   leadMail,
+  clientSender,
   emdashSecrets,
   siteObservability,
   writeBuildInputs,
@@ -23,7 +25,9 @@ import {
  *   D1 (EmDash content) + R2 (media) + Images binding + session KV (auto)
  *   + Turnstile widget + every-minute cron (EmDash scheduled publishing)
  *   + Workers AI + AI Gateway for the CMS assistant (deployed stages only)
- *   prod only: custom domain, retained backups bucket + daily backup cron
+ *   prod only: custom domain, retained backups bucket + daily backup cron,
+ *   the agency's Tag Manager container behind Cloudflare's Google tag gateway,
+ *   equityfast.homes registered for sending application emails
  *
  * Deploy: `bun alchemy deploy --stage <stage> --profile <profile>` from this
  * directory (see .agents/skills/deploy). Never export CLOUDFLARE_* variables.
@@ -33,7 +37,7 @@ import { AlchemyContext } from "alchemy/AlchemyContext";
 import * as Cloudflare from "alchemy/Cloudflare";
 import { RandomProvider } from "alchemy/Random";
 import * as RemovalPolicy from "alchemy/RemovalPolicy";
-import { Config, Effect, Layer, Redacted } from "effect";
+import { Config, Effect, Layer, Option, Redacted } from "effect";
 
 import { studio } from "../../stacks/config.ts";
 import { stageSecrets } from "../../stacks/secrets.ts";
@@ -98,11 +102,17 @@ export default Alchemy.Stack(
         });
     // CMS assistant: Workers AI behind a rate-limited AI Gateway (no model in offline dev).
     const assistant = yield* assistantAi(stage);
+    // Applications (and Flow AG alerts) come from the client's domain on prod; CMS mail stays on the studio sender.
+    const leadFrom = yield* clientSender(stage, site.leadSender);
     const bindings = {
       ...(yield* webAnalytics(stage)),
+      ...(yield* googleTagManager(stage, {
+        endpoint: site.gtmEndpoint,
+        id: site.gtmContainerId,
+      })),
       ...leadMail(stage, {
         alertInbox: studio.alertInbox,
-        emailFrom,
+        emailFrom: Option.getOrElse(leadFrom, () => emailFrom),
         fromName: `${site.name} website`,
         inbox: site.leadInbox,
       }),
@@ -144,7 +154,7 @@ export default Alchemy.Stack(
         : {
             ...withModel,
             EMAIL: Cloudflare.Email.SendEmail("Email", {
-              allowedSenderAddresses: [emailFrom],
+              allowedSenderAddresses: [emailFrom, ...Option.toArray(leadFrom)],
             }),
           };
 
