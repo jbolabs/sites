@@ -25,7 +25,7 @@ import {
  *   + Turnstile widget + every-minute cron (EmDash scheduled publishing)
  *   + Workers AI + AI Gateway for the CMS assistant (deployed stages only)
  *   prod only: custom domain, retained backups bucket + daily backup cron,
- *   the mail.equityfast.homes sending subdomain for application emails
+ *   equityfast.homes registered for sending application emails
  *
  * Deploy: `bun alchemy deploy --stage <stage> --profile <profile>` from this
  * directory (see .agents/skills/deploy). Never export CLOUDFLARE_* variables.

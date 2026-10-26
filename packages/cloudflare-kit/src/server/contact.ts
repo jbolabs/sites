@@ -106,20 +106,26 @@ const nonEmpty = (name: string) =>
     Config.map(Option.filter((value) => value !== ""))
   );
 
+/**
+ * `LEAD_NOTIFY_TO` (`leadMail` in the stack): the comma-separated client
+ * inbox, set on prod only. Every reader of the binding parses it here.
+ */
+export const leadInboxConfig = nonEmpty("LEAD_NOTIFY_TO").pipe(
+  Config.map(
+    Option.map((list) =>
+      list
+        .split(",")
+        .map((address) => address.trim())
+        .filter((address) => address !== "")
+    )
+  )
+);
+
 export const LeadMailFromConfig = Layer.effect(
   LeadMail,
   Effect.gen(function* leadMailFromConfig() {
     const from = yield* nonEmpty("LEAD_NOTIFY_FROM");
-    const inbox = yield* nonEmpty("LEAD_NOTIFY_TO").pipe(
-      Config.map(
-        Option.map((list) =>
-          list
-            .split(",")
-            .map((address) => address.trim())
-            .filter((address) => address !== "")
-        )
-      )
-    );
+    const inbox = yield* leadInboxConfig;
     const alert = yield* nonEmpty("ALERT_EMAIL");
     const name = yield* Config.String("LEAD_NOTIFY_FROM_NAME").pipe(
       Config.withDefault("Website")

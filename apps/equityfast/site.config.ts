@@ -66,11 +66,10 @@ export const site = {
   ],
 
   /**
-   * Applications are emailed from the client's domain. Its subdomain is
-   * registered for sending on prod (`clientSender`); other stages send nothing
-   * to the client.
+   * Applications are emailed from the client's domain, registered for sending
+   * on prod (`clientSender`); other stages send nothing to the client.
    */
-  leadSender: "applications@mail.equityfast.homes",
+  leadSender: "applications@equityfast.homes",
 
   /**
    * Public base URL EmDash downloads seed images from when the stage cannot

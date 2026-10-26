@@ -297,13 +297,13 @@ export const calendarEvent = (
 
 /** Sends mail when a sender is configured; a failure is logged, never surfaced. */
 const sendQuietly = Effect.fn("sendQuietly")(function* sendQuietly(
-  to: string | undefined,
+  to: EmailMessage["to"] | undefined,
   message: Omit<EmailMessage, "from" | "to">,
   context: Record<string, string>
 ) {
   const mail = yield* BookingMail;
   const email = yield* Email;
-  if (to === undefined || to === "") {
+  if (to === undefined || to.length === 0) {
     return;
   }
   yield* Option.match(mail.from, {
