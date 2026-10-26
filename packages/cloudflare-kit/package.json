@@ -46,6 +46,8 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p src/emdash/admin/client"
   },
   "dependencies": {
+    "@alchemy.run/cloudflare": "catalog:",
+    "@alchemy.run/infisical": "catalog:",
     "@base-ui/react": "catalog:",
     "@eisbachcode/emdash-plugin-analytics": "catalog:",
     "@emdash-cms/auth": "catalog:",

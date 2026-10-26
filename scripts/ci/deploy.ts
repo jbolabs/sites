@@ -101,7 +101,15 @@ const parallel = stage.startsWith("pr-") && !destroy && sites.length > 1;
 // Site state is separate, but the account-wide state-store service upgrades in place.
 if (parallel) {
   const { stdout, stderr } = await execute(
-    ["alchemy", "provider", "cloudflare", "bootstrap"],
+    [
+      "alchemy",
+      "state",
+      "bootstrap",
+      "--backend",
+      "cloudflare",
+      "--yes",
+      "--no-input",
+    ],
     root
   );
   process.stdout.write(stdout);

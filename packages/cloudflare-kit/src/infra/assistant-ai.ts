@@ -1,5 +1,5 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import { AlchemyContext } from "alchemy/AlchemyContext";
-import * as Cloudflare from "alchemy/Cloudflare";
 import { Effect } from "effect";
 
 import type { StageSettings } from "./stage.ts";

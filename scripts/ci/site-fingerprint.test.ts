@@ -110,6 +110,12 @@ describe(deploymentResolutions, () => {
     expect(
       deploymentResolutions(
         {
+          "@alchemy.run/cloudflare": [
+            "@alchemy.run/cloudflare@2",
+            "",
+            { peerDependencies: { alchemy: "2" } },
+            "hash-c",
+          ],
           alchemy: [
             "alchemy@2",
             "",
@@ -124,10 +130,10 @@ describe(deploymentResolutions, () => {
           ],
           unused: ["unused@9", "", {}, "hash-u"],
         },
-        ["alchemy/Cloudflare"]
+        ["@alchemy.run/cloudflare/Workers"]
       )
     ).toBe(
-      '[["alchemy",["alchemy@2","",{"dependencies":{"effect":"4"}},"hash-a"]],["effect",["effect@4","",{"peerDependencies":{"optional":"1"}},"hash-e"]]]'
+      '[["@alchemy.run/cloudflare",["@alchemy.run/cloudflare@2","",{"peerDependencies":{"alchemy":"2"}},"hash-c"]],["alchemy",["alchemy@2","",{"dependencies":{"effect":"4"}},"hash-a"]],["effect",["effect@4","",{"peerDependencies":{"optional":"1"}},"hash-e"]]]'
     );
   });
 
