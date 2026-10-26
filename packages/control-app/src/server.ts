@@ -44,16 +44,11 @@ export const logPath = (site: SiteContext) =>
 
 // oxlint-disable-next-line no-control-regex -- matches the ESC byte of ANSI color codes on purpose.
 const ANSI_COLOR = /\u001B\[[0-9;]*m/gu;
-/** Boots settle in ~10 s warm and ~15 s cold; anything near this is stuck. */
-const READY_TIMEOUT_MS = 120_000;
 /**
- * With no Vite dependency cache (a fresh CI runner, a new checkout) the first
- * boot optimizes every dependency and its first render alone can outlast a
- * request: ~3 min on a 4-core runner. Wedges are still caught by the log.
+ * Boots settle in ~10 s warm and ~15 s cold on a dev machine; anything near this
+ * is stuck. A fresh CI runner boots far slower, so it sets `APP_READY_TIMEOUT_MS`.
  */
-const COLD_READY_TIMEOUT_MS = 360_000;
-const viteCache = (site: SiteContext) =>
-  path.join(site.directory, "node_modules", ".vite");
+const READY_TIMEOUT_MS = Number(process.env.APP_READY_TIMEOUT_MS ?? "120000");
 /**
  * A dependency the SSR optimizer discovers at runtime re-optimizes mid-boot and
  * can wedge the server for good: Vite closes an environment, Astro's fonts
@@ -63,6 +58,11 @@ const viteCache = (site: SiteContext) =>
  * cache the wedged boot already wrote.
  */
 const WEDGED = /FontFamilyNotFound|Invalid hook call|reading 'useState'/u;
+/**
+ * `alchemy dev` logs this when the stack itself fails (an import, a missing
+ * provider) and then idles until a file changes, so polling can never succeed.
+ */
+const RUN_FAILED = /alchemy dev: run failed/u;
 /** Restarts after a wedged boot, each on the cache the previous boot wrote. */
 const WEDGE_RESTARTS = 2;
 /** The first render after boot takes ~7 s; later rounds take ~20 ms, so poll tightly. */
@@ -120,6 +120,9 @@ const responds = async (url: string): Promise<boolean> => {
 /** True when the log text names an error the dev server never recovers from without a restart. */
 export const isWedged = (log: string): boolean => WEDGED.test(log);
 
+/** True when `alchemy dev` gave up on the stack and is waiting for a file change. */
+export const hasRunFailed = (log: string): boolean => RUN_FAILED.test(log);
+
 const logSize = (site: SiteContext): number => {
   const file = logPath(site);
   return existsSync(file) ? statSync(file).size : 0;
@@ -142,7 +145,7 @@ const logSince = (site: SiteContext, offset: number): string => {
   }
 };
 
-type Warmth = "warm" | "wedged" | "timeout";
+type Warmth = "warm" | "wedged" | "failed" | "timeout";
 
 /**
  * Waits until every warm-up path answers cleanly several times in a row.
@@ -152,13 +155,16 @@ type Warmth = "warm" | "wedged" | "timeout";
 const waitUntilWarm = async (
   site: SiteContext,
   origin: string,
-  logOffset: number,
-  timeoutMs: number
+  logOffset: number
 ): Promise<Warmth> => {
-  const deadline = Date.now() + timeoutMs;
+  const deadline = Date.now() + READY_TIMEOUT_MS;
   let streak = 0;
   while (streak < WARM_STREAK) {
-    if (isWedged(logSince(site, logOffset))) {
+    const log = logSince(site, logOffset);
+    if (hasRunFailed(log)) {
+      return "failed";
+    }
+    if (isWedged(log)) {
       return "wedged";
     }
     if (Date.now() > deadline) {
@@ -257,15 +263,11 @@ export const stop = async (site: SiteContext): Promise<boolean> => {
 /** Starts `alchemy dev` for this worktree's stage in the background, or reuses a running one. */
 export const start = async (site: SiteContext): Promise<DevState> => {
   const running = readState(site);
-  const timeoutMs = existsSync(viteCache(site))
-    ? READY_TIMEOUT_MS
-    : COLD_READY_TIMEOUT_MS;
   let state = running ?? spawnServer(site);
   let warmth = await waitUntilWarm(
     site,
     state.origin,
-    running === undefined ? 0 : logSize(site),
-    timeoutMs
+    running === undefined ? 0 : logSize(site)
   );
   for (
     let restart = 0;
@@ -277,7 +279,12 @@ export const start = async (site: SiteContext): Promise<DevState> => {
     );
     await stop(site);
     state = spawnServer(site);
-    warmth = await waitUntilWarm(site, state.origin, 0, READY_TIMEOUT_MS);
+    warmth = await waitUntilWarm(site, state.origin, 0);
+  }
+  if (warmth === "failed") {
+    throw new Error(
+      "alchemy dev could not run the stack; check `bun run app -- logs`"
+    );
   }
   if (warmth !== "warm") {
     throw notReady(state.origin);
