@@ -4,6 +4,7 @@
   "description": "Shared client UI every marketing site uses: React islands styled per site through slot classes and CSS variables, and the seamless mobile Safari edges.",
   "type": "module",
   "exports": {
+    "./drawer.css": "./src/drawer.css",
     "./mobile-menu": "./src/mobile-menu.tsx",
     "./mobile-menu.css": "./src/mobile-menu.css",
     "./seamless-edges": "./src/seamless-edges.ts",

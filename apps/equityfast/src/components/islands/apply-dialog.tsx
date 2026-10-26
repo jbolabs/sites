@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
 import type { UiStrings } from "@/i18n/ui";
 
 import ApplicationForm from "./application-form";
@@ -25,7 +25,7 @@ const isPlainClick = (event: MouseEvent) => {
 };
 
 /**
- * The application dialog, mounted once per page. Every "Start" button is a
+ * The application dialog (a bottom sheet on phones), mounted once per page. Every "Start" button is a
  * real link to the apply page (so it works before hydration and without
  * JavaScript); this intercepts those `[data-apply]` clicks and opens the
  * form in place, prefilled from the link's `data-amount` when it has one
@@ -68,11 +68,11 @@ const ApplyDialog = ({
   }, []);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent variant="application" closeLabel={strings.close}>
-        <DialogDescription className="sr-only">
+    <ResponsiveDialog open={open} onOpenChange={setOpen}>
+      <ResponsiveDialogContent variant="application" closeLabel={strings.close}>
+        <ResponsiveDialogDescription className="sr-only">
           {strings.applyIntro}
-        </DialogDescription>
+        </ResponsiveDialogDescription>
         <AutoHeight>
           <ApplicationForm
             key={session}
@@ -85,12 +85,14 @@ const ApplyDialog = ({
               setOpen(false);
             }}
             renderTitle={(title) => (
-              <DialogTitle variant="application">{title}</DialogTitle>
+              <ResponsiveDialogTitle variant="application">
+                {title}
+              </ResponsiveDialogTitle>
             )}
           />
         </AutoHeight>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 };
 

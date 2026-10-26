@@ -127,6 +127,7 @@ export default defineConfig({
   ],
   rules: {
     "local/no-long-dashes": "error",
+    "local/no-mobile-dialog": "error",
     "local/no-public-admin-imports": "error",
     "local/no-transition-colors": "error",
     "local/prefer-shared-controls": "error",

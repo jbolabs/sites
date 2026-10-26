@@ -1,0 +1,117 @@
+/*
+ * Bottom-sheet mechanics for each site's vendored `components/ui/drawer.tsx`
+ * (Base UI Drawer). Import once from a site's global.css, after Tailwind:
+ *
+ *   @import "@jakebodea/site-ui/drawer.css";
+ *
+ * Phones get a drawer instead of a centered dialog (`ResponsiveDialog`), so
+ * the sheet rises from the edge the thumb is on and swipes away. Colors and
+ * padding stay with each site's variants; this file owns the motion.
+ *
+ * The popup runs `--drawer-bleed` past the bottom of the screen so a fast
+ * swipe or an overshoot never shows a gap under it. 450ms on the iOS sheet
+ * curve, the drawer timing Base UI and Emil Kowalski's guidance agree on.
+ */
+:root {
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  min-height: 100dvh;
+  background-color: rgb(0 0 0 / 0.3);
+  opacity: calc(1 - var(--drawer-swipe-progress, 0));
+  transition: opacity 450ms var(--ease-drawer);
+}
+
+/* iOS 26+: cover the whole visible viewport, toolbar included. */
+@supports (-webkit-touch-callout: none) {
+  .drawer-backdrop {
+    position: absolute;
+  }
+}
+
+.drawer-backdrop[data-starting-style],
+.drawer-backdrop[data-ending-style] {
+  opacity: 0;
+}
+
+.drawer-backdrop[data-swiping] {
+  transition-duration: 0ms;
+}
+
+.drawer-backdrop[data-ending-style] {
+  transition-duration: calc(var(--drawer-swipe-strength, 1) * 400ms);
+}
+
+.drawer-viewport {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.drawer-popup {
+  --drawer-bleed: 3rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: calc(100dvh - 1.5rem + var(--drawer-bleed));
+  margin-bottom: calc(-1 * var(--drawer-bleed));
+  padding-bottom: calc(var(--drawer-bleed) + env(safe-area-inset-bottom, 0px));
+  border-radius: 1.5rem 1.5rem 0 0;
+  outline: 0;
+  transform: translateY(var(--drawer-swipe-movement-y, 0px));
+  transition: transform 450ms var(--ease-drawer);
+  will-change: transform;
+}
+
+.drawer-popup[data-starting-style],
+.drawer-popup[data-ending-style] {
+  transform: translateY(calc(100% - var(--drawer-bleed) + 2px));
+}
+
+.drawer-popup[data-swiping] {
+  user-select: none;
+}
+
+.drawer-popup[data-ending-style] {
+  transition-duration: calc(var(--drawer-swipe-strength, 1) * 400ms);
+}
+
+/* The grab handle: tells the visitor the sheet swipes away. */
+.drawer-handle {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 0.3125rem;
+  margin: 0.625rem auto 0;
+  border-radius: 999px;
+  background-color: currentColor;
+  opacity: 0.2;
+}
+
+.drawer-body {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: auto;
+}
+
+/* Reduced motion: the sheet fades in place instead of sliding. */
+@media (prefers-reduced-motion: reduce) {
+  .drawer-popup {
+    transition: opacity 200ms ease;
+  }
+
+  .drawer-popup[data-starting-style],
+  .drawer-popup[data-ending-style] {
+    opacity: 0;
+    transform: none;
+  }
+}

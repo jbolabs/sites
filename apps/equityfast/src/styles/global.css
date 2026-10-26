@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@jakebodea/site-ui/drawer.css";
 @import "@jakebodea/site-ui/mobile-menu.css";
 @import "@jakebodea/site-ui/seamless-edges.css";
 
