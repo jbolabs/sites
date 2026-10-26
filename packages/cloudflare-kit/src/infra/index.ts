@@ -1,5 +1,6 @@
 export { webAnalytics } from "./web-analytics.ts";
 export { leadMail } from "./lead-mail.ts";
+export { clientSender } from "./client-sender.ts";
 export { emdashSecrets } from "./emdash-secrets.ts";
 export { WORKER_COMPATIBILITY } from "./compatibility.ts";
 export { siteObservability } from "./observability.ts";

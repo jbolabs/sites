@@ -70,7 +70,7 @@ const recorder = Effect.gen(function* recorder() {
         inbox:
           options.inbox === false
             ? Option.none()
-            : Option.some("office@example.com"),
+            : Option.some(["office@example.com", "owner@example.com"]),
         name: "Access Electric website",
         siteOrigin: "https://accesselectricinc.com",
       })
@@ -127,6 +127,10 @@ describe(submitContact, () => {
       expect(result).toStrictEqual({ leadId: "lead-1" });
       expect((yield* Ref.get(leads))[0]?.sourcePath).toBe("/contact");
       expect((yield* Ref.get(emails))[0]?.replyTo).toBe("pat@example.com");
+      expect((yield* Ref.get(emails))[0]?.to).toStrictEqual([
+        "office@example.com",
+        "owner@example.com",
+      ]);
       expect((yield* Ref.get(emails))[0]?.subject).toBe(
         "New enquiry from Pat Builder"
       );
@@ -180,7 +184,7 @@ describe(submitContact, () => {
       expect(yield* Ref.get(emails)).toHaveLength(0);
       expect(
         (yield* Ref.get(attempts)).map((message) => message.to)
-      ).toStrictEqual(["office@example.com"]);
+      ).toStrictEqual([["office@example.com", "owner@example.com"]]);
       expect(logs.flat()).toContain("lead notification failed");
     })
   );
@@ -269,7 +273,7 @@ describe("lead mail configuration", () => {
       expect(mail).toStrictEqual({
         alert: Option.some("alerts@jbolabs.com"),
         from: Option.none(),
-        inbox: Option.some("hello@jbolabs.com"),
+        inbox: Option.some(["hello@jbolabs.com", "jake@jbolabs.com"]),
         name: "JBO Labs website",
         siteOrigin: "https://jbolabs.com",
       });
@@ -282,7 +286,7 @@ describe("lead mail configuration", () => {
                 ALERT_EMAIL: "alerts@jbolabs.com",
                 LEAD_NOTIFY_FROM: "",
                 LEAD_NOTIFY_FROM_NAME: "JBO Labs website",
-                LEAD_NOTIFY_TO: "hello@jbolabs.com",
+                LEAD_NOTIFY_TO: "hello@jbolabs.com, jake@jbolabs.com",
                 SITE_ORIGIN: "https://jbolabs.com",
               })
             )

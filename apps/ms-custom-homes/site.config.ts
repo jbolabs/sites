@@ -54,8 +54,8 @@ export const site = {
   /** Prefixes Worker names (`ms-custom-homes-<stage>`) and the Alchemy stack. */
   id: "ms-custom-homes",
 
-  // The client's notification address, filled in when known.
-  leadInbox: null,
+  // The client's notification addresses (prod only), filled in when known.
+  leadInbox: [],
 
   /**
    * Public base URL EmDash downloads seed images from when the stage cannot

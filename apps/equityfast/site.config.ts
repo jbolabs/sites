@@ -55,8 +55,22 @@ export const site = {
   /** Prefixes Worker names (`equityfast-<stage>`) and the Alchemy stack. */
   id: "equityfast",
 
-  // The client's notification address, filled in when confirmed.
-  leadInbox: null,
+  /**
+   * Everyone emailed each application, on prod only: Joe Mercuri and Hryer
+   * Kaprealian (E Mortgage Capital) and the studio.
+   */
+  leadInbox: [
+    "jmercuri@emortgagecapital.com",
+    "hryerk@emortgagecapital.com",
+    "jake@jbolabs.com",
+  ],
+
+  /**
+   * Applications are emailed from the client's domain. Its subdomain is
+   * registered for sending on prod (`clientSender`); other stages send nothing
+   * to the client.
+   */
+  leadSender: "applications@mail.equityfast.homes",
 
   /**
    * Public base URL EmDash downloads seed images from when the stage cannot

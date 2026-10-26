@@ -83,7 +83,8 @@ export interface LeadMailRoutes {
   readonly name: string;
   readonly siteOrigin: string;
   readonly from: Option.Option<EmailAddress>;
-  readonly inbox: Option.Option<string>;
+  /** Everyone who gets each lead. `LEAD_NOTIFY_TO` is comma-separated. */
+  readonly inbox: Option.Option<readonly string[]>;
   readonly alert: Option.Option<string>;
 }
 
@@ -109,7 +110,16 @@ export const LeadMailFromConfig = Layer.effect(
   LeadMail,
   Effect.gen(function* leadMailFromConfig() {
     const from = yield* nonEmpty("LEAD_NOTIFY_FROM");
-    const inbox = yield* nonEmpty("LEAD_NOTIFY_TO");
+    const inbox = yield* nonEmpty("LEAD_NOTIFY_TO").pipe(
+      Config.map(
+        Option.map((list) =>
+          list
+            .split(",")
+            .map((address) => address.trim())
+            .filter((address) => address !== "")
+        )
+      )
+    );
     const alert = yield* nonEmpty("ALERT_EMAIL");
     const name = yield* Config.String("LEAD_NOTIFY_FROM_NAME").pipe(
       Config.withDefault("Website")
