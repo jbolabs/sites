@@ -19,6 +19,7 @@ A site whose client brings a Tag Manager container loads it on prod only, throug
 | --- | --- |
 | `infra/google-tag-manager.ts` | Validates the ID, binds `GTM_CONTAINER_ID` (empty off prod), and on prod creates the zone's `GoogleTagGateway` with `setUpTag: true`. Destroy restores the zone's earlier gateway config. |
 | `google-tag-manager.ts` | `googleTagManagerFromEnv` ("empty means off"), Google's loader script and the noscript frame URL. |
+| `data-layer.ts` | `pushDataLayerEvent`, the conversion events islands send (`application_submitted` after a saved application). Event names only, never form answers. |
 | `astro/google-tag-manager.astro` | `part="head"` and `part="body"`. Renders only on the origin hostname or its `www` form, like the Web Analytics beacon. |
 | `stacks/github.ts` | The production deploy token gains zone-scoped `Zaraz Edit`, the only group Cloudflare's API accepts for the gateway config. |
 
