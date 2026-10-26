@@ -30,6 +30,8 @@ const en = {
     amountHelp: "Between $5,000 and $1,000,000",
     amountLabel: "Amount you're seeking",
     back: "Back",
+    birthDate: "Date of birth",
+    birthDateHelp: "MM/DD/YYYY",
     city: "City",
     consent:
       "I consent to receiving updates, offers, and calls or texts from EquityFast and E Mortgage Capital at the contact info above.",
@@ -40,16 +42,40 @@ const en = {
     errorGeneric: "We couldn't send that. Please try again.",
     errorInvalid:
       "Please complete the highlighted fields with valid information.",
+    errors: {
+      amount: "Enter an amount from $5,000 to $1,000,000.",
+      birthDate:
+        "Enter your date of birth as MM/DD/YYYY. You must be 18 or older.",
+      choice: "Choose one to continue.",
+      city: "Enter the city name.",
+      consent: "Check the box so we can contact you about your application.",
+      email: "Enter a valid email address, like you@email.com.",
+      income: "Enter your yearly income before taxes, in dollars.",
+      incomeSource: "Choose your main source of income.",
+      name: "Use letters only, as it appears on your ID.",
+      otherIncome: "Enter other yearly income, or 0 if none.",
+      phone: "Enter a 10-digit US phone number.",
+      required: "This field is required.",
+      state: "Choose the state.",
+      street: "Enter the house number and street, like 123 Main St.",
+      zip: "Enter a 5-digit ZIP code, like 92704.",
+    },
     firstName: "First name",
+    income: "Pre-tax annual income",
+    incomeSource: "Primary income source",
+    incomeSourcePlaceholder: "Select a source",
     lastName: "Last name",
     middleName: "Middle name",
     no: "No",
     optional: "optional",
+    otherIncome: "Other income",
+    otherIncomeHelp: "Enter 0 if none",
     phoneLabel: "Phone number",
     saves: "Your answers save on this device as you go.",
     security: "Quick security check so we know you're human.",
     sending: "Sending…",
     state: "State",
+    statePlaceholder: "Select",
     steps: {
       amount: {
         sub: "EquityFast lines run from $5,000 to $1,000,000.",
@@ -57,6 +83,7 @@ const en = {
       },
       contact: { title: "How can we reach you?" },
       forSale: { title: "Is the property currently listed for sale?" },
+      income: { title: "Last step: a few details to run your numbers" },
       name: {
         sub: "Please enter your full legal name as it appears on your ID.",
         title: "What's your name?",
@@ -83,6 +110,13 @@ const en = {
   menu: "Menu",
   options: {
     forSale: { No: "No", Yes: "Yes" },
+    incomeSource: {
+      Employment: "Employment",
+      Investment: "Investment",
+      Other: "Other",
+      Retirement: "Retirement",
+      "Self-employed": "Self-employed",
+    },
     occupancy: {
       "Investment property": "Investment property",
       "Primary residence": "Primary residence",
@@ -147,6 +181,8 @@ const es: UiStrings = {
     amountHelp: "Entre $5,000 y $1,000,000",
     amountLabel: "Monto que busca",
     back: "Atrás",
+    birthDate: "Fecha de nacimiento",
+    birthDateHelp: "MM/DD/AAAA",
     city: "Ciudad",
     consent:
       "Doy mi consentimiento para recibir actualizaciones, ofertas y llamadas o mensajes de EquityFast y E Mortgage Capital en los datos de contacto anteriores.",
@@ -156,17 +192,42 @@ const es: UiStrings = {
     doneHome: "Volver al Inicio",
     errorGeneric: "No pudimos enviarlo. Inténtelo de nuevo.",
     errorInvalid: "Complete los campos resaltados con información válida.",
+    errors: {
+      amount: "Ingrese un monto entre $5,000 y $1,000,000.",
+      birthDate:
+        "Ingrese su fecha de nacimiento como MM/DD/AAAA. Debe tener 18 años o más.",
+      choice: "Elija una opción para continuar.",
+      city: "Ingrese el nombre de la ciudad.",
+      consent:
+        "Marque la casilla para que podamos contactarle sobre su solicitud.",
+      email: "Ingrese un correo válido, como usted@correo.com.",
+      income: "Ingrese sus ingresos anuales antes de impuestos, en dólares.",
+      incomeSource: "Elija su principal fuente de ingresos.",
+      name: "Use solo letras, tal como aparece en su identificación.",
+      otherIncome: "Ingrese otros ingresos anuales, o 0 si no tiene.",
+      phone: "Ingrese un número de teléfono de EE. UU. de 10 dígitos.",
+      required: "Este campo es obligatorio.",
+      state: "Elija el estado.",
+      street: "Ingrese el número y la calle, como 123 Main St.",
+      zip: "Ingrese un código postal de 5 dígitos, como 92704.",
+    },
     firstName: "Nombre",
+    income: "Ingresos anuales antes de impuestos",
+    incomeSource: "Fuente principal de ingresos",
+    incomeSourcePlaceholder: "Seleccione una fuente",
     lastName: "Apellido",
     middleName: "Segundo nombre",
     no: "No",
     optional: "opcional",
+    otherIncome: "Otros ingresos",
+    otherIncomeHelp: "Ingrese 0 si no tiene",
     phoneLabel: "Número de teléfono",
     saves: "Sus respuestas se guardan en este dispositivo mientras avanza.",
     security:
       "Verificación rápida de seguridad para confirmar que es una persona.",
     sending: "Enviando…",
     state: "Estado",
+    statePlaceholder: "Seleccione",
     steps: {
       amount: {
         sub: "Las líneas EquityFast van de $5,000 a $1,000,000.",
@@ -174,6 +235,7 @@ const es: UiStrings = {
       },
       contact: { title: "¿Cómo podemos contactarle?" },
       forSale: { title: "¿La propiedad está actualmente en venta?" },
+      income: { title: "Último paso: algunos datos para calcular sus números" },
       name: {
         sub: "Ingrese su nombre legal completo tal como aparece en su identificación.",
         title: "¿Cuál es su nombre?",
@@ -203,6 +265,13 @@ const es: UiStrings = {
   menu: "Menú",
   options: {
     forSale: { No: "No", Yes: "Sí" },
+    incomeSource: {
+      Employment: "Empleo",
+      Investment: "Inversiones",
+      Other: "Otro",
+      Retirement: "Jubilación",
+      "Self-employed": "Trabajo independiente",
+    },
     occupancy: {
       "Investment property": "Propiedad de inversión",
       "Primary residence": "Residencia principal",

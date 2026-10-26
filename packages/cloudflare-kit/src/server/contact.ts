@@ -37,8 +37,8 @@ const trimmed = (min: number, max: number) =>
 const optionalTrimmed = (max: number) =>
   Schema.optional(Schema.Trim.check(Schema.isMaxLength(max)));
 
-/** Most intake questions a site may add to its form. */
-export const MAX_LEAD_ANSWERS = 8;
+/** Most intake questions a site may add to its form (EquityFast's application asks 11). */
+export const MAX_LEAD_ANSWERS = 12;
 
 /**
  * A site-specific intake question and the visitor's answer (budget, timeline,
@@ -91,6 +91,26 @@ export interface LeadMailRoutes {
 export class LeadMail extends Context.Service<LeadMail, LeadMailRoutes>()(
   "@jakebodea/cloudflare-kit/LeadMail"
 ) {}
+
+/** The email the client inbox gets for a saved lead. */
+export interface LeadNotification {
+  readonly subject: string;
+  readonly text: string;
+  /** A designed version for mail clients that show HTML; `text` stays the fallback. */
+  readonly html?: string;
+}
+
+/**
+ * Optional: how a site words and designs its lead email. Without it the
+ * pipeline sends the plain-text `leadNotificationText` under a generic
+ * "New enquiry" subject.
+ */
+export class LeadNotice extends Context.Service<
+  LeadNotice,
+  {
+    readonly render: (lead: Lead, mail: LeadMailRoutes) => LeadNotification;
+  }
+>()("@jakebodea/cloudflare-kit/LeadNotice") {}
 
 export interface LeadFailure {
   readonly form: Omit<ContactForm, "turnstileToken">;
@@ -155,6 +175,14 @@ export const leadNotificationText = (lead: Lead): string =>
     "",
     lead.message,
   ].join("\n");
+
+const defaultNotification = (lead: Lead): LeadNotification => ({
+  subject:
+    lead.referrer === undefined
+      ? `New enquiry from ${lead.name}`
+      : `New enquiry from ${lead.name} (via ${lead.referrer})`,
+  text: leadNotificationText(lead),
+});
 
 export const leadFailureText = (
   failure: LeadFailure,
@@ -248,19 +276,19 @@ export const submitContact = Effect.fn("submitContact")(function* submitContact(
     .save(lead)
     .pipe(Effect.tapCause(alertFailure("save")));
   yield* Effect.annotateCurrentSpan("lead.id", id);
+  const notification = Option.match(yield* Effect.serviceOption(LeadNotice), {
+    onNone: () => defaultNotification(lead),
+    onSome: (notice) => notice.render(lead, mail),
+  });
   yield* Option.match(Option.all({ from: mail.from, to: mail.inbox }), {
     onNone: () =>
       Effect.logInfo("lead saved; email notifications are not configured"),
     onSome: ({ from, to }) =>
       email
         .send({
+          ...notification,
           from,
           replyTo: lead.email,
-          subject:
-            lead.referrer === undefined
-              ? `New enquiry from ${lead.name}`
-              : `New enquiry from ${lead.name} (via ${lead.referrer})`,
-          text: leadNotificationText(lead),
           to,
         })
         .pipe(

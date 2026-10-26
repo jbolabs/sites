@@ -335,6 +335,17 @@ details[open]::details-content {
   block-size: auto;
 }
 
+/*
+ * The application dialog eases to each question's height (AutoHeight sets
+ * the measured size). 250ms on the strong ease-out, like the FAQ above. Only
+ * the vertical axis clips, so the inputs' focus rings stay visible.
+ */
+.auto-height {
+  block-size: var(--auto-height, auto);
+  overflow-y: clip;
+  transition: block-size 250ms var(--ease-out-strong);
+}
+
 /* Reduced motion: no movement, only short fades where they help. */
 @media (prefers-reduced-motion: reduce) {
   .animate-ticker {
@@ -351,7 +362,8 @@ details[open]::details-content {
     animation: none;
   }
 
-  details::details-content {
+  details::details-content,
+  .auto-height {
     transition: none;
   }
 
