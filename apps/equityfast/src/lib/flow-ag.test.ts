@@ -15,14 +15,18 @@ import {
 
 const form = Schema.decodeUnknownSync(ApplicationForm)({
   amount: "$75,000",
+  birthDate: "04/12/1981",
   consent: true,
   email: "jordan@example.com",
   firstName: "Jordan",
   forSale: "No",
+  income: "$140,000",
+  incomeSource: "Self-employed",
   lastName: "Reyes",
   locale: "es",
   middleName: "A.",
   occupancy: "Investment property",
+  otherIncome: "0",
   ownership: "LLC",
   phone: "1 (714) 555-0123",
   primaryAddress: {
@@ -93,6 +97,10 @@ describe(toFlowAgLead, () => {
       notes: [
         "HELOC application from the EquityFast website.",
         "Middle name: A.",
+        "Date of birth: 04/12/1981",
+        "Pre-tax annual income: $140,000",
+        "Other annual income: $0",
+        "Primary income source: Self-employed",
         "Occupancy: Investment property",
         "Primary residence: 1 Main St, Irvine, CA 92618",
         "Ownership: LLC",

@@ -44,5 +44,7 @@ declare module "react" {
   /** CSS custom properties islands set inline for dynamic values (see `scale-x-(--share)`). */
   interface CSSProperties {
     "--share"?: number;
+    /** The application dialog's measured content height (`AutoHeight`). */
+    "--auto-height"?: string;
   }
 }

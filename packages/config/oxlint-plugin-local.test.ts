@@ -3,6 +3,7 @@ import { describe, test } from "vitest";
 
 import {
   noLongDashesRule,
+  noMobileDialogRule,
   noPublicAdminImportsRule,
   noTransitionColorsRule,
   preferSharedControlsRule,
@@ -56,6 +57,35 @@ tester.run("prefer-shared-controls", preferSharedControlsRule, {
     {
       code: `<button type="button" aria-expanded={open} />`,
       filename: "/repo/packages/site-ui/src/mobile-menu.tsx",
+    },
+  ],
+});
+
+tester.run("no-mobile-dialog", noMobileDialogRule, {
+  invalid: [
+    {
+      code: `import { Dialog, DialogContent } from "@/components/ui/dialog";`,
+      errors: [{ messageId: "dialog" }],
+      filename: "/repo/apps/site/src/components/islands/gallery.tsx",
+    },
+    {
+      code: `import { Dialog } from "@base-ui/react/dialog";`,
+      errors: [{ messageId: "dialog" }],
+      filename: "/repo/apps/site/src/components/islands/apply.tsx",
+    },
+  ],
+  valid: [
+    {
+      code: `import { ResponsiveDialog } from "@/components/ui/responsive-dialog";`,
+      filename: "/repo/apps/site/src/components/islands/apply.tsx",
+    },
+    {
+      code: `import { AlertDialog } from "@base-ui/react/alert-dialog";`,
+      filename: "/repo/apps/site/src/components/islands/confirm.tsx",
+    },
+    {
+      code: `import { Dialog } from "@/components/ui/dialog";`,
+      filename: "/repo/apps/site/src/components/ui/responsive-dialog.tsx",
     },
   ],
 });
