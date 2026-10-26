@@ -2,10 +2,13 @@
  * Seamless mobile Safari edges (https://joshpuckett.me/seamless-mobile-safari).
  * Safari ignores `theme-color` in the browser and instead tints its status bar
  * and floating toolbar from fixed elements touching the screen edges. This
- * keeps one thin fixed strip at each edge, colored like whatever the page
- * shows there right now, plus a short fade so content melts into the toolbar.
- * The root background (Safari's overscroll color) and `theme-color` (Chrome,
- * installed apps) follow the same colors.
+ * keeps one thin fixed strip at the top edge, colored like whatever the page
+ * shows there right now (the sticky header). The bottom edge gets no strip:
+ * it sampled whichever element passed under the toolbar (a dark button, say),
+ * painting a band across the page, while without one Safari lets content
+ * scroll natively under its glass toolbar. The root background (Safari's
+ * overscroll color) and `theme-color` (Chrome, installed apps) follow the
+ * edge colors.
  *
  * Mount once per page from the layout; style lives in `seamless-edges.css`.
  * Only solid colors carry: over an image, the nearest opaque background
@@ -86,10 +89,9 @@ const colorAt = (x: number, y: number, fallback: string) => {
   return fallback;
 };
 
-const edge = (className: string, side: "top" | "bottom") => {
+const topEdge = () => {
   const element = document.createElement("div");
-  element.className = className;
-  element.dataset.edge = side;
+  element.className = "seamless-edge";
   element.setAttribute("aria-hidden", "true");
   return element;
 };
@@ -104,27 +106,22 @@ export const mountSeamlessEdges = (): (() => void) => {
   );
   const initialThemeColor = themeColor?.content;
 
-  // Direct children of body, so no transformed ancestor can break `position: fixed`.
-  const elements = [
-    edge("seamless-edge", "top"),
-    edge("seamless-edge", "bottom"),
-    edge("seamless-edge-fade", "top"),
-    edge("seamless-edge-fade", "bottom"),
-  ];
-  document.body.append(...elements);
+  // A direct child of body, so no transformed ancestor can break `position: fixed`.
+  const strip = topEdge();
+  document.body.append(strip);
 
   let queued = false;
   const update = () => {
     queued = false;
     const x = window.innerWidth / 2;
     const top = colorAt(x, 1, fallback);
-    const bottom = colorAt(x, window.innerHeight - 1, fallback);
     root.style.setProperty("--seamless-edge-top", top);
-    root.style.setProperty("--seamless-edge-bottom", bottom);
-    // Overscroll shows the root background: the top color, or the bottom one once the page bottoms out.
+    // Overscroll shows the root background: the top color, or the footer's once the page bottoms out.
     const atBottom =
       window.scrollY + window.innerHeight >= root.scrollHeight - 2;
-    root.style.backgroundColor = atBottom ? bottom : top;
+    root.style.backgroundColor = atBottom
+      ? colorAt(x, window.innerHeight - 1, fallback)
+      : top;
     if (themeColor !== null) {
       themeColor.content = top;
     }
@@ -163,11 +160,8 @@ export const mountSeamlessEdges = (): (() => void) => {
       target.removeEventListener(type, schedule);
     }
     observer.disconnect();
-    for (const element of elements) {
-      element.remove();
-    }
+    strip.remove();
     root.style.removeProperty("--seamless-edge-top");
-    root.style.removeProperty("--seamless-edge-bottom");
     root.style.removeProperty("background-color");
     if (themeColor !== null && initialThemeColor !== undefined) {
       themeColor.content = initialThemeColor;
