@@ -10,6 +10,7 @@ import {
   productionDeployRefusal,
   resolveStage,
   webAnalytics,
+  googleTagManager,
   leadMail,
   clientSender,
   emdashSecrets,
@@ -25,6 +26,7 @@ import {
  *   + Turnstile widget + every-minute cron (EmDash scheduled publishing)
  *   + Workers AI + AI Gateway for the CMS assistant (deployed stages only)
  *   prod only: custom domain, retained backups bucket + daily backup cron,
+ *   the agency's Tag Manager container behind Cloudflare's Google tag gateway,
  *   equityfast.homes registered for sending application emails
  *
  * Deploy: `bun alchemy deploy --stage <stage> --profile <profile>` from this
@@ -104,6 +106,10 @@ export default Alchemy.Stack(
     const leadFrom = yield* clientSender(stage, site.leadSender);
     const bindings = {
       ...(yield* webAnalytics(stage)),
+      ...(yield* googleTagManager(stage, {
+        endpoint: site.gtmEndpoint,
+        id: site.gtmContainerId,
+      })),
       ...leadMail(stage, {
         alertInbox: studio.alertInbox,
         emailFrom: Option.getOrElse(leadFrom, () => emailFrom),
