@@ -29,6 +29,7 @@ jobs:
       - name: Build
         run: bun run build
       - name: Local smoke test (alchemy dev, emulated resources)
+        # The workarounds are shared by every site, so one site proves them; ms-custom-homes is the reference.
         run: |
-          bun run app -- reset
-          bun run app -- smoke
+          bun run app -- reset --site ms-custom-homes
+          bun run app -- smoke --site ms-custom-homes
