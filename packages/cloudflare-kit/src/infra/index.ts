@@ -1,6 +1,7 @@
 export { webAnalytics } from "./web-analytics.ts";
 export { googleTagManager } from "./google-tag-manager.ts";
 export { leadMail } from "./lead-mail.ts";
+export { clientSender } from "./client-sender.ts";
 export { emdashSecrets } from "./emdash-secrets.ts";
 export { WORKER_COMPATIBILITY } from "./compatibility.ts";
 export { siteObservability } from "./observability.ts";

@@ -67,7 +67,7 @@ export const site = {
   id: "ani-wenger",
 
   // Ani's notification address for new bookings and messages, set once she confirms it.
-  leadInbox: null,
+  leadInbox: [],
 
   /**
    * Public base URL EmDash downloads seed images from when the stage cannot

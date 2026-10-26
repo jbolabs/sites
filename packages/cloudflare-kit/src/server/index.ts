@@ -6,6 +6,7 @@ export {
   LeadMailFromConfig,
   MAX_LEAD_ANSWERS,
   isEmailAddress,
+  leadInboxConfig,
   leadNotificationText,
   leadFailureText,
   submitContact,

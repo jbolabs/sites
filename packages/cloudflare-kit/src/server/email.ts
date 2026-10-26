@@ -12,7 +12,8 @@ export interface EmailAddress {
 
 export interface EmailMessage {
   readonly from: EmailAddress;
-  readonly to: string;
+  /** One address, or several that each see the others (the client's team). */
+  readonly to: string | readonly string[];
   readonly cc?: readonly string[];
   readonly replyTo?: string;
   readonly subject: string;
@@ -65,7 +66,7 @@ export const emailFromEnv = (
             from: message.from,
             subject: message.subject,
             text: message.text,
-            to: message.to,
+            to: [message.to].flat(),
           };
           if (message.cc !== undefined) {
             builder.cc = [...message.cc];
