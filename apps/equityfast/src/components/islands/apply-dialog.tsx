@@ -9,6 +9,7 @@ import {
 import type { UiStrings } from "@/i18n/ui";
 
 import ApplicationForm from "./application-form";
+import AutoHeight from "./application/auto-height";
 
 interface ApplyDialogProps {
   readonly locale: "en" | "es";
@@ -72,20 +73,22 @@ const ApplyDialog = ({
         <DialogDescription className="sr-only">
           {strings.applyIntro}
         </DialogDescription>
-        <ApplicationForm
-          key={session}
-          locale={locale}
-          strings={strings}
-          turnstileSiteKey={turnstileSiteKey}
-          initialAmount={amount}
-          homeHref={locale === "es" ? "/es" : "/"}
-          onDone={() => {
-            setOpen(false);
-          }}
-          renderTitle={(title) => (
-            <DialogTitle variant="application">{title}</DialogTitle>
-          )}
-        />
+        <AutoHeight>
+          <ApplicationForm
+            key={session}
+            locale={locale}
+            strings={strings}
+            turnstileSiteKey={turnstileSiteKey}
+            initialAmount={amount}
+            homeHref={locale === "es" ? "/es" : "/"}
+            onDone={() => {
+              setOpen(false);
+            }}
+            renderTitle={(title) => (
+              <DialogTitle variant="application">{title}</DialogTitle>
+            )}
+          />
+        </AutoHeight>
       </DialogContent>
     </Dialog>
   );

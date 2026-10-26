@@ -59,14 +59,18 @@ interface Address {
 /** What the `apply` action decodes (`ApplicationForm` in lib/application.ts). */
 interface ApplyInput {
   readonly amount: string;
+  readonly birthDate: string;
   readonly consent: boolean;
   readonly email: string;
   readonly firstName: string;
   readonly forSale: string;
+  readonly income: string;
+  readonly incomeSource: string;
   readonly lastName: string;
   readonly locale: "en" | "es";
   readonly middleName: string;
   readonly occupancy: string;
+  readonly otherIncome: string;
   readonly ownership: string;
   readonly phone: string;
   primaryAddress?: Address;
@@ -81,14 +85,18 @@ const submitApplication = async (
 ) => {
   const input: ApplyInput = {
     amount: answers.amount,
+    birthDate: answers.birthDate,
     consent: answers.consent,
     email: answers.email,
     firstName: answers.firstName,
     forSale: answers.forSale,
+    income: answers.income,
+    incomeSource: answers.incomeSource,
     lastName: answers.lastName,
     locale,
     middleName: answers.middleName,
     occupancy: answers.occupancy,
+    otherIncome: answers.otherIncome,
     ownership: answers.ownership,
     phone: answers.phone,
     propertyAddress: address(answers, "property"),
@@ -188,7 +196,12 @@ const ApplicationForm = ({
     event.preventDefault();
     const found = stepProblems(step, answers);
     setProblems(found);
-    if (found.length > 0 || status.state === "sending") {
+    if (found.length > 0) {
+      // Take the visitor to the first thing to fix; its error is read with it.
+      document.querySelector<HTMLElement>(`#apply-${found[0]}`)?.focus();
+      return;
+    }
+    if (status.state === "sending") {
       return;
     }
     const next = steps[index + 1];
@@ -268,11 +281,6 @@ const ApplicationForm = ({
         </div>
       )}
 
-      {problems.length > 0 && (
-        <div className="animate-in fade-in slide-in-from-top-1 ease-out-strong mt-4 duration-200">
-          <FieldError>{t.errorInvalid}</FieldError>
-        </div>
-      )}
       {status.state === "error" && (
         <div className="animate-in fade-in slide-in-from-top-1 ease-out-strong mt-4 duration-200">
           <FieldError variant="banner">{status.message}</FieldError>

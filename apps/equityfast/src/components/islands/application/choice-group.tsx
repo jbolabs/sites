@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 
 /** One answer from a short list, as large tappable cards. */
 const ChoiceGroup = ({
+  errorId,
   invalid,
   labels,
   onChange,
@@ -10,6 +11,8 @@ const ChoiceGroup = ({
   title,
   value,
 }: {
+  /** The inline error's id while one shows. */
+  readonly errorId?: string | undefined;
   readonly invalid: boolean;
   readonly labels: Readonly<Record<string, string>>;
   readonly onChange: (value: string) => void;
@@ -20,6 +23,7 @@ const ChoiceGroup = ({
   <RadioGroup
     aria-label={title}
     aria-invalid={invalid || undefined}
+    aria-describedby={errorId}
     value={value}
     onValueChange={(next) => {
       onChange(String(next));
