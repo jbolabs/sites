@@ -56,14 +56,11 @@ export const site = {
   id: "equityfast",
 
   /**
-   * Everyone emailed each application, on prod only: Joe Mercuri and Hryer
-   * Kaprealian (E Mortgage Capital) and the studio.
+   * Everyone emailed each application, on prod only. The studio alone while
+   * the email is tested; Joe Mercuri (jmercuri@) and Hryer Kaprealian
+   * (hryerk@emortgagecapital.com) join after.
    */
-  leadInbox: [
-    "jmercuri@emortgagecapital.com",
-    "hryerk@emortgagecapital.com",
-    "jake@jbolabs.com",
-  ],
+  leadInbox: ["jake@jbolabs.com"],
 
   /**
    * Applications are emailed from the client's domain, registered for sending
