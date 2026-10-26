@@ -3,7 +3,7 @@
  * Page shell: EmDash head/body hooks (SEO tags, hreflang for translated
  * entries, plugin contributions, visual editing), fonts, header/footer from
  * the locale's CMS menus, structured data, the application dialog, and
- * analytics when enabled. Pages pass SEO from `getSeoMeta()`.
+ * analytics and the agency's Tag Manager container when enabled (prod). Pages pass SEO from `getSeoMeta()`.
  */
 import "@/styles/global.css";
 
@@ -16,6 +16,7 @@ import type { MediaFile } from "@jakebodea/cloudflare-kit/social-image";
 import { breadcrumbJsonLd, documentTitle, metaDescription } from "@jakebodea/cloudflare-kit/seo";
 import type { Crumb } from "@jakebodea/cloudflare-kit/seo";
 
+import GoogleTagManager from "@jakebodea/cloudflare-kit/astro/google-tag-manager.astro";
 import WebAnalyticsBeacon from "@jakebodea/cloudflare-kit/astro/web-analytics-beacon.astro";
 import ApplyDialog from "@/components/islands/apply-dialog";
 import SiteFooter from "@/components/site-footer.astro";
@@ -82,6 +83,7 @@ const breadcrumbs = crumbs === undefined ? undefined : JSON.stringify(breadcrumb
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <GoogleTagManager part="head" />
     <meta name="theme-color" content="#ffffff" />
     <title>{fullTitle}</title>
     <link rel="icon" href="/favicon.png" type="image/png" />
@@ -95,6 +97,7 @@ const breadcrumbs = crumbs === undefined ? undefined : JSON.stringify(breadcrumb
     {breadcrumbs && <script type="application/ld+json" set:html={breadcrumbs} />}
   </head>
   <body class="flex min-h-svh flex-col">
+    <GoogleTagManager part="body" />
     <EmDashBodyStart page={page} />
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-60 focus:bg-white focus:px-4 focus:py-2 focus:text-ink focus:shadow">{t.skipToContent}</a>
     <SiteHeader locale={locale} items={chrome.primary} alternates={alternates} />
