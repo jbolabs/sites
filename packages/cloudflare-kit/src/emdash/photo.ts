@@ -20,11 +20,16 @@ const Coordinate = Schema.Finite.check(
   Schema.isBetween({ maximum: 1, minimum: 0 })
 );
 /** The parts of an EmDash media value that size and dress a photo. */
-const PhotoFields = Schema.Struct({
+const Placeholder = {
   blurhash: Schema.optional(Schema.String),
   dominantColor: Schema.optional(Schema.String),
+};
+const PhotoFields = Schema.Struct({
+  ...Placeholder,
   focalX: Schema.optional(Coordinate),
   focalY: Schema.optional(Coordinate),
+  /** Values saved before EmDash promoted the placeholder off `meta` keep it there. */
+  meta: Schema.optional(Schema.Struct(Placeholder)),
   width: Schema.optional(Schema.Finite.check(Schema.isGreaterThan(0))),
 });
 type PhotoFields = typeof PhotoFields.Type;
@@ -40,7 +45,9 @@ export interface PhotoProps<Image> {
 const percent = (coordinate: number): string =>
   `${Math.round(coordinate * 10_000) / 100}%`;
 
-const placeholderStyle = ({ blurhash, dominantColor }: PhotoFields): string => {
+const placeholderStyle = (fields: PhotoFields): string => {
+  const blurhash = fields.blurhash ?? fields.meta?.blurhash;
+  const dominantColor = fields.dominantColor ?? fields.meta?.dominantColor;
   const layers = [
     blurhash === undefined
       ? ""

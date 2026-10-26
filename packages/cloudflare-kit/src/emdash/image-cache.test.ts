@@ -70,14 +70,16 @@ describe(transformedMediaKey, () => {
     expect(transformedMediaKey(request(TRANSFORM))).toBe("01HXYZ.jpg");
   });
 
-  it.each(["cookie", "authorization", "range"])(
+  it.each(["authorization", "range"])(
     "passes requests carrying %s through",
     (name) => {
       expect(
         transformedMediaKey(request(TRANSFORM, { headers: { [name]: "x" } }))
       ).toBeUndefined();
       expect(
-        transformedMediaKey(request(TRANSFORM, { headers: { accept: "x" } }))
+        transformedMediaKey(
+          request(TRANSFORM, { headers: { cookie: "_ga=GA1.1.1" } })
+        )
       ).toBe("01HXYZ.jpg");
     }
   );
@@ -195,6 +197,26 @@ describe(fetchCachedImage, () => {
     await Promise.all(pending);
     expect(failed.status).toBe(500);
     expect(failed.headers.get("x-image-cache")).toBeNull();
+    expect(cache.put).not.toHaveBeenCalled();
+  });
+
+  it("does not keep a response that sets a cookie", async () => {
+    const { cache, ctx, env, pending } = fixture();
+    const response = await fetchCachedImage(
+      request(TRANSFORM),
+      env,
+      ctx,
+      async () =>
+        await Promise.resolve(
+          new Response("resized", {
+            headers: { "content-type": "image/webp", "set-cookie": "s=1" },
+          })
+        ),
+      cache
+    );
+    await Promise.all(pending);
+    await expect(response.text()).resolves.toBe("resized");
+    expect(response.headers.get("set-cookie")).toBe("s=1");
     expect(cache.put).not.toHaveBeenCalled();
   });
 

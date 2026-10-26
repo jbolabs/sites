@@ -29,7 +29,11 @@ const SHARED_CACHE_CONTROL = "public, max-age=31536000, immutable";
 export const VISITOR_CACHE_CONTROL =
   "public, max-age=60, stale-while-revalidate=604800";
 const NOT_MODIFIED = 304;
-const BYPASS_HEADERS = ["authorization", "cookie", "range"];
+/**
+ * Cookies do not bypass: the endpoint ignores them, and analytics cookies ride
+ * on every same-site request. A response that sets one is never stored.
+ */
+const BYPASS_HEADERS = ["authorization", "range"];
 
 /** The R2 key of the original an `/_image` request resizes, or undefined to pass it through. */
 export const transformedMediaKey = (request: Request): string | undefined => {
@@ -123,7 +127,8 @@ export const fetchCachedImage = async (
   if (
     request.method !== "GET" ||
     response.status !== 200 ||
-    !(response.headers.get("content-type") ?? "").startsWith("image/")
+    !(response.headers.get("content-type") ?? "").startsWith("image/") ||
+    response.headers.has("set-cookie")
   ) {
     return response;
   }

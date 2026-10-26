@@ -55,6 +55,15 @@ describe(photoProps, () => {
     ).toBe("object-position: 50% 0%;");
   });
 
+  it("reads a placeholder older values keep in meta", () => {
+    expect(
+      photoProps(
+        { id: "01L", meta: { dominantColor: "#112233", storageKey: "a.jpg" } },
+        placeholders
+      ).style
+    ).toBe("background: #112233;");
+  });
+
   it("uses the dominant color alone when there is no blurhash", () => {
     expect(
       photoProps({ dominantColor: "#334455", id: "01K" }, placeholders).style
