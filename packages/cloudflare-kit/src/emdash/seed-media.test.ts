@@ -5,7 +5,11 @@ import path from "node:path";
 import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
-import { resolveSeedMedia, syncSeedPlaceholders } from "./seed-media.ts";
+import {
+  placeholdersByMediaFilename,
+  resolveSeedMedia,
+  syncSeedPlaceholders,
+} from "./seed-media.ts";
 
 describe(resolveSeedMedia, () => {
   it("makes seed media URLs absolute and leaves other URLs alone", () => {
@@ -69,5 +73,37 @@ describe(syncSeedPlaceholders, () => {
       "red.png": { blurhash: "old", bytes: 12, dominantColor: "rgb(1,2,3)" },
     });
     expect(placeholders["red.png"]?.dominantColor).toBe("rgb(255,0,0)");
+  });
+});
+
+describe(placeholdersByMediaFilename, () => {
+  const photo = {
+    blurhash: "LaA,;8WBJBbcPEs:oeWXFif*xCs.",
+    bytes: 301_182,
+    dominantColor: "rgb(75,83,88)",
+  };
+
+  it("keys each seed photo's placeholder by the filename its media value keeps", () => {
+    const seed = JSON.stringify({
+      content: [
+        {
+          image: {
+            $media: {
+              filename: "home-hero.jpg",
+              url: "/_seed/media/estate-hero-X6IKSjTQ.jpg",
+            },
+          },
+        },
+        { image: { $media: { url: "/_seed/media/estate-hero-X6IKSjTQ.jpg" } } },
+        { image: { $media: { url: "/_seed/media/missing.jpg" } } },
+        { image: { $media: { url: "https://cdn.example.com/x.jpg" } } },
+      ],
+    });
+    expect(
+      placeholdersByMediaFilename(seed, { "estate-hero-X6IKSjTQ.jpg": photo })
+    ).toStrictEqual({
+      "estate-hero-X6IKSjTQ.jpg": photo,
+      "home-hero.jpg": photo,
+    });
   });
 });

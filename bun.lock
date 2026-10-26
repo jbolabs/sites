@@ -177,6 +177,7 @@
         "@tanstack/ai-cloudflare": "catalog:",
         "@tanstack/ai-react": "catalog:",
         "@tanstack/ai-skills": "0.1.19",
+        "@unpic/placeholder": "0.1.2",
         "class-variance-authority": "catalog:",
         "clsx": "catalog:",
         "effect": "catalog:",

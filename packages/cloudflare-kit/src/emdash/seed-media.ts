@@ -10,9 +10,9 @@
  *    stage serves the originals itself, and
  * 2. writes `.emdash/seed.json` (EmDash's first seed lookup path) with those
  *    URLs made absolute against `mediaBase`, and
- * 3. keeps `seed/placeholders.json` (blurred placeholders, see
- *    `seed-placeholders.ts`) in step with `seed/media/` and serves it to pages
- *    as `virtual:seed-placeholders`.
+ * 3. keeps `seed/placeholders.json` (blurred placeholders by file, see
+ *    `seed-placeholders.ts`) in step with `seed/media/` and serves them to
+ *    pages as `virtual:seed-placeholders`, by the seed's media filenames.
  *
  * Without a `mediaBase` the URLs stay relative and setup skips the images.
  */
@@ -29,7 +29,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { AstroIntegration } from "astro";
-import { Schema } from "effect";
+import { Option, Schema } from "effect";
 import { generatePlaceholder } from "emdash/media";
 
 import { readPublishedPlan } from "./published-integration.ts";
@@ -108,7 +108,13 @@ const photoPlaceholder = async (
     new Uint8Array(readFileSync(file)),
     mimeType
   );
-  return placeholder === null ? undefined : { bytes, ...placeholder };
+  return placeholder === null
+    ? undefined
+    : {
+        blurhash: placeholder.blurhash,
+        bytes,
+        dominantColor: placeholder.dominantColor,
+      };
 };
 
 /** Placeholders for every photo in `mediaDir`, decoding only those `known` lacks or has at another size. */
@@ -131,6 +137,40 @@ export const syncSeedPlaceholders = async (
   );
 };
 
+const MEDIA_REFERENCE = /"\$media"\s*:\s*\{[^{}]*\}/gu;
+const SeedMediaReference = Schema.Struct({
+  $media: Schema.Struct({
+    filename: Schema.optional(Schema.String),
+    url: Schema.String.check(Schema.isStartingWith(SEED_MEDIA_PATH)),
+  }),
+});
+
+/**
+ * Placeholders keyed the way pages find them: by the filename EmDash stores on
+ * each media value, which is the seed's `$media.filename` (often not the file's
+ * name) or else the file's name.
+ */
+export const placeholdersByMediaFilename = (
+  seedJson: string,
+  photos: SeedPlaceholders
+): SeedPlaceholders =>
+  Object.fromEntries(
+    // `$media` objects are flat (url, alt, filename, caption).
+    [...seedJson.matchAll(MEDIA_REFERENCE)].flatMap(([reference]) =>
+      Option.toArray(
+        Schema.decodeUnknownOption(Schema.fromJsonString(SeedMediaReference))(
+          `{${reference}}`
+        )
+      ).flatMap(({ $media }) => {
+        const file = $media.url.slice(SEED_MEDIA_PATH.length);
+        const placeholder = photos[file];
+        return placeholder === undefined
+          ? []
+          : [[$media.filename ?? file, placeholder] as const];
+      })
+    )
+  );
+
 const PLACEHOLDERS_MODULE = "virtual:seed-placeholders";
 
 export const seedMedia = (options: SeedMediaOptions): AstroIntegration => ({
@@ -150,6 +190,10 @@ export const seedMedia = (options: SeedMediaOptions): AstroIntegration => ({
           );
         }
       }
+      const seedJson = readFileSync(
+        path.join(root, options.seed ?? "seed/seed.json"),
+        "utf-8"
+      );
       const placeholdersFile = path.join(root, SEED_PLACEHOLDERS_FILE);
       const known = readSeedPlaceholders(placeholdersFile);
       const placeholders = existsSync(mediaDir)
@@ -169,7 +213,9 @@ export const seedMedia = (options: SeedMediaOptions): AstroIntegration => ({
             {
               load: (id) =>
                 id === `\0${PLACEHOLDERS_MODULE}`
-                  ? `export default ${JSON.stringify(placeholders)}`
+                  ? `export default ${JSON.stringify(
+                      placeholdersByMediaFilename(seedJson, placeholders)
+                    )}`
                   : undefined,
               name: "seed-placeholders",
               resolveId: (id) =>
@@ -180,10 +226,6 @@ export const seedMedia = (options: SeedMediaOptions): AstroIntegration => ({
           ],
         },
       });
-      const seedJson = readFileSync(
-        path.join(root, options.seed ?? "seed/seed.json"),
-        "utf-8"
-      );
       const plan = readPublishedPlan(root);
       const contentSeed = plan === null ? seedJson : JSON.stringify(plan.seed);
       const resolved =
