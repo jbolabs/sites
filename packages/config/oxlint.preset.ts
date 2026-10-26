@@ -136,7 +136,7 @@ export default defineConfig({
     "no-redeclare": "off",
     // Effect error handlers (`Effect.catchTag("X", (error) => ...)`) are not Node-style callbacks.
     "promise/prefer-await-to-callbacks": "off",
-    // `import * as Cloudflare from "alchemy/Cloudflare"` is the documented Alchemy/Effect idiom: the namespace is the API.
+    // `import * as Cloudflare from "@alchemy.run/cloudflare"` is the documented Alchemy/Effect idiom: the namespace is the API.
     "sonarjs/no-wildcard-import": "off",
     // Effect's `Schema.TaggedError<T>()(...)` factory ends in "Error" and must not take `new`;
     // this rule's autofix inserts `new` and breaks every Effect error class.

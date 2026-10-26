@@ -72,6 +72,8 @@
     "tw-animate-css": "catalog:"
   },
   "devDependencies": {
+    "@alchemy.run/cloudflare": "catalog:",
+    "@alchemy.run/infisical": "catalog:",
     "@cloudflare/workers-types": "catalog:",
     "@effect/vitest": "catalog:",
     "@emdash-cms/cloudflare": "catalog:",
@@ -86,12 +88,20 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
+    "@alchemy.run/cloudflare": "catalog:",
+    "@alchemy.run/infisical": "catalog:",
     "@emdash-cms/cloudflare": "catalog:",
     "alchemy": "catalog:",
     "astro": "catalog:",
     "emdash": "catalog:"
   },
   "peerDependenciesMeta": {
+    "@alchemy.run/cloudflare": {
+      "optional": true
+    },
+    "@alchemy.run/infisical": {
+      "optional": true
+    },
     "alchemy": {
       "optional": true
     }

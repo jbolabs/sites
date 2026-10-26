@@ -1,3 +1,5 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
+import * as GitHub from "@alchemy.run/github";
 /**
  * CI control plane, as code: the repository's GitHub environments, the `main`
  * ruleset, and scoped, expiring Cloudflare deploy tokens written into those
@@ -16,8 +18,6 @@
  * Infisical value is copied into the GitHub `production` environment.
  */
 import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as GitHub from "alchemy/GitHub";
 import { Random, RandomProvider } from "alchemy/Random";
 import { Config, Effect, Layer } from "effect";
 
