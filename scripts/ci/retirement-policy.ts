@@ -11,6 +11,8 @@ const RETIREMENTS: ReadonlySet<string> = new Set([
   // Domainless prod stages kept from before ADR 0005; staging serves these apps now.
   "access-electric/prod",
   "ms-custom-homes/prod",
+  // Its app directory was removed (ADR 0010), so the site stack can't load to destroy it.
+  "access-electric/staging",
   // Preview for a PR closed unmerged, so the janitor (which reads main) misses it.
   "agape-church/pr-52",
 ]);
