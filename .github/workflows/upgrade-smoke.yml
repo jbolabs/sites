@@ -29,7 +29,13 @@ jobs:
       - name: Build
         run: bun run build
       - name: Local smoke test (alchemy dev, emulated resources)
+        env:
+          # A fresh runner has no warm Vite or workerd caches; its first boot takes minutes.
+          APP_READY_TIMEOUT_MS: "360000"
         # The workarounds are shared by every site, so one site proves them; ms-custom-homes is the reference.
         run: |
           bun run app -- reset --site ms-custom-homes
           bun run app -- smoke --site ms-custom-homes
+      - name: Dev server log
+        if: failure()
+        run: bun run app -- logs --site ms-custom-homes --lines 200
