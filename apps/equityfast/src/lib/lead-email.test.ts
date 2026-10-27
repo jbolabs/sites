@@ -28,6 +28,7 @@ const lead = {
     { answer: "$12,000", question: "Other income" },
     { answer: "Other", question: "Income source" },
     { answer: "No", question: "Listed for sale" },
+    { answer: "$250,000", question: "Mortgage balance" },
     { answer: "Yes (calls, texts, and email)", question: "Contact consent" },
     { answer: "English", question: "Language" },
   ],
@@ -60,6 +61,7 @@ describe(renderLeadEmail, () => {
       "$12,000",
       "Income source",
       "Listed for sale",
+      "$250,000",
       "Yes (calls, texts, and email)",
     ]) {
       expect(notice.html).toContain(value);
@@ -98,6 +100,7 @@ Address: 3750 S Susan Street, Santa Ana, CA 92704
 Occupancy: Primary residence
 Ownership: Joint owner
 Listed for sale: No
+Mortgage balance: $250,000
 
 Income
 Pre-tax annual income: $140,000
@@ -176,6 +179,7 @@ describe("each occupancy and ownership", () => {
         ["Occupancy", occupancy],
         ["Ownership", ownership],
         ["Listed for sale", "No"],
+        ["Mortgage balance", "Not given"],
         ["Pre-tax annual income", "$210,000"],
         ["Other income", "$0"],
         ["Income source", "Self-employed"],
@@ -194,7 +198,7 @@ describe("each occupancy and ownership", () => {
         livesElsewhere ? 1 : 0
       );
       expect(count(notice.text, "Same as property")).toBe(0);
-      expect(notice.text.split("\n")).toHaveLength(livesElsewhere ? 29 : 26);
+      expect(notice.text.split("\n")).toHaveLength(livesElsewhere ? 30 : 27);
     }
   );
 });

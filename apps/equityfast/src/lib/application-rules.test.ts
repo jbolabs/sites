@@ -11,6 +11,7 @@ import {
   isAmount,
   isBirthDate,
   isCity,
+  isMortgageBalance,
   isName,
   isPhone,
   isState,
@@ -48,6 +49,11 @@ describe(formatDollars, () => {
   it("formats whatever digits were typed", () => {
     expect(formatDollars("75000")).toBe("$75,000");
     expect(formatDollars("$0075,0x00")).toBe("$75,000");
+  });
+
+  it("rounds pasted cents to whole dollars instead of keeping their digits", () => {
+    expect(formatDollars("$250,000.60")).toBe("$250,001");
+    expect(formatDollars("250000.4")).toBe("$250,000");
   });
 
   it("keeps a typed zero, so other income can be $0", () => {
@@ -171,6 +177,15 @@ describe(formatBirthDate, () => {
   });
 });
 
+describe(isMortgageBalance, () => {
+  it("accepts blank, $0 and real balances but not absurd ones", () => {
+    expect(isMortgageBalance("")).toBeTruthy();
+    expect(isMortgageBalance("$0")).toBeTruthy();
+    expect(isMortgageBalance("$412,500")).toBeTruthy();
+    expect(isMortgageBalance("$100,000,000")).toBeFalsy();
+  });
+});
+
 describe(stepsFor, () => {
   it("skips the primary-address question when the property is the primary residence", () => {
     expect(
@@ -183,6 +198,7 @@ describe(stepsFor, () => {
       "occupancy",
       "ownership",
       "forSale",
+      "mortgageBalance",
       "income",
     ]);
   });

@@ -80,6 +80,7 @@ interface ApplyInput {
   readonly lastName: string;
   readonly locale: "en" | "es";
   readonly middleName: string;
+  readonly mortgageBalance: string;
   readonly occupancy: string;
   readonly otherIncome: string;
   readonly ownership: string;
@@ -106,6 +107,7 @@ const submitApplication = async (
     lastName: answers.lastName,
     locale,
     middleName: answers.middleName,
+    mortgageBalance: answers.mortgageBalance,
     occupancy: answers.occupancy,
     otherIncome: answers.otherIncome,
     ownership: answers.ownership,

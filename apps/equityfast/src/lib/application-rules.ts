@@ -29,6 +29,8 @@ export const INCOME_SOURCES = [
 ] as const;
 /** Annual income above this is a typo, not an applicant. */
 export const MAX_INCOME = 99_999_999;
+/** Past this a stated mortgage balance is a typo or spam. */
+export const MAX_MORTGAGE_BALANCE = 99_999_999;
 /** Borrowers must be adults; past this age a date of birth is a typo. */
 export const MIN_AGE = 18;
 export const MAX_AGE = 120;
@@ -39,7 +41,7 @@ export type ForSale = (typeof FOR_SALE)[number];
 export type IncomeSource = (typeof INCOME_SOURCES)[number];
 
 const NON_DIGITS = /\D+/gu;
-const LEADING_ZEROS = /^0+(?=\d)/u;
+const NON_AMOUNT = /[^\d.]+/gu;
 const US_COUNTRY_CODE = /^1(?=\d{10}$)/u;
 const EMAIL = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/iu;
 const ZIP = /^\d{5}(?:-\d{4})?$/u;
@@ -113,13 +115,22 @@ const STATE_CODES = new Set(US_STATES.map(([code]) => code));
 export const digits = (value: string): string =>
   value.replaceAll(NON_DIGITS, "");
 
-/** Whole dollars typed in any format (`$75,000`, `75000`), or 0. */
-export const dollars = (value: string): number =>
-  Number(digits(value).replace(LEADING_ZEROS, "") || "0");
+/**
+ * Whole dollars typed in any format (`$75,000`, `75000`, `$1,234.56`), or 0.
+ * Cents round to the nearest dollar instead of running into the digits.
+ */
+export const dollars = (value: string): number => {
+  const [whole = "", cents = ""] = value.replaceAll(NON_AMOUNT, "").split(".");
+  return Math.round(Number(`${whole || "0"}.${cents || "0"}`));
+};
 
 /** `75000` -> `$75,000`, `0` -> `$0`; input with no digits stays empty. */
 export const formatDollars = (value: string): string =>
   digits(value) === "" ? "" : `$${dollars(value).toLocaleString("en-US")}`;
+
+/** Optional: blank means the visitor didn't say, which is sent on as 0. */
+export const isMortgageBalance = (value: string): boolean =>
+  dollars(value) <= MAX_MORTGAGE_BALANCE;
 
 /** Whole dollars, required but may be 0 (`Other income: $0`). */
 export const isIncome = (value: string): boolean =>
@@ -251,6 +262,7 @@ export interface ApplicationAnswers {
   readonly primaryZip: string;
   readonly ownership: string;
   readonly forSale: string;
+  readonly mortgageBalance: string;
   readonly income: string;
   readonly otherIncome: string;
   readonly incomeSource: string;
@@ -268,6 +280,7 @@ export const EMPTY_ANSWERS: ApplicationAnswers = {
   incomeSource: "",
   lastName: "",
   middleName: "",
+  mortgageBalance: "",
   occupancy: "",
   /** Most applicants have none, so it starts at $0 rather than blank. */
   otherIncome: "$0",
@@ -292,6 +305,7 @@ export type StepKey =
   | "primaryAddress"
   | "ownership"
   | "forSale"
+  | "mortgageBalance"
   | "income";
 
 /** Every question, in order (`stepsFor` drops the ones a visitor skips). */
@@ -304,6 +318,7 @@ export const STEP_KEYS: readonly StepKey[] = [
   "primaryAddress",
   "ownership",
   "forSale",
+  "mortgageBalance",
   "income",
 ];
 
@@ -360,6 +375,10 @@ const incomeProblems = (answers: ApplicationAnswers, today: Date): Field[] => [
   ...(isBirthDate(answers.birthDate, today) ? [] : (["birthDate"] as const)),
 ];
 
+/** Each check that fails names its field. */
+const failing = (checks: readonly (readonly [ok: boolean, field: Field])[]) =>
+  checks.flatMap(([ok, field]) => (ok ? [] : [field]));
+
 /** Fields on `step` that are missing or invalid; empty means the step is complete. */
 export const stepProblems = (
   step: StepKey,
@@ -368,32 +387,37 @@ export const stepProblems = (
 ): Field[] => {
   switch (step) {
     case "amount": {
-      return isAmount(answers.amount) ? [] : ["amount"];
+      return failing([[isAmount(answers.amount), "amount"]]);
     }
     case "name": {
       return nameProblems(answers);
     }
     case "contact": {
-      return [
-        ...(isEmail(answers.email) ? [] : (["email"] as const)),
-        ...(isPhone(answers.phone) ? [] : (["phone"] as const)),
-        ...(answers.consent ? [] : (["consent"] as const)),
-      ];
+      return failing([
+        [isEmail(answers.email), "email"],
+        [isPhone(answers.phone), "phone"],
+        [answers.consent, "consent"],
+      ]);
     }
     case "propertyAddress": {
       return addressProblems(answers, "property");
     }
     case "occupancy": {
-      return oneOf(OCCUPANCY, answers.occupancy) ? [] : ["occupancy"];
+      return failing([[oneOf(OCCUPANCY, answers.occupancy), "occupancy"]]);
     }
     case "primaryAddress": {
       return addressProblems(answers, "primary");
     }
     case "ownership": {
-      return oneOf(OWNERSHIP, answers.ownership) ? [] : ["ownership"];
+      return failing([[oneOf(OWNERSHIP, answers.ownership), "ownership"]]);
     }
     case "forSale": {
-      return oneOf(FOR_SALE, answers.forSale) ? [] : ["forSale"];
+      return failing([[oneOf(FOR_SALE, answers.forSale), "forSale"]]);
+    }
+    case "mortgageBalance": {
+      return failing([
+        [isMortgageBalance(answers.mortgageBalance), "mortgageBalance"],
+      ]);
     }
     case "income": {
       return incomeProblems(answers, today);

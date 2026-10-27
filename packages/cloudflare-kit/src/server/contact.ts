@@ -27,7 +27,7 @@ const optionalTrimmed = (max: number) =>
   Schema.optional(Schema.Trim.check(Schema.isMaxLength(max)));
 
 /** Most intake questions a site may add to its form (EquityFast's application asks 11). */
-export const MAX_LEAD_ANSWERS = 12;
+export const MAX_LEAD_ANSWERS = 16;
 
 /**
  * A site-specific intake question and the visitor's answer (budget, timeline,

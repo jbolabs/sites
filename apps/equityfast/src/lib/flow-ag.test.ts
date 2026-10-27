@@ -15,14 +15,19 @@ import {
 
 const form = Schema.decodeUnknownSync(ApplicationForm)({
   amount: "$75,000",
+  birthDate: "05/20/1989",
   consent: true,
   email: "jordan@example.com",
   firstName: "Jordan",
   forSale: "No",
+  income: "$140,000",
+  incomeSource: "Employment",
   lastName: "Reyes",
   locale: "es",
   middleName: "A.",
+  mortgageBalance: "$250,000.60",
   occupancy: "Investment property",
+  otherIncome: "$12,000",
   ownership: "LLC",
   phone: "1 (714) 555-0123",
   primaryAddress: {
@@ -84,12 +89,14 @@ describe(toFlowAgLead, () => {
       address: "3750 S Susan Street",
       cashOut: 0,
       city: "Santa Ana",
+      dob: "05/20/1989",
       email: "jordan@example.com",
       externalId: "entry-1",
       firstName: "Jordan",
       lastName: "Reyes",
       loanAmount: 75_000,
       loanPurpose: "heloc",
+      mortgageBalance: 250_001,
       notes: [
         "HELOC application from the EquityFast website.",
         "Middle name: A.",
@@ -97,6 +104,9 @@ describe(toFlowAgLead, () => {
         "Primary residence: 1 Main St, Irvine, CA 92618",
         "Ownership: LLC",
         "Listed for sale: No",
+        "Pre-tax annual income: $140,000",
+        "Other annual income: $12,000",
+        "Income source: Employment",
         "Language: Spanish",
         "Contact consent: Yes (calls, texts, and email)",
         "Page: /es/solicitar",
@@ -106,6 +116,11 @@ describe(toFlowAgLead, () => {
       state: "CA",
       zip: "92704",
     });
+  });
+
+  it("sends a blank mortgage balance as 0, which Flow AG accepts", () => {
+    const blank = { ...form, mortgageBalance: "" };
+    expect(toFlowAgLead(blank, "entry-1", "/apply").mortgageBalance).toBe(0);
   });
 });
 

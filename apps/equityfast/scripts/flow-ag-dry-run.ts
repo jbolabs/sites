@@ -23,13 +23,18 @@ if (key === "") {
 
 const sample = Schema.decodeUnknownSync(ApplicationForm)({
   amount: "$75,000",
+  birthDate: "01/15/1980",
   consent: true,
   email: "dry-run@jbolabs.com",
   firstName: "Dry",
   forSale: "No",
+  income: "$140,000",
+  incomeSource: "Employment",
   lastName: "Run",
   locale: "en",
+  mortgageBalance: "$250,000",
   occupancy: "Primary residence",
+  otherIncome: "$0",
   ownership: "Sole owner",
   phone: "(714) 555-0123",
   propertyAddress: {

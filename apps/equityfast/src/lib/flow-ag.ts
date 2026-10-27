@@ -31,7 +31,12 @@ import {
 } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/http";
 
-import { digits, dollars, formatAddress } from "./application-rules.ts";
+import {
+  digits,
+  dollars,
+  formatAddress,
+  formatDollars,
+} from "./application-rules.ts";
 import type { Occupancy } from "./application-rules.ts";
 import type { ApplicationForm } from "./application.ts";
 
@@ -66,9 +71,16 @@ export interface FlowAgLead {
   /** Two-letter code, upper case. */
   readonly state: string;
   readonly zip: string;
+  /** Date of birth, `MM/DD/YYYY` as typed. */
+  readonly dob: string;
   readonly loanPurpose: "heloc";
   /** Whole dollars. On a HELOC the requested draw goes here. */
   readonly loanAmount: number;
+  /**
+   * Whole dollars still owed. Flow AG holds a lead without it, so a blank
+   * answer goes as 0 (E Mortgage Capital's call: 0 is fine to automate on).
+   */
+  readonly mortgageBalance: number;
   /** Flow AG's docs: on a HELOC `cashOut` may be 0. */
   readonly cashOut: 0;
   readonly propertyUse: "Primary" | "Secondary" | "Investment";
@@ -107,6 +119,10 @@ export const toFlowAgLead = (
     `Primary residence: ${primary}`,
     `Ownership: ${form.ownership}`,
     `Listed for sale: ${form.forSale}`,
+    // Flow AG's income fields are monthly; the form asks yearly, so the team gets them as asked.
+    `Pre-tax annual income: ${formatDollars(form.income)}`,
+    `Other annual income: ${formatDollars(form.otherIncome)}`,
+    `Income source: ${form.incomeSource}`,
     `Language: ${form.locale === "es" ? "Spanish" : "English"}`,
     "Contact consent: Yes (calls, texts, and email)",
     `Page: ${sourcePath}`,
@@ -117,12 +133,14 @@ export const toFlowAgLead = (
     address: property.street,
     cashOut: 0,
     city: property.city,
+    dob: form.birthDate,
     email: form.email,
     externalId: leadId,
     firstName: form.firstName,
     lastName: form.lastName,
     loanAmount: dollars(form.amount),
     loanPurpose: "heloc",
+    mortgageBalance: dollars(form.mortgageBalance ?? ""),
     notes,
     phone: digits(form.phone).slice(-10),
     propertyUse: PROPERTY_USE[form.occupancy],
