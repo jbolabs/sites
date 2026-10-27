@@ -39,6 +39,8 @@ type Status =
   | { readonly state: "error"; readonly message: string };
 
 const FORM_ID = "contact-form";
+
+const focusOnMount = (element: HTMLElement | null) => element?.focus();
 const ID_PREFIX = "contact";
 
 // The old site's "Project details" options, plus whole-home and commercial work.
@@ -148,9 +150,9 @@ const ContactForm = ({ turnstileSiteKey }: ContactFormProps) => {
         />
         {/* The form is gone, so focus moves here and screen readers hear the confirmation. */}
         <h2
-          ref={(heading) => heading?.focus()}
+          ref={focusOnMount}
           tabIndex={-1}
-          className="text-3xl outline-none"
+          className="outline-ring text-3xl outline-offset-4 focus-visible:outline-2"
         >
           Thank you. We have your message.
         </h2>
