@@ -226,7 +226,7 @@
   animation-delay: var(--d, 0s);
 }
 
-/* Reduced motion: a plain fade, no rise or blur. */
+/* Reduced motion: one plain fade for all three, no rise, blur, or stagger. */
 @media (prefers-reduced-motion: reduce) {
   .rise {
     animation: fade 400ms var(--ease-out-expo) both;

@@ -135,10 +135,10 @@ const ContactForm = ({ turnstileSiteKey }: ContactFormProps) => {
   });
 
   if (status.state === "sent") {
-    // The thank-you replaces the form, so it settles in (CSS `@starting-style`, no JS):
-    // the card fades and its lines rise in a short stagger. Reduced motion keeps the fade.
+    // The thank-you takes the form's place in the same card, so the card stays put and
+    // only its lines settle in, 60ms apart (`settle-in`, CSS only).
     return (
-      <output className="border-border bg-card ease-expo flex flex-col items-start gap-4 rounded-2xl border p-10 transition-opacity duration-400 starting:opacity-0">
+      <output className="border-border bg-card flex flex-col items-start gap-4 rounded-2xl border p-10">
         <CheckCircle2Icon
           className="settle-in text-navy size-8"
           aria-hidden="true"
