@@ -6,14 +6,19 @@
  *
  * Phones get a drawer instead of a centered dialog (`ResponsiveDialog`), so
  * the sheet rises from the edge the thumb is on and swipes away. Colors and
- * padding stay with each site's variants; this file owns the motion.
+ * padding stay with each site's variants; this file owns shape and motion.
  *
- * The popup runs `--drawer-bleed` past the bottom of the screen so a fast
- * swipe or an overshoot never shows a gap under it. 450ms on the iOS sheet
- * curve, the drawer timing Base UI and Emil Kowalski's guidance agree on.
+ * The sheet floats like an iOS sheet: a fully rounded card inset from the
+ * screen edges, lifted by a soft shadow over a dimmed page. Its height eases
+ * to fit its content (`useDrawerHeight` from `@jakebodea/site-ui/drawer`),
+ * so a multi-step form grows and shrinks between steps instead of jumping.
+ * 450ms on the iOS sheet curve, the drawer timing Base UI and Emil
+ * Kowalski's guidance agree on.
  */
 :root {
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --drawer-inset: 0.5rem;
+  --drawer-radius: 2rem;
 }
 
 .drawer-backdrop {
@@ -21,7 +26,7 @@
   inset: 0;
   z-index: 50;
   min-height: 100dvh;
-  background-color: rgb(0 0 0 / 0.3);
+  background-color: rgb(0 0 0 / 0.45);
   opacity: calc(1 - var(--drawer-swipe-progress, 0));
   transition: opacity 450ms var(--ease-drawer);
 }
@@ -53,18 +58,24 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  padding: var(--drawer-inset);
+  padding-top: max(var(--drawer-inset), env(safe-area-inset-top, 0px));
 }
 
 .drawer-popup {
-  --drawer-bleed: 3rem;
   position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: calc(100dvh - 1.5rem + var(--drawer-bleed));
-  margin-bottom: calc(-1 * var(--drawer-bleed));
-  padding-bottom: calc(var(--drawer-bleed) + env(safe-area-inset-bottom, 0px));
-  border-radius: 1.5rem 1.5rem 0 0;
+  max-height: 100%;
+  /* The home indicator sits over the card's bottom edge, as on iOS. */
+  padding-bottom: max(0px, env(safe-area-inset-bottom, 0px) - 1rem);
+  overflow: hidden;
+  border-radius: var(--drawer-radius);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.04),
+    0 2px 6px rgb(0 0 0 / 0.06),
+    0 24px 64px -8px rgb(0 0 0 / 0.35);
   outline: 0;
   transform: translateY(var(--drawer-swipe-movement-y, 0px));
   transition: transform 450ms var(--ease-drawer);
@@ -73,7 +84,7 @@
 
 .drawer-popup[data-starting-style],
 .drawer-popup[data-ending-style] {
-  transform: translateY(calc(100% - var(--drawer-bleed) + 2px));
+  transform: translateY(calc(100% + var(--drawer-inset) + 2rem));
 }
 
 .drawer-popup[data-swiping] {
@@ -84,26 +95,20 @@
   transition-duration: calc(var(--drawer-swipe-strength, 1) * 400ms);
 }
 
-/* The grab handle: tells the visitor the sheet swipes away. */
-.drawer-handle {
-  flex-shrink: 0;
-  width: 2.75rem;
-  height: 0.3125rem;
-  margin: 0.625rem auto 0;
-  border-radius: 999px;
-  background-color: currentColor;
-  opacity: 0.2;
-}
-
+/*
+ * Holds the measured height. It shrinks (and scrolls) when the content is
+ * taller than the screen allows.
+ */
 .drawer-body {
   min-height: 0;
-  flex: 1;
+  flex: 0 1 auto;
   overflow-y: auto;
   overscroll-behavior: contain;
   touch-action: auto;
+  transition: height 450ms var(--ease-drawer);
 }
 
-/* Reduced motion: the sheet fades in place instead of sliding. */
+/* Reduced motion: the sheet fades in place and resizes at once. */
 @media (prefers-reduced-motion: reduce) {
   .drawer-popup {
     transition: opacity 200ms ease;
@@ -113,5 +118,9 @@
   .drawer-popup[data-ending-style] {
     opacity: 0;
     transform: none;
+  }
+
+  .drawer-body {
+    transition: none;
   }
 }
