@@ -5,8 +5,8 @@ The original (brand/logo-original.png, from bodycentredayspa.com) is a beveled
 chrome render with glow, which traces badly. So the same design is rebuilt in
 the original's pixel coordinates: a fitted ring; the B set in Cinzel (a
 Trajan-style face like the original's); the C drawn from scratch as one
-variable-width stroke with a diagonal, engraved stress that runs behind the B
-and turns into the vine; two constructed leaves with a midrib; and the
+variable-width stroke with a diagonal, engraved stress, interlaced with the B
+(over the bowl at the top, under it at the bottom) and turning into the vine; two constructed leaves with a midrib; and the
 wordmark with each Cinzel glyph centered on the matching original glyph.
 
 Outputs: public/brand/logo.svg, mark.svg, logo.png, and public/favicon.png,
@@ -91,25 +91,34 @@ def outline(center, widths):
     return "M " + " L ".join(pt(*q) for q in left + right[::-1]) + " Z"
 
 
-def c_with_vine():
-    """The C and its vine as one stroke: an arc thickest at lower left, then a tapering curve."""
+def c_with_vine(lo=0.0, hi=400.0, vine=True):
+    """The C and its vine as one stroke: an arc thickest at lower left, then a tapering curve.
+
+    `lo`..`hi` keeps only that stretch of the arc (screen degrees), without the vine,
+    for drawing one crossing of the interlace on top.
+    """
     cx, cy, rm = 668, 515, 164
-    start, end = 360 - 48, 62  # top terminal, then around the left to the lower right
+    start, end = 360 - 48, 56  # top terminal, then around the left to the lower right
     center, widths = [], []
     for k in range(161):
         a = start + (end - start) * k / 160
+        if not lo <= a <= hi:
+            continue
         center.append((cx + rm * math.cos(math.radians(a)), cy + rm * math.sin(math.radians(a))))
         stress = ((1 + math.cos(math.radians(a - 150))) / 2) ** 1.6
         flare = 1 + 0.9 * max(0.0, 1 - k / 10) ** 2
         widths.append((13 + 30 * stress) * flare)
+    if not vine:
+        return outline(center, widths)
     tx, ty = math.sin(math.radians(end)), -math.cos(math.radians(end))
     p0 = center[-1]
-    p1, p2, p3 = (p0[0] + tx * 70, p0[1] + ty * 70), (868, 566), (870, 478)
+    # The vine sprouts outward from the tail, so the C stays open.
+    p1, p2, p3 = (p0[0] + tx * 45, p0[1] + ty * 45), (846, 594), (862, 560)
     w0 = widths[-1]
     for k in range(1, 61):
         t = k / 60
         center.append(tuple((1 - t) ** 3 * p0[i] + 3 * (1 - t) ** 2 * t * p1[i] + 3 * (1 - t) * t * t * p2[i] + t**3 * p3[i] for i in (0, 1)))
-        widths.append(w0 + (5 - w0) * t**0.8)
+        widths.append(w0 + (5 - w0) * t**0.45)
     return outline(center, widths)
 
 
@@ -133,7 +142,11 @@ def leaf(base, tip, half_width, bend):
 CX, CY, R = 622, 410, 346
 B = fit("B", (380, 190, 620, 500))
 C = c_with_vine()
-LEAVES = [leaf((870, 482), (836, 338), 46, 0.07), leaf((852, 584), (936, 522), 31, -0.08)]
+# The interlace: the C crosses the B's lower bowl twice. Past this angle (its upper
+# crossing) the C is drawn over the B; below it, the B is drawn over the C.
+SPLIT = 222
+C_OVER = c_with_vine(SPLIT - 1, 400, vine=False)
+LEAVES = [leaf((862, 562), (906, 440), 40, -0.07), leaf((842, 596), (904, 586), 23, 0.1)]
 LETTERS = [(53, 147), (177, 279), (308, 407), (424, 521), (537, 637), (670, 746), (777, 877), (899, 984), (1012, 1104), (1122, 1197)]
 WORDMARK = word("BodyCentre", 115, 888, [(a + b) / 2 for a, b in LETTERS])
 
@@ -145,12 +158,14 @@ def svg(view_box, wordmark=True, overlay=False):
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="{x} {y} {w} {h}" role="img" aria-label="BodyCentre">
 {under}<defs>
 <mask id="bc-behind" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="911"><rect width="1254" height="911" fill="#fff"/><path d="{B}" stroke="#000" stroke-width="16" stroke-linejoin="round"/></mask>
+<mask id="bc-under" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="911"><rect width="1254" height="911" fill="#fff"/><path d="{C_OVER}" stroke="#000" stroke-width="16" stroke-linejoin="round"/></mask>
 <mask id="bc-ribs" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="911"><rect width="1254" height="911" fill="#fff"/><g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round">{"".join(f'<path d="{rib}"/>' for _, rib in LEAVES)}</g></mask>
 </defs>
 <g fill="{INK}">
 <circle cx="{CX}" cy="{CY}" r="{R}" fill="none" stroke="{INK}" stroke-width="5"/>
-<path d="{B}"/>
+<path d="{B}" mask="url(#bc-under)"/>
 <path d="{C}" mask="url(#bc-behind)"/>
+<path d="{C_OVER}"/>
 <path d="{" ".join(body for body, _ in LEAVES)}" mask="url(#bc-ribs)"/>
 {text}</g>
 </svg>
