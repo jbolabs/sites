@@ -17,7 +17,7 @@ const apply = applyHref(Astro.currentLocale);
 const showEstimator = value.show_estimator !== false;
 ---
 <section class="equity-hero">
-  <div class="container-page">
+  <div class="container-page hero-grid">
     <div class="hero-intro">
       <h1 class="hero-title animate-rise">{value.headline}</h1>
       <div class="hero-support stagger-1 animate-rise">
@@ -28,7 +28,7 @@ const showEstimator = value.show_estimator !== false;
       </div>
     </div>
     <div class="hero-stage">
-      {value.image && <div class="hero-photograph stagger-2 animate-lift"><Image image={value.image} priority sizes="(min-width: 1024px) 55vw, 100vw" class="hero-photo animate-settle" /></div>}
+      {value.image && <div class="hero-photograph stagger-2 animate-lift"><Image image={value.image} priority sizes="(min-width: 1024px) 55vw, 100vw" class="hero-photo" /></div>}
       {showEstimator && <div class="hero-estimate stagger-1 animate-lift"><EquityEstimator client:load strings={t.estimator} applyHref={apply} /></div>}
     </div>
   </div>

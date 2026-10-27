@@ -1336,7 +1336,7 @@
               "_type": "home_hero",
               "_version": 1,
               "_key": "hero",
-              "headline": "See your home equity",
+              "headline": "Your equity. Your terms.",
               "tagline": "",
               "intro": "Estimate a home equity line of credit, then explore your options with EquityFast, powered by E Mortgage Capital.",
               "apply_label": "Start My Request",
@@ -1425,48 +1425,6 @@
               "footnote": "*Program availability, line amount, credit score, CLTV, DTI, lien position, and property-type eligibility vary by program, occupancy, state, and borrower profile; not all combinations shown are available together."
             },
             {
-              "_type": "image_cards",
-              "_version": 1,
-              "_key": "possibilities",
-              "headline": "A home. More possibilities.",
-              "headline_accent": "",
-              "items": [
-                {
-                  "title": "Room for your plans",
-                  "body": "A home equity line can help fund improvements. Use the renovation planner to explore budgets and estimated returns.",
-                  "image": {
-                    "$media": {
-                      "url": "/_seed/media/step-three-DOFDFTEo.jpg",
-                      "alt": "A deck and garden lit at dusk",
-                      "filename": "step-three-DOFDFTEo.jpg"
-                    }
-                  }
-                },
-                {
-                  "title": "Start with your home",
-                  "body": "Your estimated home value and mortgage balance are the starting point. Your actual offer depends on application review.",
-                  "image": {
-                    "$media": {
-                      "url": "/_seed/media/step-two-D0nso8eP.jpg",
-                      "alt": "A grey house with a front garden",
-                      "filename": "step-two-D0nso8eP.jpg"
-                    }
-                  }
-                },
-                {
-                  "title": "A start from home",
-                  "body": "Answer a few questions online. The initial soft credit check does not affect your score.",
-                  "image": {
-                    "$media": {
-                      "url": "/_seed/media/step-one-CWpqiiKr.jpg",
-                      "alt": "A person using a phone on a front porch",
-                      "filename": "step-one-CWpqiiKr.jpg"
-                    }
-                  }
-                }
-              ]
-            },
-            {
               "_type": "checklist",
               "_version": 1,
               "_key": "why",
@@ -1551,7 +1509,7 @@
               "_type": "home_hero",
               "_version": 1,
               "_key": "hero",
-              "headline": "Vea su capital",
+              "headline": "Su equidad. Sus términos.",
               "tagline": "",
               "intro": "Estime una línea de crédito con garantía hipotecaria y conozca sus opciones con EquityFast, de E Mortgage Capital.",
               "apply_label": "Iniciar Mi Solicitud",
@@ -1638,48 +1596,6 @@
                 }
               ],
               "footnote": "*La disponibilidad del programa, el monto de la línea, el puntaje de crédito, el CLTV, el DTI, la posición del gravamen y los tipos de propiedad elegibles varían según el programa, la ocupación, el estado y el perfil del prestatario; no todas las combinaciones mostradas están disponibles en conjunto."
-            },
-            {
-              "_type": "image_cards",
-              "_version": 1,
-              "_key": "possibilities",
-              "headline": "Su casa, su futuro",
-              "headline_accent": "",
-              "items": [
-                {
-                  "title": "Espacio para sus planes",
-                  "body": "Una línea de crédito puede ayudar a financiar mejoras. Use el planificador para explorar presupuestos y estimaciones de retorno.",
-                  "image": {
-                    "$media": {
-                      "url": "/_seed/media/step-three-DOFDFTEo.jpg",
-                      "alt": "Una terraza iluminada al anochecer",
-                      "filename": "step-three-DOFDFTEo.jpg"
-                    }
-                  }
-                },
-                {
-                  "title": "El valor de su casa",
-                  "body": "Su valor estimado y saldo hipotecario son el punto de partida. El monto real depende de la evaluación de su solicitud.",
-                  "image": {
-                    "$media": {
-                      "url": "/_seed/media/step-two-D0nso8eP.jpg",
-                      "alt": "Una casa gris con jardín",
-                      "filename": "step-two-D0nso8eP.jpg"
-                    }
-                  }
-                },
-                {
-                  "title": "Un inicio desde casa",
-                  "body": "Responda unas preguntas en línea. La consulta inicial de crédito es suave y no afecta su puntaje.",
-                  "image": {
-                    "$media": {
-                      "url": "/_seed/media/step-one-CWpqiiKr.jpg",
-                      "alt": "Una persona usa un teléfono en el porche",
-                      "filename": "step-one-CWpqiiKr.jpg"
-                    }
-                  }
-                }
-              ]
             },
             {
               "_type": "checklist",

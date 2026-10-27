@@ -1,5 +1,5 @@
 ---
-/** Program facts at architectural scale, on a single flat field. */
+/** Program facts in a compact, neutral summary. */
 import type { BlockComponentProps } from "emdash/ui";
 import type { PageContentStatsBlock } from "../../../emdash-env";
 
@@ -8,7 +8,7 @@ const { value } = Astro.props;
 ---
 <section class="facts-field">
   <div class="container-page">
-    {value.headline && <h2 class="headline-section mb-12" data-reveal>{value.headline}</h2>}
+    {value.headline && <h2 class="headline-section mb-8" data-reveal>{value.headline}</h2>}
     <dl data-reveal-group class="facts-list">
       {value.items.map((item) => <div><dt>{item.label}</dt><dd class:list={{ "fact-words": item.value.length > 6 }}>{item.value}</dd></div>)}
     </dl>
