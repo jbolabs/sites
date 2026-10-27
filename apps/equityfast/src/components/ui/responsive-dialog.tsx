@@ -3,6 +3,7 @@
 import { createContext, use, useSyncExternalStore } from "react";
 import type { ComponentProps, ReactNode } from "react";
 
+import AutoHeight from "@/components/ui/auto-height";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +20,8 @@ import {
 /**
  * A dialog from `sm` up and a bottom-sheet drawer below it: phones never get
  * a centered dialog (`local/no-mobile-dialog` keeps it that way). Content,
- * title, and description pick their half from the root.
+ * title, and description pick their half from the root. Each half eases its
+ * own height to fit the content, so callers never wrap it in another.
  */
 const DESKTOP_QUERY = "(min-width: 640px)";
 
@@ -82,6 +84,7 @@ type Variant = NonNullable<
 >;
 
 function ResponsiveDialogContent({
+  children,
   variant,
   ...props
 }: Omit<ComponentProps<"div">, "ref" | "className"> & {
@@ -90,9 +93,13 @@ function ResponsiveDialogContent({
   readonly variant?: Variant;
 }) {
   return use(DesktopContext) ? (
-    <DialogContent variant={variant} {...props} />
+    <DialogContent variant={variant} {...props}>
+      <AutoHeight>{children}</AutoHeight>
+    </DialogContent>
   ) : (
-    <DrawerContent variant={variant} {...props} />
+    <DrawerContent variant={variant} {...props}>
+      {children}
+    </DrawerContent>
   );
 }
 
