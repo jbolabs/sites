@@ -11,7 +11,8 @@
   <!-- C: outer circle (672, 515) r 182, counter an ellipse set right so the stress sits at the left;
        the top arm sweeps out to its terminal. The tail, traced from the original, forks in two:
        the inner strand curls up into the left half of the tall leaf, the outer strand rises as
-       the stem into the right half. One outline, so the fork stays smooth. -->
+       the stem into the right half. One outline, so the fork stays smooth. Keep every arc
+       under 180 degrees: past that, the renderer can pick the other centre. -->
   <path id="bc-c" d="
     M 660 333.4 C 735 330 800 352 840 392 C 846 398 838 407 829 405
     C 800 368 740 349 672 348 A 160 166.5 0 0 0 530 513.5 A 160 166.5 0 0 0 672 678.9
