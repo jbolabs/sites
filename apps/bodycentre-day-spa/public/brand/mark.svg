@@ -13,15 +13,20 @@
   <path id="bc-c" d="
     M 660 333.4 C 735 330 800 352 840 392 C 846 398 838 407 829 405
     C 800 368 740 349 672 348 A 160 166.5 0 1 0 782 650
-    C 798 636 814 625 834 617 L 837 624 C 826 634 809 637 800.7 643.7
+    C 798 636 814 627 828 622 L 832 629 C 824 635 809 637 800.7 643.7
     A 182 182 0 1 1 660 333.4 Z"/>
-  <!-- The tail runs on into the small leaf; the tall leaf rises on its own stem from the tail. -->
+  <!-- The tail runs on into the small leaf; the tall leaf rises on its own stem from the tail.
+       Each leaf is two halves split by an open vein. -->
   <path id="bc-leaves" d="
-    M 793 641 C 797 628 800 614 800 598 L 805 598 C 806 614 804 630 801 638 Z
-    M 803 600 C 780 590 714 550 718 480 C 722 440 732 410 739 387
-    C 760 420 815 465 830 505 C 840 545 826 582 803 600 Z
-    M 824 624 C 840 610 852 568 885 546 C 898 540 910 535 918 532
-    C 914 560 900 600 872 618 C 858 627 840 630 826 628 Z"/>
+    M 797 642 C 802 620 808 595 811 566 L 815 568 C 813 598 810 622 803 640 Z
+    M 740 386 C 728 420 716 465 721 505 C 726 545 760 565 778 585
+    C 784 595 791 615 798 634 L 801 630 C 793 607 786 592 782 578
+    C 786 520 770 440 740 386 Z
+    M 748 402 C 775 432 815 455 827 490 C 836 515 832 552 811 573
+    C 813 540 798 485 748 402 Z
+    M 829 624 C 829 600 838 570 856 552 C 872 538 895 535 917 534
+    C 890 546 852 572 831 620 Z
+    M 834 626 C 848 600 875 568 912 540 C 908 580 890 620 834 627 Z"/>
   <!-- Interlace: the B passes over the C at the top crossing, the C over the B's foot. -->
   <clipPath id="bc-top"><rect width="1254" height="420"/></clipPath>
   <clipPath id="bc-bottom"><rect y="420" width="1254" height="491"/></clipPath>
@@ -33,16 +38,12 @@
     <rect width="1254" height="911" fill="#fff"/>
     <use href="#bc-c" fill="#000" stroke="#000" stroke-width="10" stroke-linejoin="round" clip-path="url(#bc-bottom)"/>
   </mask>
-  <mask id="bc-ribs" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="911">
-    <rect width="1254" height="911" fill="#fff"/>
-    <path d="M 799 600 C 785 540 762 460 742 396 M 836 618 C 860 595 888 562 910 539" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"/>
-  </mask>
 </defs>
 <g fill="#28364a">
   <!-- Ring (622, 410) r 346, open at the bottom, each end tapering to a point. -->
   <path d="M 560 750.4 A 346 346 0 1 1 684 750.4 Q 711.6 744.2 737.3 726.7 A 337 337 0 1 0 506.7 726.7 Q 532.4 744.2 560 750.4 Z"/>
   <use href="#bc-b" mask="url(#bc-b-under)"/>
   <use href="#bc-c" mask="url(#bc-c-under)"/>
-  <use href="#bc-leaves" mask="url(#bc-ribs)"/>
+  <use href="#bc-leaves"/>
 </g>
 </svg>
