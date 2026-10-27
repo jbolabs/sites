@@ -47,7 +47,7 @@ const words = value.headline.split(" ");
       </div>
     ))}
   </div>
-  <div class="absolute inset-0 -z-10 bg-linear-to-t from-ink/90 via-ink/50 to-ink/25 lg:via-ink/35 lg:to-ink/10" aria-hidden="true"></div>
+  <div class="absolute inset-0 -z-10 bg-ink/50 lg:bg-ink/40" aria-hidden="true"></div>
 
   <div class="container-page flex flex-1 flex-col justify-end pt-32 pb-12 sm:pb-16 lg:pb-20">
     <h1 class="max-w-5xl text-[2.9rem] leading-[0.98] font-semibold tracking-[-0.035em] text-white sm:text-7xl lg:text-[6.25rem]">
@@ -59,12 +59,12 @@ const words = value.headline.split(" ");
         </>
       ))}
     </h1>
-    <div class="mt-8 grid gap-8 border-t border-white/25 pt-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+    <div class="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
       {value.subheadline && (
-        <p class="hero-rise max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl" style="--d: 0.8s">{value.subheadline}</p>
+        <p class="hero-rise max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl" style="--d: 0.45s">{value.subheadline}</p>
       )}
       {(primary || secondary) && (
-        <div class="hero-rise flex flex-col gap-3 sm:flex-row" style="--d: 1s">
+        <div class="hero-rise flex flex-col gap-3 sm:flex-row" style="--d: 0.55s">
           {primary && <ButtonLink href={primary.href} variant="inverse" size="hero">{primary.label}</ButtonLink>}
           {secondary && <ButtonLink href={secondary.href} variant="outline-inverse" size="hero">{secondary.label}</ButtonLink>}
         </div>
@@ -76,7 +76,7 @@ const words = value.headline.split(" ");
 <style>
   .hero-word > span,
   .hero-rise {
-    animation: hero-rise 1.3s var(--ease-out-expo) both;
+    animation: hero-rise 1s var(--ease-out-expo) both;
     animation-delay: var(--d, 0s);
   }
 

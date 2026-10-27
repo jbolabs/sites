@@ -26,7 +26,7 @@ const external = href !== undefined && /^https?:\/\//u.test(href);
       </div>
     )}
     <div class:list={{ "md:col-span-2 max-w-3xl": !value.image }}>
-      <h2 class="text-4xl sm:text-5xl" data-reveal>{value.headline}</h2>
+      <h2 class="text-4xl lg:text-5xl" data-reveal>{value.headline}</h2>
       <div class="prose-site mt-8" data-reveal style="--reveal-delay: 100ms"><PortableText value={value.body} /></div>
       {value.cta_label && href && (
         <div data-reveal style="--reveal-delay: 200ms">

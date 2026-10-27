@@ -1169,7 +1169,7 @@
               "_type": "hero",
               "_version": 1,
               "_key": "hero",
-              "headline": "Remodels built right, down to the studs.",
+              "headline": "Built right, down to the studs.",
               "subheadline": "Whole-home remodels, additions, kitchens, and baths across Orange County. One team designs, prices, and builds your project, start to finish, as we have since 2009.",
               "slides": [
                 {
@@ -1250,7 +1250,7 @@
               "_type": "statement",
               "_version": 1,
               "_key": "statement",
-              "text": "Whether your home is stripped to the bare studs or growing with an addition, you deserve a builder you can trust. We coordinate every trade, hold to the agreed budget, and build the space you have been planning for years."
+              "text": "Stripped to the studs or growing with an addition, your home gets one builder who coordinates every trade, holds the agreed budget, and builds the space you have been planning."
             },
             {
               "_type": "services",
@@ -1749,7 +1749,15 @@
                 }
               ],
               "cta_label": "Client login",
-              "cta_url": "https://coconstruct.com/app/login/Stud"
+              "cta_url": "https://coconstruct.com/app/login/Stud",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/urban-orchard-dining-room.jpg",
+                  "alt": "Dining room with a long oak table, an open timber stair rail and large windows",
+                  "filename": "urban-orchard-dining-room.jpg"
+                }
+              },
+              "image_position": "left"
             },
             {
               "_type": "cta_band",
@@ -2304,7 +2312,7 @@
           "featured_image": {
             "$media": {
               "url": "/_seed/media/leeward-exterior.jpg",
-              "alt": "Low contemporary home with white stucco, dark window frames, a charcoal garage door and a desert garden",
+              "alt": "Low contemporary home with white stucco, dark window frames, a charcoal entry door and a desert garden",
               "filename": "leeward-exterior.jpg"
             }
           },
@@ -3328,7 +3336,7 @@
           "featured_image": {
             "$media": {
               "url": "/_seed/media/bachelor-pad-kitchen.jpg",
-              "alt": "Gray wood kitchen with a curved quartz island, a stainless island hood and glass mosaic backsplash",
+              "alt": "Gray wood kitchen with a curved quartz island, a stainless island hood and metallic mosaic backsplash",
               "filename": "bachelor-pad-kitchen.jpg"
             }
           },
@@ -3446,17 +3454,17 @@
           "featured_image": {
             "$media": {
               "url": "/_seed/media/newport-fire-rebuild-stair.jpg",
-              "alt": "New stair with oak treads, painted risers and wrought iron balusters beside a painted brick wall",
+              "alt": "New stair with wood treads, painted risers and wrought iron balusters beside a painted brick wall",
               "filename": "newport-fire-rebuild-stair.jpg"
             }
           },
-          "summary": "Rebuilding a fire-damaged home: a new oak and wrought iron staircase, a Dutch front door, the original brick fireplace painted and flanked by new bookcases, and refinished kitchen cabinets.",
+          "summary": "Rebuilding a fire-damaged home: a new wood and wrought iron staircase, a Dutch front door, the original brick fireplace painted and flanked by new bookcases, and refinished kitchen cabinets.",
           "gallery": [
             {
               "image": {
                 "$media": {
                   "url": "/_seed/media/newport-fire-rebuild-fireplace.jpg",
-                  "alt": "Original brick fireplace painted white over new pale oak floors",
+                  "alt": "Original brick fireplace painted white over pale wood floors",
                   "filename": "newport-fire-rebuild-fireplace.jpg"
                 }
               }
@@ -3474,7 +3482,7 @@
               "image": {
                 "$media": {
                   "url": "/_seed/media/newport-fire-rebuild-stair-landing.jpg",
-                  "alt": "Stair landing with oak treads, square newel posts and iron balusters",
+                  "alt": "Stair landing with wood treads, square newel posts and iron balusters",
                   "filename": "newport-fire-rebuild-stair-landing.jpg"
                 }
               }
@@ -3483,7 +3491,7 @@
               "image": {
                 "$media": {
                   "url": "/_seed/media/newport-fire-rebuild-kitchen.jpg",
-                  "alt": "Refinished white kitchen with quartz counters and a long glass tile backsplash",
+                  "alt": "Refinished white kitchen with pale counters and a long tile backsplash",
                   "filename": "newport-fire-rebuild-kitchen.jpg"
                 }
               }
@@ -3505,11 +3513,11 @@
           "featured_image": {
             "$media": {
               "url": "/_seed/media/mission-restore-kitchen.jpg",
-              "alt": "White shaker kitchen with glass-front uppers, a gray tile backsplash and dark soapstone counters",
+              "alt": "White shaker kitchen with glass-front uppers, a gray tile backsplash and dark counters",
               "filename": "mission-restore-kitchen.jpg"
             }
           },
-          "summary": "A white shaker kitchen with glass-front uppers, soapstone-look counters and a large island with a wine refrigerator, opening to the family room.",
+          "summary": "A white shaker kitchen with glass-front uppers, dark counters and a large island with a wine refrigerator, opening to the family room.",
           "gallery": [
             {
               "image": {
@@ -3559,7 +3567,7 @@
               "filename": "mv-kitchen-island.jpg"
             }
           },
-          "summary": "A kitchen rebuilt around a large island with dark counters and new plank floors throughout, plus a bathroom with a glass tile tub surround.",
+          "summary": "A bright kitchen with a large island, dark counters and dark plank flooring, opening to a stone fireplace, plus a bathroom with a glass tile tub surround.",
           "gallery": [
             {
               "image": {

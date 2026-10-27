@@ -56,7 +56,10 @@ const ProjectGallery = ({ images, title }: ProjectGalleryProps) => {
         {images.map((image, index) => (
           <li
             key={image.src}
-            className={isPortrait(image) ? undefined : "sm:col-span-2"}
+            className={cn(
+              "scroll-rise",
+              isPortrait(image) ? undefined : "sm:col-span-2"
+            )}
           >
             <Button
               variant="media"
@@ -81,7 +84,7 @@ const ProjectGallery = ({ images, title }: ProjectGalleryProps) => {
                 loading="lazy"
                 className={cn(
                   isPortrait(image) ? "aspect-[4/5]" : "aspect-[3/2]",
-                  "ease-expo w-full object-cover transition-transform duration-1600 group-hover:scale-[1.03] motion-reduce:transition-none"
+                  "ease-expo w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none"
                 )}
               />
             </Button>

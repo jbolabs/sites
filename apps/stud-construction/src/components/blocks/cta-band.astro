@@ -17,7 +17,7 @@ const { value } = Astro.props;
       <Image image={value.image} alt="" sizes="100vw" class="size-full! object-cover" />
     </div>
   )}
-  <div class="absolute inset-0 -z-10 bg-linear-to-r from-ink/90 via-ink/75 to-ink/40" aria-hidden="true"></div>
+  <div class="absolute inset-0 -z-10 bg-ink/70" aria-hidden="true"></div>
   <div class="container-page py-24 sm:py-36">
     <h2 class="max-w-3xl text-5xl text-white sm:text-6xl lg:text-7xl" data-reveal>{value.headline}</h2>
     {value.body && <p class="mt-6 max-w-xl text-lg leading-relaxed text-white/80" data-reveal style="--reveal-delay: 100ms">{value.body}</p>}

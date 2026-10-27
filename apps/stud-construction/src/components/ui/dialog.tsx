@@ -43,7 +43,7 @@ const dialogContentVariants = {
   default: "bg-popover text-popover-foreground ring-foreground/10 gap-4 p-4",
   /** Dark media viewer (project galleries). */
   lightbox:
-    "bg-ink text-white ring-white/10 max-w-[calc(100%-1rem)] gap-3 p-3 sm:max-w-6xl sm:p-4",
+    "bg-ink text-white ring-white/10 max-w-[calc(100%-1rem)] gap-3 p-3 duration-200 ease-[var(--ease-out)] data-closed:duration-150 sm:max-w-6xl sm:p-4",
 } as const;
 
 function DialogContent({

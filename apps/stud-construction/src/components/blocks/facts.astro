@@ -8,14 +8,12 @@ type Props = BlockComponentProps<PageContentFactsBlock>;
 const { value } = Astro.props;
 ---
 
-<section class="border-b border-border">
+<section class="bg-concrete">
   <dl class="container-page grid grid-cols-2 lg:grid-cols-4">
     {value.items.map((item, index) => (
       <div
         class:list={[
           "flex flex-col gap-3 py-10 pr-4 sm:py-14 sm:pr-8",
-          { "border-l border-border pl-5 sm:pl-8": index % 2 === 1, "lg:border-l lg:pl-8": index > 0 },
-          { "border-t border-border lg:border-t-0": index > 1 },
         ]}
         data-reveal
         style={`--reveal-delay: ${index * 80}ms`}

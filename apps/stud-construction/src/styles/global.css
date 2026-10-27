@@ -31,7 +31,7 @@
   --secondary: var(--brand-concrete);
   --secondary-foreground: var(--brand-ink);
   --muted: var(--brand-concrete);
-  --muted-foreground: oklch(0.45 0.008 70);
+  --muted-foreground: oklch(0.4 0.008 70);
   --accent: var(--brand-concrete);
   --accent-foreground: var(--brand-ink);
   --destructive: oklch(0.55 0.18 27);
@@ -43,6 +43,8 @@
   /* Motion: one easing family for the whole site (expo-out for entrances). */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+  /* Short UI responses (button presses, the form success panel). */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 @theme inline {
@@ -210,6 +212,60 @@
   transform: scale(1);
 }
 
+/* Marks inside a revealed row (the process steps' timber bars) draw downward after it. */
+.js [data-reveal] .reveal-mark {
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.7s var(--ease-out-expo);
+  transition-delay: calc(var(--reveal-delay, 0ms) + 150ms);
+}
+
+.js [data-reveal].is-visible .reveal-mark {
+  transform: none;
+}
+
+/*
+ * Gallery photos rise as they scroll into view. Scroll-driven, so it needs no
+ * script and cannot fight React hydration; browsers without it show the photos.
+ */
+@supports (animation-timeline: view()) {
+  .scroll-rise {
+    animation: scroll-rise var(--ease-out) both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+}
+
+@keyframes scroll-rise {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+}
+
+/* The contact form's thank-you panel replaces the form, so it eases in rather than appearing. */
+.success-panel {
+  transition:
+    opacity 0.4s var(--ease-out),
+    transform 0.4s var(--ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+.success-panel .success-icon {
+  transition:
+    opacity 0.4s var(--ease-out) 0.15s,
+    transform 0.4s var(--ease-out) 0.15s;
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
 /*
  * Hero slideshow: CSS-only crossfade with a slow push-in on each photo. Hero.astro
  * emits the keyframes for its slide count; slides start hidden except the first.
@@ -232,6 +288,16 @@
     display: none;
   }
 
+  .scroll-rise {
+    animation: none;
+  }
+
+  .success-panel,
+  .success-panel .success-icon {
+    transform: none !important;
+  }
+
+  .js [data-reveal] .reveal-mark,
   .js [data-reveal],
   .js [data-reveal="mask"] > .reveal-zoom {
     opacity: 1 !important;

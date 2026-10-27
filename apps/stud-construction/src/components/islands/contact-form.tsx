@@ -143,9 +143,9 @@ const ContactForm = ({ turnstileSiteKey }: ContactFormProps) => {
 
   if (status.state === "sent") {
     return (
-      <output className="border-border bg-card flex flex-col items-start gap-4 border p-10">
+      <output className="success-panel bg-concrete flex flex-col items-start gap-4 self-start p-10">
         <CheckCircle2Icon
-          className="text-timber-deep size-8"
+          className="success-icon text-timber-deep size-8"
           aria-hidden="true"
         />
         {/* The form is gone, so focus moves here and screen readers hear the confirmation. */}
@@ -173,7 +173,7 @@ const ContactForm = ({ turnstileSiteKey }: ContactFormProps) => {
           void form.handleSubmit();
         }
       }}
-      className="border-border bg-card border-t-ink border border-t-2 p-6 sm:p-10"
+      className="bg-concrete p-6 sm:p-10"
       noValidate
     >
       <FieldGroup>

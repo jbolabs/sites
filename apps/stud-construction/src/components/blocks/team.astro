@@ -22,9 +22,9 @@ const initials = (name: string) =>
       <h2 class="text-4xl sm:text-5xl lg:text-6xl" data-reveal>{value.headline}</h2>
       {value.intro && <p class="mt-6 text-lg leading-relaxed text-muted-foreground" data-reveal style="--reveal-delay: 100ms">{value.intro}</p>}
     </div>
-    <ul class="mt-14 grid gap-px border border-border bg-border sm:grid-cols-2 sm:[&>li:last-child:nth-child(odd)]:col-span-2 lg:mt-16">
+    <ul class="mt-14 grid gap-6 sm:grid-cols-2 sm:[&>li:last-child:nth-child(odd)]:col-span-2 lg:mt-16">
       {value.members.map((member, index) => (
-        <li class="flex flex-col gap-6 bg-background p-7 sm:p-10" data-reveal style={`--reveal-delay: ${(index % 2) * 90}ms`}>
+        <li class="flex flex-col gap-6 bg-concrete p-7 sm:p-10" data-reveal style={`--reveal-delay: ${(index % 2) * 90}ms`}>
           <div class="flex items-center gap-5">
             {member.photo ? (
               <div class="size-20 shrink-0 overflow-hidden bg-muted">
@@ -37,10 +37,10 @@ const initials = (name: string) =>
             )}
             <div>
               <h3 class="text-2xl">{member.name}</h3>
-              <p class="mt-1 text-sm font-medium text-timber-deep">{member.role}</p>
+              <p class="mt-1 text-base font-medium text-timber-deep">{member.role}</p>
             </div>
           </div>
-          <p class="leading-relaxed text-muted-foreground">{member.bio}</p>
+          <p class="leading-relaxed text-foreground">{member.bio}</p>
         </li>
       ))}
     </ul>
