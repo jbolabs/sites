@@ -53,8 +53,8 @@ const words = value.headline.split(" ");
     <h1 class="max-w-5xl text-[2.9rem] leading-[0.98] font-semibold tracking-[-0.035em] text-white sm:text-7xl lg:text-[6.25rem]">
       {words.map((word, index) => (
         <>
-          <span class="hero-word inline-block overflow-hidden pb-[0.1em] align-bottom">
-            <span class="inline-block" style={`--d: ${(0.25 + index * 0.07).toFixed(2)}s`}>{word}</span>
+          <span class="hero-word inline-block">
+            <span class="inline-block" style={`--d: ${(0.15 + index * 0.06).toFixed(2)}s`}>{word}</span>
           </span>{" "}
         </>
       ))}
@@ -74,9 +74,14 @@ const words = value.headline.split(" ");
 </section>
 
 <style>
+  /*
+   * Words blur in and rise slightly, unclipped: a clipped slide-up drew hard
+   * horizontal edges through the letters while they moved. `backwards` fill
+   * drops the filter once a word lands, so finished text is never a blurred layer.
+   */
   .hero-word > span,
   .hero-rise {
-    animation: hero-rise 1s var(--ease-out-expo) both;
+    animation: hero-rise 0.9s var(--ease-out-expo) backwards;
     animation-delay: var(--d, 0s);
   }
 
@@ -86,21 +91,31 @@ const words = value.headline.split(" ");
 
   @keyframes hero-word {
     from {
-      transform: translateY(105%);
+      opacity: 0;
+      filter: blur(10px);
+      transform: translateY(0.22em);
     }
   }
 
   @keyframes hero-rise {
     from {
       opacity: 0;
-      transform: translateY(24px);
+      filter: blur(6px);
+      transform: translateY(12px);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .hero-word > span,
     .hero-rise {
-      animation: none;
+      animation: hero-fade 0.6s ease backwards;
+      animation-delay: var(--d, 0s);
+    }
+  }
+
+  @keyframes hero-fade {
+    from {
+      opacity: 0;
     }
   }
 </style>
