@@ -17,7 +17,7 @@ const quotes = value.quotes ?? [];
 <section id="reviews" class="py-20 sm:py-28">
   <div class="container-page grid gap-12 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
     <div>
-      <h2 class="text-4xl sm:text-5xl">{value.headline}</h2>
+      <h2 class="text-4xl sm:text-5xl"><Fill text={value.headline} /></h2>
       {value.intro && <p class="mt-4 text-lg leading-relaxed text-muted-foreground"><Fill text={value.intro} /></p>}
       {highlights.length > 0 && (
         <ul class="mt-8 space-y-3">
@@ -44,7 +44,7 @@ const quotes = value.quotes ?? [];
                   rel={href ? "noopener" : undefined}
                   class="flex h-full flex-col rounded-xl border border-border bg-card p-5 transition-colors hover:border-slate/40"
                 >
-                  <span class="font-medium text-slate">{rating.source}</span>
+                  <span class="font-medium text-slate"><Fill text={rating.source} /></span>
                   <span class="mt-2 flex items-center gap-2 font-display text-4xl text-slate lining-nums">
                     <Star class="size-5 fill-champagne text-champagne" aria-hidden="true" />
                     <Fill text={rating.score} />

@@ -6,8 +6,10 @@ import { studio } from "../../stacks/config.ts";
  * Copy is NOT here: editors own it in EmDash (see seed/seed.json). Structurally
  * a `SiteIdentity` (checked where alchemy.run.ts passes it to `resolveStage`).
  *
- * A spec mock-up for a cold pitch, not a client site: it lives on a PR preview
- * only. Facts come from bodycentredayspa.com (Oct 2026); unknowns stay out.
+ * A spec mock-up for a cold pitch, not a client site: it lives on its PR
+ * preview, and the PR stays unmerged (a merge would also ship a noindex
+ * staging stage). Facts come from bodycentredayspa.com (Oct 2026); anything
+ * not on their site is a `[[placeholder]]`.
  */
 interface BusinessFacts {
   readonly address: {
@@ -66,10 +68,11 @@ export const site = {
   /**
    * Public base URL EmDash downloads seed images from when the stage cannot
    * serve them itself (local workerd: EmDash's SSRF guard refuses localhost).
-   * Deployed stages use their own `/_seed/media`.
+   * Deployed stages use their own `/_seed/media`. This mock-up's only deployed
+   * stage is its PR preview, so local dev seeds from there.
    */
   localSeedMediaBase:
-    "https://bodycentre-day-spa-staging.jbolabs.com/_seed/media",
+    "https://bodycentre-day-spa-pr-90.jakebodea.workers.dev/_seed/media",
 
   name: "BodyCentre Day Spa",
 

@@ -1,5 +1,8 @@
 ---
-/** CMS text with any `[[placeholder]]` parts highlighted (see `lib/placeholder.ts`). */
+/**
+ * CMS text with any `[[placeholder]]` parts highlighted (see `lib/placeholder.ts`).
+ * Render every editor-written string through this, so any field can hold a placeholder.
+ */
 import { textParts } from "@/lib/placeholder";
 
 interface Props {

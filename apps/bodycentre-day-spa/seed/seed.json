@@ -513,13 +513,13 @@
               "_version": 1,
               "_key": "reviews",
               "headline": "Why guests keep coming back",
-              "intro": "Locally owned for over thirty years, with a menu that runs from a quiet facial to a hyperbaric session.",
+              "intro": "In Costa Mesa since 1994, with a menu that runs from a quiet facial to a hyperbaric session.",
               "highlights": [
                 {
                   "text": "Voted Best Day Spa in Orange County"
                 },
                 {
-                  "text": "OC Weekly Best Facial for the Red Carpet Facelift"
+                  "text": "OC Weekly Best of 2019"
                 },
                 {
                   "text": "Spa, recovery studio, and training gym under one roof"
@@ -533,13 +533,13 @@
                   "url": "https://www.yelp.com/biz/bodycentre-day-spa-costa-mesa-2"
                 },
                 {
-                  "source": "ClassPass",
+                  "source": "[[ClassPass]]",
                   "score": "[[4.9]]",
                   "count": "[[10,000+]] ratings",
-                  "url": "https://classpass.com/search/orange-county/prenatal-massage"
+                  "url": ""
                 },
                 {
-                  "source": "Groupon",
+                  "source": "[[Groupon]]",
                   "score": "[[4.8]]",
                   "count": "[[770]] ratings",
                   "url": ""

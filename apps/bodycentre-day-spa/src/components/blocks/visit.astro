@@ -16,7 +16,7 @@ const { address, bookingUrl, email, mapUrl, telephone } = site.business;
 <section id="visit" class="bg-stone py-20 sm:py-28">
   <div class="container-page">
     <div class="max-w-2xl">
-      <h2 class="text-4xl sm:text-5xl">{value.headline}</h2>
+      <h2 class="text-4xl sm:text-5xl"><Fill text={value.headline} /></h2>
       {value.intro && <p class="mt-4 text-lg leading-relaxed text-muted-foreground"><Fill text={value.intro} /></p>}
     </div>
     <div class="mt-12 grid gap-6 lg:grid-cols-2">
@@ -25,7 +25,7 @@ const { address, bookingUrl, email, mapUrl, telephone } = site.business;
         <dl class="mt-4 divide-y divide-border">
           {value.hours.map((row) => (
             <div class="flex justify-between gap-4 py-3">
-              <dt>{row.days}</dt>
+              <dt><Fill text={row.days} /></dt>
               <dd class="text-right text-slate lining-nums"><Fill text={row.time} /></dd>
             </div>
           ))}
