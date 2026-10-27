@@ -6,11 +6,35 @@ const workflow = readFileSync(
   new URL("../../.github/workflows/ci.yml", import.meta.url),
   "utf-8"
 );
+const upgradeWorkflow = readFileSync(
+  new URL("../../.github/workflows/upgrade-smoke.yml", import.meta.url),
+  "utf-8"
+);
 
-const job = (stage: string) =>
-  workflow.split(`\n  ${stage}:\n`)[1]?.split(/\n {2}[a-z-]+:\n/u)[0];
+const job = (stage: string, source = workflow) =>
+  source.split(`\n  ${stage}:\n`)[1]?.split(/\n {2}[a-z-]+:\n/u)[0];
 
 describe("main release queue", () => {
+  it("compares locked and latest dependencies without hiding canary failures", () => {
+    const smoke = job("smoke", upgradeWorkflow);
+    expect(smoke).toContain("dependencies: [locked, latest]");
+    expect(smoke).toContain("fail-fast: false");
+    expect(smoke).toContain("if: matrix.dependencies == 'latest'");
+    expect(smoke).toMatch(/Typecheck selected versions[\s\S]*name: Build/u);
+    expect(smoke).not.toContain("continue-on-error");
+  });
+
+  it("includes dependency review in the required aggregate while permitting intentional skips", () => {
+    expect(job("check")).toContain(
+      "needs: [affected, lint-test, verify, dependency-review]"
+    );
+    expect(job("check")).toContain("if: always()");
+    expect(job("check")).toContain("contains(needs.*.result, 'failure')");
+    expect(job("dependency-review")).toContain(
+      "if: github.event_name == 'pull_request' && !github.event.repository.private"
+    );
+  });
+
   it("retains pending releases and serializes shared state upgrades across both stages", () => {
     for (const stage of ["staging", "production"]) {
       expect(job(stage)).toContain(`    environment: ${stage}\n`);

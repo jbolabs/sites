@@ -34,6 +34,14 @@ export const loadDeploymentSites = async (
     })
   );
 
+/** Parallel preview stacks share one bootstrap; releases and teardown stay serial. */
+export const deploymentConcurrency = (
+  stage: string,
+  destroy: boolean,
+  siteCount: number
+): 1 | 3 =>
+  /^(?:client-)?pr-[1-9]\d*$/u.test(stage) && !destroy && siteCount > 1 ? 3 : 1;
+
 export const deploymentSites = (
   sites: readonly DeploymentSite[],
   stage: string,

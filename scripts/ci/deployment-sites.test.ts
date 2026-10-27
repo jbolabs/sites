@@ -3,7 +3,11 @@ import { execFileSync } from "node:child_process";
 import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
-import { deploymentSites, loadDeploymentSites } from "./deployment-sites.ts";
+import {
+  deploymentConcurrency,
+  deploymentSites,
+  loadDeploymentSites,
+} from "./deployment-sites.ts";
 
 const sites = [
   {
@@ -19,6 +23,29 @@ const sites = [
     workersSubdomain: "jakebodea",
   },
 ];
+
+describe(deploymentConcurrency, () => {
+  it("shares the three-site preview limit with client previews", () => {
+    expect(deploymentConcurrency("pr-42", false, 3)).toBe(3);
+    expect(deploymentConcurrency("client-pr-42", false, 3)).toBe(3);
+    for (const stage of [
+      "staging",
+      "prod",
+      "dev-local",
+      "client-pr-0",
+      "pr-",
+    ]) {
+      expect(deploymentConcurrency(stage, false, 3)).toBe(1);
+    }
+  });
+
+  it("keeps teardown and single-site previews serial", () => {
+    expect(deploymentConcurrency("client-pr-42", true, 3)).toBe(1);
+    expect(deploymentConcurrency("pr-42", true, 3)).toBe(1);
+    expect(deploymentConcurrency("client-pr-42", false, 1)).toBe(1);
+    expect(deploymentConcurrency("pr-42", false, 0)).toBe(1);
+  });
+});
 
 describe(deploymentSites, () => {
   it("ships every affected app to staging and only domain apps to production", () => {

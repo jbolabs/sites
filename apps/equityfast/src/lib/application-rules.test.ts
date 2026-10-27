@@ -151,6 +151,7 @@ describe(isName, () => {
   it("accepts names with accents, hyphens, and apostrophes", () => {
     expect(isName("José-María")).toBeTruthy();
     expect(isName("O'Brien")).toBeTruthy();
+    expect(isName("O’Brien")).toBeTruthy();
     expect(isName("J0rdan")).toBeFalsy();
     expect(isName("...")).toBeFalsy();
   });

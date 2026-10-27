@@ -49,7 +49,7 @@ const DIGIT = /\d/u;
 const BIRTH_DATE = /^(?<month>\d{2})\/(?<day>\d{2})\/(?<year>\d{4})$/u;
 const LETTER = /\p{L}/u;
 // Letters in any script, plus the spaces, apostrophes, hyphens, and periods names and places use.
-const NAME = /^[\p{L}\p{M}' .\u2019-]+$/u;
+const NAME = /^[\p{L}\p{M}' .’-]+$/u;
 
 /**
  * Where a property can be: the 50 states and DC as USPS code and name, in

@@ -4,8 +4,26 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 
-import { Schema } from "effect";
+import { Data, flow, Option, Schema } from "effect";
 import ts from "typescript";
+
+/** Only these authored diagnostics may leave the credential-free comparison. */
+export class FingerprintUnavailable extends Data.TaggedError(
+  "FingerprintUnavailable"
+)<{
+  readonly message: string;
+}> {}
+
+const unavailable = (message: string) =>
+  new FingerprintUnavailable({ message });
+
+export const fingerprintFailure = flow(
+  Schema.decodeUnknownOption(Schema.instanceOf(FingerprintUnavailable)),
+  Option.match({
+    onNone: () => "Unexpected comparison error; details suppressed",
+    onSome: ({ message }) => message,
+  })
+);
 
 const Manifest = Schema.Struct({ key: Schema.String, rootDir: Schema.String });
 const MANIFEST = /deserializeManifest\((?<json>\{[^\n]+\})\)/u;
@@ -53,7 +71,7 @@ export const readTree = (directory: string, prefix = ""): FingerprintFile[] =>
           return readTree(file, `${name}/`);
         }
         if (!entry.isFile()) {
-          throw new Error(`Cannot fingerprint special file: ${file}`);
+          throw unavailable(`Cannot fingerprint special file: ${file}`);
         }
         return [{ bytes: readFileSync(file), name }];
       })
@@ -78,7 +96,7 @@ export const normalizeModules = (
       const directory = new URL(manifest.rootDir).pathname;
       const root = directory.slice(0, directory.lastIndexOf("/apps/"));
       if (root === "" || !directory.includes("/apps/")) {
-        throw new Error("Unknown Astro manifest root");
+        throw unavailable("Unknown Astro manifest root");
       }
       roots.add(root);
       const entries = decodeEntries(JSON.parse(json));
@@ -101,7 +119,7 @@ export const normalizeModules = (
     }
   }
   if (roots.size !== 1) {
-    throw new Error("Expected exactly one Astro checkout root");
+    throw unavailable("Expected exactly one Astro checkout root");
   }
   return new Map(
     [...files].map(([name, source]) => {
@@ -127,7 +145,7 @@ export const workerModules = (
   files: ReadonlyMap<string, string>
 ): readonly string[] => {
   if (!files.has("entry.mjs")) {
-    throw new Error("Missing Worker entry.mjs");
+    throw unavailable("Missing Worker entry.mjs");
   }
   const ids = new Map<string, number>();
   const queue: string[] = [];
@@ -164,7 +182,7 @@ export const workerModules = (
     while (result.length < queue.length) {
       const name = queue[result.length];
       if (name === undefined) {
-        throw new Error("Missing module identity");
+        throw unavailable("Missing module identity");
       }
       result.push(references(name, files.get(name) ?? "", identify));
     }
@@ -181,7 +199,7 @@ export const workerModules = (
     new Set(disconnected.map(({ signature }) => signature)).size !==
     disconnected.length
   ) {
-    throw new Error("Ambiguous disconnected Worker modules");
+    throw unavailable("Ambiguous disconnected Worker modules");
   }
   for (const { name } of disconnected) {
     identify(name);
@@ -421,7 +439,7 @@ const authoredScopeText = (bytes: Uint8Array): string => {
   // Unknown source formats (Astro/CSS/MDX included) cannot establish complete
   // decoding coverage. Retain escaped inputs instead of trusting a partial AST.
   if (ESCAPED_INPUT.test(raw)) {
-    throw new Error("Authored scope token; retaining candidate");
+    throw unavailable("Authored scope token; retaining candidate");
   }
   const literals: string[] = [];
   for (const kind of [ts.ScriptKind.TS, ts.ScriptKind.TSX]) {
@@ -450,6 +468,17 @@ const authoredScopeText = (bytes: Uint8Array): string => {
   return [raw, ...literals, literals.join("")].join("\n");
 };
 
+const authoredText = (input: Uint8Array | FingerprintFile): string => {
+  try {
+    return authoredScopeText("bytes" in input ? input.bytes : input);
+  } catch (error) {
+    if (error instanceof FingerprintUnavailable && "name" in input) {
+      throw unavailable(`${input.name}: ${error.message}`);
+    }
+    throw error;
+  }
+};
+
 /** Astro scopes and generated asset names depend on absolute installation paths.
  * Give scopes coherent identities in Worker traversal order. Give generated
  * assets identities by their content, retaining every byte and every reference.
@@ -458,7 +487,7 @@ const authoredScopeText = (bytes: Uint8Array): string => {
 export const deployableFiles = (
   modules: readonly string[],
   assets: readonly DeployAsset[],
-  authored: readonly Uint8Array[] = []
+  authored: readonly (Uint8Array | FingerprintFile)[] = []
 ): readonly FingerprintFile[] => {
   const known = generatedScopes(assets);
   for (const source of modules) {
@@ -473,10 +502,10 @@ export const deployableFiles = (
   }
   // A scope present in authored input cannot safely be treated as compiler metadata.
   // This also protects unusual HTML/renderer syntax that resembles generated props.
-  for (const bytes of authored) {
-    for (const match of authoredScopeText(bytes).matchAll(AUTHORED_SCOPE)) {
+  for (const input of authored) {
+    for (const match of authoredText(input).matchAll(AUTHORED_SCOPE)) {
       if (known.has(match.groups?.scope ?? "")) {
-        throw new Error("Authored scope token; retaining candidate");
+        throw unavailable("Authored scope token; retaining candidate");
       }
     }
   }
@@ -490,11 +519,13 @@ export const deployableFiles = (
           return match;
         }
         if (!verified.has(offset)) {
-          throw new Error("Ambiguous scope-like literal; retaining candidate");
+          throw unavailable(
+            "Ambiguous scope-like literal; retaining candidate"
+          );
         }
         if (!scopes.has(scope)) {
           if (!discover) {
-            throw new Error("Unknown generated asset scope");
+            throw unavailable("Unknown generated asset scope");
           }
           scopes.set(scope, scopes.size);
         }
@@ -508,7 +539,7 @@ export const deployableFiles = (
   );
   const basenames = generated.map(({ name }) => path.posix.basename(name));
   if (new Set(basenames).size !== basenames.length) {
-    throw new Error("Ambiguous generated asset basename");
+    throw unavailable("Ambiguous generated asset basename");
   }
   const rewrite = (source: string, target: (basename: string) => string) => {
     let next = source;
@@ -517,7 +548,7 @@ export const deployableFiles = (
       next = previous.replaceAll(basename, (_match, offset: number) => {
         const before = previous.slice(Math.max(0, offset - 200), offset);
         if (!ABSOLUTE_ASSET.test(before) && !RELATIVE_ASSET.test(before)) {
-          throw new Error(
+          throw unavailable(
             "Ambiguous generated asset reference; retaining candidate"
           );
         }
@@ -550,7 +581,7 @@ export const deployableFiles = (
     new Set(signatures.map(({ signature }) => signature)).size !==
     signatures.length
   ) {
-    throw new Error("Ambiguous generated asset contents");
+    throw unavailable("Ambiguous generated asset contents");
   }
   const identities = new Map(
     signatures.map(({ name }, index) => [
@@ -618,7 +649,7 @@ export const deploymentResolutions = (
       ([key]) => key === name || key.endsWith(`/${name}`)
     );
     if (matches.length === 0) {
-      throw new Error(`Missing deployment dependency: ${name}`);
+      throw unavailable(`Missing deployment dependency: ${name}`);
     }
     for (const [key, value] of matches) {
       selected.set(key, value);
@@ -663,7 +694,7 @@ const configurationLoadedInputs = (
       const absolute = path.resolve(realpathSync(process.cwd()), name);
       const relative = path.relative(root, absolute);
       if (relative.startsWith("..") || path.isAbsolute(relative)) {
-        throw new Error("Unknown loaded configuration input");
+        throw unavailable("Unknown loaded configuration input");
       }
       return [relative, digest(readFileSync(absolute))] as const;
     })
@@ -716,7 +747,7 @@ export const configuration = async (directory: string, site: string) => {
     });
   const result = await bundle(entrypoints);
   if (!result.success || result.metafile === undefined) {
-    throw new Error("Missing configuration input graph");
+    throw unavailable("Missing configuration input graph");
   }
   const loadedInputs = configurationLoadedInputs(result.metafile.inputs, root);
   const sources = await Promise.all(
@@ -745,6 +776,28 @@ export const configuration = async (directory: string, site: string) => {
   });
 };
 
+/** Check the same tracked provenance inputs without compiling the Worker. */
+export const authoredInputFiles = (
+  root: string,
+  site: string
+): FingerprintFile[] =>
+  execFileSync(
+    "git",
+    ["ls-files", "-z", "--", `apps/${site}`, "packages", "stacks"],
+    { cwd: root, encoding: "utf-8" }
+  )
+    .split("\0")
+    .filter(
+      (file) =>
+        /\.(?:[cm]?[jt]sx?|astro|css|json|mdx?|html)$/u.test(file) &&
+        !file.includes(".test.") &&
+        !/^packages\/(?:control-app|proof|config)\//u.test(file)
+    )
+    .map((file) => ({
+      bytes: readFileSync(path.join(root, file)),
+      name: file,
+    }));
+
 export const sitePayload = async (
   root: string,
   site: string
@@ -758,26 +811,14 @@ export const sitePayload = async (
     (file) => ({ ...file, generated: !publicFiles.has(file.name) })
   );
   if (!existsSync(path.join(directory, "dist/client"))) {
-    throw new Error("Missing Worker assets");
+    throw unavailable("Missing Worker assets");
   }
   const modules = new Map(
     server
       .filter(({ name }) => name.endsWith(".mjs"))
       .map(({ name, bytes }) => [name, Buffer.from(bytes).toString("utf-8")])
   );
-  const authored = execFileSync(
-    "git",
-    ["ls-files", "-z", "--", `apps/${site}`, "packages", "stacks"],
-    { cwd: root, encoding: "utf-8" }
-  )
-    .split("\0")
-    .filter(
-      (file) =>
-        /\.(?:[cm]?[jt]sx?|astro|css|json|mdx?|html)$/u.test(file) &&
-        !file.includes(".test.") &&
-        !/^packages\/(?:control-app|proof|config)\//u.test(file)
-    )
-    .map((file) => readFileSync(path.join(root, file)));
+  const authored = authoredInputFiles(root, site);
   return [
     ...deployableFiles(
       workerModules(normalizeModules(modules)),

@@ -61,9 +61,9 @@
   "type": "module",
   "scripts": {
     "build": "turbo run build",
-    "check": "bun run sync && ultracite check --max-warnings 0 && bun run check:markup",
+    "check": "bun run sync && ultracite check --max-warnings 0 && bun run check:markup && bun run check:fingerprints",
     "fix": "bun run sync && ultracite fix",
-    "lint:ci": "bun run sync && ultracite check --max-warnings 0 --format github && bun run check:markup",
+    "lint:ci": "bun run sync && ultracite check --max-warnings 0 --format github && bun run check:markup && bun run check:fingerprints",
     "typecheck": "turbo run typecheck //#typecheck:root",
     "test": "turbo run test //#test:root",
     "verify": "bun run ci && bun run build",
@@ -81,6 +81,7 @@
     "proof": "bun packages/proof/src/cli.ts",
     "sync": "turbo run sync --output-logs=errors-only",
     "check:markup": "bun packages/config/check-copy.ts && bun packages/config/check-style.ts && bun packages/config/check-scaffold.ts",
+    "check:fingerprints": "bun scripts/ci/check-fingerprint-inputs.ts",
     "verify:ci": "node scripts/ci/verify-ci.ts"
   },
   "devDependencies": {

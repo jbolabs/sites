@@ -61,6 +61,12 @@ jobs:
         run: bun scripts/ci/affected.ts "$BASE" >> "$GITHUB_OUTPUT"
         env:
           BASE: ${{ steps.base.outputs.sha }}
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: affected-fingerprints
+          path: .artifacts/ci/affected/
+          if-no-files-found: ignore
 
   lint-test:
     runs-on: ubuntu-latest
@@ -160,7 +166,7 @@ jobs:
 
   # The ruleset requires one `check` context; this gathers the parallel jobs into it.
   check:
-    needs: [affected, lint-test, verify]
+    needs: [affected, lint-test, verify, dependency-review]
     if: always()
     runs-on: ubuntu-latest
     permissions:

@@ -93,8 +93,12 @@ export const recordPreview = (
 
 export const activePreviews = (
   api: GitHubApi,
-  repository: string
+  repository: string,
+  pull?: number
 ): PreviewRecord[] => {
+  if (pull !== undefined) {
+    clientStage(pull);
+  }
   const pages = Schema.decodeUnknownSync(
     Schema.fromJsonString(Schema.Array(Schema.Array(Deployment)))
   )(
@@ -106,6 +110,10 @@ export const activePreviews = (
     const stage = clientStage(record.payload.pull);
     for (const site of record.payload.sites) {
       teardownIdentity(site, stage);
+    }
+    // Filter only after validating ownership, but before loading unrelated histories.
+    if (pull !== undefined && record.payload.pull !== pull) {
+      return false;
     }
     const statuses = Schema.decodeUnknownSync(
       Schema.fromJsonString(Schema.Array(Schema.Array(Status)))

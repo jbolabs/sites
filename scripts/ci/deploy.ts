@@ -17,7 +17,11 @@ import { listSites } from "@jakebodea/control-app/site";
 import { Schema } from "effect";
 import pLimit from "p-limit";
 
-import { deploymentSites, loadDeploymentSites } from "./deployment-sites.ts";
+import {
+  deploymentConcurrency,
+  deploymentSites,
+  loadDeploymentSites,
+} from "./deployment-sites.ts";
 import { migrateDatabase } from "./migrate.ts";
 
 const SiteList = Schema.fromJsonString(Schema.Array(Schema.String));
@@ -97,9 +101,9 @@ const execute = promisify(
     );
   }
 );
-const parallel = stage.startsWith("pr-") && !destroy && sites.length > 1;
+const limit = deploymentConcurrency(stage, destroy, sites.length);
 // Site state is separate, but the account-wide state-store service upgrades in place.
-if (parallel) {
+if (limit > 1) {
   const { stdout, stderr } = await execute(
     ["alchemy", "provider", "cloudflare", "bootstrap"],
     root
@@ -108,7 +112,7 @@ if (parallel) {
   process.stderr.write(stderr);
 }
 // Keep production and destruction serial.
-const concurrency = pLimit(parallel ? 3 : 1);
+const concurrency = pLimit(limit);
 const deploySite = async (site: string) => {
   const started = performance.now();
   const directory = path.join(root, "apps", site);

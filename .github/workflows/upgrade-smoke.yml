@@ -12,9 +12,14 @@ permissions:
   contents: read
 
 jobs:
-  latest:
+  smoke:
+    name: Upgrade smoke (${{ matrix.dependencies }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        dependencies: [locked, latest]
     environment: preview
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -25,7 +30,15 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup
       - name: Upgrade Alchemy and EmDash to latest
+        if: matrix.dependencies == 'latest'
         run: bun scripts/ci/upgrade-latest.ts
+      - name: Retain selected versions
+        if: always()
+        run: |
+          mkdir -p .artifacts/ci/upgrade
+          cp package.json bun.lock .artifacts/ci/upgrade/
+      - name: Typecheck selected versions
+        run: bun run typecheck
       - name: Build
         run: bun run build
       - name: Local smoke test (alchemy dev, emulated resources)
@@ -39,3 +52,17 @@ jobs:
       - name: Dev server log
         if: failure()
         run: bun run app -- logs --site ms-custom-homes --lines 200
+      - name: Summarize compatibility
+        if: always()
+        env:
+          DEPENDENCIES: ${{ matrix.dependencies }}
+          RESULT: ${{ job.status }}
+        run: |
+          echo "### Upgrade smoke: $DEPENDENCIES ($RESULT)" >> "$GITHUB_STEP_SUMMARY"
+          echo 'Compare the locked and latest lanes to separate a current-stack failure from an upgrade incompatibility. Latest failures remain blocking for this canary; migrate and prove the dependency upgrade separately.' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: upgrade-versions-${{ matrix.dependencies }}
+          path: .artifacts/ci/upgrade/
+          if-no-files-found: ignore
