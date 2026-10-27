@@ -101,6 +101,9 @@ export const QUESTION = {
 } as const;
 export const AMOUNT_QUESTION = QUESTION.amount;
 
+/** The primary-residence answer when the visitor lives at the property. */
+export const SAME_AS_PROPERTY = "Same as property";
+
 const address = (value: typeof Address.Type) =>
   formatAddress(value.street, value.city, value.state, value.zip);
 
@@ -112,7 +115,7 @@ export const toContactForm = (form: ApplicationForm): ContactForm => {
     .join(" ");
   const primary =
     form.occupancy === "Primary residence" || form.primaryAddress === undefined
-      ? "Same as property"
+      ? SAME_AS_PROPERTY
       : address(form.primaryAddress);
   const answers: LeadAnswer[] = [
     { answer: form.birthDate, question: QUESTION.birthDate },

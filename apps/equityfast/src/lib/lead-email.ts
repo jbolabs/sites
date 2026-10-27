@@ -3,21 +3,21 @@
  * carries everything their own Flow lead notice does (name, phone, email,
  * date of birth, address, amount, occupancy, ownership, primary residence,
  * income, income source, listing status, consent), grouped the way a loan
- * officer reads it: who to call, the property and loan, then income.
+ * officer reads it: who to call, each property in its own section, then
+ * income. Every answer appears exactly once.
  *
  * Email clients ignore stylesheets and modern layout, so this is the
  * long-standing email-safe subset: nested tables, inline styles, system
  * fonts, and the site's palette as hex (from `global.css`). The plain-text
- * part stays `leadNotificationText`, the same summary the CMS entry holds.
+ * part has the same sections, for clients that show text only.
  */
-import { leadNotificationText } from "@jakebodea/cloudflare-kit/server";
 import type {
   LeadMailRoutes,
   LeadNotification,
   Lead,
 } from "@jakebodea/cloudflare-kit/server";
 
-import { QUESTION } from "./application.ts";
+import { QUESTION, SAME_AS_PROPERTY } from "./application.ts";
 
 const COLOR = {
   canvas: "#f7f9fc",
@@ -47,31 +47,61 @@ export const escapeHtml = (value: string): string =>
 
 const NON_DIGITS = /\D+/gu;
 
-/** The sections, in reading order; any answer not listed lands in the last one. */
-const SECTIONS: readonly {
+interface Line {
+  readonly question: string;
+  /** The row's label when the section title already says what it is about. */
+  readonly label?: string;
+}
+
+interface Section {
   readonly title: string;
-  readonly questions: readonly string[];
-}[] = [
-  {
-    questions: [
-      QUESTION.amount,
-      QUESTION.propertyAddress,
-      QUESTION.occupancy,
-      QUESTION.ownership,
-      QUESTION.primaryAddress,
-      QUESTION.forSale,
-    ],
-    title: "Property and loan",
-  },
-  {
-    questions: [QUESTION.income, QUESTION.otherIncome, QUESTION.incomeSource],
-    title: "Income",
-  },
-  {
-    questions: [QUESTION.consent, QUESTION.language],
-    title: "Consent and source",
-  },
-];
+  readonly lines: readonly Line[];
+}
+
+/**
+ * The sections, in reading order, one per property: the one the line of
+ * credit is on, then the applicant's home only when it is somewhere else.
+ * Any answer not listed lands in the last section.
+ */
+const sectionsFor = (answers: ReadonlyMap<string, string>): Section[] => {
+  const primary = answers.get(QUESTION.primaryAddress);
+  const livesElsewhere = primary !== undefined && primary !== SAME_AS_PROPERTY;
+  return [
+    {
+      lines: [
+        { question: QUESTION.amount },
+        { label: "Address", question: QUESTION.propertyAddress },
+        { question: QUESTION.occupancy },
+        { question: QUESTION.ownership },
+        { question: QUESTION.forSale },
+      ],
+      title: "Property for this line of credit",
+    },
+    ...(livesElsewhere
+      ? [
+          {
+            lines: [{ label: "Address", question: QUESTION.primaryAddress }],
+            title: "Primary residence (where they live)",
+          },
+        ]
+      : []),
+    {
+      lines: [
+        { question: QUESTION.income },
+        { question: QUESTION.otherIncome },
+        { question: QUESTION.incomeSource },
+      ],
+      title: "Income",
+    },
+    {
+      lines: [{ question: QUESTION.consent }, { question: QUESTION.language }],
+      title: "Consent and source",
+    },
+  ];
+};
+
+/** Questions every lead email places itself, so the catch-all skips them. */
+const PLACED = new Set<string>(Object.values(QUESTION));
 
 interface Row {
   readonly label: string;
@@ -96,7 +126,7 @@ const sectionHtml = (title: string, rows: readonly Row[]) =>
     : `
 <tr><td style="padding:28px 32px 0;">
   <p style="margin:0 0 4px;font-size:16px;line-height:24px;font-weight:700;color:${COLOR.ink};">${escapeHtml(title)}</p>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${rowsHtml(rows)}</table>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="table-layout:fixed;">${rowsHtml(rows)}</table>
 </td></tr>`;
 
 const button = (href: string, label: string, primary: boolean) =>
@@ -139,34 +169,36 @@ export const renderLeadEmail = (
         ]
       : []),
   ];
-  const listed = new Set<string>([
-    QUESTION.birthDate,
-    ...SECTIONS.flatMap(({ questions }) => questions),
-  ]);
-  const rowsFor = (questions: readonly string[]): Row[] =>
-    questions.flatMap((question) => {
+  // Each answer once, in its section; an unknown one still shows, at the end.
+  const unlisted = [...answers.keys()].flatMap((question) =>
+    PLACED.has(question) ? [] : [{ question }]
+  );
+  const source = `${mail.siteOrigin}${lead.sourcePath}`;
+  const sections = sectionsFor(answers).map((section, index, all) =>
+    index === all.length - 1
+      ? { ...section, lines: [...section.lines, ...unlisted] }
+      : section
+  );
+  const rowsFor = (lines: readonly Line[]): Row[] =>
+    lines.flatMap(({ label, question }) => {
       const answer = answers.get(question);
       return answer === undefined
         ? []
-        : [{ html: escapeHtml(answer), label: question }];
+        : [{ html: escapeHtml(answer), label: label ?? question }];
     });
-  const unlisted = [...answers.keys()].filter(
-    (question) => !listed.has(question)
-  );
-  const sections = SECTIONS.map(({ questions, title }, index) =>
-    sectionHtml(
-      title,
-      index === SECTIONS.length - 1
-        ? [
-            ...rowsFor([...questions, ...unlisted]),
-            {
-              html: escapeHtml(`${mail.siteOrigin}${lead.sourcePath}`),
-              label: "Submitted from",
-            },
-          ]
-        : rowsFor(questions)
+  const sectionsHtml = sections
+    .map(({ lines, title }, index) =>
+      sectionHtml(
+        title,
+        index === sections.length - 1
+          ? [
+              ...rowsFor(lines),
+              { html: escapeHtml(source), label: "Submitted from" },
+            ]
+          : rowsFor(lines)
+      )
     )
-  ).join("");
+    .join("");
   const firstName = lead.name.split(" ")[0] ?? lead.name;
   const amountNote = amount === undefined ? "" : ` (${amount})`;
   const subject = `New EquityFast application: ${lead.name}${amountNote}`;
@@ -213,7 +245,7 @@ export const renderLeadEmail = (
     ${callButton}${emailButton}
   </td></tr>
   ${sectionHtml("Contact", contact)}
-  ${sections}
+  ${sectionsHtml}
   <tr><td style="padding:28px 32px 32px;">
     <p style="margin:0;padding-top:20px;border-top:1px solid ${COLOR.line};font-size:13px;line-height:20px;color:${COLOR.graphite};">Reply to this email to reach ${escapeHtml(firstName)} directly. The application is also saved in the ${escapeHtml(mail.name)} admin under Applications.</p>
   </td></tr>
@@ -223,5 +255,24 @@ export const renderLeadEmail = (
 </body>
 </html>`;
 
-  return { html, subject, text: leadNotificationText(lead) };
+  const textLines = (lines: readonly Line[]) =>
+    lines.flatMap(({ label, question }) => {
+      const answer = answers.get(question);
+      return answer === undefined ? [] : [`${label ?? question}: ${answer}`];
+    });
+  const text = [
+    `New HELOC application: ${lead.name}${amountNote}`,
+    "",
+    "Contact",
+    `Name: ${lead.name}`,
+    ...(lead.phone === undefined ? [] : [`Phone: ${lead.phone}`]),
+    `Email: ${lead.email}`,
+    ...textLines([{ question: QUESTION.birthDate }]),
+    ...sections.flatMap(({ lines, title }) => ["", title, ...textLines(lines)]),
+    `Submitted from: ${source}`,
+    "",
+    `Reply to this email to reach ${firstName} directly.`,
+  ].join("\n");
+
+  return { html, subject, text };
 };
