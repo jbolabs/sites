@@ -56,6 +56,10 @@ describe(formatDollars, () => {
     expect(formatDollars("250000.4")).toBe("$250,000");
   });
 
+  it("reads dots before three digits as thousands separators", () => {
+    expect(formatDollars("250.000")).toBe("$250,000");
+  });
+
   it("keeps a typed zero, so other income can be $0", () => {
     expect(formatDollars("0")).toBe("$0");
     expect(formatDollars("$")).toBe("");

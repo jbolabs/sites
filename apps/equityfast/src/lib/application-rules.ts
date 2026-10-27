@@ -41,7 +41,7 @@ export type ForSale = (typeof FOR_SALE)[number];
 export type IncomeSource = (typeof INCOME_SOURCES)[number];
 
 const NON_DIGITS = /\D+/gu;
-const NON_AMOUNT = /[^\d.]+/gu;
+const CENTS = /\.(?<cents>\d{1,2})\D*$/u;
 const US_COUNTRY_CODE = /^1(?=\d{10}$)/u;
 const EMAIL = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/iu;
 const ZIP = /^\d{5}(?:-\d{4})?$/u;
@@ -117,10 +117,13 @@ export const digits = (value: string): string =>
 
 /**
  * Whole dollars typed in any format (`$75,000`, `75000`, `$1,234.56`), or 0.
- * Cents round to the nearest dollar instead of running into the digits.
+ * Cents (one or two digits after the last dot) round to the nearest dollar
+ * instead of running into the digits; any other dot is a thousands separator
+ * (`250.000`, as written in much of Latin America).
  */
 export const dollars = (value: string): number => {
-  const [whole = "", cents = ""] = value.replaceAll(NON_AMOUNT, "").split(".");
+  const cents = CENTS.exec(value)?.groups?.cents ?? "";
+  const whole = digits(cents === "" ? value : value.replace(CENTS, ""));
   return Math.round(Number(`${whole || "0"}.${cents || "0"}`));
 };
 
