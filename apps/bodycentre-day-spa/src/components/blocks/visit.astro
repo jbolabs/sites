@@ -1,5 +1,4 @@
 ---
-import Image from "@jakebodea/cloudflare-kit/astro/image.astro";
 import type { BlockComponentProps } from "emdash/ui";
 
 import ButtonLink from "@/components/button-link.astro";
@@ -46,10 +45,5 @@ const { address, bookingUrl, mapUrl, telephone } = site.business;
         </div>
       </div>
     </div>
-    {value.image && (
-      <div class="mt-6 aspect-video overflow-hidden rounded-xl bg-muted lg:aspect-[2/1]" data-reveal>
-        <Image image={value.image} alt={value.image.alt ?? ""} sizes="(min-width: 1440px) 1300px, 100vw" class="size-full! object-cover" />
-      </div>
-    )}
   </div>
 </section>
