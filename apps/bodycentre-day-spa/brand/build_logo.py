@@ -98,13 +98,15 @@ def c_with_vine(lo=0.0, hi=400.0, vine=True):
     for drawing one crossing of the interlace on top.
     """
     cx, cy, rm = 668, 515, 164
-    start, end = 360 - 48, 56  # top terminal, then around the left to the lower right
+    start, end = 360 - 38, 56  # top terminal, then around the left to the lower right
     center, widths = [], []
     for k in range(161):
         a = start + (end - start) * k / 160
         if not lo <= a <= hi:
             continue
-        center.append((cx + rm * math.cos(math.radians(a)), cy + rm * math.sin(math.radians(a))))
+        # The top arm sweeps outward to its terminal, clearing room for the tall leaf.
+        r = rm + 24 * max(0.0, 1 - k / 34) ** 2
+        center.append((cx + r * math.cos(math.radians(a)), cy + r * math.sin(math.radians(a))))
         stress = ((1 + math.cos(math.radians(a - 150))) / 2) ** 1.6
         flare = 1 + 0.9 * max(0.0, 1 - k / 10) ** 2
         widths.append((13 + 30 * stress) * flare)
@@ -112,13 +114,13 @@ def c_with_vine(lo=0.0, hi=400.0, vine=True):
         return outline(center, widths)
     tx, ty = math.sin(math.radians(end)), -math.cos(math.radians(end))
     p0 = center[-1]
-    # The vine sprouts outward from the tail, so the C stays open.
-    p1, p2, p3 = (p0[0] + tx * 45, p0[1] + ty * 45), (846, 594), (862, 560)
+    # A short vine curls up from the tail into the C's mouth, where both leaves sprout.
+    p1, p2, p3 = (p0[0] + tx * 22, p0[1] + ty * 22), (792, 634), (798, 616)
     w0 = widths[-1]
-    for k in range(1, 61):
-        t = k / 60
+    for k in range(1, 31):
+        t = k / 30
         center.append(tuple((1 - t) ** 3 * p0[i] + 3 * (1 - t) ** 2 * t * p1[i] + 3 * (1 - t) * t * t * p2[i] + t**3 * p3[i] for i in (0, 1)))
-        widths.append(w0 + (5 - w0) * t**0.45)
+        widths.append(w0 + (7 - w0) * t**0.6)
     return outline(center, widths)
 
 
@@ -146,7 +148,7 @@ C = c_with_vine()
 # crossing) the C is drawn over the B; below it, the B is drawn over the C.
 SPLIT = 222
 C_OVER = c_with_vine(SPLIT - 1, 400, vine=False)
-LEAVES = [leaf((862, 562), (906, 440), 40, -0.07), leaf((842, 596), (904, 586), 23, 0.1)]
+LEAVES = [leaf((798, 620), (744, 388), 50, -0.03), leaf((806, 626), (918, 536), 26, 0.06)]
 LETTERS = [(53, 147), (177, 279), (308, 407), (424, 521), (537, 637), (670, 746), (777, 877), (899, 984), (1012, 1104), (1122, 1197)]
 WORDMARK = word("BodyCentre", 115, 888, [(a + b) / 2 for a, b in LETTERS])
 
