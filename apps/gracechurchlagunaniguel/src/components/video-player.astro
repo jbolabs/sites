@@ -31,7 +31,7 @@ const watch = `https://www.youtube.com/watch?v=${id}`;
   </picture>
   <div class="absolute inset-0 bg-linear-to-t from-deep/70 via-deep/10 to-transparent" aria-hidden="true"></div>
   <a href={watch} target="_blank" rel="noopener" class="video-play group absolute inset-0 flex items-center justify-center" aria-label={`Play ${title}`}>
-    <span class="flex size-18 items-center justify-center rounded-full bg-paper text-navy shadow-[0_10px_30px_rgb(0_0_0/0.3)] transition-transform duration-300 ease-expo group-hover:scale-105 group-active:scale-95">
+    <span class="flex size-18 items-center justify-center rounded-full bg-paper text-navy shadow-[0_10px_30px_rgb(0_0_0/0.3)] transition-transform duration-160 ease-expo group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none">
       <Play class="ml-1 size-7 fill-current" aria-hidden="true" />
     </span>
   </a>

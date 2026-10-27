@@ -32,9 +32,10 @@ const buttonVariants = cva(
         xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
         lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        // Site additions: comfortable touch targets for page CTAs (44px and up).
-        cta: "h-11 gap-2 rounded-full px-5 text-[0.9375rem] transition-[background-color,border-color,color] duration-200",
-        hero: "h-13 gap-2.5 rounded-full px-7 text-base transition-[background-color,border-color,color] duration-200",
+        // Site additions: comfortable touch targets for page CTAs (44px and up). A press
+        // dips to 97% and eases back (Tailwind v4 `scale`/`translate` are their own properties).
+        cta: "ease-expo h-11 gap-2 rounded-full px-5 text-[0.9375rem] transition-[background-color,border-color,color,scale,translate] duration-160 active:scale-[0.97] motion-reduce:active:scale-100",
+        hero: "ease-expo h-13 gap-2.5 rounded-full px-7 text-base transition-[background-color,border-color,color,scale,translate] duration-160 active:scale-[0.97] motion-reduce:active:scale-100",
         icon: "size-8",
         "icon-xs":
           "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",

@@ -37,12 +37,12 @@ const secondary =
 
   <div class="container-page grid flex-1 items-end gap-10 pt-32 pb-24 lg:grid-cols-[minmax(0,1fr)_22rem] lg:pb-16">
     <div class="max-w-3xl">
-      <h1 class="rise text-[3rem] leading-[1] text-white sm:text-7xl lg:text-[5.5rem]" style="--d: 0.1s">{value.headline}</h1>
+      <h1 class="rise text-[3rem] leading-[1] text-white sm:text-7xl lg:text-[5.5rem]" style="--d: 0ms">{value.headline}</h1>
       {value.subheadline && (
-        <p class="rise mt-6 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl" style="--d: 0.3s">{value.subheadline}</p>
+        <p class="rise mt-6 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl" style="--d: 80ms">{value.subheadline}</p>
       )}
       {(primary || secondary) && (
-        <div class="rise mt-9 flex flex-col gap-3 sm:flex-row" style="--d: 0.45s">
+        <div class="rise mt-9 flex flex-col gap-3 sm:flex-row" style="--d: 160ms">
           {primary && <ButtonLink href={primary.href} variant="inverse" size="hero">{primary.label}</ButtonLink>}
           {secondary && <ButtonLink href={secondary.href} variant="outline-inverse" size="hero">{secondary.label}</ButtonLink>}
         </div>
