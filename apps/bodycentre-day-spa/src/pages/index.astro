@@ -18,6 +18,7 @@ const seo = page
 <Base
   description={seo?.description}
   image={seo?.ogImage}
+  robots={seo?.robots}
   content={page ? { collection: "home", id: page.data.id, slug: page.id } : undefined}
 >
   {page ? (

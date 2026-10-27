@@ -2,8 +2,9 @@
 /**
  * Page shell: EmDash head/body hooks (SEO tags, plugin contributions, visual
  * editing), fonts, header/footer from CMS menus, and structured data. Pages
- * pass SEO from `getSeoMeta()`. A spec mock-up: every page is `noindex`
- * (the Worker adds the header too) and no analytics beacon renders.
+ * pass SEO from `getSeoMeta()`. A spec mock-up: no analytics beacon renders,
+ * and with no domain the site only runs on non-prod stages, where the Worker
+ * sends `X-Robots-Tag: noindex, nofollow` on every response.
  */
 import "@/styles/global.css";
 
@@ -29,12 +30,11 @@ interface Props {
   /** The entry's photo, the link-preview image when the editor set no SEO image. */
   photo?: MediaFile | null | undefined;
   canonical?: string | null | undefined;
+  robots?: string | null | undefined;
   content?: { collection: string; id: string; slug?: string | null } | undefined;
 }
 
-const { canonical, content, description, image, photo, title } = Astro.props;
-// Never indexed, whatever an editor sets: this site is a pitch, not the business's real site.
-const robots = "noindex, nofollow";
+const { canonical, content, description, image, photo, robots, title } = Astro.props;
 const chrome = await getSiteChrome(site.name);
 if (Astro.cache?.enabled) {
   for (const hint of chrome.cacheHints) {
@@ -43,7 +43,7 @@ if (Astro.cache?.enabled) {
 }
 
 const origin = Astro.site?.origin ?? Astro.url.origin;
-const fullTitle = title === undefined ? `${chrome.title} | Massage, Facials and Recovery in Costa Mesa` : documentTitle(title, site.shortName);
+const fullTitle = title === undefined ? `${chrome.title} | Massage and Facials in Costa Mesa` : documentTitle(title, site.shortName);
 // Editors write descriptions of any length; this keeps the snippet within what search engines show.
 const pageDescription = metaDescription(description ?? chrome.tagline ?? site.description, site.descriptionContext);
 const ogImage = socialImage({ fallback: "/og-default.png", image, origin, photo, siteDefault: chrome.socialImage });
@@ -72,6 +72,7 @@ const page = createPublicPageContext({
     <meta name="theme-color" content="#fbf8f4" />
     <script is:inline>document.documentElement.classList.add("js");</script>
     <title>{fullTitle}</title>
+    <link rel="icon" href="/brand/mark.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <Font cssVariable="--font-display" preload />

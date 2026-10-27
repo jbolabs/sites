@@ -52,7 +52,8 @@ export const site = {
 
   /**
    * Never set for this mock-up: with no domain, `main` ships no prod stage,
-   * and every other stage answers with `X-Robots-Tag: noindex`.
+   * and every other stage answers with `X-Robots-Tag: noindex, nofollow`
+   * (src/worker.ts), which keeps the demo out of search.
    */
   domain: null,
 

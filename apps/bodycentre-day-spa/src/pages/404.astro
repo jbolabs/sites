@@ -6,7 +6,7 @@ import { site } from "../../site.config";
 Astro.response.status = 404;
 ---
 
-<Base title="Page not found">
+<Base title="Page not found" robots="noindex">
   <section class="container-page flex min-h-[60svh] flex-col items-center justify-center gap-6 py-24 text-center">
     <h1 class="text-5xl sm:text-6xl">This page has moved.</h1>
     <p class="max-w-xl text-lg text-muted-foreground">Everything lives on the home page now: treatments, reviews, hours, and how to book.</p>
