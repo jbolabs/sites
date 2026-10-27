@@ -55,18 +55,20 @@ describe(deploymentSites, () => {
       "https://ani-wenger-staging.jbolabs.com",
       "https://equityfast-staging.jbolabs.com",
       "https://ms-custom-homes-staging.jbolabs.com",
+      "https://stud-construction-staging.jbolabs.com",
     ]);
   });
 
   it("loads the app configs used by the real deployment command", async () => {
     const configured = await loadDeploymentSites(
       new URL("../../", import.meta.url).pathname,
-      ["ani-wenger", "equityfast", "ms-custom-homes"]
+      ["ani-wenger", "equityfast", "ms-custom-homes", "stud-construction"]
     );
     expect(deploymentSites(configured, "staging")).toStrictEqual([
       "ani-wenger",
       "equityfast",
       "ms-custom-homes",
+      "stud-construction",
     ]);
   });
 });

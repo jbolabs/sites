@@ -1,0 +1,70 @@
+---
+import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+
+import Logo from "@/components/brand/logo.astro";
+import type { NavItem } from "@/lib/content";
+import { site } from "../../site.config";
+
+interface Props {
+  title: string;
+  tagline: string;
+  items: readonly NavItem[];
+}
+
+const { items, tagline, title } = Astro.props;
+const year = new Date().getFullYear();
+const { address, email, fax, license } = site.business;
+---
+
+<footer class="bg-ink text-paper/70">
+  <div class="container-page grid gap-14 py-20 sm:py-24 lg:grid-cols-[1.4fr_1fr_1.2fr_1fr]">
+    <div class="space-y-6">
+      <a href="/" aria-label={`${title}, home`} class="inline-block">
+        <Logo tone="white" play="scroll" class="h-32 w-auto sm:h-36" />
+      </a>
+      <p class="max-w-xs text-sm leading-relaxed">{tagline}</p>
+    </div>
+    <nav aria-label="Footer">
+      <h2 class="mb-5 font-sans text-sm font-semibold text-paper">Explore</h2>
+      <ul class="space-y-3 text-sm">
+        {items.map((item) => (
+          <li><a href={item.url} class="transition-colors hover:text-paper">{item.label}</a></li>
+        ))}
+        <li>
+          <a href={site.clientPortal} target="_blank" rel="noopener" class="inline-flex items-center gap-1 transition-colors hover:text-paper">
+            Client login<ArrowUpRight class="size-3.5" aria-hidden="true" /><span class="sr-only">(opens in a new tab)</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div>
+      <h2 class="mb-5 font-sans text-sm font-semibold text-paper">Contact</h2>
+      <ul class="space-y-3 text-sm">
+        <li><a href={`tel:${site.business.telephone}`} class="font-display text-2xl font-semibold text-paper tabular-nums transition-colors hover:text-timber">{site.phone}</a></li>
+        {email && <li><a href={`mailto:${email}`} class="break-all transition-colors hover:text-paper">{email}</a></li>}
+        {fax && <li>Fax {fax}</li>}
+        <li>
+          <address class="not-italic leading-relaxed">{address.street}<br />{address.city}, {address.region} {address.postalCode}</address>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <h2 class="mb-5 font-sans text-sm font-semibold text-paper">Follow</h2>
+      <ul class="space-y-3 text-sm">
+        {site.social.map((profile) => (
+          <li>
+            <a href={profile.url} target="_blank" rel="noopener" class="inline-flex items-center gap-1 transition-colors hover:text-paper">
+              {profile.label}<ArrowUpRight class="size-3.5" aria-hidden="true" /><span class="sr-only">(opens in a new tab)</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+  <div class="border-t border-paper/10">
+    <div class="container-page flex flex-col gap-2 py-7 pb-[max(1.75rem,env(safe-area-inset-bottom))] text-xs sm:flex-row sm:justify-between">
+      <p>&copy; {year} {title}. All rights reserved.</p>
+      <p>{license}, B General Building · Mission Viejo, California</p>
+    </div>
+  </div>
+</footer>

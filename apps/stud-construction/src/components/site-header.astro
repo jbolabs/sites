@@ -1,0 +1,89 @@
+---
+import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+
+import Logo from "@/components/brand/logo.astro";
+import type { NavItem } from "@/lib/content";
+import { isExternal } from "@/lib/content";
+import MobileMenu from "@jakebodea/site-ui/mobile-menu";
+import ButtonLink from "./button-link.astro";
+import { site } from "../../site.config";
+
+interface Props {
+  title: string;
+  items: readonly NavItem[];
+}
+
+const { items, title } = Astro.props;
+const current = Astro.url.pathname;
+const isActive = (url: string) =>
+  url === "/" ? current === "/" : current === url || current.startsWith(`${url}/`);
+---
+
+<header class="sticky top-0 z-40 border-b border-border bg-background">
+  <div class="container-page flex h-20 items-center justify-between gap-6 sm:h-24">
+    <a href="/" class="flex shrink-0 items-center gap-3.5" aria-label={`${title}, home`}>
+      <Logo class="h-12 w-auto sm:h-14" />
+      <span class="font-display text-[1.05rem] leading-[1.05] font-bold tracking-[-0.01em] text-ink uppercase" aria-hidden="true">Stud<br />Construction</span>
+    </a>
+    <nav aria-label="Main" class="hidden items-center gap-1 lg:flex">
+      {items.map((item) => {
+        const external = isExternal(item.url);
+        return (
+          <a
+            href={item.url}
+            target={external ? "_blank" : undefined}
+            rel={external ? "noopener" : undefined}
+            aria-current={!external && isActive(item.url) ? "page" : undefined}
+            class="nav-link relative inline-flex items-center gap-1 px-3.5 py-3 text-[0.95rem] font-medium text-ink/75 transition-colors hover:text-ink aria-[current=page]:text-ink xl:px-4"
+          >
+            {item.label}
+            {external && (
+              <>
+                <ArrowUpRight class="size-3.5 opacity-60" aria-hidden="true" />
+                <span class="sr-only">(opens in a new tab)</span>
+              </>
+            )}
+          </a>
+        );
+      })}
+      <ButtonLink href="/contact" size="cta" class="ml-4">Start a project</ButtonLink>
+    </nav>
+    <div class="text-ink lg:hidden">
+      <MobileMenu
+        client:media="(max-width: 1023px)"
+        items={items.map((item) => ({ href: item.url, label: item.label }))}
+        currentPath={current}
+        classNames={{
+          overlay: "bg-background/95 lg:hidden",
+          nav: "container-page pt-10",
+          link: "font-display text-5xl font-semibold tracking-[-0.03em] text-ink/45 aria-[current=page]:text-ink",
+          footer: "container-page",
+        }}
+      >
+        <ButtonLink href="/contact" size="hero" class="w-full">Start a project</ButtonLink>
+        <a href={`tel:${site.business.telephone}`} class="mt-4 block text-center text-sm font-medium text-muted-foreground">Or call {site.phone}</a>
+      </MobileMenu>
+    </div>
+  </div>
+</header>
+
+<style>
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    right: 0.875rem;
+    bottom: 0.4rem;
+    left: 0.875rem;
+    height: 2px;
+    background: var(--brand-timber);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.45s var(--ease-out-expo);
+  }
+
+  .nav-link:hover::after,
+  .nav-link[aria-current="page"]::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+</style>

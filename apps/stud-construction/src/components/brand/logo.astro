@@ -1,0 +1,111 @@
+---
+/**
+ * The Stud Construction badge as inline SVG, so it takes the surface's color
+ * and can animate. Geometry comes from `logo-paths.ts` (traced from the
+ * client's artwork by brand/build_logo.py).
+ *
+ * `play="load"` builds the badge once on page load; `play="scroll"` builds it
+ * when it scrolls into view (reveal.ts adds `.is-playing`). Without JavaScript
+ * or with reduced motion, the finished badge shows immediately.
+ */
+import { logoPaths as p } from "./logo-paths";
+
+interface Props {
+  tone?: "ink" | "white";
+  play?: "none" | "load" | "scroll";
+  title?: string;
+  class?: string;
+}
+
+const { class: className, play = "none", title, tone = "ink" } = Astro.props;
+const color = tone === "white" ? "#FFFFFF" : "var(--brand-ink)";
+const [x0, y0, x1, y1] = p.box;
+const viewBox = `${x0 - 4} ${y0 - 4} ${x1 - x0 + 8} ${y1 - y0 + 8}`;
+const animated = play !== "none";
+---
+
+<svg
+  viewBox={viewBox}
+  class:list={["logo", { "logo-anim": animated, "is-playing": play === "load" }, className]}
+  data-play={play === "scroll" ? "scroll" : undefined}
+  role={title ? "img" : undefined}
+  aria-label={title}
+  aria-hidden={title ? undefined : "true"}
+  fill={color}
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path class="part outline" d={p.outline} fill-rule="evenodd" />
+  <path class="part studs" d={p.studs} />
+  <path class="part letters" d={p.letters} fill-rule="evenodd" />
+  <path class="part text" d={p.text} fill-rule="evenodd" />
+</svg>
+
+<style>
+  /* No display rule here: callers set it (e.g. `hidden lg:block`). */
+  .logo {
+    overflow: visible;
+  }
+
+  .part {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  /*
+   * The sequence (about 1.6 s): the house outline settles, the crossed studs
+   * snap in from the middle, the letters rise, then the small lines fade up.
+   */
+  :global(.js) .logo-anim:not(.is-playing) .part {
+    opacity: 0;
+  }
+
+  .logo-anim.is-playing .outline {
+    animation: logo-settle 0.9s var(--ease-out-expo) 0.1s backwards;
+  }
+
+  .logo-anim.is-playing .studs {
+    animation: logo-studs 0.8s var(--ease-out-expo) 0.4s backwards;
+  }
+
+  .logo-anim.is-playing .letters {
+    animation: logo-rise 0.9s var(--ease-out-expo) 0.6s backwards;
+  }
+
+  .logo-anim.is-playing .text {
+    animation: logo-fade 0.8s ease-out 1s backwards;
+  }
+
+  @keyframes logo-settle {
+    from {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+  }
+
+  @keyframes logo-studs {
+    from {
+      opacity: 0;
+      transform: scale(0.2) rotate(-12deg);
+    }
+  }
+
+  @keyframes logo-rise {
+    from {
+      opacity: 0;
+      transform: translateY(6%);
+    }
+  }
+
+  @keyframes logo-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-anim .part {
+      animation: none !important;
+      opacity: 1 !important;
+    }
+  }
+</style>

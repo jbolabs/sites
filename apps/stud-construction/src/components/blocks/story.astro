@@ -1,0 +1,40 @@
+---
+import { sanitizeHref } from "emdash";
+import { PortableText } from "emdash/ui";
+import Image from "@jakebodea/cloudflare-kit/astro/image.astro";
+import type { BlockComponentProps } from "emdash/ui";
+
+import ButtonLink from "@/components/button-link.astro";
+import type { PageContentStoryBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentStoryBlock>;
+
+const { value } = Astro.props;
+const imageRight = value.image_position === "right";
+const href = value.cta_url ? sanitizeHref(value.cta_url) : undefined;
+const external = href !== undefined && /^https?:\/\//u.test(href);
+---
+
+<section class="overflow-hidden">
+  <div class="container-page grid items-center gap-12 py-24 sm:py-32 md:grid-cols-2 md:gap-16 lg:gap-24">
+    {value.image && (
+      <div class:list={["relative", { "md:order-2": imageRight }]}>
+        <div class="relative aspect-[4/5] overflow-hidden bg-muted sm:aspect-[5/6]" data-reveal="mask">
+          <Image image={value.image} alt={value.image.alt ?? ""} sizes="(min-width: 768px) 45vw, 100vw" class="reveal-zoom size-full! object-cover" />
+        </div>
+        <span class:list={["absolute -bottom-3 h-1.5 w-24 bg-timber", imageRight ? "right-0" : "left-0"]} aria-hidden="true"></span>
+      </div>
+    )}
+    <div class:list={{ "md:col-span-2 max-w-3xl": !value.image }}>
+      <h2 class="text-4xl sm:text-5xl" data-reveal>{value.headline}</h2>
+      <div class="prose-site mt-8" data-reveal style="--reveal-delay: 100ms"><PortableText value={value.body} /></div>
+      {value.cta_label && href && (
+        <div data-reveal style="--reveal-delay: 200ms">
+          <ButtonLink href={href} target={external ? "_blank" : undefined} rel={external ? "noopener" : undefined} variant="hairline" size="cta" class="mt-10">
+            {value.cta_label}
+          </ButtonLink>
+        </div>
+      )}
+    </div>
+  </div>
+</section>

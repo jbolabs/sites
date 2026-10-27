@@ -1,0 +1,241 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@jakebodea/site-ui/drawer.css";
+@import "@jakebodea/site-ui/mobile-menu.css";
+@import "@jakebodea/site-ui/seamless-edges.css";
+
+/*
+ * Stud Construction design tokens. The badge is black on white, so the palette
+ * is architectural and mostly neutral: warm paper, near-black ink, poured
+ * concrete grays, and one timber accent (the wood stud) for rules, markers and
+ * hover lines. Never use timber for body text: it fails contrast on paper.
+ * Corners stay square. shadcn/ui primitives read the semantic names.
+ */
+:root {
+  --brand-ink: oklch(0.19 0.004 70);
+  --brand-graphite: oklch(0.27 0.006 70);
+  --brand-paper: oklch(0.982 0.004 80);
+  --brand-concrete: oklch(0.945 0.006 75);
+  --brand-aggregate: oklch(0.89 0.008 75);
+  --brand-timber: oklch(0.7 0.1 62);
+  --brand-timber-deep: oklch(0.52 0.09 58);
+
+  --background: var(--brand-paper);
+  --foreground: var(--brand-ink);
+  --card: oklch(0.995 0.002 80);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.995 0.002 80);
+  --popover-foreground: var(--foreground);
+  --primary: var(--brand-ink);
+  --primary-foreground: var(--brand-paper);
+  --secondary: var(--brand-concrete);
+  --secondary-foreground: var(--brand-ink);
+  --muted: var(--brand-concrete);
+  --muted-foreground: oklch(0.45 0.008 70);
+  --accent: var(--brand-concrete);
+  --accent-foreground: var(--brand-ink);
+  --destructive: oklch(0.55 0.18 27);
+  --border: var(--brand-aggregate);
+  --input: oklch(0.8 0.01 75);
+  --ring: var(--brand-timber-deep);
+  --radius: 0rem;
+
+  /* Motion: one easing family for the whole site (expo-out for entrances). */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+}
+
+@theme inline {
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: var(--brand-ink);
+  --color-graphite: var(--brand-graphite);
+  --color-paper: var(--brand-paper);
+  --color-concrete: var(--brand-concrete);
+  --color-aggregate: var(--brand-aggregate);
+  --color-timber: var(--brand-timber);
+  --color-timber-deep: var(--brand-timber-deep);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius);
+
+  --ease-expo: var(--ease-out-expo);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-ink font-semibold tracking-[-0.025em] text-balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--brand-timber) 35%, transparent);
+  }
+}
+
+@utility container-page {
+  @apply mx-auto w-full max-w-[90rem] px-6 sm:px-10 lg:px-14;
+}
+
+/* Bottom padding that clears the iPhone home indicator. */
+@utility pb-safe {
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
+
+/* Small uppercase label used for buttons, nav, and metadata. */
+@utility label-caps {
+  @apply text-[0.72rem] font-semibold tracking-[0.16em] uppercase;
+}
+
+/* Long-form copy from the CMS (Portable Text). */
+@utility prose-site {
+  @apply text-foreground/80 max-w-prose space-y-5 text-[1.0625rem] leading-[1.8];
+
+  & h2 {
+    @apply mt-10 text-3xl;
+  }
+
+  & h3 {
+    @apply mt-8 text-2xl;
+  }
+
+  & a {
+    @apply text-ink decoration-timber underline decoration-2 underline-offset-4;
+  }
+
+  & ul {
+    @apply list-disc space-y-2 pl-6;
+  }
+}
+
+/*
+ * Scroll reveals. `reveal.ts` adds `.is-visible` once an element enters the
+ * viewport; without JavaScript (or with reduced motion) everything is visible.
+ * `--reveal-delay` staggers siblings.
+ */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 1.1s var(--ease-out-expo),
+    transform 1.1s var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.js [data-reveal="fade"] {
+  transform: none;
+}
+
+/*
+ * Mask reveals slide a cover (the section's color, `--reveal-mask`) off the photo
+ * instead of clipping it: Chrome's IntersectionObserver and lazy image loading
+ * both ignore fully clipped elements, so a clipped photo would never appear.
+ */
+.js [data-reveal="mask"] {
+  opacity: 1;
+  transform: none;
+}
+
+.js [data-reveal="mask"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--reveal-mask, var(--background));
+  transform-origin: top;
+  transition: transform 1.4s var(--ease-in-out-quint);
+  transition-delay: var(--reveal-delay, 0ms);
+  pointer-events: none;
+}
+
+.js [data-reveal="mask"].is-visible::after {
+  transform: scaleY(0);
+}
+
+.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Photos inside a mask reveal settle from a slight zoom as the mask opens. */
+.js [data-reveal="mask"] > .reveal-zoom {
+  transform: scale(1.12);
+  transition: transform 2s var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.js [data-reveal="mask"].is-visible > .reveal-zoom {
+  transform: scale(1);
+}
+
+/*
+ * Hero slideshow: CSS-only crossfade with a slow push-in on each photo. Hero.astro
+ * emits the keyframes for its slide count; slides start hidden except the first.
+ */
+.hero-slide {
+  opacity: 0;
+}
+
+.hero-slide:first-child {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide,
+  .hero-slide-image {
+    animation: none !important;
+  }
+
+  .js [data-reveal="mask"]::after {
+    display: none;
+  }
+
+  .js [data-reveal],
+  .js [data-reveal="mask"] > .reveal-zoom {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

@@ -1,0 +1,3065 @@
+{
+  "$schema": "https://emdashcms.com/seed.schema.json",
+  "version": "1",
+  "meta": {
+    "name": "Stud Construction",
+    "description": "Design-build remodeler site: pages built from sections, a project portfolio, reviews, and a lead inbox.",
+    "author": "Jake Bodea"
+  },
+  "settings": {
+    "title": "Stud Construction",
+    "tagline": "Design-build remodeling in Orange County since 2009. Whole-home remodels, additions, kitchens, baths, and restoration.",
+    "timezone": "America/Los_Angeles"
+  },
+  "blockTypes": [
+    {
+      "slug": "hero",
+      "label": "Hero",
+      "description": "Full-height headline over a photo slideshow.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "subheadline",
+              "label": "Subheadline",
+              "type": "text"
+            },
+            {
+              "slug": "slides",
+              "label": "Photos",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 6,
+                "subFields": [
+                  {
+                    "slug": "image",
+                    "label": "Photo",
+                    "type": "image"
+                  }
+                ]
+              }
+            },
+            {
+              "slug": "primary_cta_label",
+              "label": "Primary button label",
+              "type": "string"
+            },
+            {
+              "slug": "primary_cta_url",
+              "label": "Primary button link",
+              "type": "string",
+              "validation": {
+                "pattern": "^(?:$|(?:https?://|mailto:|tel:|/(?!/)|#).+)$"
+              }
+            },
+            {
+              "slug": "secondary_cta_label",
+              "label": "Secondary button label",
+              "type": "string"
+            },
+            {
+              "slug": "secondary_cta_url",
+              "label": "Secondary button link",
+              "type": "string",
+              "validation": {
+                "pattern": "^(?:$|(?:https?://|mailto:|tel:|/(?!/)|#).+)$"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "statement",
+      "label": "Statement",
+      "description": "One large sentence or two beside the badge.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "text",
+              "label": "Statement",
+              "type": "text",
+              "required": true
+            },
+            {
+              "slug": "signature",
+              "label": "Signed by",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "services",
+      "label": "Services",
+      "description": "What the business builds, each with a photo.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "items",
+              "label": "Services",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 8,
+                "subFields": [
+                  {
+                    "slug": "title",
+                    "label": "Title",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "body",
+                    "label": "Description",
+                    "type": "text",
+                    "required": true
+                  },
+                  {
+                    "slug": "image",
+                    "label": "Photo",
+                    "type": "image"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "featured_projects",
+      "label": "Featured projects",
+      "description": "Projects marked Featured, shown automatically.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "link_label",
+              "label": "Link label",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "process",
+      "label": "Process",
+      "description": "Numbered steps, such as how a project runs.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "items",
+              "label": "Steps",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 2,
+                "maxItems": 6,
+                "subFields": [
+                  {
+                    "slug": "title",
+                    "label": "Title",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "body",
+                    "label": "Description",
+                    "type": "text",
+                    "required": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "story",
+      "label": "Image and text",
+      "description": "A photo beside a heading, text, and an optional button.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "body",
+              "label": "Text",
+              "type": "portableText",
+              "required": true
+            },
+            {
+              "slug": "image",
+              "label": "Photo",
+              "type": "image"
+            },
+            {
+              "slug": "image_position",
+              "label": "Photo side",
+              "type": "select",
+              "validation": {
+                "options": ["left", "right"]
+              },
+              "defaultValue": "left"
+            },
+            {
+              "slug": "cta_label",
+              "label": "Button label",
+              "type": "string"
+            },
+            {
+              "slug": "cta_url",
+              "label": "Button link",
+              "type": "string",
+              "validation": {
+                "pattern": "^(?:$|(?:https?://|mailto:|tel:|/(?!/)|#).+)$"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "facts",
+      "label": "Facts",
+      "description": "A row of short facts, such as years in business.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "items",
+              "label": "Facts",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 4,
+                "subFields": [
+                  {
+                    "slug": "value",
+                    "label": "Value",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "label",
+                    "label": "Label",
+                    "type": "string",
+                    "required": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "cta_band",
+      "label": "Call to action",
+      "description": "A closing line over a photo with a button.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "body",
+              "label": "Text",
+              "type": "text"
+            },
+            {
+              "slug": "image",
+              "label": "Background photo",
+              "type": "image"
+            },
+            {
+              "slug": "cta_label",
+              "label": "Button label",
+              "type": "string"
+            },
+            {
+              "slug": "cta_url",
+              "label": "Button link",
+              "type": "string",
+              "validation": {
+                "pattern": "^(?:$|(?:https?://|mailto:|tel:|/(?!/)|#).+)$"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "rich_text",
+      "label": "Text",
+      "description": "Headings and paragraphs.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string"
+            },
+            {
+              "slug": "body",
+              "label": "Text",
+              "type": "portableText",
+              "required": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "testimonials",
+      "label": "Reviews",
+      "description": "Client reviews with star ratings, and an optional link to more.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "items",
+              "label": "Reviews",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 24,
+                "subFields": [
+                  {
+                    "slug": "quote",
+                    "label": "Review",
+                    "type": "text",
+                    "required": true
+                  },
+                  {
+                    "slug": "name",
+                    "label": "Name",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "detail",
+                    "label": "Project or source (optional)",
+                    "type": "string"
+                  },
+                  {
+                    "slug": "rating",
+                    "label": "Stars (1 to 5)",
+                    "type": "integer",
+                    "validation": {
+                      "min": 1,
+                      "max": 5
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "slug": "link_label",
+              "label": "Link label",
+              "type": "string"
+            },
+            {
+              "slug": "link_url",
+              "label": "Link",
+              "type": "string",
+              "validation": {
+                "pattern": "^(?:$|(?:https?://|mailto:|tel:|/(?!/)|#).+)$"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "team",
+      "label": "Team",
+      "description": "The people behind the company, with short bios and optional photos.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "members",
+              "label": "People",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 12,
+                "subFields": [
+                  {
+                    "slug": "name",
+                    "label": "Name",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "role",
+                    "label": "Role",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "bio",
+                    "label": "Bio",
+                    "type": "text",
+                    "required": true
+                  },
+                  {
+                    "slug": "photo",
+                    "label": "Photo",
+                    "type": "image"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "videos",
+      "label": "Videos",
+      "description": "YouTube videos, such as client stories. Paste any YouTube link.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "items",
+              "label": "Videos",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 12,
+                "subFields": [
+                  {
+                    "slug": "url",
+                    "label": "YouTube link",
+                    "type": "string",
+                    "required": true,
+                    "validation": {
+                      "pattern": "^https://(?:www\\.|m\\.)?(?:youtube\\.com|youtu\\.be|youtube-nocookie\\.com)/.+$"
+                    }
+                  },
+                  {
+                    "slug": "title",
+                    "label": "Title",
+                    "type": "string",
+                    "required": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "collections": [
+    {
+      "slug": "home",
+      "label": "Home page",
+      "labelSingular": "Home page",
+      "icon": "house",
+      "sortOrder": 0,
+      "supports": ["drafts", "revisions", "preview", "seo"],
+      "urlPattern": "/",
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "intro",
+          "label": "Intro",
+          "type": "text"
+        },
+        {
+          "slug": "content",
+          "label": "Sections",
+          "type": "blocks",
+          "validation": {
+            "allowedTypes": [
+              "hero",
+              "statement",
+              "services",
+              "featured_projects",
+              "process",
+              "story",
+              "facts",
+              "cta_band",
+              "rich_text",
+              "testimonials",
+              "team",
+              "videos"
+            ],
+            "maxItems": 20
+          }
+        }
+      ],
+      "description": "The first page visitors see. Edit its sections to change the home page.",
+      "admin": {
+        "quickCreate": false
+      }
+    },
+    {
+      "slug": "pages",
+      "label": "Pages",
+      "labelSingular": "Page",
+      "icon": "file-text",
+      "sortOrder": 1,
+      "supports": ["drafts", "revisions", "preview", "seo"],
+      "urlPattern": "/{slug}",
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "intro",
+          "label": "Intro",
+          "type": "text"
+        },
+        {
+          "slug": "content",
+          "label": "Sections",
+          "type": "blocks",
+          "validation": {
+            "allowedTypes": [
+              "hero",
+              "statement",
+              "services",
+              "featured_projects",
+              "process",
+              "story",
+              "facts",
+              "cta_band",
+              "rich_text",
+              "testimonials",
+              "team",
+              "videos"
+            ],
+            "maxItems": 20
+          }
+        }
+      ],
+      "description": "Every other page on the site, like About, Services, and Reviews."
+    },
+    {
+      "slug": "projects",
+      "label": "Projects",
+      "labelSingular": "Project",
+      "icon": "hammer",
+      "sortOrder": 2,
+      "supports": ["drafts", "revisions", "preview", "search", "seo"],
+      "urlPattern": "/projects/{slug}",
+      "admin": {
+        "listColumns": ["project_type", "progress"]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Name",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "project_type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "indexed": true,
+          "validation": {
+            "options": [
+              "whole_home",
+              "remodel",
+              "addition",
+              "kitchen",
+              "bath",
+              "restoration",
+              "commercial"
+            ]
+          },
+          "defaultValue": "remodel"
+        },
+        {
+          "slug": "progress",
+          "label": "Status",
+          "type": "select",
+          "required": true,
+          "indexed": true,
+          "validation": {
+            "options": ["completed", "in_progress"]
+          },
+          "defaultValue": "completed"
+        },
+        {
+          "slug": "featured",
+          "label": "Show on the home page",
+          "type": "boolean",
+          "defaultValue": false
+        },
+        {
+          "slug": "sort_order",
+          "label": "Order (lower shows first)",
+          "type": "integer",
+          "defaultValue": 100
+        },
+        {
+          "slug": "featured_image",
+          "label": "Main photo",
+          "type": "image"
+        },
+        {
+          "slug": "gallery",
+          "label": "More photos",
+          "type": "repeater",
+          "validation": {
+            "maxItems": 60,
+            "subFields": [
+              {
+                "slug": "image",
+                "label": "Photo",
+                "type": "image"
+              }
+            ]
+          }
+        },
+        {
+          "slug": "location",
+          "label": "Location",
+          "type": "string"
+        },
+        {
+          "slug": "design_style",
+          "label": "Design style",
+          "type": "string"
+        },
+        {
+          "slug": "cost",
+          "label": "Investment (optional, e.g. $250,000)",
+          "type": "string"
+        },
+        {
+          "slug": "summary",
+          "label": "Short description",
+          "type": "text",
+          "searchable": true
+        },
+        {
+          "slug": "details",
+          "label": "Story",
+          "type": "portableText"
+        }
+      ],
+      "description": "Your portfolio. Published projects appear on the website."
+    },
+    {
+      "slug": "leads",
+      "label": "Leads",
+      "labelSingular": "Lead",
+      "icon": "envelope-simple",
+      "sortOrder": 4,
+      "description": "Contact form submissions. Visitors never see these.",
+      "routable": false,
+      "supports": [],
+      "admin": {
+        "listColumns": ["email", "phone"],
+        "quickCreate": false
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "email",
+          "label": "Email",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "phone",
+          "label": "Phone",
+          "type": "string"
+        },
+        {
+          "slug": "company",
+          "label": "Project type",
+          "type": "string"
+        },
+        {
+          "slug": "message",
+          "label": "Message",
+          "type": "text",
+          "required": true
+        },
+        {
+          "slug": "source_path",
+          "label": "Submitted from",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "menus": [
+    {
+      "name": "primary",
+      "label": "Main navigation",
+      "items": [
+        {
+          "type": "custom",
+          "label": "Portfolio",
+          "url": "/portfolio"
+        },
+        {
+          "type": "custom",
+          "label": "Services",
+          "url": "/services"
+        },
+        {
+          "type": "custom",
+          "label": "About",
+          "url": "/about"
+        },
+        {
+          "type": "custom",
+          "label": "Reviews",
+          "url": "/testimonials"
+        },
+        {
+          "type": "custom",
+          "label": "Client login",
+          "url": "https://coconstruct.com/app/login/Stud"
+        }
+      ]
+    },
+    {
+      "name": "footer",
+      "label": "Footer links",
+      "items": [
+        {
+          "type": "custom",
+          "label": "Portfolio",
+          "url": "/portfolio"
+        },
+        {
+          "type": "custom",
+          "label": "Services",
+          "url": "/services"
+        },
+        {
+          "type": "custom",
+          "label": "About",
+          "url": "/about"
+        },
+        {
+          "type": "custom",
+          "label": "Reviews",
+          "url": "/testimonials"
+        },
+        {
+          "type": "custom",
+          "label": "Contact",
+          "url": "/contact"
+        },
+        {
+          "type": "custom",
+          "label": "Privacy",
+          "url": "/privacy"
+        }
+      ]
+    },
+    {
+      "name": "announcement",
+      "label": "Announcement bar (first link shows above the header; add one to show the bar)",
+      "items": []
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/home",
+      "destination": "/",
+      "type": 308,
+      "enabled": true,
+      "groupName": "Site structure"
+    },
+    {
+      "source": "/about-us",
+      "destination": "/about",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/our-services",
+      "destination": "/services",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/hire-us",
+      "destination": "/contact",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/av1",
+      "destination": "/projects/zen-den",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/book-lovers-dream",
+      "destination": "/projects/book-lovers-dream",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/catanus",
+      "destination": "/projects/sleek-city-house",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/chic-beach-house",
+      "destination": "/projects/chic-beach-house",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/coastal-glam",
+      "destination": "/projects/coastal-glam",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/cool-suburban-living",
+      "destination": "/projects/cool-suburban-living",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/cottage-view",
+      "destination": "/projects/cottage-view",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/hawley-house",
+      "destination": "/projects/hawley-house",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/home-away-from-home",
+      "destination": "/projects/home-away-from-home",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/irvine1",
+      "destination": "/projects/sleek-city-house",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/lagunaniguel1",
+      "destination": "/projects/spa-escape",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/mid-century-escape",
+      "destination": "/projects/mid-century-escape",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/modern-hilltop",
+      "destination": "/projects/modern-hilltop",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/pet-haven",
+      "destination": "/projects/pet-haven",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/quaint-living",
+      "destination": "/projects/quaint-living",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/the-familial-place",
+      "destination": "/projects/the-familial-place",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project/tuscan-abode",
+      "destination": "/projects/tuscan-abode",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    }
+  ],
+  "content": {
+    "home": [
+      {
+        "id": "page-home",
+        "slug": "home",
+        "status": "published",
+        "data": {
+          "title": "Home",
+          "content": [
+            {
+              "_type": "hero",
+              "_version": 1,
+              "_key": "hero",
+              "headline": "Remodels built right, down to the studs.",
+              "subheadline": "Whole-home remodels, additions, kitchens, and baths across Orange County. One team designs, prices, and builds your project, and has since 2009.",
+              "slides": [
+                {
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/tuscan-abode-grand-staircase.jpg",
+                      "alt": "Double curved staircase with iron balusters and round chandelier over a white oak foyer",
+                      "filename": "tuscan-abode-grand-staircase.jpg"
+                    }
+                  }
+                },
+                {
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/cottage-view-living-room-view.jpg",
+                      "alt": "Vaulted living room with exposed beams and wood floors opening through wide glass doors to an ocean sunset",
+                      "filename": "cottage-view-living-room-view.jpg"
+                    }
+                  }
+                },
+                {
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/the-familial-place-kitchen.jpg",
+                      "alt": "White kitchen with sage beadboard island, leather stools, brass pendants and wine cubby",
+                      "filename": "the-familial-place-kitchen.jpg"
+                    }
+                  }
+                },
+                {
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/chic-beach-house-living-room.jpg",
+                      "alt": "Living room with wood ceiling beams, white brick fireplace, rattan chairs and black-framed windows",
+                      "filename": "chic-beach-house-living-room.jpg"
+                    }
+                  }
+                },
+                {
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/modern-hilltop-exterior-dusk.jpg",
+                      "alt": "Contemporary hilltop home at dusk with standing-seam roof, wood garage door and paver driveway",
+                      "filename": "modern-hilltop-exterior-dusk.jpg"
+                    }
+                  }
+                }
+              ],
+              "primary_cta_label": "Start a project",
+              "primary_cta_url": "/contact",
+              "secondary_cta_label": "See our work",
+              "secondary_cta_url": "/portfolio"
+            },
+            {
+              "_type": "facts",
+              "_version": 1,
+              "_key": "facts",
+              "items": [
+                {
+                  "value": "2009",
+                  "label": "Building and remodeling in Orange County since"
+                },
+                {
+                  "value": "20+",
+                  "label": "Years of construction experience leading every job"
+                },
+                {
+                  "value": "In-house",
+                  "label": "Design team, so plans and pricing stay together"
+                },
+                {
+                  "value": "Fixed",
+                  "label": "Detailed bids with no surprise change orders"
+                }
+              ]
+            },
+            {
+              "_type": "statement",
+              "_version": 1,
+              "_key": "statement",
+              "text": "Whether your home is stripped to the bare studs or growing with an addition, you deserve a builder you can trust. We coordinate every trade, hold to the agreed budget, and build the space you have been planning for years.",
+              "signature": "Andrei Damian, President"
+            },
+            {
+              "_type": "services",
+              "_version": 1,
+              "_key": "services",
+              "headline": "What we build",
+              "intro": "Remodels are our passion and design-build is how we work: one accountable team from the first sketch to the final walkthrough.",
+              "items": [
+                {
+                  "title": "Whole-home remodels",
+                  "body": "Open floor plans, moved kitchens, and complete interior rebuilds for homes that no longer fit how you live.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/home-away-from-home-great-room.jpg",
+                      "alt": "Double-height great room with tile-clad fireplace wall, clerestory windows, sectional and loft above",
+                      "filename": "home-away-from-home-great-room.jpg"
+                    }
+                  }
+                },
+                {
+                  "title": "Kitchens and baths",
+                  "body": "Cabinetry, stone, tile, lighting, and plumbing brought together with tight detailing and clean installs.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/tuscan-abode-kitchen.jpg",
+                      "alt": "White kitchen with walnut island, black and brass range hood and glass pendants",
+                      "filename": "tuscan-abode-kitchen.jpg"
+                    }
+                  }
+                },
+                {
+                  "title": "Additions",
+                  "body": "New square footage that looks like it was always there, from a primary suite to a second story.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/modern-hilltop-living-room.jpg",
+                      "alt": "Vaulted living room with skylights, white sofa, cognac leather chairs and folding glass doors",
+                      "filename": "modern-hilltop-living-room.jpg"
+                    }
+                  }
+                },
+                {
+                  "title": "Fire and water restoration",
+                  "body": "We rebuild after fire, water, or mold damage and work directly with your insurance adjuster on your behalf.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/spa-escape-soaking-tub.jpg",
+                      "alt": "Freestanding soaking tub with lit niche against a wave-textured tile wall",
+                      "filename": "spa-escape-soaking-tub.jpg"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "_type": "featured_projects",
+              "_version": 1,
+              "_key": "work",
+              "headline": "Recent work",
+              "intro": "A few favorite remodels from around Orange County.",
+              "link_label": "View the full portfolio"
+            },
+            {
+              "_type": "process",
+              "_version": 1,
+              "_key": "process",
+              "headline": "What working with us looks like",
+              "intro": "Clear steps, a precise bid, and one team that stays with you until the keys are back in your hands.",
+              "items": [
+                {
+                  "title": "We meet at your home",
+                  "body": "We walk the project with you, listen to your ideas and concerns, and answer every question so you can decide if we are the right fit."
+                },
+                {
+                  "title": "Visit our office",
+                  "body": "Meet the team over a coffee tasting (our second passion), get your own project manager, and see design progress, materials, and finishes in person."
+                },
+                {
+                  "title": "A precise, transparent bid",
+                  "body": "Everything we discuss is in the bid. Nothing changes without your approval, so you get the bottom line up front."
+                },
+                {
+                  "title": "In-house design",
+                  "body": "You work with our designer on schematics that bring your vision to life. If you need an architect, we pair you with one we trust."
+                },
+                {
+                  "title": "Build and stay in the loop",
+                  "body": "Your private project portal shows the timeline by trade, approvals, documents, and messages with everyone on the job."
+                }
+              ]
+            },
+            {
+              "_type": "testimonials",
+              "_version": 1,
+              "_key": "reviews",
+              "headline": "What our clients say",
+              "items": [
+                {
+                  "quote": "Hiring Stud Construction was the best decision I made to handle a $400K+ remodel (basically a rebuild) on an original 1976 ranch home. Stud Construction (Andrei, Radu and Kurt) are professional, wise and hard workers. They delivered on the timeframe agreed to; they had large teams working hard and quickly and the added bonus, they had great ideas with reasons why it was a smart change. I appreciated that they had the same Supervisor leading his team everyday and knew the finite details of the job. Thank you Radu!",
+                  "name": "Vogden5",
+                  "detail": "Houzz review",
+                  "rating": 5
+                },
+                {
+                  "quote": "We recently remodeled our home with Andrei at Stud construction and we could not be more pleased with the results. We were on a very tight timeline with closing escrow on our current home, and doing a remodel on the new home we purchased. They gave us their word of when the job would be complete and they exceeded our expectation getting us in our home almost a week sooner than we anticipated. Andrei is always professional, his team is clean, organized and respectful. The attention to detail and quality of work is great!Even the neighbors were impressed with how clean the house was during construction.",
+                  "name": "Jncornish",
+                  "detail": "Houzz review",
+                  "rating": 5
+                },
+                {
+                  "quote": "Stud Construction did our remodel project last year. We added on about 600 sq feet, removed walls and gutted our kitchen. And we are so glad they went with this company! They are trustworthy, extremely professional and are very committed to their jobs. The whole project was done in about 3 months and it was done with the highest quality workmanship. They also had wonderful suggestions with regards to the design element of the job. Guests who come to our home have been wowed by the job they did and someone recently told me that it looks like a model home. These guys know what they are doing! They were committed to the project and worked hard to help our family get into our home as quickly as possible.",
+                  "name": "bzsmom",
+                  "detail": "Houzz review",
+                  "rating": 5
+                }
+              ],
+              "link_label": "Read more reviews",
+              "link_url": "/testimonials"
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "cta",
+              "headline": "Planning a remodel?",
+              "body": "Tell us about your home and what you have in mind. We will set up a time to walk the project with you.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/home-away-from-home-exterior-dusk.jpg",
+                  "alt": "Modern farmhouse exterior at dusk with glass garage door, black roof and lit landscaping",
+                  "filename": "home-away-from-home-exterior-dusk.jpg"
+                }
+              },
+              "cta_label": "Start a project",
+              "cta_url": "/contact"
+            }
+          ]
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page-about",
+        "slug": "about",
+        "status": "published",
+        "data": {
+          "title": "About us",
+          "intro": "A family-run design-build company in Mission Viejo, remodeling Orange County homes since 2009.",
+          "content": [
+            {
+              "_type": "story",
+              "_version": 1,
+              "_key": "story",
+              "headline": "Built on rebuilding",
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p0",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s0",
+                      "text": "Stud Construction started by rebuilding homes after floods and fires. Our president, Andrei Damian, spent those early years advocating for homeowners so they got a fair settlement from their insurance company, and a voice when they felt brushed aside."
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p1",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s1",
+                      "text": "A passion for design took the company into custom remodeling and design-build. Today we handle everything from a single bathroom to a complete rebuild, with the same crew leads on site every day and an office team that keeps every detail on track."
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p2",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s2",
+                      "text": "We still take disaster restoration work, and we still treat every project like it is our favorite one."
+                    }
+                  ]
+                }
+              ],
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/cottage-view-kitchen.jpg",
+                  "alt": "Vaulted kitchen with white cabinets, marble-topped gray island, brick backsplash and antique wood hutches",
+                  "filename": "cottage-view-kitchen.jpg"
+                }
+              },
+              "image_position": "right",
+              "cta_label": "See our work",
+              "cta_url": "/portfolio"
+            },
+            {
+              "_type": "facts",
+              "_version": 1,
+              "_key": "facts",
+              "items": [
+                {
+                  "value": "2009",
+                  "label": "Founded in Orange County"
+                },
+                {
+                  "value": "20+",
+                  "label": "Years in construction for our president"
+                },
+                {
+                  "value": "B",
+                  "label": "California General Building license, CSLB #983217"
+                },
+                {
+                  "value": "1 team",
+                  "label": "Design, permits, and construction under one roof"
+                }
+              ]
+            },
+            {
+              "_type": "team",
+              "_version": 1,
+              "_key": "team",
+              "headline": "Meet our core team",
+              "members": [
+                {
+                  "name": "Andrei Damian",
+                  "role": "President",
+                  "bio": "Andrei has more than two decades in construction. He began rebuilding homes after floods and fires, advocating for homeowners with their insurance companies, before taking Stud Construction into custom design-build. He keeps up with the latest design trends and treats every project as his favorite. Away from work he go-karts with his three kids, snowboards, mountain bikes, and travels."
+                },
+                {
+                  "name": "Radu Birle",
+                  "role": "Co-Founder",
+                  "bio": "Radu is a builder with more than 15 years of construction experience. You will usually find him in the field, managing projects and getting his hands dirty. He holds a degree in Finance and Business Administration from Cal State Fullerton, and his favorite moment is handing over the keys. Off the job he plays competitive sports, fishes, and camps with family and friends."
+                },
+                {
+                  "name": "Alice Damian",
+                  "role": "Principal",
+                  "bio": "Alice leads marketing and recruiting, building the team of experts and craftsmen behind every project. Her creative eye and love of luxury design shape the partners we bring in. Her favorite projects are the ones that turn the outdoors into living space. She spends her free time outside with her husband and three children."
+                },
+                {
+                  "name": "Sunshyne Leland",
+                  "role": "Administrative Assistant",
+                  "bio": "Sunshyne brings more than a decade of administration experience in construction and interior design. She coordinates the behind-the-scenes details that keep a remodel smooth and hassle-free. In her free time she knits, sews, roller skates, bakes, keeps houseplants alive, and takes on her own home improvement projects."
+                }
+              ]
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "cta",
+              "headline": "Let's talk about your home.",
+              "body": "Call the office or send a note, and we will set up a time to meet at your project.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/chic-beach-house-exterior-dusk.jpg",
+                  "alt": "Two-story Spanish-style beach house at sunset with wood garage doors, roof deck and lit sconces",
+                  "filename": "chic-beach-house-exterior-dusk.jpg"
+                }
+              },
+              "cta_label": "Start a project",
+              "cta_url": "/contact"
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-services",
+        "slug": "services",
+        "status": "published",
+        "data": {
+          "title": "Services",
+          "intro": "A luxury design-build remodeler focused on design, detail, and craftsmanship. Here is what we do and what you can expect.",
+          "content": [
+            {
+              "_type": "services",
+              "_version": 1,
+              "_key": "services",
+              "headline": "Projects of every size",
+              "intro": "Residential remodels are our focus. We bring the same oversight and craftsmanship to commercial work.",
+              "items": [
+                {
+                  "title": "Whole-home remodels",
+                  "body": "Complete interior rebuilds, opened floor plans, relocated kitchens, and new finishes throughout.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/home-away-from-home-great-room.jpg",
+                      "alt": "Double-height great room with tile-clad fireplace wall, clerestory windows, sectional and loft above",
+                      "filename": "home-away-from-home-great-room.jpg"
+                    }
+                  }
+                },
+                {
+                  "title": "Kitchen remodels",
+                  "body": "New layouts, islands, custom cabinetry, stone, tile, and lighting.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/tuscan-abode-kitchen.jpg",
+                      "alt": "White kitchen with walnut island, black and brass range hood and glass pendants",
+                      "filename": "tuscan-abode-kitchen.jpg"
+                    }
+                  }
+                },
+                {
+                  "title": "Bathroom remodels",
+                  "body": "Spa-like primary baths, curbless showers, freestanding tubs, and floating vanities.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/spa-escape-primary-bath.jpg",
+                      "alt": "Spa-style primary bath with freestanding tub, wave-textured white tile and walnut vanity",
+                      "filename": "spa-escape-primary-bath.jpg"
+                    }
+                  }
+                },
+                {
+                  "title": "Home additions",
+                  "body": "Added square footage, new suites, and second stories that blend with the original home.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/modern-hilltop-living-room.jpg",
+                      "alt": "Vaulted living room with skylights, white sofa, cognac leather chairs and folding glass doors",
+                      "filename": "modern-hilltop-living-room.jpg"
+                    }
+                  }
+                },
+                {
+                  "title": "Design and drafting",
+                  "body": "In-house design and drafting, plus introductions to architects, engineers, and interior designers we trust.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/chic-beach-house-primary-bath.jpg",
+                      "alt": "Primary bath with walnut double vanity, marble counter, brass fixtures and bold botanical wallpaper",
+                      "filename": "chic-beach-house-primary-bath.jpg"
+                    }
+                  }
+                },
+                {
+                  "title": "Commercial",
+                  "body": "New commercial structures and improvements to existing ones, managed with the same attention to detail.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/pet-haven-reception.jpg",
+                      "alt": "Veterinary clinic reception with curved wood-and-white desk, concrete floors and black-framed doors",
+                      "filename": "pet-haven-reception.jpg"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "_type": "process",
+              "_version": 1,
+              "_key": "process",
+              "headline": "What to expect",
+              "intro": "Each project feels like home to us, and we pour our hearts into every part of it.",
+              "items": [
+                {
+                  "title": "We meet at your home",
+                  "body": "We walk the project with you, listen to your ideas and concerns, and answer every question so you can decide if we are the right fit."
+                },
+                {
+                  "title": "Visit our office",
+                  "body": "Meet the team over a coffee tasting (our second passion), get your own project manager, and see design progress, materials, and finishes in person."
+                },
+                {
+                  "title": "A precise, transparent bid",
+                  "body": "Everything we discuss is in the bid. Nothing changes without your approval, so you get the bottom line up front."
+                },
+                {
+                  "title": "In-house design",
+                  "body": "You work with our designer on schematics that bring your vision to life. If you need an architect, we pair you with one we trust."
+                },
+                {
+                  "title": "Build and stay in the loop",
+                  "body": "Your private project portal shows the timeline by trade, approvals, documents, and messages with everyone on the job."
+                }
+              ]
+            },
+            {
+              "_type": "story",
+              "_version": 1,
+              "_key": "restoration",
+              "headline": "Fire, water, and mold restoration",
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p0",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s0",
+                      "text": "Damage from a natural disaster, a structure fire, water, or mold is stressful enough. We deal with your insurance company for you: we meet the adjusters they send to the site and negotiate the most equitable settlement for your loss."
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p1",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s1",
+                      "text": "Then we coordinate everyone involved, rebuild your home, and, if you want, take the chance to create the space you have always wanted."
+                    }
+                  ]
+                }
+              ],
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/spa-escape-soaking-tub.jpg",
+                  "alt": "Freestanding soaking tub with lit niche against a wave-textured tile wall",
+                  "filename": "spa-escape-soaking-tub.jpg"
+                }
+              },
+              "image_position": "left",
+              "cta_label": "Talk to us about a claim",
+              "cta_url": "/contact"
+            },
+            {
+              "_type": "story",
+              "_version": 1,
+              "_key": "partners",
+              "headline": "Your dream team, assembled",
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p0",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s0",
+                      "text": "Building or remodeling a home is a collaborative effort. If you have not found an architect yet, we will pair you with one of the select Orange County architects we work with. Each brings their own ideas, is easy to work with, and genuinely enjoys helping you see your project."
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p1",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s1",
+                      "text": "We work just as well with interior designers, decorators, and landscape designers you already know."
+                    }
+                  ]
+                }
+              ],
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/chic-beach-house-primary-bath.jpg",
+                  "alt": "Primary bath with walnut double vanity, marble counter, brass fixtures and bold botanical wallpaper",
+                  "filename": "chic-beach-house-primary-bath.jpg"
+                }
+              },
+              "image_position": "right"
+            },
+            {
+              "_type": "story",
+              "_version": 1,
+              "_key": "portal",
+              "headline": "Your project, online",
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p0",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s0",
+                      "text": "Every client gets a private login to our project portal, so you are involved every step of the way."
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p1",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s1",
+                      "text": "See the complete timeline by trade, approve and request changes, talk with designers, project managers, and architects in one shared thread, and keep every project document in one place."
+                    }
+                  ]
+                }
+              ],
+              "cta_label": "Client login",
+              "cta_url": "https://coconstruct.com/app/login/Stud"
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "cta",
+              "headline": "Ready when you are.",
+              "body": "Tell us about your project and we will schedule a walkthrough.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/cottage-view-fire-pit.jpg",
+                  "alt": "Stone fire pit with lounge seating on a hillside terrace overlooking the coast at dusk",
+                  "filename": "cottage-view-fire-pit.jpg"
+                }
+              },
+              "cta_label": "Start a project",
+              "cta_url": "/contact"
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-testimonials",
+        "slug": "testimonials",
+        "status": "published",
+        "data": {
+          "title": "Reviews",
+          "intro": "What homeowners say about working with Andrei, Radu, and the Stud Construction team.",
+          "content": [
+            {
+              "_type": "testimonials",
+              "_version": 1,
+              "_key": "reviews",
+              "headline": "In their words",
+              "intro": "Reviews our clients left on Houzz, shared here with their original wording.",
+              "items": [
+                {
+                  "quote": "Bottom line, Andrei and his team did quality, affordable work quickly and professionally. This is the second major remodeling job that Stud Construction has done for us over the past couple of years (first was kitchen, bathroom, flooring, stucco, tearing down walls, etc, second was carpet, master bathroom, ceilings, lighting, closets, etc). They were incredibly organized with our project. Their online tool allows them to share photos, request feedback, see the timeline and budget at any step of the process. They were helpful with suggestions, took the time to take me to different stores to pick out the right materials, and they did ABSOLUTELY GORGEOUS WORK! I could not possibly recommend Andrei and his team at Stud Construction more!",
+                  "name": "Rachel Sherer",
+                  "detail": "Houzz review",
+                  "rating": 5
+                },
+                {
+                  "quote": "Hiring Stud Construction was the best decision I made to handle a $400K+ remodel (basically a rebuild) on an original 1976 ranch home. Stud Construction (Andrei, Radu and Kurt) are professional, wise and hard workers. They delivered on the timeframe agreed to; they had large teams working hard and quickly and the added bonus, they had great ideas with reasons why it was a smart change. I appreciated that they had the same Supervisor leading his team everyday and knew the finite details of the job. Thank you Radu!",
+                  "name": "Vogden5",
+                  "detail": "Houzz review",
+                  "rating": 5
+                },
+                {
+                  "quote": "Stud filled 2 roles for us. When we interviewed Stud, we found that they had an amazing eye for design, as well as, being very impressive contractors. They worked seamlessly with our designer, stayed on time and within budget. The best part is that we love our new home…..it is perfect. Any and all issues that we needed ‘cleaned-up’ were done quickly with no argument. Thanks Andrei and Radu and your amazing team!",
+                  "name": "Micheal Caito",
+                  "detail": "Houzz review",
+                  "rating": 5
+                },
+                {
+                  "quote": "We recently remodeled our home with Andrei at Stud construction and we could not be more pleased with the results. We were on a very tight timeline with closing escrow on our current home, and doing a remodel on the new home we purchased. They gave us their word of when the job would be complete and they exceeded our expectation getting us in our home almost a week sooner than we anticipated. Andrei is always professional, his team is clean, organized and respectful. The attention to detail and quality of work is great!Even the neighbors were impressed with how clean the house was during construction.",
+                  "name": "Jncornish",
+                  "detail": "Houzz review",
+                  "rating": 5
+                },
+                {
+                  "quote": "Stud Construction did our remodel project last year. We added on about 600 sq feet, removed walls and gutted our kitchen. And we are so glad they went with this company! They are trustworthy, extremely professional and are very committed to their jobs. The whole project was done in about 3 months and it was done with the highest quality workmanship. They also had wonderful suggestions with regards to the design element of the job. Guests who come to our home have been wowed by the job they did and someone recently told me that it looks like a model home. These guys know what they are doing! They were committed to the project and worked hard to help our family get into our home as quickly as possible.",
+                  "name": "bzsmom",
+                  "detail": "Houzz review",
+                  "rating": 5
+                },
+                {
+                  "quote": "I was very impressed about the job done by Stud construction and especially Mr. Andrei Damian. He was very professional, honest. He did an excellent job with the time frame he promised. I do recommend him and he is the person that can get the job done and his knowledge about every aspect of the construction, regulations was far exceeding my expectations.",
+                  "name": "Sue A. Eskander",
+                  "detail": "Houzz review",
+                  "rating": 5
+                },
+                {
+                  "quote": "I hired Stud Construction to install a bar in my kitchen area, as well as updating the counter top, sink, faucet, and back splash in my 2nd bathroom. The quality of the work performed was good overall, Andrei and Kurt were great at communicating with me, and they completed the project on time. As a matter of fact, every person that worked on the project was very nice and communicated well. The only reason why I give them 4 out of 5 is that some of the details of the work could’ve been done a bit better. For example, their counter top guy could’ve done a better job with hiding the line in the counter tops where the stone comes together, (this line is virtually invisible in the counter tops that my builder installed,) and the pattern the tile back splash didn’t line-up perfectly. However, overall I would definitely recommend using them to others.",
+                  "name": "Brian Taber",
+                  "detail": "Houzz review",
+                  "rating": 4
+                },
+                {
+                  "quote": "In February of 2016, we had a house fire and needed a general contractor/ remodel after careful review of about 30 different companies who came to my home to give me business cards. I chose STUD CONSTRUCTION. It was the best choice I could have made.\nThe day after the fire I had a waiting line of claims adjusters, lawyers and construction representatives at my door. Each company was told the same thing.\nJust leave me your card and I will check you out on BBB the California license board and the California court system for any lawsuits. Andrei and his company stood out as one of the best reviewed NO problems on any of those sights. Their initial representative had said to me “ YES check us out, by all means.”\nThe estimate went as well as can be expected. After we had 4 estimates Stud construction was closest to our insurance estimate almost to the dollar. We agreed to hire them and next day Andrei came out and had a thorough discussion of the project. Since we had to do this we also went with a lot of remodeling including two complete bathroom remodels. A kitchen remodels and removal of a load bearing wall this was in addition to the fire and smoke damage.\nAndrei and his designer Kurt were great throughout this whole process. Very helpful informative and knowledgeable. I cannot say enough about their professionalism or the quality of the work.\nThey worked within our time schedule and had all the permits and even dealt directly with our mortgage company and insurance company. Stud Construction went above and beyond meeting my expectations the project was done BEAUTIFULLY and correctly. Andrei and Kurt are great guys to work with. It was always like working WITH them every step of the way we made decisions together. They would input an idea or we would and a plan would be done to do what we all thought was best.",
+                  "name": "Fire restoration client",
+                  "detail": "House fire rebuild",
+                  "rating": 5
+                }
+              ],
+              "link_label": "See all reviews on Houzz",
+              "link_url": "https://www.houzz.com/pro/andreidamian/studconstruction"
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "cta",
+              "headline": "Become our next review.",
+              "body": "Tell us about your project and we will set up a time to walk it with you.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/chic-beach-house-living-room.jpg",
+                  "alt": "Living room with wood ceiling beams, white brick fireplace, rattan chairs and black-framed windows",
+                  "filename": "chic-beach-house-living-room.jpg"
+                }
+              },
+              "cta_label": "Start a project",
+              "cta_url": "/contact"
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-portfolio",
+        "slug": "portfolio",
+        "status": "published",
+        "data": {
+          "title": "Portfolio",
+          "intro": "Some of our favorite projects. If you would like to see our work in person, let us know and we will arrange a visit."
+        }
+      },
+      {
+        "id": "page-contact",
+        "slug": "contact",
+        "status": "published",
+        "data": {
+          "title": "Start a project",
+          "intro": "Tell us about your home and what you would like to build or change. We reply within one business day."
+        }
+      },
+      {
+        "id": "page-privacy",
+        "slug": "privacy",
+        "status": "published",
+        "data": {
+          "title": "Privacy",
+          "intro": "How this site handles analytics and the information you send us.",
+          "content": [
+            {
+              "_type": "rich_text",
+              "_version": 1,
+              "_key": "privacy",
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p0",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s0",
+                      "text": "This site uses anonymous, cookieless analytics to understand which pages are useful. It does not set cookies, store identifiers in your browser, or build a profile of you. Page addresses are recorded without query strings, except campaign tags such as utm_source."
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p1",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s1",
+                      "text": "When you send the contact form, we store your name, email, phone, project type, and message so we can reply. We do not sell or share this information, and it is used only to respond to you."
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p2",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s2",
+                      "text": "The contact form is protected by Cloudflare Turnstile, which checks that a person, not a bot, is submitting it."
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p3",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s3",
+                      "text": "Our client portal is run by CoConstruct (Buildertrend), and our social profiles on Instagram, Facebook, and Houzz are run by those companies. Each has its own privacy policy."
+                    }
+                  ]
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "p4",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s4",
+                      "text": "To ask about or delete information you have sent us, use the contact form and mention this page."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "projects": [
+      {
+        "id": "project-tuscan-abode",
+        "slug": "tuscan-abode",
+        "status": "published",
+        "data": {
+          "title": "Tuscan Abode",
+          "project_type": "whole_home",
+          "progress": "completed",
+          "featured": true,
+          "sort_order": 10,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/tuscan-abode-grand-staircase.jpg",
+              "alt": "Double curved staircase with iron balusters and round chandelier over a white oak foyer",
+              "filename": "tuscan-abode-grand-staircase.jpg"
+            }
+          },
+          "summary": "A large two-story home reworked top to bottom: a double curved staircase, a white kitchen with a walnut island and black and brass hood, a glass wine room, white oak floors, and a primary bath with a freestanding tub.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/tuscan-abode-kitchen.jpg",
+                  "alt": "White kitchen with walnut island, black and brass range hood and glass pendants",
+                  "filename": "tuscan-abode-kitchen.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/tuscan-abode-living-room.jpg",
+                  "alt": "Living room with plantation shutters, coffered ceiling, fireplace with wood mantel and plank coffee table",
+                  "filename": "tuscan-abode-living-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/tuscan-abode-breakfast-room.jpg",
+                  "alt": "Breakfast room with farmhouse table, brass lantern and sliders to the pool",
+                  "filename": "tuscan-abode-breakfast-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/tuscan-abode-primary-bath.jpg",
+                  "alt": "Primary bath with freestanding tub, crystal chandelier, white vanities and dark tile floor",
+                  "filename": "tuscan-abode-primary-bath.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/tuscan-abode-wine-room.jpg",
+                  "alt": "Glass-and-steel wine room with floor-to-ceiling bottle display",
+                  "filename": "tuscan-abode-wine-room.jpg"
+                }
+              }
+            }
+          ],
+          "location": "Tustin, CA"
+        }
+      },
+      {
+        "id": "project-cottage-view",
+        "slug": "cottage-view",
+        "status": "published",
+        "data": {
+          "title": "Cottage View",
+          "project_type": "remodel",
+          "progress": "completed",
+          "featured": true,
+          "sort_order": 20,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/cottage-view-living-room-view.jpg",
+              "alt": "Vaulted living room with exposed beams and wood floors opening through wide glass doors to an ocean sunset",
+              "filename": "cottage-view-living-room-view.jpg"
+            }
+          },
+          "summary": "An ocean-view cottage with beamed vaulted ceilings, reclaimed wood floors, a white kitchen with a brick backsplash, a new primary suite, and sunset terraces for dining and a fire pit.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/cottage-view-kitchen.jpg",
+                  "alt": "Vaulted kitchen with white cabinets, marble-topped gray island, brick backsplash and antique wood hutches",
+                  "filename": "cottage-view-kitchen.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/cottage-view-primary-bedroom.jpg",
+                  "alt": "Primary bedroom with beamed vaulted ceiling, wood floors, barn door and sliders to a sunset view",
+                  "filename": "cottage-view-primary-bedroom.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/cottage-view-primary-bath.jpg",
+                  "alt": "Primary bath with wood vanity, gray tile glass shower and skylight",
+                  "filename": "cottage-view-primary-bath.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/cottage-view-patio-dining.jpg",
+                  "alt": "Ocean-view patio dining under a red umbrella with string lights at sunset",
+                  "filename": "cottage-view-patio-dining.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/cottage-view-fire-pit.jpg",
+                  "alt": "Stone fire pit with lounge seating on a hillside terrace overlooking the coast at dusk",
+                  "filename": "cottage-view-fire-pit.jpg"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "project-chic-beach-house",
+        "slug": "chic-beach-house",
+        "status": "published",
+        "data": {
+          "title": "Chic Beach House",
+          "project_type": "remodel",
+          "progress": "completed",
+          "featured": true,
+          "sort_order": 30,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/chic-beach-house-exterior-dusk.jpg",
+              "alt": "Two-story Spanish-style beach house at sunset with wood garage doors, roof deck and lit sconces",
+              "filename": "chic-beach-house-exterior-dusk.jpg"
+            }
+          },
+          "summary": "A two-story Spanish-style beach house with beamed ceilings, a white brick fireplace, a marble waterfall island, a walnut and brass primary bath, and a view deck with a fire table.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/chic-beach-house-living-room.jpg",
+                  "alt": "Living room with wood ceiling beams, white brick fireplace, rattan chairs and black-framed windows",
+                  "filename": "chic-beach-house-living-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/chic-beach-house-kitchen-island.jpg",
+                  "alt": "Kitchen with marble-look waterfall island, woven pendants and integrated panel refrigerator",
+                  "filename": "chic-beach-house-kitchen-island.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/chic-beach-house-primary-bedroom.jpg",
+                  "alt": "Primary bedroom with oversized woven pendant, black pendant reading lights and sliders to a balcony",
+                  "filename": "chic-beach-house-primary-bedroom.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/chic-beach-house-primary-bath.jpg",
+                  "alt": "Primary bath with walnut double vanity, marble counter, brass fixtures and bold botanical wallpaper",
+                  "filename": "chic-beach-house-primary-bath.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/chic-beach-house-deck-fire-table.jpg",
+                  "alt": "Covered deck with sectional and linear fire table overlooking palms and trees",
+                  "filename": "chic-beach-house-deck-fire-table.jpg"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "project-modern-hilltop",
+        "slug": "modern-hilltop",
+        "status": "published",
+        "data": {
+          "title": "Modern Hilltop",
+          "project_type": "remodel",
+          "progress": "completed",
+          "featured": true,
+          "sort_order": 40,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/modern-hilltop-exterior-dusk.jpg",
+              "alt": "Contemporary hilltop home at dusk with standing-seam roof, wood garage door and paver driveway",
+              "filename": "modern-hilltop-exterior-dusk.jpg"
+            }
+          },
+          "summary": "A contemporary single-story remodel: skylit vaulted rooms, a walnut and quartzite kitchen, a concrete fireplace, folding glass doors, and a new exterior and hardscape.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/modern-hilltop-living-room.jpg",
+                  "alt": "Vaulted living room with skylights, white sofa, cognac leather chairs and folding glass doors",
+                  "filename": "modern-hilltop-living-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/modern-hilltop-kitchen.jpg",
+                  "alt": "Kitchen with walnut island, quartzite counters, white cabinets and skylit vaulted ceiling",
+                  "filename": "modern-hilltop-kitchen.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/modern-hilltop-dining-room.jpg",
+                  "alt": "Dining room with plank table and benches beside a concrete fireplace and tall windows",
+                  "filename": "modern-hilltop-dining-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/modern-hilltop-primary-bath.jpg",
+                  "alt": "Primary bath with concrete-look tile wall, walnut floating vanity and frameless shower",
+                  "filename": "modern-hilltop-primary-bath.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/modern-hilltop-bedroom.jpg",
+                  "alt": "Bedroom with reclaimed wood bed, white dresser and wood-look tile floors",
+                  "filename": "modern-hilltop-bedroom.jpg"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "project-the-familial-place",
+        "slug": "the-familial-place",
+        "status": "published",
+        "data": {
+          "title": "The Familial Place",
+          "project_type": "remodel",
+          "progress": "completed",
+          "featured": true,
+          "sort_order": 50,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/the-familial-place-kitchen.jpg",
+              "alt": "White kitchen with sage beadboard island, leather stools, brass pendants and wine cubby",
+              "filename": "the-familial-place-kitchen.jpg"
+            }
+          },
+          "summary": "A bright, family-friendly remodel with a sage beadboard island, white oak floors and vanities, a teal tile wet bar, a playroom, and wallpapered bedrooms.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/the-familial-place-living-room.jpg",
+                  "alt": "Open living room with white oak floors, suspended wood shelf and sliders to the patio",
+                  "filename": "the-familial-place-living-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/the-familial-place-playroom.jpg",
+                  "alt": "Kids playroom with sage wainscot paint, rainbow rug and teepee",
+                  "filename": "the-familial-place-playroom.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/the-familial-place-bedroom.jpg",
+                  "alt": "Bedroom with bold fan-pattern wallpaper accent wall and reclaimed wood bed",
+                  "filename": "the-familial-place-bedroom.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/the-familial-place-primary-bath.jpg",
+                  "alt": "Primary bath with white oak double vanity, black mirrors and frameless glass shower",
+                  "filename": "the-familial-place-primary-bath.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/the-familial-place-wet-bar.jpg",
+                  "alt": "Wet bar with teal zellige tile, floating oak shelves and beverage fridge by the stair",
+                  "filename": "the-familial-place-wet-bar.jpg"
+                }
+              }
+            }
+          ],
+          "location": "Laguna Niguel, CA"
+        }
+      },
+      {
+        "id": "project-home-away-from-home",
+        "slug": "home-away-from-home",
+        "status": "published",
+        "data": {
+          "title": "Home Away from Home",
+          "project_type": "remodel",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 60,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/home-away-from-home-great-room.jpg",
+              "alt": "Double-height great room with tile-clad fireplace wall, clerestory windows, sectional and loft above",
+              "filename": "home-away-from-home-great-room.jpg"
+            }
+          },
+          "summary": "A modern farmhouse with a double-height great room, a tile fireplace wall, a marble waterfall kitchen, and a courtyard that opens to the kitchen through folding glass doors.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/home-away-from-home-kitchen.jpg",
+                  "alt": "Kitchen with marble waterfall island, navy base, wood upper cabinets and brass pendants",
+                  "filename": "home-away-from-home-kitchen.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/home-away-from-home-patio-fire-pit.jpg",
+                  "alt": "Courtyard patio with fire table and lounge seating, folding glass doors open to the kitchen",
+                  "filename": "home-away-from-home-patio-fire-pit.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/home-away-from-home-primary-bath.jpg",
+                  "alt": "Bath with walnut double vanity, black accent wall, brass sconces and glass shower",
+                  "filename": "home-away-from-home-primary-bath.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/home-away-from-home-bedroom.jpg",
+                  "alt": "Bright bedroom with upholstered bed, wood-look floors and glass door to a balcony",
+                  "filename": "home-away-from-home-bedroom.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/home-away-from-home-exterior-dusk.jpg",
+                  "alt": "Modern farmhouse exterior at dusk with glass garage door, black roof and lit landscaping",
+                  "filename": "home-away-from-home-exterior-dusk.jpg"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "project-zen-den",
+        "slug": "zen-den",
+        "status": "published",
+        "data": {
+          "title": "Zen Den",
+          "project_type": "whole_home",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 70,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/zen-den-kitchen-dining.jpg",
+              "alt": "Open white kitchen with dark-stained island, pendant lights and a live-edge dining table on wide-plank floors",
+              "filename": "zen-den-kitchen-dining.jpg"
+            }
+          },
+          "summary": "A whole-home remodel that opened the kitchen to the living room, added a built-in desk under the stair, and turned a walk-in closet into a spa-style primary bath.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/zen-den-kitchen-island.jpg",
+                  "alt": "White quartz kitchen island with dark base, glass pendants, built-in refrigeration and white shaker cabinetry",
+                  "filename": "zen-den-kitchen-island.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/zen-den-living-fireplace.jpg",
+                  "alt": "Linear gas fireplace set in a floor-to-ceiling travertine-look tile wall with floating black shelves",
+                  "filename": "zen-den-living-fireplace.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/zen-den-primary-bath.jpg",
+                  "alt": "Primary bath with dark wood floating double vanity, wood-look tile wall and freestanding soaking tub before a stacked-stone wall",
+                  "filename": "zen-den-primary-bath.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/zen-den-walk-in-shower.jpg",
+                  "alt": "Frameless glass walk-in shower beside a wood-plank accent wall and stacked-stone wall in a spacious primary bath",
+                  "filename": "zen-den-walk-in-shower.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/zen-den-entry-stair.jpg",
+                  "alt": "Entry hall with dark wood stair, horizontal metal cable railing and sliding barn door on wide-plank floors",
+                  "filename": "zen-den-entry-stair.jpg"
+                }
+              }
+            }
+          ],
+          "location": "Aliso Viejo, CA",
+          "design_style": "Modern contemporary",
+          "cost": "$250,000",
+          "details": [
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "p0",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s0",
+                  "text": "A home in need of an update"
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p1",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s1",
+                  "text": "With a focus on opening up space, we moved the kitchen so it flows into the rooms around it. The wall between the living room and kitchen came out, and the island was rotated for seamless indoor and outdoor entertaining."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p2",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s2",
+                  "text": "An old under-stair wine cellar was removed and a built-in desk was constructed in its place."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p3",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s3",
+                  "text": "Upstairs, the primary suite lost walls too. The walk-in closet became a double rain shower and steam room, a freestanding tub greets you at the door, and a 10-foot floating double vanity runs along one side. An accent wall of wood-look tile finishes the spa feel the owners were after."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "project-book-lovers-dream",
+        "slug": "book-lovers-dream",
+        "status": "published",
+        "data": {
+          "title": "Book Lovers Dream",
+          "project_type": "whole_home",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 80,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/book-lovers-dream-great-room-library.jpg",
+              "alt": "Vaulted great room with exposed wood beams, iron chandelier and a two-story library wall with rolling ladder",
+              "filename": "book-lovers-dream-great-room-library.jpg"
+            }
+          },
+          "summary": "A Spanish-style single-story home with a vaulted, beamed great room, a two-story library wall with a rolling ladder, a white and navy kitchen with a brass hood, and a pool patio that opens to the family room.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/book-lovers-dream-kitchen.jpg",
+                  "alt": "White kitchen with navy island, marble-look counters, brass hood and lantern pendants",
+                  "filename": "book-lovers-dream-kitchen.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/book-lovers-dream-dining-room.jpg",
+                  "alt": "Long dining room with reclaimed wood accent wall, iron chandelier and sliding doors to the yard",
+                  "filename": "book-lovers-dream-dining-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/book-lovers-dream-primary-bath.jpg",
+                  "alt": "Primary bath with clawfoot-style freestanding tub, black-framed windows and black-grid glass shower",
+                  "filename": "book-lovers-dream-primary-bath.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/book-lovers-dream-pool-exterior.jpg",
+                  "alt": "Spanish-style single-story home with red tile roof behind a rectangular pool and spa",
+                  "filename": "book-lovers-dream-pool-exterior.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/book-lovers-dream-patio-dusk.jpg",
+                  "alt": "Patio at dusk with fire table and outdoor sofa, folding glass doors open to the family room",
+                  "filename": "book-lovers-dream-patio-dusk.jpg"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "project-mid-century-escape",
+        "slug": "mid-century-escape",
+        "status": "published",
+        "data": {
+          "title": "Mid Century Escape",
+          "project_type": "whole_home",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 90,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/mid-century-escape-living-room.jpg",
+              "alt": "Mid-century modern living room with concrete fireplace column, clerestory windows and brass chandelier",
+              "filename": "mid-century-escape-living-room.jpg"
+            }
+          },
+          "summary": "A mid-century modern remodel with a concrete fireplace column, clerestory windows, a navy and marble kitchen, minimalist white baths, a glass-walled courtyard, and drought-tolerant landscaping.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/mid-century-escape-kitchen.jpg",
+                  "alt": "Kitchen with marble waterfall island, navy cabinets and open sightline to the living room",
+                  "filename": "mid-century-escape-kitchen.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/mid-century-escape-primary-bath.jpg",
+                  "alt": "White bath with floating vanity, soaking tub and tall slot window",
+                  "filename": "mid-century-escape-primary-bath.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/mid-century-escape-front-exterior.jpg",
+                  "alt": "Low-slung modern home with glass garage door, wood front door and drought-tolerant landscaping at sunset",
+                  "filename": "mid-century-escape-front-exterior.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/mid-century-escape-rear-exterior-dusk.jpg",
+                  "alt": "Rear courtyard at dusk with wall of sliding glass doors and dark wood-clad exterior",
+                  "filename": "mid-century-escape-rear-exterior-dusk.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/mid-century-escape-backyard-fire-pit.jpg",
+                  "alt": "Backyard with fire pit, artificial turf and concrete pavers under a pink sunset sky",
+                  "filename": "mid-century-escape-backyard-fire-pit.jpg"
+                }
+              }
+            }
+          ],
+          "design_style": "Mid-century modern"
+        }
+      },
+      {
+        "id": "project-coastal-glam",
+        "slug": "coastal-glam",
+        "status": "published",
+        "data": {
+          "title": "Coastal Glam",
+          "project_type": "remodel",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 100,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/coastal-glam-rear-exterior-dusk.jpg",
+              "alt": "Rear of a two-story Cape Cod-style home at dusk with lit windows, covered porch and white railings",
+              "filename": "coastal-glam-rear-exterior-dusk.jpg"
+            }
+          },
+          "summary": "A Cape Cod-style two-story home with a walnut island and teal banquette, a black and brass hood, shiplap details, a vaulted bonus room, and a backyard made for evenings outside.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/coastal-glam-kitchen-banquette.jpg",
+                  "alt": "Kitchen with walnut island and teal tufted banquette, black glass-front cabinets and black range hood",
+                  "filename": "coastal-glam-kitchen-banquette.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/coastal-glam-kitchen-range.jpg",
+                  "alt": "Kitchen with black and brass range hood, black lower cabinets, white zellige-style tile and farmhouse sink",
+                  "filename": "coastal-glam-kitchen-range.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/coastal-glam-family-room.jpg",
+                  "alt": "Vaulted bonus room with whitewashed beams, gray sectional and wall of windows",
+                  "filename": "coastal-glam-family-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/coastal-glam-primary-bedroom.jpg",
+                  "alt": "Primary bedroom with shiplap tray ceiling, dark teal walls, patterned drapes and a view balcony",
+                  "filename": "coastal-glam-primary-bedroom.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/coastal-glam-bath.jpg",
+                  "alt": "Bath with black-framed mirrors, shiplap walls, glass shower and checkerboard floor",
+                  "filename": "coastal-glam-bath.jpg"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "project-cool-suburban-living",
+        "slug": "cool-suburban-living",
+        "status": "published",
+        "data": {
+          "title": "Cool Suburban Living",
+          "project_type": "remodel",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 110,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/cool-suburban-living-living-room.jpg",
+              "alt": "Living room with white-painted beams under a wood plank vaulted ceiling, white brick fireplace and chevron rug",
+              "filename": "cool-suburban-living-living-room.jpg"
+            }
+          },
+          "summary": "Wood-plank vaulted ceilings, a walnut slab kitchen with a waterfall island, a navy dining wall, an open-riser cable-rail stair, and walnut floating vanities.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/cool-suburban-living-kitchen.jpg",
+                  "alt": "Kitchen with walnut slab cabinets, white waterfall island, brass pendants and corner windows",
+                  "filename": "cool-suburban-living-kitchen.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/cool-suburban-living-dining-room.jpg",
+                  "alt": "Dining area with glass table, navy accent wall, brass sconces and black-framed French doors",
+                  "filename": "cool-suburban-living-dining-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/cool-suburban-living-floating-stair.jpg",
+                  "alt": "Open-riser wood stair with stainless cable railing beside the dining room",
+                  "filename": "cool-suburban-living-floating-stair.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/cool-suburban-living-primary-bedroom.jpg",
+                  "alt": "Primary bedroom under a wood-plank vaulted ceiling with gallery wall and orange lounge chair",
+                  "filename": "cool-suburban-living-primary-bedroom.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/cool-suburban-living-bath-vanity.jpg",
+                  "alt": "Bath with walnut floating double vanity, white quartz top and lighted mirror",
+                  "filename": "cool-suburban-living-bath-vanity.jpg"
+                }
+              }
+            }
+          ],
+          "design_style": "Mid-century inspired"
+        }
+      },
+      {
+        "id": "project-spa-escape",
+        "slug": "spa-escape",
+        "status": "published",
+        "data": {
+          "title": "Spa Escape",
+          "project_type": "restoration",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 120,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/spa-escape-primary-bath.jpg",
+              "alt": "Spa-style primary bath with freestanding tub, wave-textured white tile and walnut vanity",
+              "filename": "spa-escape-primary-bath.jpg"
+            }
+          },
+          "summary": "After a fire destroyed most of the upstairs, the owners rebuilt with a completely new spa-style primary bath: a raised wet area, a curbless linear-drain shower, and a freestanding tub.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/spa-escape-vanity-shower.jpg",
+                  "alt": "Walnut floating vanity beside a glass walk-in shower with bench and pebble floor",
+                  "filename": "spa-escape-vanity-shower.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/spa-escape-soaking-tub.jpg",
+                  "alt": "Freestanding soaking tub with lit niche against a wave-textured tile wall",
+                  "filename": "spa-escape-soaking-tub.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/spa-escape-shower-bench.jpg",
+                  "alt": "Glass shower with built-in bench, wave tile and pebble floor",
+                  "filename": "spa-escape-shower-bench.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/spa-escape-vanity-detail.jpg",
+                  "alt": "Walnut vanity with white top, square vessel sink and mosaic tile backsplash",
+                  "filename": "spa-escape-vanity-detail.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/spa-escape-guest-bath.jpg",
+                  "alt": "Guest bath with walnut vanity, white vessel sink, glass pendants and wave tile",
+                  "filename": "spa-escape-guest-bath.jpg"
+                }
+              }
+            }
+          ],
+          "location": "Laguna Niguel, CA",
+          "design_style": "Modern contemporary",
+          "cost": "$200,000",
+          "details": [
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "p0",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s0",
+                  "text": "Rebuilt after a fire"
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p1",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s1",
+                  "text": "After a fire destroyed most of the upstairs, the homeowner took the chance to completely remodel the primary bathroom. First on the agenda was replacing an awkward, dated suite with something that felt like a spa."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p2",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s2",
+                  "text": "Raising the wet area created a visual and physical separation between the shower and tub and the vanity and water closet. The step also let us install a linear drain, so there is no curb between the wet and dry areas."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "project-sleek-city-house",
+        "slug": "sleek-city-house",
+        "status": "published",
+        "data": {
+          "title": "Sleek City House",
+          "project_type": "whole_home",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 130,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/sleek-city-house-great-room.jpg",
+              "alt": "Open white great room with glossy kitchen island, polished concrete floors, gallery wall and grand piano",
+              "filename": "sleek-city-house-great-room.jpg"
+            }
+          },
+          "summary": "A complete interior remodel for a family that fills its home with people: the kitchen moved to a shared bathroom wall, opening a floor plan built in an era of closed-off rooms.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/sleek-city-house-kitchen.jpg",
+                  "alt": "High-gloss white slab-front kitchen with waterfall island and white stools beside an open stair",
+                  "filename": "sleek-city-house-kitchen.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/sleek-city-house-open-plan.jpg",
+                  "alt": "Open-plan main floor with concrete floors, white kitchen, raw wood table and a wood stair",
+                  "filename": "sleek-city-house-open-plan.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/sleek-city-house-kitchen-sink.jpg",
+                  "alt": "White quartz counter with undermount sink, chrome pull-down faucet and butcher-block board",
+                  "filename": "sleek-city-house-kitchen-sink.jpg"
+                }
+              }
+            }
+          ],
+          "location": "Irvine, CA",
+          "design_style": "Modern",
+          "cost": "$175,000",
+          "details": [
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "p0",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s0",
+                  "text": "Opened up for a full house"
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p1",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s1",
+                  "text": "This home was built when rooms were segmented and restrictive. The family needed the floor plan to open up, and finishes that are easy to clean while showing off their modern style. Not one piece of the interior was left untouched."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p2",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s2",
+                  "text": "The couple and their two girls are active in their church and often fill the home with guests of all ages. To make room, we moved the kitchen to the opposite side of a shared bathroom wall. The new space takes on many roles and reuses the existing plumbing."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "p3",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s3",
+                  "text": "Setting the island a little farther from the range than usual created a direct aisle from the entry through to the bedrooms and living room."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "project-hawley-house",
+        "slug": "hawley-house",
+        "status": "published",
+        "data": {
+          "title": "Hawley House",
+          "project_type": "kitchen",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 140,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/hawley-house-kitchen.jpg",
+              "alt": "White kitchen with navy island, farmhouse sink, glass pendants and dark wood floors",
+              "filename": "hawley-house-kitchen.jpg"
+            }
+          },
+          "summary": "A white shaker kitchen with a navy island, a farmhouse sink, a pro range with a stacked-stone backsplash, and a built-in breakfast nook, plus a refreshed family room and bath.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/hawley-house-breakfast-nook.jpg",
+                  "alt": "Built-in window-seat breakfast nook with trestle table and garden views",
+                  "filename": "hawley-house-breakfast-nook.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/hawley-house-kitchen-range.jpg",
+                  "alt": "Professional range under a white plaster hood with stacked-stone backsplash and gray counters",
+                  "filename": "hawley-house-kitchen-range.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/hawley-house-family-room-fireplace.jpg",
+                  "alt": "Family room fireplace with white surround, iron wall art and leather ottoman",
+                  "filename": "hawley-house-family-room-fireplace.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/hawley-house-bath.jpg",
+                  "alt": "Bath with gray marble-look glass shower, gray quartz vanity and brass sconces",
+                  "filename": "hawley-house-bath.jpg"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "project-quaint-living",
+        "slug": "quaint-living",
+        "status": "published",
+        "data": {
+          "title": "Quaint Living",
+          "project_type": "remodel",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 150,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/quaint-living-backyard-fire-pit.jpg",
+              "alt": "Backyard with stone-faced built-in bench seating around a fire pit, stepping pavers and lush planting",
+              "filename": "quaint-living-backyard-fire-pit.jpg"
+            }
+          },
+          "summary": "A family home refresh with a white shaker kitchen, new floors through the living and dining rooms, remodeled baths, and a backyard with built-in seating around a fire pit.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/quaint-living-kitchen.jpg",
+                  "alt": "White shaker kitchen with gray subway backsplash, stainless appliances and wood-look floors",
+                  "filename": "quaint-living-kitchen.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/quaint-living-dining-room.jpg",
+                  "alt": "Dining room with live-edge wood table, drum pendant and sculptural wood mirror",
+                  "filename": "quaint-living-dining-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/quaint-living-living-room.jpg",
+                  "alt": "Living room with brass chandelier, leather seating and wood-look floors",
+                  "filename": "quaint-living-living-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/quaint-living-bath.jpg",
+                  "alt": "Bath with white double vanity, glass shower with brown tile and skylight",
+                  "filename": "quaint-living-bath.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/quaint-living-primary-bedroom.jpg",
+                  "alt": "Primary bedroom with vaulted ceiling, built-in shelving and ceiling fan",
+                  "filename": "quaint-living-primary-bedroom.jpg"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "project-pet-haven",
+        "slug": "pet-haven",
+        "status": "published",
+        "data": {
+          "title": "Pet Haven",
+          "project_type": "commercial",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 160,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/pet-haven-reception.jpg",
+              "alt": "Veterinary clinic reception with curved wood-and-white desk, concrete floors and black-framed doors",
+              "filename": "pet-haven-reception.jpg"
+            }
+          },
+          "summary": "A tenant improvement for a veterinary clinic: a custom curved reception desk, polished concrete floors, black-framed doors, a bright waiting room, and new exam rooms.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/pet-haven-waiting-room.jpg",
+                  "alt": "Clinic waiting room with teal shell chairs, framed animal prints and polished concrete floor",
+                  "filename": "pet-haven-waiting-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/pet-haven-entry.jpg",
+                  "alt": "Glass entry doors opening to a bright clinic lobby and reception desk",
+                  "filename": "pet-haven-entry.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/pet-haven-lobby-seating.jpg",
+                  "alt": "Lobby seating with teal chairs and plants beside full-height storefront windows",
+                  "filename": "pet-haven-lobby-seating.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/pet-haven-exam-room.jpg",
+                  "alt": "Exam room with frosted glass pivot door and wall-mounted monitor",
+                  "filename": "pet-haven-exam-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/pet-haven-exterior.jpg",
+                  "alt": "Two-story terracotta stucco clinic building with stone columns and branded signage",
+                  "filename": "pet-haven-exterior.jpg"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
