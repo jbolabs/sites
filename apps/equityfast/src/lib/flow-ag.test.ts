@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@effect/vitest";
 import { Email, LeadMail } from "@jakebodea/cloudflare-kit/server";
 import type { EmailMessage } from "@jakebodea/cloudflare-kit/server";
-import { ConfigProvider, Effect, Layer, Option, Schema } from "effect";
+import { ConfigProvider, Effect, Layer, Logger, Option, Schema } from "effect";
 import { HttpClient, HttpClientResponse } from "effect/http";
 
 import { ApplicationForm, toContactForm } from "./application.ts";
@@ -82,6 +82,36 @@ const flowAgReplying = (
       )
     )
   );
+
+/** Runs the hand-off against a Flow AG reply and returns what it logged. */
+const forwardedLogs = (reply: AcceptLeadResponse) => {
+  const logs: unknown[] = [];
+  return forwardToFlowAg(form, toContactForm(form), {
+    leadId: "entry-1",
+    requestId: "ray-1",
+    sourcePath: "/apply",
+  }).pipe(
+    Effect.as(logs),
+    Effect.provide(flowAgReplying(200, reply, "test-key")),
+    Effect.provide(
+      Logger.layer([
+        Logger.make((entry) => {
+          logs.push(entry.message);
+        }),
+      ])
+    ),
+    Effect.provide(Layer.succeed(Email, { send: () => Effect.void })),
+    Effect.provide(
+      Layer.succeed(LeadMail, {
+        alert: Option.none(),
+        from: Option.none(),
+        inbox: Option.none(),
+        name: "EquityFast",
+        siteOrigin: "https://equityfast.homes",
+      })
+    )
+  );
+};
 
 describe(toFlowAgLead, () => {
   it("maps an application onto Flow AG's accept-lead fields", () => {
@@ -223,5 +253,56 @@ describe(forwardToFlowAg, () => {
         )
       );
     }
+  );
+
+  it.effect("logs who Flow AG assigned an accepted lead to", () =>
+    Effect.gen(function* logsAccepted() {
+      const logs = yield* forwardedLogs({
+        assignedTo: { name: "Joe Mercuri" },
+        leadId: "lead-9",
+        success: true,
+        url: "https://flowag.emortgagecapital.com/leads/lead-9",
+      });
+      expect(logs).toStrictEqual([
+        [
+          "lead forwarded to Flow AG",
+          {
+            assignedTo: "Joe Mercuri",
+            cmsEntry: "entry-1",
+            duplicate: false,
+            flowAgLeadId: "lead-9",
+            flowAgMessage: "",
+            flowAgUrl: "https://flowag.emortgagecapital.com/leads/lead-9",
+            requestId: "ray-1",
+          },
+        ],
+      ]);
+    })
+  );
+
+  it.effect("logs a duplicate as a note on the existing lead", () =>
+    Effect.gen(function* logsDuplicate() {
+      const logs = yield* forwardedLogs({
+        duplicate: true,
+        leadId: "lead-3",
+        message: "Lead already exists; it has been noted on the existing lead.",
+        success: true,
+      });
+      expect(logs).toStrictEqual([
+        [
+          "lead noted on an existing Flow AG lead",
+          {
+            assignedTo: "not reported",
+            cmsEntry: "entry-1",
+            duplicate: true,
+            flowAgLeadId: "lead-3",
+            flowAgMessage:
+              "Lead already exists; it has been noted on the existing lead.",
+            flowAgUrl: "",
+            requestId: "ray-1",
+          },
+        ],
+      ]);
+    })
   );
 });
