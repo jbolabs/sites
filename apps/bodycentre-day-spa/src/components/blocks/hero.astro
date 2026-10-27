@@ -1,0 +1,38 @@
+---
+import MapPin from "@lucide/astro/icons/map-pin";
+import Phone from "@lucide/astro/icons/phone";
+import Image from "@jakebodea/cloudflare-kit/astro/image.astro";
+import type { BlockComponentProps } from "emdash/ui";
+
+import ButtonLink from "@/components/button-link.astro";
+import type { HomeContentHeroBlock } from "../../../emdash-env";
+import { site } from "../../../site.config";
+
+type Props = BlockComponentProps<HomeContentHeroBlock>;
+
+const { value } = Astro.props;
+const { address, bookingUrl, mapUrl, telephone } = site.business;
+---
+
+<section class="overflow-hidden">
+  <div class="container-page grid items-center gap-10 pt-10 pb-16 sm:pt-14 lg:grid-cols-[1fr_1.05fr] lg:gap-16 lg:py-20">
+    <div class="max-w-xl">
+      <h1 class="text-[2.9rem] leading-[1.02] sm:text-6xl lg:text-7xl">{value.headline}</h1>
+      {value.subheadline && <p class="mt-5 text-lg leading-relaxed text-muted-foreground sm:text-xl">{value.subheadline}</p>}
+      <div class="mt-8 grid gap-3 sm:flex">
+        <ButtonLink href={bookingUrl} size="hero">{value.book_label}</ButtonLink>
+        <ButtonLink href={`tel:${telephone}`} size="hero" variant="hairline" class="lining-nums">
+          <Phone class="size-4" aria-hidden="true" />Call {site.phone}
+        </ButtonLink>
+      </div>
+      <a href={mapUrl} target="_blank" rel="noopener" class="mt-6 inline-flex items-center gap-2 text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-slate">
+        <MapPin class="size-4 shrink-0" aria-hidden="true" />{address.street}, {address.city}
+      </a>
+    </div>
+    {value.image && (
+      <div class="relative aspect-[4/3] overflow-hidden rounded-xl bg-muted lg:aspect-[5/6]">
+        <Image image={value.image} alt={value.image.alt ?? ""} priority sizes="(min-width: 1024px) 50vw, 100vw" class="size-full! object-cover" />
+      </div>
+    )}
+  </div>
+</section>

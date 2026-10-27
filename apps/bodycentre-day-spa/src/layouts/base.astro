@@ -1,0 +1,97 @@
+---
+/**
+ * Page shell: EmDash head/body hooks (SEO tags, plugin contributions, visual
+ * editing), fonts, header/footer from CMS menus, and structured data. Pages
+ * pass SEO from `getSeoMeta()`. A spec mock-up: every page is `noindex`
+ * (the Worker adds the header too) and no analytics beacon renders.
+ */
+import "@/styles/global.css";
+
+import { Font } from "astro:assets";
+import { EmDashBodyEnd, EmDashBodyStart, EmDashHead } from "emdash/ui";
+import { createPublicPageContext } from "emdash/page";
+import { socialImage } from "@jakebodea/cloudflare-kit/social-image";
+import type { MediaFile } from "@jakebodea/cloudflare-kit/social-image";
+import { documentTitle, metaDescription } from "@jakebodea/cloudflare-kit/seo";
+
+import SiteFooter from "@/components/site-footer.astro";
+import SiteHeader from "@/components/site-header.astro";
+import StructuredData from "@/components/structured-data.astro";
+import { getSiteChrome } from "@/lib/content";
+import { site } from "../../site.config";
+
+interface Props {
+  /** Page title without the site name. Omit on the home page. */
+  title?: string | undefined;
+  description?: string | null | undefined;
+  /** The editor's SEO image (`getSeoMeta().ogImage`). */
+  image?: string | null | undefined;
+  /** The entry's photo, the link-preview image when the editor set no SEO image. */
+  photo?: MediaFile | null | undefined;
+  canonical?: string | null | undefined;
+  content?: { collection: string; id: string; slug?: string | null } | undefined;
+}
+
+const { canonical, content, description, image, photo, title } = Astro.props;
+// Never indexed, whatever an editor sets: this site is a pitch, not the business's real site.
+const robots = "noindex, nofollow";
+const chrome = await getSiteChrome(site.name);
+if (Astro.cache?.enabled) {
+  for (const hint of chrome.cacheHints) {
+    Astro.cache.set(hint);
+  }
+}
+
+const origin = Astro.site?.origin ?? Astro.url.origin;
+const fullTitle = title === undefined ? `${chrome.title} | Massage, Facials and Recovery in Costa Mesa` : documentTitle(title, site.shortName);
+// Editors write descriptions of any length; this keeps the snippet within what search engines show.
+const pageDescription = metaDescription(description ?? chrome.tagline ?? site.description, site.descriptionContext);
+const ogImage = socialImage({ fallback: "/og-default.png", image, origin, photo, siteDefault: chrome.socialImage });
+
+const page = createPublicPageContext({
+  Astro,
+  canonical: canonical ?? `${origin}${Astro.url.pathname === "/" ? "/" : Astro.url.pathname.replace(/\/$/u, "")}`,
+  content,
+  description: pageDescription,
+  image: ogImage,
+  kind: content === undefined ? "custom" : "content",
+  pageTitle: title ?? chrome.title,
+  pageType: "website",
+  seo: { ogImage, robots },
+  siteName: chrome.title,
+  title: fullTitle,
+});
+
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#fbf8f4" />
+    <script is:inline>document.documentElement.classList.add("js");</script>
+    <title>{fullTitle}</title>
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <Font cssVariable="--font-display" preload />
+    <Font cssVariable="--font-body" preload />
+    <EmDashHead page={page} />
+    <StructuredData origin={origin} />
+  </head>
+  <body class="flex min-h-svh flex-col">
+    <EmDashBodyStart page={page} />
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:shadow">Skip to content</a>
+    <SiteHeader title={chrome.title} items={chrome.primary} />
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+    <SiteFooter title={chrome.title} tagline={chrome.tagline} items={chrome.footer} />
+    <EmDashBodyEnd page={page} />
+    <script>
+      import { mountSeamlessEdges } from "@jakebodea/site-ui/seamless-edges";
+
+      mountSeamlessEdges();
+    </script>
+  </body>
+</html>

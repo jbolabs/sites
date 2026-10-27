@@ -1,0 +1,18 @@
+---
+/** CMS text with any `[[placeholder]]` parts highlighted (see `lib/placeholder.ts`). */
+import { textParts } from "@/lib/placeholder";
+
+interface Props {
+  text: string;
+}
+
+const parts = textParts(Astro.props.text);
+---
+
+{parts.map((part) =>
+  part.placeholder ? (
+    <mark class="placeholder" title="Placeholder: replace in the CMS">{part.text}</mark>
+  ) : (
+    part.text
+  )
+)}

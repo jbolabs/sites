@@ -1,0 +1,24 @@
+---
+/** Maps each EmDash block type to its renderer. Add new section types here and in seed/seed.json. */
+import { Blocks, defineBlockComponents } from "emdash/ui";
+
+import type { HomeContentBlock } from "../../../emdash-env";
+import Hero from "./hero.astro";
+import Reviews from "./reviews.astro";
+import Services from "./services.astro";
+import Visit from "./visit.astro";
+
+interface Props {
+  value?: HomeContentBlock[] | null | undefined;
+}
+
+const { value } = Astro.props;
+const components = defineBlockComponents<HomeContentBlock>({
+  hero: Hero,
+  reviews: Reviews,
+  services: Services,
+  visit: Visit,
+});
+---
+
+<Blocks value={value} components={components} />

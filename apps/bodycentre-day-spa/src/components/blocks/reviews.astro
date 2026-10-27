@@ -1,0 +1,75 @@
+---
+import Star from "@lucide/astro/icons/star";
+import type { BlockComponentProps } from "emdash/ui";
+import { sanitizeHref } from "emdash";
+
+import Fill from "@/components/fill.astro";
+import type { HomeContentReviewsBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<HomeContentReviewsBlock>;
+
+const { value } = Astro.props;
+const highlights = value.highlights ?? [];
+const ratings = value.ratings ?? [];
+const quotes = value.quotes ?? [];
+---
+
+<section id="reviews" class="py-20 sm:py-28">
+  <div class="container-page grid gap-12 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
+    <div>
+      <h2 class="text-4xl sm:text-5xl">{value.headline}</h2>
+      {value.intro && <p class="mt-4 text-lg leading-relaxed text-muted-foreground"><Fill text={value.intro} /></p>}
+      {highlights.length > 0 && (
+        <ul class="mt-8 space-y-3">
+          {highlights.map((item) => (
+            <li class="flex gap-3 leading-relaxed">
+              <span class="mt-[0.6em] h-px w-5 shrink-0 bg-champagne" aria-hidden="true"></span>
+              <span><Fill text={item.text} /></span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+    <div class="space-y-6">
+      {ratings.length > 0 && (
+        <ul class="grid gap-3 sm:grid-cols-3">
+          {ratings.map((rating) => {
+            const href = rating.url ? sanitizeHref(rating.url) : undefined;
+            const Tag = href ? "a" : "div";
+            return (
+              <li>
+                <Tag
+                  href={href}
+                  target={href ? "_blank" : undefined}
+                  rel={href ? "noopener" : undefined}
+                  class="flex h-full flex-col rounded-xl border border-border bg-card p-5 transition-colors hover:border-slate/40"
+                >
+                  <span class="font-medium text-slate">{rating.source}</span>
+                  <span class="mt-2 flex items-center gap-2 font-display text-4xl text-slate lining-nums">
+                    <Star class="size-5 fill-champagne text-champagne" aria-hidden="true" />
+                    <Fill text={rating.score} />
+                  </span>
+                  <span class="mt-1 text-sm text-muted-foreground lining-nums"><Fill text={rating.count} /></span>
+                </Tag>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {quotes.length > 0 && (
+        <ul class="grid gap-4">
+          {quotes.map((item) => (
+            <li>
+              <figure class="rounded-xl bg-stone p-6 sm:p-8">
+                <blockquote class="font-display text-[1.45rem] leading-snug text-slate sm:text-2xl"><Fill text={item.quote} /></blockquote>
+                <figcaption class="mt-4 text-sm text-muted-foreground">
+                  <Fill text={item.author} />{item.source && <>, <Fill text={item.source} /></>}
+                </figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </div>
+</section>

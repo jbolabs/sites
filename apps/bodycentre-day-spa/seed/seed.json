@@ -1,0 +1,600 @@
+{
+  "$schema": "https://emdashcms.com/seed.schema.json",
+  "version": "1",
+  "meta": {
+    "name": "BodyCentre Day Spa",
+    "description": "One-page spa demo: hero, treatments, reviews, and visit details.",
+    "author": "Jake Bodea"
+  },
+  "settings": {
+    "title": "BodyCentre Day Spa",
+    "tagline": "Massage, facials, and recovery therapies in Costa Mesa since 1994.",
+    "timezone": "America/Los_Angeles"
+  },
+  "blockTypes": [
+    {
+      "slug": "hero",
+      "label": "Hero",
+      "description": "Opening headline beside a photo, with Book now and tap-to-call.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "subheadline",
+              "label": "Subheadline",
+              "type": "text"
+            },
+            {
+              "slug": "image",
+              "label": "Photo",
+              "type": "image"
+            },
+            {
+              "slug": "book_label",
+              "label": "Booking button label",
+              "type": "string",
+              "required": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "services",
+      "label": "Treatments",
+      "description": "The treatment menu: featured cards with photos, then compact cards. Wrap anything still unconfirmed in [[double brackets]]; it shows highlighted until you replace it.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "items",
+              "label": "Treatments",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 9,
+                "subFields": [
+                  {
+                    "slug": "title",
+                    "label": "Name",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "body",
+                    "label": "Description",
+                    "type": "text",
+                    "required": true
+                  },
+                  {
+                    "slug": "price",
+                    "label": "Price line",
+                    "type": "string"
+                  },
+                  {
+                    "slug": "image",
+                    "label": "Photo (featured cards only)",
+                    "type": "image"
+                  }
+                ]
+              }
+            },
+            {
+              "slug": "note",
+              "label": "Small print under the menu",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "reviews",
+      "label": "Reviews",
+      "description": "Ratings and guest quotes. Paste real reviews only. Wrap anything still unconfirmed in [[double brackets]]; it shows highlighted until you replace it.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "highlights",
+              "label": "Recognition",
+              "type": "repeater",
+              "validation": {
+                "maxItems": 4,
+                "subFields": [
+                  {
+                    "slug": "text",
+                    "label": "Line",
+                    "type": "string",
+                    "required": true
+                  }
+                ]
+              }
+            },
+            {
+              "slug": "ratings",
+              "label": "Ratings",
+              "type": "repeater",
+              "validation": {
+                "maxItems": 4,
+                "subFields": [
+                  {
+                    "slug": "source",
+                    "label": "Site",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "score",
+                    "label": "Score out of 5",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "count",
+                    "label": "Number of reviews",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "url",
+                    "label": "Link",
+                    "type": "string",
+                    "validation": {
+                      "pattern": "^(?:$|(?:https?://|mailto:|tel:|/(?!/)|#).+)$"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "slug": "quotes",
+              "label": "Quotes",
+              "type": "repeater",
+              "validation": {
+                "maxItems": 6,
+                "subFields": [
+                  {
+                    "slug": "quote",
+                    "label": "Quote",
+                    "type": "text",
+                    "required": true
+                  },
+                  {
+                    "slug": "author",
+                    "label": "Name",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "source",
+                    "label": "Where it was posted",
+                    "type": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "visit",
+      "label": "Hours and location",
+      "description": "Hours, address, map link, and a photo. Address and phone come from the site settings. Wrap anything still unconfirmed in [[double brackets]]; it shows highlighted until you replace it.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "hours",
+              "label": "Hours",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 7,
+                "subFields": [
+                  {
+                    "slug": "days",
+                    "label": "Days",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "time",
+                    "label": "Hours",
+                    "type": "string",
+                    "required": true
+                  }
+                ]
+              }
+            },
+            {
+              "slug": "note",
+              "label": "Note under the hours",
+              "type": "text"
+            },
+            {
+              "slug": "image",
+              "label": "Photo",
+              "type": "image"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "collections": [
+    {
+      "slug": "home",
+      "label": "Home page",
+      "labelSingular": "Home page",
+      "icon": "house",
+      "sortOrder": 0,
+      "supports": ["drafts", "revisions", "preview", "seo"],
+      "urlPattern": "/",
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "intro",
+          "label": "Intro",
+          "type": "text"
+        },
+        {
+          "slug": "content",
+          "label": "Sections",
+          "type": "blocks",
+          "validation": {
+            "allowedTypes": ["hero", "services", "reviews", "visit"],
+            "maxItems": 20
+          }
+        }
+      ],
+      "description": "The whole site is this one page. Edit its sections to change it.",
+      "admin": {
+        "quickCreate": false
+      }
+    },
+    {
+      "slug": "leads",
+      "label": "Leads",
+      "labelSingular": "Lead",
+      "icon": "envelope-simple",
+      "sortOrder": 1,
+      "description": "Reserved for a contact form. This demo has none, so it stays empty.",
+      "routable": false,
+      "supports": [],
+      "admin": {
+        "listColumns": ["email", "phone"],
+        "quickCreate": false
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "email",
+          "label": "Email",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "phone",
+          "label": "Phone",
+          "type": "string"
+        },
+        {
+          "slug": "company",
+          "label": "Project type",
+          "type": "string"
+        },
+        {
+          "slug": "message",
+          "label": "Message",
+          "type": "text",
+          "required": true
+        },
+        {
+          "slug": "source_path",
+          "label": "Submitted from",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "menus": [
+    {
+      "name": "primary",
+      "label": "Main navigation",
+      "items": [
+        {
+          "type": "custom",
+          "label": "Treatments",
+          "url": "/#treatments"
+        },
+        {
+          "type": "custom",
+          "label": "Reviews",
+          "url": "/#reviews"
+        },
+        {
+          "type": "custom",
+          "label": "Hours and location",
+          "url": "/#visit"
+        }
+      ]
+    },
+    {
+      "name": "footer",
+      "label": "Footer links",
+      "items": [
+        {
+          "type": "custom",
+          "label": "Treatments",
+          "url": "/#treatments"
+        },
+        {
+          "type": "custom",
+          "label": "Reviews",
+          "url": "/#reviews"
+        },
+        {
+          "type": "custom",
+          "label": "Hours and location",
+          "url": "/#visit"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/home",
+      "destination": "/",
+      "type": 308,
+      "enabled": true,
+      "groupName": "Site structure"
+    }
+  ],
+  "content": {
+    "home": [
+      {
+        "id": "page-home",
+        "slug": "home",
+        "status": "published",
+        "data": {
+          "title": "Home",
+          "content": [
+            {
+              "_type": "hero",
+              "_version": 1,
+              "_key": "hero",
+              "headline": "Leave lighter than you arrived.",
+              "subheadline": "Massage, facials, and recovery therapies under one roof in Costa Mesa, since 1994.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/massage-oils-orchids.jpg",
+                  "alt": "Therapist massaging a guest's back beside orchids and massage oils",
+                  "filename": "massage-oils-orchids.jpg"
+                }
+              },
+              "book_label": "Book now"
+            },
+            {
+              "_type": "services",
+              "_version": 1,
+              "_key": "treatments",
+              "headline": "Treatments",
+              "intro": "A full day spa menu next to a recovery studio and a private training gym. Prices are starting rates from the current online menu.",
+              "items": [
+                {
+                  "title": "Massage",
+                  "body": "Swedish relaxation, deep tissue, hot stone, prenatal, sports, lymphatic, reflexology, cupping, and more, in 55, 70, 85, or 115 minute sessions.",
+                  "price": "From $99",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/back-massage.jpg",
+                      "alt": "Therapist working on a guest's shoulders",
+                      "filename": "back-massage.jpg"
+                    }
+                  }
+                },
+                {
+                  "title": "Facials and skin care",
+                  "body": "European, HydraFacial, microdermabrasion, dermaplaning, anti-aging, acne, and rosacea facials, each starting with a skin analysis by a licensed esthetician.",
+                  "price": "European Facial $125",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/hydrafacial.jpg",
+                      "alt": "Esthetician giving a hydrating facial treatment",
+                      "filename": "hydrafacial.jpg"
+                    }
+                  }
+                },
+                {
+                  "title": "Recovery and biohacking",
+                  "body": "Hyperbaric oxygen at 1.6 and 2.0 ATA, whole-body red light, PEMF, compression, exercise with oxygen, and molecular hydrogen.",
+                  "price": "Hyperbaric oxygen from $150",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/hyperbaric-chamber.jpg",
+                      "alt": "BodyCentre's hyperbaric oxygen chamber in the recovery studio",
+                      "filename": "hyperbaric-chamber.jpg"
+                    }
+                  }
+                },
+                {
+                  "title": "Spa packages",
+                  "body": "Massage and facial pairings, from the mid-week massage special to the Platinum Spa Package.",
+                  "price": "From $89"
+                },
+                {
+                  "title": "Massage memberships",
+                  "body": "One massage a month and 10% off every other service and lobby product, on a three month term.",
+                  "price": "55 minutes, $89 a month"
+                },
+                {
+                  "title": "Body treatments",
+                  "body": "Glacial salt body polish, herbal wrap, custom spray tan, cavitation, Emerald laser, and colon hydrotherapy."
+                },
+                {
+                  "title": "Waxing",
+                  "body": "Waxing for men and women by a dedicated waxologist."
+                },
+                {
+                  "title": "Personal training",
+                  "body": "A private training gym. Plans start with a fitness assessment and an InBody composition analysis."
+                }
+              ],
+              "note": "FSA and HSA cards are accepted for eligible services, with itemized receipts. Gift certificates are available."
+            },
+            {
+              "_type": "reviews",
+              "_version": 1,
+              "_key": "reviews",
+              "headline": "Why guests keep coming back",
+              "intro": "Locally owned for over thirty years, with a menu that runs from a quiet facial to a hyperbaric session.",
+              "highlights": [
+                {
+                  "text": "Voted Best Day Spa in Orange County"
+                },
+                {
+                  "text": "OC Weekly Best Facial for the Red Carpet Facelift"
+                },
+                {
+                  "text": "Spa, recovery studio, and training gym under one roof"
+                }
+              ],
+              "ratings": [
+                {
+                  "source": "Yelp",
+                  "score": "[[4.x]]",
+                  "count": "[[843]] reviews",
+                  "url": "https://www.yelp.com/biz/bodycentre-day-spa-costa-mesa-2"
+                },
+                {
+                  "source": "ClassPass",
+                  "score": "[[4.9]]",
+                  "count": "[[10,000+]] ratings",
+                  "url": "https://classpass.com/search/orange-county/prenatal-massage"
+                },
+                {
+                  "source": "Groupon",
+                  "score": "[[4.8]]",
+                  "count": "[[770]] ratings",
+                  "url": ""
+                }
+              ],
+              "quotes": [
+                {
+                  "quote": "[[Paste a real guest review here.]]",
+                  "author": "[[Reviewer name]]",
+                  "source": "[[Yelp]]"
+                },
+                {
+                  "quote": "[[Paste a real guest review here.]]",
+                  "author": "[[Reviewer name]]",
+                  "source": "[[Google]]"
+                },
+                {
+                  "quote": "[[Paste a real guest review here.]]",
+                  "author": "[[Reviewer name]]",
+                  "source": "[[ClassPass]]"
+                }
+              ]
+            },
+            {
+              "_type": "visit",
+              "_version": 1,
+              "_key": "visit",
+              "headline": "Hours and location",
+              "intro": "Near Bristol and Baker Street in Costa Mesa, with appointments online around the clock.",
+              "hours": [
+                {
+                  "days": "Monday to Thursday",
+                  "time": "[[9 am to 7 pm]]"
+                },
+                {
+                  "days": "Friday and Saturday",
+                  "time": "[[9 am to 5 pm]]"
+                },
+                {
+                  "days": "Sunday",
+                  "time": "[[Closed]]"
+                }
+              ],
+              "note": "Online booking is open 24 hours a day. To book by phone, call during business hours.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/spa-lobby.jpg",
+                  "alt": "BodyCentre's lobby with lounge seating and a retail wall",
+                  "filename": "spa-lobby.jpg"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
