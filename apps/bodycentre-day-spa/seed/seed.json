@@ -661,14 +661,7 @@
                   "time": "Closed"
                 }
               ],
-              "note": "Online booking is open 24 hours a day. To book by phone, call during business hours.",
-              "image": {
-                "$media": {
-                  "url": "/_seed/media/spa-lobby.jpg",
-                  "alt": "BodyCentre's lobby with lounge seating and a retail wall",
-                  "filename": "spa-lobby.jpg"
-                }
-              }
+              "note": "Online booking is open 24 hours a day. To book by phone, call during business hours."
             },
             {
               "_type": "closing",
