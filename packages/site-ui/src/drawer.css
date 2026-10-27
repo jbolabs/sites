@@ -39,6 +39,10 @@
  * them to where the page was scrolled when the sheet opened; the scroll
  * lock keeps it there. The backdrop runs past the toolbar; the viewport
  * stops at the visible area so the sheet sits above it.
+ *
+ * Known and accepted: the slide-in carries the white card under the toolbar,
+ * and Safari keeps that color for its bar while the sheet is open. Only an
+ * open without a slide avoids it (tested on iOS 27); the slide is the call.
  */
 @supports (-webkit-touch-callout: none) {
   .drawer-backdrop,
