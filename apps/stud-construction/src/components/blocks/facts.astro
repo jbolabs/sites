@@ -18,7 +18,7 @@ const { value } = Astro.props;
         data-reveal
         style={`--reveal-delay: ${index * 80}ms`}
       >
-        <dt class="text-sm leading-snug text-muted-foreground">{item.label}</dt>
+        <dt class="text-base leading-snug text-foreground">{item.label}</dt>
         <dd class="order-first font-display text-4xl leading-none font-semibold tracking-[-0.03em] text-ink sm:text-5xl">{item.value}</dd>
       </div>
     ))}

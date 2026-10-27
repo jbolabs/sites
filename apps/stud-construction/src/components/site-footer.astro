@@ -22,11 +22,11 @@ const { address, email, fax, license } = site.business;
       <a href="/" aria-label={`${title}, home`} class="inline-block">
         <Logo tone="white" play="scroll" class="h-32 w-auto sm:h-36" />
       </a>
-      <p class="max-w-xs text-sm leading-relaxed">{tagline}</p>
+      <p class="max-w-xs text-base leading-relaxed">{tagline}</p>
     </div>
     <nav aria-label="Footer">
-      <h2 class="mb-5 font-sans text-sm font-semibold text-paper">Explore</h2>
-      <ul class="space-y-3 text-sm">
+      <h2 class="mb-5 font-sans text-base font-semibold text-paper">Explore</h2>
+      <ul class="space-y-3 text-base">
         {items.map((item) => (
           <li><a href={item.url} class="transition-colors hover:text-paper">{item.label}</a></li>
         ))}
@@ -38,8 +38,8 @@ const { address, email, fax, license } = site.business;
       </ul>
     </nav>
     <div>
-      <h2 class="mb-5 font-sans text-sm font-semibold text-paper">Contact</h2>
-      <ul class="space-y-3 text-sm">
+      <h2 class="mb-5 font-sans text-base font-semibold text-paper">Contact</h2>
+      <ul class="space-y-3 text-base">
         <li><a href={`tel:${site.business.telephone}`} class="font-display text-2xl font-semibold text-paper tabular-nums transition-colors hover:text-timber">{site.phone}</a></li>
         {email && <li><a href={`mailto:${email}`} class="break-all transition-colors hover:text-paper">{email}</a></li>}
         {fax && <li>Fax {fax}</li>}
@@ -49,8 +49,8 @@ const { address, email, fax, license } = site.business;
       </ul>
     </div>
     <div>
-      <h2 class="mb-5 font-sans text-sm font-semibold text-paper">Follow</h2>
-      <ul class="space-y-3 text-sm">
+      <h2 class="mb-5 font-sans text-base font-semibold text-paper">Follow</h2>
+      <ul class="space-y-3 text-base">
         {site.social.map((profile) => (
           <li>
             <a href={profile.url} target="_blank" rel="noopener" class="inline-flex items-center gap-1 transition-colors hover:text-paper">

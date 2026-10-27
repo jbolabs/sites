@@ -5,7 +5,7 @@
  * and logo.astro, and the page is fully visible without this script (the `js`
  * class that enables the hidden starting states is set by the same layout).
  */
-const ENTER_MARGIN = "0px 0px -12% 0px";
+const ENTER_MARGIN = "0px 0px -4% 0px";
 
 const observer = new IntersectionObserver(
   (entries) => {
@@ -20,7 +20,7 @@ const observer = new IntersectionObserver(
       observer.unobserve(element);
     }
   },
-  { rootMargin: ENTER_MARGIN, threshold: 0.12 }
+  { rootMargin: ENTER_MARGIN, threshold: 0.05 }
 );
 
 for (const element of document.querySelectorAll(

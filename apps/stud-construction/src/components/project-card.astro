@@ -43,7 +43,7 @@ const inProgress = project.progress === "in_progress";
       <Heading class="text-2xl sm:text-[1.75rem]">
         <a href={`/projects/${slug}`} class="after:absolute after:inset-0 focus-visible:outline-none">{project.title}</a>
       </Heading>
-      <p class="mt-2 text-sm text-muted-foreground">{PROJECT_TYPES[project.project_type]}{project.location ? ` · ${project.location}` : ""}</p>
+      <p class="mt-2 text-base text-muted-foreground">{PROJECT_TYPES[project.project_type]}{project.location ? ` · ${project.location}` : ""}</p>
     </div>
   </div>
 </article>

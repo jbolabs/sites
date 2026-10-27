@@ -187,7 +187,7 @@
   z-index: 2;
   background: var(--reveal-mask, var(--background));
   transform-origin: top;
-  transition: transform 1.4s var(--ease-in-out-quint);
+  transition: transform 1s var(--ease-in-out-quint);
   transition-delay: var(--reveal-delay, 0ms);
   pointer-events: none;
 }
@@ -204,7 +204,7 @@
 /* Photos inside a mask reveal settle from a slight zoom as the mask opens. */
 .js [data-reveal="mask"] > .reveal-zoom {
   transform: scale(1.12);
-  transition: transform 2s var(--ease-out-expo);
+  transition: transform 1.4s var(--ease-out-expo);
   transition-delay: var(--reveal-delay, 0ms);
 }
 

@@ -1230,7 +1230,7 @@
               "items": [
                 {
                   "value": "2009",
-                  "label": "Building and remodeling in Orange County since"
+                  "label": "The year we started building in Orange County"
                 },
                 {
                   "value": "20+",
@@ -1238,7 +1238,7 @@
                 },
                 {
                   "value": "In-house",
-                  "label": "Design team, so plans and pricing stay together"
+                  "label": "Design team, so plans and pricing stay in step"
                 },
                 {
                   "value": "Precise",
@@ -1503,6 +1503,14 @@
                   "bio": "Sunshyne brings more than a decade of administration experience in construction and interior design. She coordinates the behind-the-scenes details that keep a remodel smooth and hassle-free. In her free time she knits, sews, roller skates, bakes, keeps houseplants alive, and takes on her own home improvement projects."
                 }
               ]
+            },
+            {
+              "_type": "featured_projects",
+              "_version": 1,
+              "_key": "work",
+              "headline": "Homes the team has built",
+              "intro": "Recent remodels our crew carried from the first walkthrough to the final punch list.",
+              "link_label": "View the full portfolio"
             },
             {
               "_type": "cta_band",
@@ -1846,6 +1854,14 @@
               "link_url": "https://www.houzz.com/pro/andreidamian/studconstruction"
             },
             {
+              "_type": "featured_projects",
+              "_version": 1,
+              "_key": "work",
+              "headline": "Recent work",
+              "intro": "A few of the homes we have finished lately around Orange County.",
+              "link_label": "View the full portfolio"
+            },
+            {
               "_type": "cta_band",
               "_version": 1,
               "_key": "cta",
@@ -1879,7 +1895,17 @@
         "status": "published",
         "data": {
           "title": "Start a project",
-          "intro": "Tell us about your home and what you would like to build or change. We will get back to you to set up a time to talk."
+          "intro": "Tell us about your home and what you would like to build or change. We will get back to you to set up a time to talk.",
+          "content": [
+            {
+              "_type": "featured_projects",
+              "_version": 1,
+              "_key": "work",
+              "headline": "Recent work",
+              "intro": "A few of the homes we have finished lately, from whole-home remodels to fire rebuilds.",
+              "link_label": "View the full portfolio"
+            }
+          ]
         }
       },
       {
