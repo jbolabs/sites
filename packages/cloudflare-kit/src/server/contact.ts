@@ -10,6 +10,7 @@
  */
 import { Cause, Config, Context, Effect, Layer, Option, Schema } from "effect";
 
+import { CONTACT_LIMITS, isEmailAddress } from "../contact-rules.ts";
 import { Email } from "./email.ts";
 import type { EmailAddress } from "./email.ts";
 import { LeadStore } from "./leads.ts";
@@ -18,18 +19,6 @@ import type { TurnstileRejected, TurnstileUnavailable } from "./turnstile.ts";
 import { Turnstile } from "./turnstile.ts";
 
 export const LEAD_SUBMIT_FAILED = "lead submit failed";
-
-const WHITESPACE = /\s/u;
-
-/** One `@`, a non-empty local part, and a dotted domain. Deliverability is the reply's job. */
-export const isEmailAddress = (value: string): boolean => {
-  const at = value.indexOf("@");
-  const domain = value.slice(at + 1);
-  const hasSingleAt = at > 0 && !domain.includes("@");
-  const dottedDomain =
-    domain.includes(".") && !domain.startsWith(".") && !domain.endsWith(".");
-  return hasSingleAt && dottedDomain && !WHITESPACE.test(value);
-};
 
 const trimmed = (min: number, max: number) =>
   Schema.Trim.check(Schema.isMinLength(min), Schema.isMaxLength(max));
@@ -56,18 +45,18 @@ export const ContactForm = Schema.Struct({
   answers: Schema.optional(
     Schema.Array(LeadAnswer).check(Schema.isMaxLength(MAX_LEAD_ANSWERS))
   ),
-  company: optionalTrimmed(120),
+  company: optionalTrimmed(CONTACT_LIMITS.company.max),
   email: Schema.Trim.check(
-    Schema.isMaxLength(254),
+    Schema.isMaxLength(CONTACT_LIMITS.email.max),
     Schema.makeFilter((value: string) =>
       isEmailAddress(value) ? undefined : "Enter a valid email address"
     )
   ),
-  message: trimmed(10, 5000),
-  name: trimmed(2, 120),
-  phone: optionalTrimmed(40),
+  message: trimmed(CONTACT_LIMITS.message.min, CONTACT_LIMITS.message.max),
+  name: trimmed(CONTACT_LIMITS.name.min, CONTACT_LIMITS.name.max),
+  phone: optionalTrimmed(CONTACT_LIMITS.phone.max),
   /** Who sent the visitor (a referral partner or past client), when they say. */
-  referrer: optionalTrimmed(120),
+  referrer: optionalTrimmed(CONTACT_LIMITS.referrer.max),
   turnstileToken: Schema.String,
 });
 export type ContactForm = typeof ContactForm.Type;

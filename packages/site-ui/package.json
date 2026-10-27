@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     "./drawer.css": "./src/drawer.css",
+    "./form": "./src/form/index.ts",
     "./mobile-menu": "./src/mobile-menu.tsx",
     "./mobile-menu.css": "./src/mobile-menu.css",
     "./seamless-edges": "./src/seamless-edges.ts",
@@ -15,6 +16,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@tanstack/react-form": "catalog:",
     "clsx": "catalog:",
     "tailwind-merge": "catalog:"
   },

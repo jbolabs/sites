@@ -1,20 +1,28 @@
 import { pushDataLayerEvent } from "@jakebodea/cloudflare-kit/data-layer";
+import {
+  useAutoAdvance,
+  useSelector,
+  useTurnstile,
+} from "@jakebodea/site-ui/form";
 import { actions, isInputError } from "astro:actions";
 import { LoaderCircleIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode, SubmitEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
 import type { UiStrings } from "@/i18n/ui";
-import { stepProblems, stepsFor } from "@/lib/application-rules";
+import { STEP_KEYS, shownStep, stepsFor } from "@/lib/application-rules";
 import type { ApplicationAnswers, StepKey } from "@/lib/application-rules";
 import { cn } from "@/lib/utils";
 
 import { clearDraft, readDraft, writeDraft } from "./application/draft";
 import StepFields from "./application/step-fields";
 import ApplicationSuccess from "./application/success";
-import { useTurnstile } from "./application/use-turnstile";
+import {
+  APPLY_FORM_ID,
+  useApplicationForm,
+} from "./application/use-application-form";
 
 export interface ApplicationFormProps {
   readonly locale: "en" | "es";
@@ -34,6 +42,9 @@ type Status =
   | { readonly state: "sending" }
   | { readonly state: "sent"; readonly firstName: string }
   | { readonly state: "error"; readonly message: string };
+
+/** The step that carries the security check: the first one asking for contact details. */
+const VERIFY_STEP: StepKey = "contact";
 
 const defaultTitle = (title: string) => (
   <h2 className="text-ink text-question font-medium tracking-tight">{title}</h2>
@@ -119,9 +130,12 @@ const submitLabel = (last: boolean, sending: boolean, t: UiStrings["form"]) => {
 /**
  * The EquityFast application, one question per step. Used inside the dialog
  * on every page and on its own at `/apply`. Answers are checked with the same
- * rules the server applies; Turnstile renders on the last step so its token
- * is fresh when the request is sent. Rendered only in the browser (it reads
- * the saved draft on first render).
+ * rules the server applies (TanStack Form via `@jakebodea/site-ui/form`):
+ * Continue is always enabled and flags what to fix, then each edit re-checks.
+ * Turnstile is solved on the contact step and stays mounted (hidden) after
+ * it, renewing its token, so the one sent at the end is still valid; the
+ * server verifies it with the application. Rendered only in the browser (it
+ * reads the saved draft on first render).
  */
 const ApplicationForm = ({
   homeHref,
@@ -133,82 +147,102 @@ const ApplicationForm = ({
   turnstileSiteKey,
 }: ApplicationFormProps) => {
   const t = strings.form;
-  const [answers, setAnswers] = useState<ApplicationAnswers>(() => {
-    const saved = readDraft().answers;
-    return { ...saved, amount: initialAmount ?? saved.amount };
-  });
-  const [stepKey, setStepKey] = useState<StepKey>(() =>
-    initialAmount === undefined ? readDraft().step : "amount"
-  );
-  const [problems, setProblems] = useState<readonly string[]>([]);
+  // Read once: the form's starting answers must not change under it.
+  const initial = useMemo(() => {
+    const saved = readDraft();
+    return {
+      answers: {
+        ...saved.answers,
+        amount: initialAmount ?? saved.answers.amount,
+      },
+      step: initialAmount === undefined ? saved.step : ("amount" as const),
+    };
+  }, [initialAmount]);
+  const [stepKey, setStepKey] = useState<StepKey>(initial.step);
   const [status, setStatus] = useState<Status>({ state: "editing" });
   // Which way the last step change went, so the next question slides in from that side.
   const [direction, setDirection] = useState<"forward" | "back">("forward");
   const heading = useRef<HTMLDivElement>(null);
-
-  const steps = stepsFor(answers);
-  const index = Math.max(0, steps.indexOf(stepKey));
-  const step = steps[index] ?? "amount";
-  const last = index === steps.length - 1;
+  // From the contact step on (it comes before every step that can be skipped).
   const {
     failed: turnstileFailed,
-    ref: turnstileRef,
+    mount: turnstileMount,
+    reset: resetTurnstile,
     token,
   } = useTurnstile({
-    active: last,
+    active: STEP_KEYS.indexOf(stepKey) >= STEP_KEYS.indexOf(VERIFY_STEP),
     locale,
     siteKey: turnstileSiteKey,
   });
 
-  const update = (next: ApplicationAnswers, field: string) => {
-    setAnswers(next);
-    setProblems((current) => current.filter((name) => name !== field));
-    writeDraft({ answers: next, step: stepKey });
-  };
-
-  const go = (next: StepKey) => {
-    setDirection(steps.indexOf(next) < index ? "back" : "forward");
+  /** Shows `next`; the caller restarts the form so the new step starts quiet. */
+  const move = (next: StepKey, values: ApplicationAnswers) => {
+    const order = stepsFor(values);
+    const from = order.indexOf(shownStep(stepKey, values));
+    setDirection(order.indexOf(next) < from ? "back" : "forward");
     setStepKey(next);
-    writeDraft({ answers, step: next });
-    setProblems([]);
     setStatus({ state: "editing" });
     // Move focus to the new question so screen readers announce it.
     requestAnimationFrame(() => heading.current?.focus());
   };
 
-  const send = async () => {
+  const send = async (values: ApplicationAnswers) => {
     setStatus({ state: "sending" });
-    const { error } = await submitApplication(answers, locale, token);
+    const { error } = await submitApplication(values, locale, token);
     if (error === undefined) {
       clearDraft();
       // The agency's ad conversions (Tag Manager, prod only).
       pushDataLayerEvent("application_submitted");
-      setStatus({ firstName: answers.firstName.trim(), state: "sent" });
+      setStatus({ firstName: values.firstName.trim(), state: "sent" });
       return;
     }
+    // Tokens are single use: a retry needs a new one.
+    resetTurnstile();
     setStatus({
       message: isInputError(error) ? t.errorInvalid : error.message,
       state: "error",
     });
   };
 
+  const form = useApplicationForm({
+    errors: t.errors,
+    initial: initial.answers,
+    onStepDone: async (values, { restart }) => {
+      const order = stepsFor(values);
+      const position = order.indexOf(shownStep(stepKey, values));
+      if (position >= order.indexOf(VERIFY_STEP) && token === "") {
+        setStatus({ message: t.verifyFirst, state: "error" });
+        return;
+      }
+      const next = order[position + 1];
+      if (next === undefined) {
+        await send(values);
+        return;
+      }
+      move(next, values);
+      restart();
+    },
+    step: stepKey,
+  });
+  const answers = useSelector(form.store, (state) => state.values);
+
+  const steps = stepsFor(answers);
+  const step = shownStep(stepKey, answers);
+  const index = steps.indexOf(step);
+  const last = index === steps.length - 1;
+
+  useEffect(() => {
+    writeDraft({ answers, step });
+  }, [answers, step]);
+
+  const autoAdvance = useAutoAdvance(() => {
+    void form.handleSubmit();
+  });
+
   const onSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const found = stepProblems(step, answers);
-    setProblems(found);
-    if (found.length > 0) {
-      // Take the visitor to the first thing to fix; its error is read with it.
-      document.querySelector<HTMLElement>(`#apply-${found[0]}`)?.focus();
-      return;
-    }
-    if (status.state === "sending") {
-      return;
-    }
-    const next = steps[index + 1];
-    if (next !== undefined) {
-      go(next);
-    } else if (token !== "") {
-      void send();
+    if (status.state !== "sending") {
+      void form.handleSubmit();
     }
   };
 
@@ -227,6 +261,8 @@ const ApplicationForm = ({
   const copy = t.steps[step];
   const sending = status.state === "sending";
   const previous = steps[index - 1];
+  // Shown where it is solved, and again at the end if it needs the visitor once more.
+  const showTurnstile = step === VERIFY_STEP || (last && token === "");
   // A quick slide (200ms) keeps step changes from teleporting; the key replays it per question.
   const enter = cn(
     "animate-in fade-in ease-out-strong duration-200",
@@ -234,7 +270,7 @@ const ApplicationForm = ({
   );
 
   return (
-    <form onSubmit={onSubmit} noValidate>
+    <form id={APPLY_FORM_ID} onSubmit={onSubmit} noValidate>
       <div ref={heading} tabIndex={-1} className="outline-none">
         <div key={step} className={enter}>
           {renderTitle(copy.title)}
@@ -260,26 +296,19 @@ const ApplicationForm = ({
 
       <div key={step} className={cn("mt-6", enter)}>
         <StepFields
+          form={form}
           step={step}
           title={copy.title}
-          answers={answers}
-          problems={problems}
           strings={strings}
-          onText={(field, value) => {
-            update({ ...answers, [field]: value }, field);
-          }}
-          onConsent={(value) => {
-            update({ ...answers, consent: value }, "consent");
-          }}
+          onChoice={autoAdvance}
         />
       </div>
 
-      {last && (
-        <div className="mt-6">
-          <div ref={turnstileRef} className="min-h-16" />
-          <p className="text-graphite mt-2 text-center text-xs">{t.security}</p>
-        </div>
-      )}
+      {/* One widget from the contact step on, so its token keeps renewing; hidden off its step. */}
+      <div className={cn("mt-6", !showTurnstile && "hidden")}>
+        <div ref={turnstileMount} className="min-h-16" />
+        <p className="text-graphite mt-2 text-center text-xs">{t.security}</p>
+      </div>
 
       {status.state === "error" && (
         <div className="animate-in fade-in slide-in-from-top-1 ease-out-strong mt-4 duration-200">
@@ -299,18 +328,14 @@ const ApplicationForm = ({
             variant="outline-ink"
             size="cta"
             onClick={() => {
-              go(previous);
+              move(previous, answers);
+              form.reset(answers, { keepDefaultValues: true });
             }}
           >
             {t.back}
           </Button>
         )}
-        <Button
-          type="submit"
-          size="cta"
-          className="ml-auto"
-          disabled={sending || (last && token === "")}
-        >
+        <Button type="submit" size="cta" className="ml-auto" disabled={sending}>
           {sending && (
             <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
           )}

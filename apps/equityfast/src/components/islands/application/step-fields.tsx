@@ -1,3 +1,4 @@
+import { fieldState } from "@jakebodea/site-ui/form";
 import type { ComponentProps, ReactNode } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,213 +24,162 @@ import type { ApplicationAnswers, StepKey } from "@/lib/application-rules";
 import { cn } from "@/lib/utils";
 
 import ChoiceGroup from "./choice-group";
+import type { ApplicationFormApi } from "./use-application-form";
 
 type TextField = Exclude<keyof ApplicationAnswers, "consent">;
+type ChoiceField = "occupancy" | "ownership" | "forSale";
+
+/** Ids are `apply-<field>`; the error under a field is `apply-<field>-error`. */
+const ID_PREFIX = "apply";
 
 export interface StepFieldsProps {
+  readonly form: ApplicationFormApi;
   readonly step: StepKey;
   readonly title: string;
-  readonly answers: ApplicationAnswers;
-  readonly problems: readonly string[];
   readonly strings: UiStrings;
-  readonly onText: (field: TextField, value: string) => void;
-  readonly onConsent: (value: boolean) => void;
+  /** Called after a pick on a single-choice step, which then moves on by itself. */
+  readonly onChoice: () => void;
 }
 
-type Errors = UiStrings["form"]["errors"];
-
-/** Fields with a message of their own; the rest share one by kind (name, street, ...). */
-const OWN_MESSAGE: Partial<Record<TextField, keyof Errors>> = {
-  amount: "amount",
-  birthDate: "birthDate",
-  email: "email",
-  income: "income",
-  incomeSource: "incomeSource",
-  otherIncome: "otherIncome",
-  phone: "phone",
-};
-
-/** The message under an invalid field; blank required fields say so plainly. */
-const errorFor = (field: TextField, value: string, errors: Errors): string => {
-  const own = OWN_MESSAGE[field];
-  if (own !== undefined) {
-    return errors[own];
-  }
-  if (value.trim() === "" && field !== "middleName") {
-    return field.endsWith("State") ? errors.state : errors.required;
-  }
-  if (field.endsWith("Name")) {
-    return errors.name;
-  }
-  if (field.endsWith("Street")) {
-    return errors.street;
-  }
-  if (field.endsWith("City")) {
-    return errors.city;
-  }
-  if (field.endsWith("State")) {
-    return errors.state;
-  }
-  if (field.endsWith("Zip")) {
-    return errors.zip;
-  }
-  return errors.choice;
-};
-
-/** Ids for a field's input and its error, so the error is read with the field. */
-const ids = (field: string) => ({
-  error: `apply-${field}-error`,
-  input: `apply-${field}`,
-});
-
-const InlineError = ({ id, message }: { id: string; message: string }) => (
+const InlineError = ({
+  errors,
+  id,
+}: {
+  readonly errors: readonly { message: string }[];
+  readonly id: string;
+}) => (
   <div className="animate-in fade-in slide-in-from-top-1 ease-out-strong duration-200">
-    <FieldError id={id}>{message}</FieldError>
+    <FieldError id={id} errors={[...errors]} />
   </div>
 );
 
 const NO_EXTRA: Partial<ComponentProps<"input">> = {};
 
-interface FieldProps {
-  readonly answers: ApplicationAnswers;
-  readonly errors: Errors;
-  readonly onText: StepFieldsProps["onText"];
-  readonly problems: readonly string[];
-}
-
 const TextInput = ({
-  answers,
-  errors,
   extra = NO_EXTRA,
-  field,
+  field: name,
+  form,
   format,
   help,
   label,
-  onText,
-  problems,
-}: FieldProps & {
+}: {
   readonly extra?: Partial<ComponentProps<"input">>;
   readonly field: TextField;
+  readonly form: ApplicationFormApi;
   readonly format?: (value: string) => string;
-  /** A short hint under the label (`Enter 0 if none`). */
+  /** A short hint under the label (`Leave at $0 if none`). */
   readonly help?: string;
   readonly label: ReactNode;
-}) => {
-  const invalid = problems.includes(field);
-  const id = ids(field);
-  return (
-    <Field data-invalid={invalid || undefined}>
-      <FieldLabel htmlFor={id.input} size="large">
-        {label}
-      </FieldLabel>
-      {help !== undefined && (
-        <p className="text-graphite -mt-1 text-sm">{help}</p>
-      )}
-      <Input
-        id={id.input}
-        variant="large"
-        value={answers[field]}
-        aria-invalid={invalid || undefined}
-        aria-describedby={invalid ? id.error : undefined}
-        onChange={(event) => {
-          const raw = event.currentTarget.value;
-          onText(field, format === undefined ? raw : format(raw));
-        }}
-        {...extra}
-      />
-      {invalid && (
-        <InlineError
-          id={id.error}
-          message={errorFor(field, answers[field], errors)}
-        />
-      )}
-    </Field>
-  );
-};
+}) => (
+  <form.Field name={name}>
+    {(field) => {
+      const state = fieldState(field, ID_PREFIX);
+      return (
+        <Field data-invalid={state.isInvalid || undefined}>
+          <FieldLabel htmlFor={state.id} size="large">
+            {label}
+          </FieldLabel>
+          {help !== undefined && (
+            <p className="text-graphite -mt-1 text-sm">{help}</p>
+          )}
+          <Input
+            {...state.control}
+            name={field.name}
+            variant="large"
+            value={field.state.value}
+            onBlur={field.handleBlur}
+            onChange={(event) => {
+              const raw = event.currentTarget.value;
+              field.handleChange(format === undefined ? raw : format(raw));
+            }}
+            {...extra}
+          />
+          {state.isInvalid && (
+            <InlineError id={state.errorId} errors={state.errors} />
+          )}
+        </Field>
+      );
+    }}
+  </form.Field>
+);
 
 /** One answer from a fixed list, as a native select (states, income source). */
 const SelectField = ({
-  answers,
   autoComplete,
-  errors,
-  field,
+  field: name,
+  form,
   label,
-  onText,
   options,
   placeholder,
-  problems,
-}: FieldProps & {
+}: {
   readonly autoComplete?: string;
   readonly field: "propertyState" | "primaryState" | "incomeSource";
+  readonly form: ApplicationFormApi;
   readonly label: string;
   /** `[value, label]` pairs, in display order. */
   readonly options: readonly (readonly [string, string])[];
   readonly placeholder: string;
-}) => {
-  const invalid = problems.includes(field);
-  const id = ids(field);
-  // Drafts saved before the state select held free text; an unknown value shows the placeholder.
-  const current =
-    field === "incomeSource"
-      ? answers[field]
-      : answers[field].trim().toUpperCase();
-  const known = options.some(([value]) => value === current);
-  return (
-    <Field data-invalid={invalid || undefined}>
-      <FieldLabel htmlFor={id.input} size="large">
-        {label}
-      </FieldLabel>
-      <NativeSelect
-        id={id.input}
-        variant="large"
-        className="w-full"
-        required
-        autoComplete={autoComplete}
-        value={known ? current : ""}
-        aria-invalid={invalid || undefined}
-        aria-describedby={invalid ? id.error : undefined}
-        onChange={(event) => {
-          onText(field, event.currentTarget.value);
-        }}
-      >
-        <NativeSelectOption value="" disabled>
-          {placeholder}
-        </NativeSelectOption>
-        {options.map(([value, name]) => (
-          <NativeSelectOption key={value} value={value}>
-            {name}
-          </NativeSelectOption>
-        ))}
-      </NativeSelect>
-      {invalid && (
-        <InlineError
-          id={id.error}
-          message={errorFor(field, answers[field], errors)}
-        />
-      )}
-    </Field>
-  );
-};
+}) => (
+  <form.Field name={name}>
+    {(field) => {
+      const state = fieldState(field, ID_PREFIX);
+      // Drafts saved before the state select held free text; an unknown value shows the placeholder.
+      const current =
+        name === "incomeSource"
+          ? field.state.value
+          : field.state.value.trim().toUpperCase();
+      const known = options.some(([value]) => value === current);
+      return (
+        <Field data-invalid={state.isInvalid || undefined}>
+          <FieldLabel htmlFor={state.id} size="large">
+            {label}
+          </FieldLabel>
+          <NativeSelect
+            {...state.control}
+            name={field.name}
+            variant="large"
+            className="w-full"
+            autoComplete={autoComplete}
+            value={known ? current : ""}
+            onBlur={field.handleBlur}
+            onChange={(event) => {
+              field.handleChange(event.currentTarget.value);
+            }}
+          >
+            <NativeSelectOption value="" disabled>
+              {placeholder}
+            </NativeSelectOption>
+            {options.map(([value, text]) => (
+              <NativeSelectOption key={value} value={value}>
+                {text}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+          {state.isInvalid && (
+            <InlineError id={state.errorId} errors={state.errors} />
+          )}
+        </Field>
+      );
+    }}
+  </form.Field>
+);
 
 const AddressFields = ({
+  form,
   prefix,
-  ...props
-}: Omit<StepFieldsProps, "step" | "title" | "onConsent"> & {
+  strings,
+}: {
+  readonly form: ApplicationFormApi;
   readonly prefix: "property" | "primary";
+  readonly strings: UiStrings;
 }) => {
-  const t = props.strings.form;
+  const t = strings.form;
   // A separate autofill section, so the browser doesn't reuse the property address.
   const section = prefix === "primary" ? "section-primary " : "";
-  const shared = {
-    answers: props.answers,
-    errors: t.errors,
-    onText: props.onText,
-    problems: props.problems,
-  };
   return (
     <div className="grid gap-5">
       <TextInput
-        {...shared}
+        form={form}
         field={`${prefix}Street`}
         label={t.street}
         extra={{
@@ -238,7 +188,7 @@ const AddressFields = ({
         }}
       />
       <TextInput
-        {...shared}
+        form={form}
         field={`${prefix}City`}
         label={t.city}
         extra={{
@@ -248,7 +198,7 @@ const AddressFields = ({
       />
       <div className="grid grid-cols-2 items-start gap-4">
         <SelectField
-          {...shared}
+          form={form}
           field={`${prefix}State`}
           label={t.state}
           options={US_STATES}
@@ -256,7 +206,7 @@ const AddressFields = ({
           autoComplete={`${section}address-level1`}
         />
         <TextInput
-          {...shared}
+          form={form}
           field={`${prefix}Zip`}
           label={t.zip}
           format={formatZip}
@@ -272,42 +222,105 @@ const AddressFields = ({
   );
 };
 
+/** A step that asks one single-choice question; a pick moves on by itself. */
+const ChoiceStep = ({
+  field: name,
+  form,
+  labels,
+  onChoice,
+  options,
+  title,
+}: {
+  readonly field: ChoiceField;
+  readonly form: ApplicationFormApi;
+  readonly labels: Readonly<Record<string, string>>;
+  readonly onChoice: () => void;
+  readonly options: readonly string[];
+  readonly title: string;
+}) => (
+  <form.Field name={name}>
+    {(field) => {
+      const state = fieldState(field, ID_PREFIX);
+      return (
+        <div className="grid gap-3">
+          <ChoiceGroup
+            id={state.id}
+            title={title}
+            options={options}
+            labels={labels}
+            value={field.state.value}
+            invalid={state.isInvalid}
+            errorId={state.control["aria-describedby"]}
+            onBlur={field.handleBlur}
+            onChange={(value) => {
+              field.handleChange(value);
+              onChoice();
+            }}
+          />
+          {state.isInvalid && (
+            <InlineError id={state.errorId} errors={state.errors} />
+          )}
+        </div>
+      );
+    }}
+  </form.Field>
+);
+
+const ConsentField = ({
+  form,
+  label,
+}: {
+  readonly form: ApplicationFormApi;
+  readonly label: string;
+}) => (
+  <form.Field name="consent">
+    {(field) => {
+      const state = fieldState(field, ID_PREFIX);
+      return (
+        <div className="grid gap-1.5">
+          <label
+            className={cn(
+              "bg-canvas text-ink flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3.5 text-base leading-relaxed",
+              state.isInvalid ? "border-destructive" : "border-border"
+            )}
+          >
+            <Checkbox
+              {...state.control}
+              name={field.name}
+              size="large"
+              checked={field.state.value}
+              onBlur={field.handleBlur}
+              onCheckedChange={(checked) => {
+                field.handleChange(checked);
+              }}
+              className="mt-1"
+            />
+            <span>{label}</span>
+          </label>
+          {state.isInvalid && (
+            <InlineError id={state.errorId} errors={state.errors} />
+          )}
+        </div>
+      );
+    }}
+  </form.Field>
+);
+
 /** The inputs for one step of the application. */
-const StepFields = (props: StepFieldsProps) => {
-  const { answers, onConsent, onText, problems, step, strings, title } = props;
+const StepFields = ({
+  form,
+  onChoice,
+  step,
+  strings,
+  title,
+}: StepFieldsProps) => {
   const t = strings.form;
-  const shared = { answers, errors: t.errors, onText, problems };
-  const choice = (
-    field: "occupancy" | "ownership" | "forSale",
-    options: readonly string[],
-    labels: Readonly<Record<string, string>>
-  ) => {
-    const invalid = problems.includes(field);
-    return (
-      <div className="grid gap-3">
-        <ChoiceGroup
-          title={title}
-          options={options}
-          labels={labels}
-          value={answers[field]}
-          invalid={invalid}
-          errorId={invalid ? ids(field).error : undefined}
-          onChange={(value) => {
-            onText(field, value);
-          }}
-        />
-        {invalid && (
-          <InlineError id={ids(field).error} message={t.errors.choice} />
-        )}
-      </div>
-    );
-  };
   switch (step) {
     case "amount": {
       return (
         <div>
           <TextInput
-            {...shared}
+            form={form}
             field="amount"
             label={t.amountLabel}
             format={formatDollars}
@@ -321,13 +334,13 @@ const StepFields = (props: StepFieldsProps) => {
       return (
         <div className="grid gap-5">
           <TextInput
-            {...shared}
+            form={form}
             field="firstName"
             label={t.firstName}
             extra={{ autoComplete: "given-name", placeholder: "Jordan" }}
           />
           <TextInput
-            {...shared}
+            form={form}
             field="middleName"
             label={
               <>
@@ -340,7 +353,7 @@ const StepFields = (props: StepFieldsProps) => {
             extra={{ autoComplete: "additional-name", placeholder: "A." }}
           />
           <TextInput
-            {...shared}
+            form={form}
             field="lastName"
             label={t.lastName}
             extra={{ autoComplete: "family-name", placeholder: "Reyes" }}
@@ -352,7 +365,7 @@ const StepFields = (props: StepFieldsProps) => {
       return (
         <div className="grid gap-5">
           <TextInput
-            {...shared}
+            form={form}
             field="email"
             label={strings.emailLabel}
             extra={{
@@ -362,7 +375,7 @@ const StepFields = (props: StepFieldsProps) => {
             }}
           />
           <TextInput
-            {...shared}
+            form={form}
             field="phone"
             label={t.phoneLabel}
             format={formatPhone}
@@ -373,77 +386,72 @@ const StepFields = (props: StepFieldsProps) => {
               type: "tel",
             }}
           />
-          <div className="grid gap-1.5">
-            <label
-              className={cn(
-                "bg-canvas text-ink flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3.5 text-base leading-relaxed",
-                problems.includes("consent")
-                  ? "border-destructive"
-                  : "border-border"
-              )}
-            >
-              <Checkbox
-                id={ids("consent").input}
-                size="large"
-                checked={answers.consent}
-                aria-invalid={problems.includes("consent") || undefined}
-                aria-describedby={
-                  problems.includes("consent")
-                    ? ids("consent").error
-                    : undefined
-                }
-                onCheckedChange={(checked) => {
-                  onConsent(checked);
-                }}
-                className="mt-1"
-              />
-              <span>{t.consent}</span>
-            </label>
-            {problems.includes("consent") && (
-              <InlineError
-                id={ids("consent").error}
-                message={t.errors.consent}
-              />
-            )}
-          </div>
+          <ConsentField form={form} label={t.consent} />
         </div>
       );
     }
     case "propertyAddress": {
-      return <AddressFields {...props} prefix="property" />;
+      return <AddressFields form={form} strings={strings} prefix="property" />;
     }
     case "primaryAddress": {
-      return <AddressFields {...props} prefix="primary" />;
+      return <AddressFields form={form} strings={strings} prefix="primary" />;
     }
     case "occupancy": {
-      return choice("occupancy", OCCUPANCY, strings.options.occupancy);
+      return (
+        <ChoiceStep
+          form={form}
+          field="occupancy"
+          title={title}
+          options={OCCUPANCY}
+          labels={strings.options.occupancy}
+          onChoice={onChoice}
+        />
+      );
     }
     case "ownership": {
-      return choice("ownership", OWNERSHIP, strings.options.ownership);
+      return (
+        <ChoiceStep
+          form={form}
+          field="ownership"
+          title={title}
+          options={OWNERSHIP}
+          labels={strings.options.ownership}
+          onChoice={onChoice}
+        />
+      );
     }
     case "forSale": {
-      return choice("forSale", FOR_SALE, strings.options.forSale);
+      return (
+        <ChoiceStep
+          form={form}
+          field="forSale"
+          title={title}
+          options={FOR_SALE}
+          labels={strings.options.forSale}
+          onChoice={onChoice}
+        />
+      );
     }
     case "income": {
       return (
         <div className="grid gap-5">
           <TextInput
-            {...shared}
+            form={form}
             field="income"
             label={t.income}
             format={formatDollars}
             extra={{ inputMode: "numeric", placeholder: "$140,000" }}
           />
           <TextInput
-            {...shared}
+            form={form}
             field="otherIncome"
             label={t.otherIncome}
             help={t.otherIncomeHelp}
             format={formatDollars}
-            extra={{ inputMode: "numeric", placeholder: "$12,000" }}
+            extra={{ inputMode: "numeric", placeholder: "$0" }}
           />
           <SelectField
-            {...shared}
+            form={form}
             field="incomeSource"
             label={t.incomeSource}
             options={INCOME_SOURCES.map((source) => [
@@ -453,7 +461,7 @@ const StepFields = (props: StepFieldsProps) => {
             placeholder={t.incomeSourcePlaceholder}
           />
           <TextInput
-            {...shared}
+            form={form}
             field="birthDate"
             label={t.birthDate}
             format={formatBirthDate}

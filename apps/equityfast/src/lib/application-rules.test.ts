@@ -49,6 +49,11 @@ describe(formatDollars, () => {
     expect(formatDollars("75000")).toBe("$75,000");
     expect(formatDollars("$0075,0x00")).toBe("$75,000");
   });
+
+  it("keeps a typed zero, so other income can be $0", () => {
+    expect(formatDollars("0")).toBe("$0");
+    expect(formatDollars("$")).toBe("");
+  });
 });
 
 describe(formatPhone, () => {
