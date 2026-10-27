@@ -95,17 +95,6 @@
   transition-duration: calc(var(--drawer-swipe-strength, 1) * 400ms);
 }
 
-/* The grab handle: tells the visitor the sheet swipes away. */
-.drawer-handle {
-  flex-shrink: 0;
-  width: 2.25rem;
-  height: 0.3125rem;
-  margin: 0.5rem auto 0;
-  border-radius: 999px;
-  background-color: currentColor;
-  opacity: 0.18;
-}
-
 /*
  * Holds the measured height. It shrinks (and scrolls) when the content is
  * taller than the screen allows.

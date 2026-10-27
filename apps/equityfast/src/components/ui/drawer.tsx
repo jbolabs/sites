@@ -28,8 +28,8 @@ const drawerContentVariants = {
 } as const;
 
 const drawerBodyVariants = {
-  default: "px-4 pt-3 pb-4",
-  application: "px-5 pt-3 pb-5",
+  default: "p-4",
+  application: "p-5",
 } as const;
 
 function DrawerContent({
@@ -64,7 +64,6 @@ function DrawerContent({
             )}
             {...props}
           >
-            <div className="drawer-handle" aria-hidden="true" />
             <div className="drawer-body" style={style}>
               <DrawerPrimitive.Content
                 ref={measure}
