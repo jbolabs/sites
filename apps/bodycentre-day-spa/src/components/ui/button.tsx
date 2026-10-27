@@ -18,10 +18,12 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
-        // Site additions: a hairline outline for light sections and a light CTA for the dark footer.
+        // Site additions: a hairline outline for light sections, and a light CTA and its outline partner for dark bands.
         hairline:
           "border-slate/35 text-slate hover:border-slate hover:bg-slate hover:text-ivory bg-transparent",
         inverse: "bg-ivory text-slate hover:bg-white",
+        "outline-inverse":
+          "border-ivory/40 text-ivory hover:border-ivory hover:bg-ivory/10 bg-transparent",
       },
       size: {
         default:

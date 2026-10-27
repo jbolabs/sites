@@ -3,6 +3,7 @@
 import { Blocks, defineBlockComponents } from "emdash/ui";
 
 import type { HomeContentBlock } from "../../../emdash-env";
+import Closing from "./closing.astro";
 import Hero from "./hero.astro";
 import Reviews from "./reviews.astro";
 import Services from "./services.astro";
@@ -14,6 +15,7 @@ interface Props {
 
 const { value } = Astro.props;
 const components = defineBlockComponents<HomeContentBlock>({
+  closing: Closing,
   hero: Hero,
   reviews: Reviews,
   services: Services,

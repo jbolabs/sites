@@ -15,6 +15,7 @@ import { socialImage } from "@jakebodea/cloudflare-kit/social-image";
 import type { MediaFile } from "@jakebodea/cloudflare-kit/social-image";
 import { documentTitle, metaDescription } from "@jakebodea/cloudflare-kit/seo";
 
+import BookingBar from "@/components/booking-bar.astro";
 import SiteFooter from "@/components/site-footer.astro";
 import SiteHeader from "@/components/site-header.astro";
 import StructuredData from "@/components/structured-data.astro";
@@ -88,6 +89,7 @@ const page = createPublicPageContext({
       <slot />
     </main>
     <SiteFooter title={chrome.title} tagline={chrome.tagline} items={chrome.footer} />
+    <BookingBar />
     <EmDashBodyEnd page={page} />
     <script>
       import { mountSeamlessEdges } from "@jakebodea/site-ui/seamless-edges";

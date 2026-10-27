@@ -99,6 +99,19 @@
                     "slug": "image",
                     "label": "Photo (featured cards only)",
                     "type": "image"
+                  },
+                  {
+                    "slug": "link_label",
+                    "label": "Link label (defaults to Book)",
+                    "type": "string"
+                  },
+                  {
+                    "slug": "link_url",
+                    "label": "Link (defaults to the booking page)",
+                    "type": "string",
+                    "validation": {
+                      "pattern": "^(?:$|(?:https?://|mailto:|tel:|/(?!/)|#).+)$"
+                    }
                   }
                 ]
               }
@@ -210,6 +223,19 @@
                   }
                 ]
               }
+            },
+            {
+              "slug": "more_label",
+              "label": "Link under the reviews",
+              "type": "string"
+            },
+            {
+              "slug": "more_url",
+              "label": "Link under the reviews: URL",
+              "type": "string",
+              "validation": {
+                "pattern": "^(?:$|(?:https?://|mailto:|tel:|/(?!/)|#).+)$"
+              }
             }
           ]
         }
@@ -273,6 +299,50 @@
           ]
         }
       ]
+    },
+    {
+      "slug": "closing",
+      "label": "Closing call to action",
+      "description": "A last invitation to book before the footer, with Book now, a call button, and an optional second link.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "body",
+              "label": "Text",
+              "type": "text"
+            },
+            {
+              "slug": "book_label",
+              "label": "Booking button label",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "second_label",
+              "label": "Second link label",
+              "type": "string"
+            },
+            {
+              "slug": "second_url",
+              "label": "Second link",
+              "type": "string",
+              "validation": {
+                "pattern": "^(?:$|(?:https?://|mailto:|tel:|/(?!/)|#).+)$"
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "collections": [
@@ -302,7 +372,7 @@
           "label": "Sections",
           "type": "blocks",
           "validation": {
-            "allowedTypes": ["hero", "services", "reviews", "visit"],
+            "allowedTypes": ["hero", "services", "reviews", "visit", "closing"],
             "maxItems": 20
           }
         }
@@ -432,9 +502,9 @@
               "subheadline": "Massage, facials, and recovery therapies under one roof in Costa Mesa, since 1994.",
               "image": {
                 "$media": {
-                  "url": "/_seed/media/massage-oils-orchids.jpg",
-                  "alt": "Therapist massaging a guest's back beside orchids and massage oils",
-                  "filename": "massage-oils-orchids.jpg"
+                  "url": "/_seed/media/spa-lobby-hero.jpg",
+                  "alt": "BodyCentre Day Spa's lobby with lounge chairs, shelves of skin care, and a bar counter",
+                  "filename": "spa-lobby-hero.jpg"
                 }
               },
               "book_label": "Book now"
@@ -485,12 +555,16 @@
                 {
                   "title": "Spa packages",
                   "body": "Massage and facial pairings, from the mid-week massage special to the Platinum Spa Package.",
-                  "price": "From $89"
+                  "price": "From $89",
+                  "link_label": "See packages",
+                  "link_url": "https://www.bodycentredayspa.com/massage-facial-packages"
                 },
                 {
                   "title": "Massage memberships",
                   "body": "One massage a month and 10% off every other service and lobby product, on a three month term.",
-                  "price": "55 minutes, $89 a month"
+                  "price": "55 minutes, $89 a month",
+                  "link_label": "Join",
+                  "link_url": "https://www.bodycentredayspa.com/55minute-massage-membership"
                 },
                 {
                   "title": "Body treatments",
@@ -505,7 +579,7 @@
                   "body": "A private training gym. Plans start with a fitness assessment and an InBody composition analysis."
                 }
               ],
-              "note": "FSA and HSA cards are accepted for eligible services, with itemized receipts. Gift certificates are available."
+              "note": "FSA and HSA cards are accepted for eligible services, with itemized receipts."
             },
             {
               "_type": "reviews",
@@ -563,7 +637,9 @@
                   "author": "Audrey W.",
                   "source": "Google"
                 }
-              ]
+              ],
+              "more_label": "Read all 843 reviews on Yelp",
+              "more_url": "https://www.yelp.com/biz/bodycentre-day-spa-costa-mesa-2"
             },
             {
               "_type": "visit",
@@ -593,6 +669,16 @@
                   "filename": "spa-lobby.jpg"
                 }
               }
+            },
+            {
+              "_type": "closing",
+              "_version": 1,
+              "_key": "closing",
+              "headline": "Your next appointment is a few taps away.",
+              "body": "Pick a treatment and a time online, day or night, or call and the front desk will help you choose.",
+              "book_label": "Book now",
+              "second_label": "Give a gift certificate",
+              "second_url": "https://www.bodycentredayspa.com/gift-certificates"
             }
           ]
         }

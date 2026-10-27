@@ -201,6 +201,26 @@
   transform: none;
 }
 
+/*
+ * The phone booking bar slides up from below the screen edge; hidden, it is
+ * also unclickable and out of the tab order's way (visibility).
+ */
+.booking-bar {
+  transform: translateY(100%);
+  visibility: hidden;
+  transition:
+    transform 300ms var(--ease-out),
+    visibility 0s linear 300ms;
+}
+
+.booking-bar[data-show] {
+  transform: none;
+  visibility: visible;
+  transition:
+    transform 300ms var(--ease-out),
+    visibility 0s;
+}
+
 /* Photos in cards drift closer under a pointer; touch screens skip it. */
 .zoom-photo img {
   transition: transform 900ms var(--ease-out);
@@ -222,6 +242,22 @@
   .js [data-reveal] {
     transform: none;
     transition: opacity 400ms ease;
+  }
+
+  .booking-bar,
+  .booking-bar[data-show] {
+    transform: none;
+    opacity: 0;
+    transition:
+      opacity 200ms ease,
+      visibility 0s linear 200ms;
+  }
+
+  .booking-bar[data-show] {
+    opacity: 1;
+    transition:
+      opacity 200ms ease,
+      visibility 0s;
   }
 
   .press:active,

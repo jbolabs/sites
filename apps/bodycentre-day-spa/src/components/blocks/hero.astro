@@ -15,8 +15,8 @@ const { value } = Astro.props;
 const { address, bookingUrl, mapUrl, telephone } = site.business;
 ---
 
-<section class="overflow-hidden">
-  <div class="container-page grid items-center gap-10 pt-10 pb-16 sm:pt-14 lg:grid-cols-[1fr_1.05fr] lg:gap-16 lg:py-20">
+<section class="overflow-hidden" data-hero>
+  <div class="container-page grid items-center gap-10 pt-10 pb-16 sm:pt-14 lg:grid-cols-[1fr_1.3fr] lg:gap-14 lg:py-20">
     <div class="max-w-xl">
       <h1 class="enter text-[2.9rem] leading-[1.02] sm:text-6xl lg:text-7xl"><Fill text={value.headline} /></h1>
       {value.subheadline && <p style="--i: 1" class="enter mt-5 text-lg leading-relaxed text-muted-foreground sm:text-xl"><Fill text={value.subheadline} /></p>}
@@ -31,9 +31,9 @@ const { address, bookingUrl, mapUrl, telephone } = site.business;
       </a>
     </div>
     {value.image && (
-      <div class="relative aspect-[4/3] overflow-hidden rounded-xl bg-muted lg:aspect-[5/6]">
+      <div class="relative aspect-[4/3] overflow-hidden rounded-xl bg-muted lg:aspect-[16/11]">
         <div class="enter-photo size-full">
-          <Image image={value.image} alt={value.image.alt ?? ""} priority sizes="(min-width: 1024px) 50vw, 100vw" class="size-full! object-cover" />
+          <Image image={value.image} alt={value.image.alt ?? ""} priority sizes="(min-width: 1024px) 56vw, 100vw" class="size-full! object-cover" />
         </div>
       </div>
     )}
