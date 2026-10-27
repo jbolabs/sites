@@ -71,7 +71,7 @@ const page = createPublicPageContext({
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#fbf8f4" />
-    <script is:inline>document.documentElement.classList.add("js");</script>
+    <script is:inline>document.documentElement.classList.add("js");setTimeout(()=>document.documentElement.classList.add("reveal-timeout"),2500);</script>
     <title>{fullTitle}</title>
     <link rel="icon" href="/brand/mark.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />

@@ -2,11 +2,12 @@
 Rebuilds the BodyCentre logo as clean, flat vectors from their chrome raster.
 
 The original (brand/logo-original.png, from bodycentredayspa.com) is a beveled
-chrome render with glow, which traces badly. So the same design is rebuilt from
-parts, in the original's pixel coordinates: a fitted ring, B and C set in Cinzel
-(a Trajan-style face like the original's), the C thinned and cut where it
-crosses the B, hand-drawn leaves and stem, and the wordmark with each Cinzel
-glyph centered on the matching original glyph.
+chrome render with glow, which traces badly. So the same design is rebuilt in
+the original's pixel coordinates: a fitted ring; the B set in Cinzel (a
+Trajan-style face like the original's); the C drawn from scratch as one
+variable-width stroke with a diagonal, engraved stress that runs behind the B
+and turns into the vine; two constructed leaves with a midrib; and the
+wordmark with each Cinzel glyph centered on the matching original glyph.
 
 Outputs: public/brand/logo.svg, mark.svg, logo.png, and public/favicon.png,
 apple-touch-icon.png, icon-512.png, og-default.png.
@@ -15,6 +16,7 @@ Run: uv run --with fonttools python3 brand/build_logo.py   (needs rsvg-convert)
      add --overlay to write brand/.work/overlay.svg over the original for alignment
 """
 
+import math
 import subprocess
 import sys
 import urllib.request
@@ -71,17 +73,69 @@ def word(text, cap_height, baseline, centers):
     return " ".join(parts)
 
 
-# Geometry measured on the original (1254 x 911).
+def pt(x, y):
+    return f"{x:.1f} {y:.1f}"
+
+
+def outline(center, widths):
+    """Closed outline of a variable-width stroke along a sampled centerline."""
+    left, right = [], []
+    for k, (x, y) in enumerate(center):
+        ax, ay = center[max(k - 1, 0)]
+        bx, by = center[min(k + 1, len(center) - 1)]
+        dx, dy = bx - ax, by - ay
+        m = math.hypot(dx, dy) or 1
+        nx, ny, w = -dy / m, dx / m, widths[k] / 2
+        left.append((x + nx * w, y + ny * w))
+        right.append((x - nx * w, y - ny * w))
+    return "M " + " L ".join(pt(*q) for q in left + right[::-1]) + " Z"
+
+
+def c_with_vine():
+    """The C and its vine as one stroke: an arc thickest at lower left, then a tapering curve."""
+    cx, cy, rm = 668, 515, 164
+    start, end = 360 - 48, 62  # top terminal, then around the left to the lower right
+    center, widths = [], []
+    for k in range(161):
+        a = start + (end - start) * k / 160
+        center.append((cx + rm * math.cos(math.radians(a)), cy + rm * math.sin(math.radians(a))))
+        stress = ((1 + math.cos(math.radians(a - 150))) / 2) ** 1.6
+        flare = 1 + 0.9 * max(0.0, 1 - k / 10) ** 2
+        widths.append((13 + 30 * stress) * flare)
+    tx, ty = math.sin(math.radians(end)), -math.cos(math.radians(end))
+    p0 = center[-1]
+    p1, p2, p3 = (p0[0] + tx * 70, p0[1] + ty * 70), (868, 566), (870, 478)
+    w0 = widths[-1]
+    for k in range(1, 61):
+        t = k / 60
+        center.append(tuple((1 - t) ** 3 * p0[i] + 3 * (1 - t) ** 2 * t * p1[i] + 3 * (1 - t) * t * t * p2[i] + t**3 * p3[i] for i in (0, 1)))
+        widths.append(w0 + (5 - w0) * t**0.8)
+    return outline(center, widths)
+
+
+def leaf(base, tip, half_width, bend):
+    """An almond leaf from base to tip, and its midrib."""
+    (bx, by), (tx, ty) = base, tip
+    dx, dy = tx - bx, ty - by
+    length = math.hypot(dx, dy)
+    nx, ny = -dy / length, dx / length
+
+    def at(t, offset):
+        o = offset + bend * length * 4 * t * (1 - t)
+        return (bx + dx * t + nx * o, by + dy * t + ny * o)
+
+    body = f"M {pt(bx, by)} C {pt(*at(0.22, half_width * 1.4))} {pt(*at(0.74, half_width))} {pt(tx, ty)} C {pt(*at(0.74, -half_width))} {pt(*at(0.22, -half_width * 1.4))} {pt(bx, by)} Z"
+    rib = f"M {pt(*at(0.06, 0))} C {pt(*at(0.4, 0))} {pt(*at(0.7, 0))} {pt(*at(0.9, 0))}"
+    return body, rib
+
+
+# Geometry in the original's coordinates (1254 x 911).
 CX, CY, R = 622, 410, 346
-B = fit("B", (378, 186, 652, 505))
-C = fit("C", (498, 338, 838, 692))
+B = fit("B", (380, 190, 620, 500))
+C = c_with_vine()
+LEAVES = [leaf((870, 482), (836, 338), 46, 0.07), leaf((852, 584), (936, 522), 31, -0.08)]
 LETTERS = [(53, 147), (177, 279), (308, 407), (424, 521), (537, 637), (670, 746), (777, 877), (899, 984), (1012, 1104), (1122, 1197)]
 WORDMARK = word("BodyCentre", 115, 888, [(a + b) / 2 for a, b in LETTERS])
-STEM = "M 742 676 C 790 660 812 620 806 575 C 803 548 812 532 830 522"
-LEAF1 = "M 788 588 C 728 560 716 470 746 396 C 790 445 808 520 788 588 Z"
-VEIN1 = "M 786 578 C 770 530 760 472 750 414"
-LEAF2 = "M 832 600 C 836 560 866 532 916 535 C 904 580 876 606 832 600 Z"
-VEIN2 = "M 838 594 C 860 575 885 556 908 540"
 
 
 def svg(view_box, wordmark=True, overlay=False):
@@ -90,16 +144,14 @@ def svg(view_box, wordmark=True, overlay=False):
     text = f'<path d="{WORDMARK}"/>' if wordmark else ""
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="{x} {y} {w} {h}" role="img" aria-label="BodyCentre">
 {under}<defs>
-<mask id="bc-thin" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="911"><path d="{C}" fill="#fff" stroke="#000" stroke-width="16"/></mask>
-<mask id="bc-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="911"><rect width="1254" height="911" fill="#fff"/><path d="{C}" stroke="#000" stroke-width="18"/></mask>
-<mask id="bc-veins" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="911"><rect width="1254" height="911" fill="#fff"/><g fill="none" stroke="#000" stroke-linecap="round"><path d="{VEIN1}" stroke-width="5"/><path d="{VEIN2}" stroke-width="4"/></g></mask>
+<mask id="bc-behind" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="911"><rect width="1254" height="911" fill="#fff"/><path d="{B}" stroke="#000" stroke-width="16" stroke-linejoin="round"/></mask>
+<mask id="bc-ribs" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="911"><rect width="1254" height="911" fill="#fff"/><g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round">{"".join(f'<path d="{rib}"/>' for _, rib in LEAVES)}</g></mask>
 </defs>
 <g fill="{INK}">
 <circle cx="{CX}" cy="{CY}" r="{R}" fill="none" stroke="{INK}" stroke-width="5"/>
-<path d="{B}" mask="url(#bc-cut)"/>
-<path d="{C}" mask="url(#bc-thin)"/>
-<path d="{STEM}" fill="none" stroke="{INK}" stroke-width="7" stroke-linecap="round"/>
-<g mask="url(#bc-veins)"><path d="{LEAF1}"/><path d="{LEAF2}"/></g>
+<path d="{B}"/>
+<path d="{C}" mask="url(#bc-behind)"/>
+<path d="{" ".join(body for body, _ in LEAVES)}" mask="url(#bc-ribs)"/>
 {text}</g>
 </svg>
 """

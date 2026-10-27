@@ -15,12 +15,12 @@ const { value } = Astro.props;
 const { address, bookingUrl, mapUrl, telephone } = site.business;
 ---
 
-<section class="overflow-hidden" data-hero>
+<section class="overflow-hidden">
   <div class="container-page grid items-center gap-10 pt-10 pb-16 sm:pt-14 lg:grid-cols-[1fr_1.3fr] lg:gap-14 lg:py-20">
     <div class="max-w-xl">
       <h1 class="enter text-[2.9rem] leading-[1.02] sm:text-6xl lg:text-7xl"><Fill text={value.headline} /></h1>
       {value.subheadline && <p style="--i: 1" class="enter mt-5 text-lg leading-relaxed text-muted-foreground sm:text-xl"><Fill text={value.subheadline} /></p>}
-      <div style="--i: 2" class="enter mt-8 grid gap-3 sm:flex">
+      <div style="--i: 2" class="enter mt-8 grid gap-3 sm:flex" data-hero>
         <ButtonLink href={bookingUrl} size="hero"><Fill text={value.book_label} /></ButtonLink>
         <ButtonLink href={`tel:${telephone}`} size="hero" variant="hairline" class="lining-nums">
           <Phone class="size-4" aria-hidden="true" />Call {site.phone}

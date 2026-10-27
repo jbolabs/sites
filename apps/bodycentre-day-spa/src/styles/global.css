@@ -196,7 +196,8 @@
   transition-delay: calc(var(--i, 0) * 60ms);
 }
 
-.js [data-reveal].is-visible {
+.js [data-reveal].is-visible,
+.js.reveal-timeout:not([data-reveal-ready]) [data-reveal] {
   opacity: 1;
   transform: none;
 }
