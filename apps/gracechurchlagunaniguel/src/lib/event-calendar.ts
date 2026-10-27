@@ -13,7 +13,8 @@ const items = (
     location: item.data.location ?? undefined,
     schedule,
     summary: item.data.title,
-    uid: `${item.id}@${new URL(origin).hostname}`,
+    // The entry's internal id survives slug changes, so subscribers never see a duplicate.
+    uid: `${item.data.id}@${new URL(origin).hostname}`,
     url: `${origin}/events/${item.id}`,
   }));
 
@@ -35,7 +36,7 @@ export const calendarResponse = (
     {
       headers: {
         "Cache-Control": "public, max-age=3600",
-        "Content-Disposition": `inline; filename="${options.filename}"`,
+        "Content-Disposition": `inline; filename="${options.filename.replaceAll(/[^\w.-]/gu, "-")}"`,
         "Content-Type": "text/calendar; charset=utf-8",
       },
     }

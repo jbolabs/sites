@@ -67,6 +67,18 @@ describe(calendarFile, () => {
     expect(file).toContain("RRULE:FREQ=MONTHLY;BYDAY=1TH,3TH\r\n");
   });
 
+  it("ends a late event without an end time at midnight, not past it", () => {
+    const file = unfold(
+      calendarFile(
+        [item("Watch night", { start_time: "23:30", weekday: "Saturday" })],
+        options
+      )
+    );
+    expect(file).toContain(
+      "DTEND;TZID=America/Los_Angeles:20261031T235900\r\n"
+    );
+  });
+
   it("folds long lines at 75 octets", () => {
     const file = calendarFile(
       [item("A".repeat(120), { start_time: "10:00", weekday: "Sunday" })],

@@ -117,6 +117,7 @@ const PACIFIC = [
 ];
 
 const DEFAULT_LENGTH_MINUTES = 60;
+const LAST_MINUTE = 23 * 60 + 59;
 
 const eventLines = (
   item: CalendarItem,
@@ -132,7 +133,10 @@ const eventLines = (
   if (first === undefined) {
     return [];
   }
-  const end = schedule.end ?? schedule.start + DEFAULT_LENGTH_MINUTES;
+  // A late event without an end time stops at midnight rather than spilling into an invalid stamp.
+  const end =
+    schedule.end ??
+    Math.min(schedule.start + DEFAULT_LENGTH_MINUTES, LAST_MINUTE);
   const rule = recurrenceRule(schedule);
   return [
     "BEGIN:VEVENT",

@@ -362,8 +362,13 @@ const redirectHops = async (origin: string, path: string): Promise<number> => {
 const crawl = async (
   origin: string,
   seeds: readonly string[]
-): Promise<Map<string, PageFacts>> => {
+): Promise<{
+  readonly pages: Map<string, PageFacts>;
+  /** Linked paths that answered with a file, not a page. */
+  readonly files: ReadonlySet<string>;
+}> => {
   const pages = new Map<string, PageFacts>();
+  const files = new Set<string>();
   // Every path ever queued, so each page is fetched once.
   const seen = new Set(seeds);
   let queue = [...seen];
@@ -371,9 +376,14 @@ const crawl = async (
     const batch = queue.slice(0, CRAWL_CONCURRENCY);
     queue = queue.slice(CRAWL_CONCURRENCY);
     const results = await Promise.all(
-      batch.map(async (path) => await fetchPage(origin, path))
+      batch.map(async (path) => ({ page: await fetchPage(origin, path), path }))
     );
-    for (const page of results.filter((result) => result !== undefined)) {
+    for (const result of results) {
+      const { page } = result;
+      if (page === undefined) {
+        files.add(result.path);
+        continue;
+      }
       pages.set(page.path, page);
       for (const href of page.links) {
         const path = internalPath(href, origin);
@@ -384,7 +394,7 @@ const crawl = async (
       }
     }
   }
-  return pages;
+  return { files, pages };
 };
 
 const finding = (
@@ -914,7 +924,7 @@ export const auditSeo = async (
 ): Promise<{ readonly pages: number; readonly findings: SeoFinding[] }> => {
   const sitemap = await discoverPaths(options.origin);
   const inSitemap = new Set(sitemap);
-  const pages = await crawl(options.origin, ["/", ...sitemap]);
+  const { files, pages } = await crawl(options.origin, ["/", ...sitemap]);
   const served = [...pages.values()].filter((page) => page.status === 200);
   const findings: SeoFinding[] = [
     ...(await robotsFindings(options)),
@@ -923,6 +933,11 @@ export const auditSeo = async (
     ...duplicates(served, "description"),
     ...(await assetFindings(served, options)),
   ];
+  for (const path of sitemap.filter((entry) => files.has(entry))) {
+    findings.push(
+      finding("sitemap", "error", path, "in the sitemap but not an HTML page")
+    );
+  }
   if (sitemap.length === 0) {
     findings.push(
       finding("sitemap", "error", "/sitemap.xml", "no pages in the sitemap")

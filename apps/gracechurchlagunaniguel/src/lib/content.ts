@@ -12,7 +12,7 @@ import type { CacheHint } from "emdash";
 
 import type { Announcement, Event, Sermon } from "../../emdash-env";
 import { site } from "../../site.config";
-import { dateIn, isoDate, scheduleOf } from "./calendar.ts";
+import { compareDates, dateIn, isoDate, scheduleOf } from "./calendar.ts";
 import type { PlainDate, Scheduled } from "./calendar.ts";
 
 export type MediaImage = NonNullable<Event["image"]>;
@@ -102,8 +102,12 @@ export const getHomePage = async () => await getEmDashEntry("home", "home");
 
 const isActive = (announcement: Announcement, now: Date) => {
   // EmDash returns `null` for unset fields at runtime, whatever the generated type says.
+  // "Hide after this date" keeps the announcement up through that whole day at the church.
   const expires = instantOf(announcement.expires_on);
-  return expires === undefined || expires > now;
+  return (
+    expires === undefined ||
+    compareDates(churchToday(expires), churchToday(now)) >= 0
+  );
 };
 
 /** Current news (not past its end date), pinned first, then newest first. */
