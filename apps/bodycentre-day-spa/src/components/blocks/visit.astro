@@ -10,7 +10,7 @@ import { site } from "../../../site.config";
 type Props = BlockComponentProps<HomeContentVisitBlock>;
 
 const { value } = Astro.props;
-const { address, bookingUrl, email, mapUrl, telephone } = site.business;
+const { address, bookingUrl, mapUrl, telephone } = site.business;
 ---
 
 <section id="visit" class="bg-stone py-20 sm:py-28">
@@ -37,10 +37,9 @@ const { address, bookingUrl, email, mapUrl, telephone } = site.business;
         <address class="mt-4 text-lg leading-relaxed not-italic">
           {site.name}<br />{address.street}<br />{address.city}, {address.region} {address.postalCode}
         </address>
-        <ul class="mt-4 space-y-1">
-          <li><a href={`tel:${telephone}`} class="text-slate underline decoration-border underline-offset-4 lining-nums">{site.phone}</a></li>
-          {email && <li><a href={`mailto:${email}`} class="break-all text-slate underline decoration-border underline-offset-4">{email}</a></li>}
-        </ul>
+        <p class="mt-4">
+          <a href={`tel:${telephone}`} class="text-lg text-slate underline decoration-border underline-offset-4 lining-nums">{site.phone}</a>
+        </p>
         <div class="mt-auto grid gap-3 pt-6 sm:flex">
           <ButtonLink href={mapUrl} target="_blank" rel="noopener" size="cta" variant="hairline">Get directions</ButtonLink>
           <ButtonLink href={bookingUrl} size="cta">Book now</ButtonLink>
@@ -48,7 +47,7 @@ const { address, bookingUrl, email, mapUrl, telephone } = site.business;
       </div>
     </div>
     {value.image && (
-      <div class="mt-6 aspect-[2/1] overflow-hidden rounded-xl bg-muted sm:aspect-[3/1]" data-reveal>
+      <div class="mt-6 aspect-video overflow-hidden rounded-xl bg-muted lg:aspect-[2/1]" data-reveal>
         <Image image={value.image} alt={value.image.alt ?? ""} sizes="(min-width: 1440px) 1300px, 100vw" class="size-full! object-cover" />
       </div>
     )}

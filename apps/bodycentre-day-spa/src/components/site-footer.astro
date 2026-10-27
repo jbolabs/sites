@@ -10,7 +10,7 @@ interface Props {
 
 const { items, tagline, title } = Astro.props;
 const year = new Date().getFullYear();
-const { address, bookingUrl, email, mapUrl, telephone } = site.business;
+const { address, bookingUrl, mapUrl, telephone } = site.business;
 const social = [
   { href: "https://www.instagram.com/bodycentredayspa/", label: "Instagram" },
   { href: "https://www.facebook.com/BodyCentreDaySpa", label: "Facebook" },
@@ -36,7 +36,6 @@ const social = [
       </address>
       <ul class="mt-4 space-y-2">
         <li><a href={`tel:${telephone}`} class="lining-nums transition-colors hover:text-slate">{site.phone}</a></li>
-        {email && <li><a href={`mailto:${email}`} class="break-all transition-colors hover:text-slate">{email}</a></li>}
         <li><a href={bookingUrl} class="transition-colors hover:text-slate">Book online</a></li>
       </ul>
     </div>

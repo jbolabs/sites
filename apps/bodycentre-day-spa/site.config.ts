@@ -19,7 +19,8 @@ interface BusinessFacts {
     readonly postalCode: string;
   };
   readonly areaServed: readonly string[];
-  readonly email?: string;
+  // No email: their site shows only the address and phone, and the addresses
+  // in its page data belong to staff.
   /** Their own booking page, which embeds the Mindbody scheduler. */
   readonly bookingUrl: string;
   /** Opens the address in the visitor's maps app or Google Maps. */
@@ -36,7 +37,6 @@ const business: BusinessFacts = {
   },
   areaServed: ["Orange County, CA"],
   bookingUrl: "https://www.bodycentredayspa.com/book-now",
-  email: "kelley@bodycentredayspa.com",
   mapUrl:
     "https://www.google.com/maps/search/?api=1&query=BodyCentre+Day+Spa+801+Baker+St+Suite+E+Costa+Mesa+CA+92626",
   telephone: "+1-714-668-9925",

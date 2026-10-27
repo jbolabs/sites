@@ -22,7 +22,6 @@ interface BusinessJsonLd {
   readonly logo: string;
   readonly name: string;
   readonly url: string;
-  email?: string;
   telephone?: string;
 }
 
@@ -47,9 +46,6 @@ const data: BusinessJsonLd = {
   name: site.name,
   url: origin,
 };
-if (business.email !== undefined) {
-  data.email = business.email;
-}
 if (business.telephone !== undefined) {
   data.telephone = business.telephone;
 }
