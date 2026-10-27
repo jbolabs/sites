@@ -159,8 +159,9 @@ export class FlowAgNotSent extends Schema.TaggedError<FlowAgNotSent>()(
 
 /**
  * The parts of a 200 worth logging. A duplicate is a 200 with
- * `duplicate: true` (Flow AG adds a note to the lead it already holds), and
- * `assignedTo` is what shows a loan officer got it, not `success` alone.
+ * `duplicate: true`: no new lead, just a note on the one Flow AG already
+ * holds (same email, and the same phone or last name). `assignedTo` is what
+ * shows a loan officer got it, not `success` alone; `null` means nobody yet.
  */
 const AcceptLeadResponse = Schema.Struct({
   assignedTo: Schema.optional(
@@ -168,7 +169,9 @@ const AcceptLeadResponse = Schema.Struct({
   ),
   duplicate: Schema.optional(Schema.Boolean),
   leadId: Schema.optional(Schema.String),
+  message: Schema.optional(Schema.String),
   success: Schema.Boolean,
+  url: Schema.optional(Schema.String),
 });
 export type AcceptLeadResponse = typeof AcceptLeadResponse.Type;
 
@@ -288,6 +291,30 @@ const reportFlowAgMiss = Effect.fn("reportFlowAgMiss")(
 );
 
 /**
+ * Logs every lead Flow AG took, so "the loan team can't find it" is answered
+ * from Workers Logs (traces are sampled on prod and drop the span fields).
+ * No applicant details: the CMS entry id leads back to them.
+ */
+const logForwarded = (saved: SavedApplication, response: AcceptLeadResponse) =>
+  Effect.logInfo(
+    response.duplicate === true
+      ? "lead noted on an existing Flow AG lead"
+      : "lead forwarded to Flow AG",
+    {
+      assignedTo:
+        response.assignedTo === undefined
+          ? "not reported"
+          : (response.assignedTo?.name ?? "nobody"),
+      cmsEntry: saved.leadId,
+      duplicate: response.duplicate === true,
+      flowAgLeadId: response.leadId ?? "not reported",
+      flowAgMessage: response.message ?? "",
+      flowAgUrl: response.url ?? "",
+      requestId: saved.requestId,
+    }
+  );
+
+/**
  * Sends a saved application to Flow AG. Never fails: the lead is already in
  * the CMS, so a miss is logged and emailed to the studio alert inbox for
  * someone to enter by hand.
@@ -299,12 +326,15 @@ export const forwardToFlowAg = Effect.fn("forwardToFlowAg")(
     saved: SavedApplication
   ) {
     const flowAg = yield* FlowAg;
-    yield* flowAg
+    const response = yield* flowAg
       .send(toFlowAgLead(form, saved.leadId, saved.sourcePath))
       .pipe(
         Effect.catchTag("FlowAgNotSent", (error) =>
           reportFlowAgMiss(contact, saved, error).pipe(Effect.as(Option.none()))
         )
       );
+    if (Option.isSome(response)) {
+      yield* logForwarded(saved, response.value);
+    }
   }
 );
