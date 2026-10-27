@@ -34,3 +34,19 @@ export const useDrawerHeight = () => {
     height === null ? undefined : { height };
   return { measure, style };
 };
+
+/**
+ * Ref for the drawer's `Backdrop` and `Viewport`. On iOS `drawer.css` makes
+ * both absolute (fixed layers stop short of Safari's floating toolbar), so
+ * they need the page's scroll offset to land on screen. The scroll lock holds
+ * the page still while the sheet is open, so one read at mount is enough.
+ *
+ *   <Drawer.Backdrop ref={pinDrawerToPage} … />
+ *   <Drawer.Viewport ref={pinDrawerToPage} … />
+ */
+export const pinDrawerToPage = (element: HTMLElement | null) => {
+  element?.style.setProperty(
+    "--drawer-page-top",
+    `${element.ownerDocument.defaultView?.scrollY ?? 0}px`
+  );
+};

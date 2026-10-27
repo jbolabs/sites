@@ -25,17 +25,36 @@
   position: fixed;
   inset: 0;
   z-index: 50;
-  /* The largest viewport, so the dim reaches under Safari's floating toolbar. */
-  min-height: 100lvh;
   background-color: rgb(0 0 0 / 0.45);
   opacity: calc(1 - var(--drawer-swipe-progress, 0));
   transition: opacity 450ms var(--ease-drawer);
 }
 
-/* iOS 26+: cover the whole visible viewport, toolbar included. */
+/*
+ * iOS Safari 26+ floats its toolbar over the page and draws the page under
+ * it, but cuts fixed elements off at the toolbar's top edge. A fixed sheet
+ * also makes Safari paint a flat white bar behind the toolbar, so the dim
+ * stops short of the screen edge. Absolute layers avoid both. They anchor
+ * to the document, so `pinDrawerToPage` (`@jakebodea/site-ui/drawer`) moves
+ * them to where the page was scrolled when the sheet opened; the scroll
+ * lock keeps it there. The backdrop runs past the toolbar; the viewport
+ * stops at the visible area so the sheet sits above it.
+ */
 @supports (-webkit-touch-callout: none) {
-  .drawer-backdrop {
+  .drawer-backdrop,
+  .drawer-viewport {
     position: absolute;
+    top: var(--drawer-page-top, 0px);
+  }
+
+  .drawer-backdrop {
+    bottom: auto;
+    height: 150lvh;
+  }
+
+  /* Exactly the visible area: any taller and Safari brings the bar back. */
+  .drawer-viewport {
+    bottom: calc(-1 * var(--drawer-page-top, 0px));
   }
 }
 
@@ -94,9 +113,11 @@
     0 2px 6px rgb(0 0 0 / 0.06),
     0 24px 64px -8px rgb(0 0 0 / 0.35);
   outline: 0;
-  transform: translateY(var(--drawer-swipe-movement-y, 0px));
+  /*
+   * No transform at rest: a transformed sheet also brings back Safari's
+   * white toolbar bar. It only moves while opening, closing, or dragged.
+   */
   transition: transform 450ms var(--ease-drawer);
-  will-change: transform;
 }
 
 .drawer-popup[data-starting-style],
@@ -105,6 +126,7 @@
 }
 
 .drawer-popup[data-swiping] {
+  transform: translateY(var(--drawer-swipe-movement-y, 0px));
   user-select: none;
 }
 
