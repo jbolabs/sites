@@ -40,7 +40,7 @@
 </defs>
 <g fill="#28364a">
   <!-- Ring (622, 410) r 346, open at the bottom, each end tapering to a point. -->
-  <path d="M 560 750.4 A 346 346 0 1 1 684 750.4 Q 706 745 723.4 735.6 A 341 341 0 1 0 520.6 735.6 Q 538 745 560 750.4 Z"/>
+  <path d="M 560 750.4 A 346 346 0 1 1 684 750.4 Q 711.6 744.2 737.3 726.7 A 337 337 0 1 0 506.7 726.7 Q 532.4 744.2 560 750.4 Z"/>
   <use href="#bc-b" mask="url(#bc-b-under)"/>
   <use href="#bc-c" mask="url(#bc-c-under)"/>
   <use href="#bc-leaves" mask="url(#bc-ribs)"/>
