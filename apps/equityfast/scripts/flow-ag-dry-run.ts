@@ -7,8 +7,7 @@
  * The key comes from the environment and is never printed. On the operator's
  * Mac, with the key in Infisical `sites-prod` (env `prod`):
  *
- *   infisical run --projectId cb46a5eb-7afc-4e8a-93b7-40a065c6d6c9 --env prod \
- *     -- bun apps/equityfast/scripts/flow-ag-dry-run.ts
+ *   infisical run --projectId cb46a5eb-7afc-4e8a-93b7-40a065c6d6c9 --env prod -- bun apps/equityfast/scripts/flow-ag-dry-run.ts
  */
 import { Schema } from "effect";
 

@@ -57,7 +57,38 @@ const github = () => {
   return api;
 };
 
+const selectedPreviewApi: GitHubApi = (route) => {
+  if (route.endsWith("/11/statuses?per_page=100")) {
+    return '[[{"state":"inactive"}]]';
+  }
+  if (route.endsWith("/12/statuses?per_page=100")) {
+    return "[[]]";
+  }
+  if (route.includes("/statuses")) {
+    throw new Error("Unrelated PR history is unavailable");
+  }
+  return JSON.stringify([[records[0]], [records[1], records[2]]]);
+};
+
 describe("client preview lifecycle", () => {
+  it("loads only the selected PR's histories while retaining paginated partial attempts", () => {
+    expect(
+      activePreviews(selectedPreviewApi, "jbolabs/sites", 41)
+    ).toStrictEqual([
+      {
+        id: 12,
+        payload: {
+          kind: "client-preview-v1",
+          pull: 41,
+          sites: ["access-electric"],
+        },
+      },
+    ]);
+    expect(() =>
+      activePreviews(selectedPreviewApi, "jbolabs/sites", 0)
+    ).toThrow("Invalid preview PR number");
+  });
+
   it("records exact ownership before cloud work and prevents automatic retirement of other PRs", () => {
     let payload: GitHubRequest | undefined;
     const api: GitHubApi = (_route, body) => {
