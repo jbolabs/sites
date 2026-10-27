@@ -32,6 +32,8 @@ declare global {
       PUBLIC_HTML_CACHE_TTL_SECONDS: string;
       TURNSTILE_SITE_KEY: string;
       TURNSTILE_SECRET_KEY: string;
+      /** Flow AG (E Mortgage Capital's CRM) accept-lead key; empty except on prod. */
+      FLOW_AG_API_KEY: string;
     }
   }
 

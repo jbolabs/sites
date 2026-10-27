@@ -1,6 +1,7 @@
 import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
+import smokeForm from "../../smoke.form.json" with { type: "json" };
 import { ApplicationForm, toContactForm } from "./application.ts";
 
 const primaryResidenceForm = {
@@ -30,6 +31,7 @@ const primaryResidenceForm = {
 
 const submitted = {
   ...primaryResidenceForm,
+  mortgageBalance: "$250,000",
   primaryAddress: {
     city: "Irvine",
     state: "CA",
@@ -60,6 +62,7 @@ describe(toContactForm, () => {
         { answer: "$0", question: "Other income" },
         { answer: "Employment", question: "Income source" },
         { answer: "No", question: "Listed for sale" },
+        { answer: "$250,000", question: "Mortgage balance" },
         {
           answer: "Yes (calls, texts, and email)",
           question: "Contact consent",
@@ -84,9 +87,26 @@ describe(toContactForm, () => {
       question: "Primary residence",
     });
   });
+
+  it("says the mortgage balance was not given when it was left blank", () => {
+    const form = decode({ ...primaryResidenceForm, mortgageBalance: "" });
+    expect(toContactForm(form).answers?.[10]).toStrictEqual({
+      answer: "Not given",
+      question: "Mortgage balance",
+    });
+  });
 });
 
 describe(ApplicationForm, () => {
+  it("accepts the smoke test's application, so `app smoke` exercises the real action", () => {
+    expect(
+      decode({ ...smokeForm.body, turnstileToken: "token" })
+    ).toMatchObject({
+      mortgageBalance: "$250,000",
+      occupancy: "Primary residence",
+    });
+  });
+
   it("rejects an application without contact consent", () => {
     expect(() => decode({ ...submitted, consent: false })).toThrow("consent");
   });

@@ -20,6 +20,7 @@ const OWN_MESSAGE: Partial<Record<Field, keyof Errors>> = {
   forSale: "choice",
   income: "income",
   incomeSource: "incomeSource",
+  mortgageBalance: "mortgageBalance",
   occupancy: "choice",
   otherIncome: "otherIncome",
   ownership: "choice",

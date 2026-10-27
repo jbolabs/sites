@@ -14,6 +14,7 @@ import { env, waitUntil } from "cloudflare:workers";
 import { ConfigProvider, Layer } from "effect";
 import { FetchHttpClient } from "effect/http";
 
+import { FlowAgLive } from "./flow-ag.ts";
 import { renderLeadEmail } from "./lead-email.ts";
 import { LeadStoreEmDash } from "./leads.ts";
 
@@ -21,11 +22,12 @@ export { waitUntil } from "cloudflare:workers";
 
 const configLayer = () => ConfigProvider.layer(ConfigProvider.fromUnknown(env));
 
-/** Every service the contact pipeline needs, for one request. */
+/** Every service the contact pipeline (and the Flow AG hand-off) needs, for one request. */
 export const contactLayer = () =>
   Layer.mergeAll(
     TurnstileLive,
     LeadStoreEmDash,
+    FlowAgLive,
     emailFromEnv(env.EMAIL),
     LeadMailFromConfig
   ).pipe(
