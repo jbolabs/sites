@@ -9,24 +9,30 @@
     M 445 207 L 555 207 C 582 207 600 230 600 260 C 600 295 578 317 548 317 L 445 317 Z
     M 445 340 L 560 340 C 615 340 645 375 645 420 C 645 465 610 490 560 492 L 445 492 Z"/>
   <!-- C: outer circle (672, 515) r 182, counter an ellipse set right so the stress sits at the left;
-       the top arm sweeps out to its terminal, and the tail turns up into the vine. -->
+       the top arm sweeps out to its terminal. Traced from the original: the tail splits in two,
+       and its outer strand rises as the stem into the right half of the tall leaf. -->
   <path id="bc-c" d="
     M 660 333.4 C 735 330 800 352 840 392 C 846 398 838 407 829 405
-    C 800 368 740 349 672 348 A 160 166.5 0 1 0 782 650
-    C 798 636 814 627 828 622 L 832 629 C 824 635 809 637 800.7 643.7
-    A 182 182 0 1 1 660 333.4 Z"/>
-  <!-- The tail runs on into the small leaf; the tall leaf rises on its own stem from the tail.
-       Each leaf is two halves split by an open vein. -->
-  <path id="bc-leaves" d="
-    M 797 642 C 802 620 808 595 811 566 L 815 568 C 813 598 810 622 803 640 Z
-    M 740 386 C 728 420 716 465 721 505 C 726 545 760 565 778 585
-    C 784 595 791 615 798 634 L 801 630 C 793 607 786 592 782 578
-    C 786 520 770 440 740 386 Z
-    M 748 402 C 775 432 815 455 827 490 C 836 515 832 552 811 573
-    C 813 540 798 485 748 402 Z
-    M 829 624 C 829 600 838 570 856 552 C 872 538 895 535 917 534
-    C 890 546 852 572 831 620 Z
-    M 834 626 C 848 600 875 568 912 540 C 908 580 890 620 834 627 Z"/>
+    C 800 368 740 349 672 348 A 160 166.5 0 1 0 700 679.7
+    C 718 683.5 738 682 750 674 C 762 669 780 660 790 652
+    C 797 645 801 637 802 627 C 803 610 805 590 808 568
+    C 802 545 795 505 786 482 C 778 466 769 450 763.5 438 C 758 425 753 411 747 398
+    C 760 418 786 440 806 459 C 824 478 833 500 832 520 C 831 543 824 560 812 572
+    C 815 580 815 605 811 622 C 814 627 819 630 823 632
+    C 819 641 806 655 795 664 C 782 675 765 684 748 689 C 730 694.5 700 698 672 697
+    A 182 182 0 0 1 490 515 A 182 182 0 0 1 660 333.4 Z"/>
+  <!-- Traced from the original. The tail's inner strand curls up into the left half of the
+       tall leaf; the small leaf branches off the stem, its two halves split by an open vein. -->
+  <g id="bc-leaves">
+    <path d="M 744 680 C 760 664 780 646 788 630 C 793 620 792 610 789 602 C 786 595 781 589 776 586
+      C 760 576 744 566 736 555 C 724 540 719 518 720 495 C 721 455 733 420 740 386
+      C 749 408 764 440 774 466 C 782 492 787 525 785 548 C 784 565 780 578 777 585
+      C 786 591 793 603 795 620 C 796 634 792 642 787 646 C 776 655 762 665 749 682 Z"/>
+    <path d="M 811 628 C 818 620 826 612 828 600 C 830 585 838 570 848 557 C 862 545 885 536 917.5 534
+      C 902 545 878 562 852 580 C 840 590 832 602 826 614 L 816 630 Z"/>
+    <path d="M 829 627 L 842.5 617.5 C 849 607 856 595 867.5 581 C 880 567 896 551 909 539
+      C 908 560 902 588 888 606 C 878 617 860 624 846 623 C 838 623 832 626 829 627 Z"/>
+  </g>
   <!-- Interlace: the B passes over the C at the top crossing, the C over the B's foot. -->
   <clipPath id="bc-top"><rect width="1254" height="420"/></clipPath>
   <clipPath id="bc-bottom"><rect y="420" width="1254" height="491"/></clipPath>
