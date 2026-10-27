@@ -1336,11 +1336,11 @@
               "_type": "home_hero",
               "_version": 1,
               "_key": "hero",
-              "headline": "Home equity, reimagined.",
-              "tagline": "Your equity. Your terms.",
-              "intro": "Skip the paperwork, and skip the appraisal on loans under $400K.* Get a competitive-rate HELOC with instant, tech-verified income and terms you control.",
+              "headline": "See your home equity",
+              "tagline": "",
+              "intro": "Estimate a home equity line of credit, then explore your options with EquityFast, powered by E Mortgage Capital.",
               "apply_label": "Start My Request",
-              "secondary_cta_label": "Run the Calculator",
+              "secondary_cta_label": "Plan a renovation",
               "secondary_cta_url": "/calculator",
               "image": {
                 "$media": {
@@ -1352,33 +1352,26 @@
               "show_estimator": true
             },
             {
-              "_type": "ticker",
+              "_type": "stats",
               "_version": 1,
-              "_key": "ticker",
+              "_key": "glance",
+              "headline": "EquityFast, in numbers",
               "items": [
                 {
-                  "text": "No tax returns"
+                  "value": "$1M",
+                  "label": "Maximum line"
                 },
                 {
-                  "text": "No W2s"
+                  "value": "30 min",
+                  "label": "Approvals in as little as*"
                 },
                 {
-                  "text": "No paystubs"
+                  "value": "620+",
+                  "label": "FICO® accepted"
                 },
                 {
-                  "text": "No appraisal under $400K*"
-                },
-                {
-                  "text": "Soft credit check"
-                },
-                {
-                  "text": "Draw only what you need"
-                },
-                {
-                  "text": "FICO 620+"
-                },
-                {
-                  "text": "Fixed-rate draw options"
+                  "value": "$0",
+                  "label": "Appraisal under $400K*"
                 }
               ]
             },
@@ -1386,8 +1379,8 @@
               "_type": "guidelines",
               "_version": 1,
               "_key": "guidelines",
-              "headline": "HELOC or HELOAN.",
-              "headline_accent": "You have options.",
+              "headline": "Your borrowing options",
+              "headline_accent": "",
               "body": "Take a revolving line you can draw from again and again, or a fixed lump sum with a set payment. One EquityFast application matches you to whichever fits. Here are the guidelines both programs share.",
               "link_label": "Compare the programs",
               "link_url": "/heloc",
@@ -1432,35 +1425,44 @@
               "footnote": "*Program availability, line amount, credit score, CLTV, DTI, lien position, and property-type eligibility vary by program, occupancy, state, and borrower profile; not all combinations shown are available together."
             },
             {
-              "_type": "statement",
+              "_type": "image_cards",
               "_version": 1,
-              "_key": "statement",
-              "headline": "One line.",
-              "headline_accent": "Endless uses.",
-              "lead": "Fund renovations, consolidate high-interest debt, support family, or build a safety net, and pay interest only on what you actually draw.",
-              "body": "Consolidate high-interest debt, fund renovations without the need of an appraisal*, support family, invest in another property, or build a safety net. More importantly, pay interest only on what you actually draw."
-            },
-            {
-              "_type": "stats",
-              "_version": 1,
-              "_key": "glance",
-              "headline": "EquityFast at a glance",
+              "_key": "possibilities",
+              "headline": "A home. More possibilities.",
+              "headline_accent": "",
               "items": [
                 {
-                  "value": "$1M",
-                  "label": "Maximum line"
+                  "title": "Room for your plans",
+                  "body": "A home equity line can help fund improvements. Use the renovation planner to explore budgets and estimated returns.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/step-three-DOFDFTEo.jpg",
+                      "alt": "A deck and garden lit at dusk",
+                      "filename": "step-three-DOFDFTEo.jpg"
+                    }
+                  }
                 },
                 {
-                  "value": "30 min",
-                  "label": "Approvals in as little as*"
+                  "title": "Start with your home",
+                  "body": "Your estimated home value and mortgage balance are the starting point. Your actual offer depends on application review.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/step-two-D0nso8eP.jpg",
+                      "alt": "A grey house with a front garden",
+                      "filename": "step-two-D0nso8eP.jpg"
+                    }
+                  }
                 },
                 {
-                  "value": "620+",
-                  "label": "FICO® accepted"
-                },
-                {
-                  "value": "$0",
-                  "label": "Appraisal under $400K*"
+                  "title": "A start from home",
+                  "body": "Answer a few questions online. The initial soft credit check does not affect your score.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/step-one-CWpqiiKr.jpg",
+                      "alt": "A person using a phone on a front porch",
+                      "filename": "step-one-CWpqiiKr.jpg"
+                    }
+                  }
                 }
               ]
             },
@@ -1468,26 +1470,26 @@
               "_type": "checklist",
               "_version": 1,
               "_key": "why",
-              "headline": "Why homeowners",
-              "headline_accent": "choose EquityFast.",
-              "body": "A modern underwriting stack replaces the paperwork pile, so eligible homeowners get answers in minutes instead of weeks.",
+              "headline": "Less paperwork",
+              "headline_accent": "",
+              "body": "Digital income verification and appraisal options for eligible loans. Approval depends on your property and borrower profile.",
               "apply_label": "See What I Qualify For",
               "items": [
                 {
-                  "title": "Renovate Without an Appraisal",
+                  "title": "Skip the appraisal*",
                   "body": "Faster access to funds, no traditional appraisal required on eligible loans."
                 },
                 {
-                  "title": "Consolidate High-interest Debt, FICO® From 620+",
+                  "title": "One line of credit",
                   "body": "One manageable draw across a wide range of credit profiles."
                 },
                 {
-                  "title": "Approvals in as Little as 30 Minutes*",
-                  "body": "Unlock your equity faster and move forward without the usual delays."
+                  "title": "Answers in minutes*",
+                  "body": "Eligible homeowners may receive approval in as little as 30 minutes. Verification can take longer."
                 },
                 {
-                  "title": "No Documentation Required",
-                  "body": "No taxes, W2s, or paystubs: our tech verifies income fast, without the paperwork pile."
+                  "title": "Digital verification",
+                  "body": "Technology verifies income without tax returns, W2s, or paystubs. Additional information may be required."
                 }
               ]
             },
@@ -1495,7 +1497,7 @@
               "_type": "link_cards",
               "_version": 1,
               "_key": "explore",
-              "headline": "Explore before you commit",
+              "headline": "Before you borrow",
               "items": [
                 {
                   "title": "Application Process",
@@ -1517,7 +1519,7 @@
                 },
                 {
                   "title": "About EquityFast",
-                  "body": "The AI-powered platform built for homeowners overlooked by legacy lenders.",
+                  "body": "Meet EquityFast, powered by E Mortgage Capital, Inc., NMLS #1416824.",
                   "url": "/about",
                   "link_label": "Open"
                 }
@@ -1527,11 +1529,11 @@
               "_type": "cta_band",
               "_version": 1,
               "_key": "cta",
-              "headline": "Ready to get Your Equity on Your Terms?",
+              "headline": "Make your next move",
               "body": "Answer a few quick questions. Soft credit check only: it won't affect your score.",
               "apply_label": "Start My Request",
-              "layout": "centered",
-              "show_social": true
+              "layout": "split",
+              "show_social": false
             }
           ]
         }
@@ -1549,11 +1551,11 @@
               "_type": "home_hero",
               "_version": 1,
               "_key": "hero",
-              "headline": "La equidad de su vivienda, reinventada.",
-              "tagline": "Su equidad. Sus términos.",
-              "intro": "Olvídese del papeleo y del avalúo en préstamos menores a $400K.* Obtenga un HELOC con tasa competitiva, ingresos verificados al instante con tecnología y términos que usted controla.",
+              "headline": "Vea su capital",
+              "tagline": "",
+              "intro": "Estime una línea de crédito con garantía hipotecaria y conozca sus opciones con EquityFast, de E Mortgage Capital.",
               "apply_label": "Iniciar Mi Solicitud",
-              "secondary_cta_label": "Usar la Calculadora",
+              "secondary_cta_label": "Planear una renovación",
               "secondary_cta_url": "/es/calculadora",
               "image": {
                 "$media": {
@@ -1565,33 +1567,26 @@
               "show_estimator": true
             },
             {
-              "_type": "ticker",
+              "_type": "stats",
               "_version": 1,
-              "_key": "ticker",
+              "_key": "glance",
+              "headline": "EquityFast en cifras",
               "items": [
                 {
-                  "text": "Sin declaraciones de impuestos"
+                  "value": "$1M",
+                  "label": "Línea máxima"
                 },
                 {
-                  "text": "Sin formularios W2"
+                  "value": "30 min",
+                  "label": "Aprobaciones en tan solo*"
                 },
                 {
-                  "text": "Sin talones de pago"
+                  "value": "620+",
+                  "label": "FICO® aceptado"
                 },
                 {
-                  "text": "Sin avalúo bajo $400K*"
-                },
-                {
-                  "text": "Consulta de crédito suave"
-                },
-                {
-                  "text": "Retire solo lo que necesite"
-                },
-                {
-                  "text": "FICO 620+"
-                },
-                {
-                  "text": "Opciones de retiro a tasa fija"
+                  "value": "$0",
+                  "label": "Avalúo bajo $400K*"
                 }
               ]
             },
@@ -1599,8 +1594,8 @@
               "_type": "guidelines",
               "_version": 1,
               "_key": "guidelines",
-              "headline": "¿HELOC o HELOAN?",
-              "headline_accent": "Usted tiene opciones.",
+              "headline": "Sus opciones",
+              "headline_accent": "",
               "body": "Elija una línea revolvente de la que puede disponer una y otra vez, o una suma fija con un pago establecido. Una sola solicitud de EquityFast lo conecta con la opción que mejor le convenga; estas son las pautas que comparten ambos programas.",
               "link_label": "Compare los programas",
               "link_url": "/es/heloc",
@@ -1645,35 +1640,44 @@
               "footnote": "*La disponibilidad del programa, el monto de la línea, el puntaje de crédito, el CLTV, el DTI, la posición del gravamen y los tipos de propiedad elegibles varían según el programa, la ocupación, el estado y el perfil del prestatario; no todas las combinaciones mostradas están disponibles en conjunto."
             },
             {
-              "_type": "statement",
+              "_type": "image_cards",
               "_version": 1,
-              "_key": "statement",
-              "headline": "Una línea.",
-              "headline_accent": "Usos sin límite.",
-              "lead": "Financie renovaciones, consolide deudas de alto interés, apoye a su familia o cree un fondo de reserva, y pague intereses solo sobre lo que realmente retire.",
-              "body": "Consolide deudas con intereses altos, financie renovaciones sin necesidad de avalúo*, apoye a su familia, invierta en otra propiedad o cree un fondo de reserva, y lo más importante, pague intereses solo sobre lo que realmente retire."
-            },
-            {
-              "_type": "stats",
-              "_version": 1,
-              "_key": "glance",
-              "headline": "EquityFast de un vistazo",
+              "_key": "possibilities",
+              "headline": "Su casa, su futuro",
+              "headline_accent": "",
               "items": [
                 {
-                  "value": "$1M",
-                  "label": "Línea máxima"
+                  "title": "Espacio para sus planes",
+                  "body": "Una línea de crédito puede ayudar a financiar mejoras. Use el planificador para explorar presupuestos y estimaciones de retorno.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/step-three-DOFDFTEo.jpg",
+                      "alt": "Una terraza iluminada al anochecer",
+                      "filename": "step-three-DOFDFTEo.jpg"
+                    }
+                  }
                 },
                 {
-                  "value": "30 min",
-                  "label": "Aprobaciones en tan solo*"
+                  "title": "El valor de su casa",
+                  "body": "Su valor estimado y saldo hipotecario son el punto de partida. El monto real depende de la evaluación de su solicitud.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/step-two-D0nso8eP.jpg",
+                      "alt": "Una casa gris con jardín",
+                      "filename": "step-two-D0nso8eP.jpg"
+                    }
+                  }
                 },
                 {
-                  "value": "620+",
-                  "label": "FICO® aceptado"
-                },
-                {
-                  "value": "$0",
-                  "label": "Avalúo bajo $400K*"
+                  "title": "Un inicio desde casa",
+                  "body": "Responda unas preguntas en línea. La consulta inicial de crédito es suave y no afecta su puntaje.",
+                  "image": {
+                    "$media": {
+                      "url": "/_seed/media/step-one-CWpqiiKr.jpg",
+                      "alt": "Una persona usa un teléfono en el porche",
+                      "filename": "step-one-CWpqiiKr.jpg"
+                    }
+                  }
                 }
               ]
             },
@@ -1681,26 +1685,26 @@
               "_type": "checklist",
               "_version": 1,
               "_key": "why",
-              "headline": "Por qué los propietarios",
-              "headline_accent": "eligen EquityFast.",
-              "body": "Una plataforma moderna de evaluación reemplaza la montaña de papeleo, para que los propietarios elegibles reciban respuestas en minutos y no en semanas.",
+              "headline": "Menos papeleo",
+              "headline_accent": "",
+              "body": "Verificación digital de ingresos y opciones sin avalúo para préstamos elegibles. La aprobación depende de su propiedad y perfil.",
               "apply_label": "Ver Para Cuánto Califico",
               "items": [
                 {
-                  "title": "Renueve Sin Avalúo",
+                  "title": "Sin avalúo*",
                   "body": "Acceso más rápido a los fondos, sin avalúo tradicional en préstamos elegibles."
                 },
                 {
-                  "title": "Consolide Deudas de Alto Interés, FICO® desde 620+",
+                  "title": "Una sola línea",
                   "body": "Un solo retiro manejable para una amplia gama de perfiles de crédito."
                 },
                 {
-                  "title": "Aprobaciones en Tan Solo 30 Minutos*",
-                  "body": "Libere su equidad más rápido y avance sin las demoras de siempre."
+                  "title": "Respuesta en minutos*",
+                  "body": "Los propietarios elegibles pueden recibir aprobación en tan solo 30 minutos. La verificación puede tardar más."
                 },
                 {
-                  "title": "Sin Documentación Requerida",
-                  "body": "Sin impuestos, W2 ni talones de pago: nuestra tecnología verifica el ingreso rápido, sin papeleo."
+                  "title": "Verificación digital",
+                  "body": "La tecnología verifica sus ingresos sin declaraciones de impuestos, W2 ni talones de pago. Puede requerirse información adicional."
                 }
               ]
             },
@@ -1708,7 +1712,7 @@
               "_type": "link_cards",
               "_version": 1,
               "_key": "explore",
-              "headline": "Explore antes de decidir",
+              "headline": "Conozca sus opciones",
               "items": [
                 {
                   "title": "Proceso de Solicitud",
@@ -1730,7 +1734,7 @@
                 },
                 {
                   "title": "Sobre EquityFast",
-                  "body": "La plataforma con inteligencia artificial creada para propietarios ignorados por los prestamistas tradicionales.",
+                  "body": "Conozca EquityFast, de E Mortgage Capital, Inc., NMLS #1416824.",
                   "url": "/es/nosotros",
                   "link_label": "Abrir"
                 }
@@ -1740,11 +1744,11 @@
               "_type": "cta_band",
               "_version": 1,
               "_key": "cta",
-              "headline": "¿Listo para obtener Su Equidad en Sus Términos?",
+              "headline": "Conozca sus números",
               "body": "Responda unas preguntas rápidas. Solo consulta de crédito suave: no afecta su puntaje.",
               "apply_label": "Iniciar Mi Solicitud",
-              "layout": "centered",
-              "show_social": true
+              "layout": "split",
+              "show_social": false
             }
           ]
         },

@@ -1,28 +1,13 @@
 ---
-/**
- * A block headline in the site's two-tone style: the first line in ink, the
- * accent line in the wordmark's sky blue, echoing "EQUITY" and "FAST" in the
- * logo. Search engines and screen readers read it as one heading.
- */
+/** CMS headline parts share one typographic voice; emphasis comes from the words. */
 interface Props {
   as?: "h1" | "h2" | "h3";
   text: string;
   accent?: string | null | undefined;
-  /** Put the accent on its own line (the default) or run it on after the text. */
   inline?: boolean;
-  /** Light surfaces (the default) or ink. */
   tone?: "light" | "dark";
   class?: string;
 }
-
-const { accent, as: Tag = "h2", class: className, inline = false, text, tone = "light" } = Astro.props;
+const { accent, as: Tag = "h2", class: className, text, tone = "light" } = Astro.props;
 ---
-
-<Tag class:list={["headline-section", tone === "dark" && "text-white", className]}>
-  {text}{accent && (
-    <>
-      {inline ? " " : <br />}
-      <span class:list={[tone === "dark" ? "text-sky" : "headline-accent"]}>{accent}</span>
-    </>
-  )}
-</Tag>
+<Tag class:list={["headline-section", tone === "dark" && "text-white", className]}>{text}{accent && ` ${accent}`}</Tag>

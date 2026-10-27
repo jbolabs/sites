@@ -20,13 +20,11 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         // Site additions. `accent` is the application CTA: an ink pill on light
         // surfaces; `inverse` is the same CTA on ink. Outlines pair with each.
-        accent:
-          "bg-ink hover:bg-ink-soft text-white shadow-[0_8px_24px_-12px_color-mix(in_oklch,var(--brand-ink)_60%,transparent)]",
+        accent: "bg-ink hover:bg-ink-soft text-white",
         inverse: "text-ink hover:bg-sky-wash bg-white",
         "outline-inverse":
           "border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white",
-        "outline-ink":
-          "border-line text-ink hover:border-ink/40 hover:bg-canvas bg-white",
+        "outline-ink": "text-ink hover:bg-sky-wash bg-canvas",
         // Icon buttons on ink surfaces.
         "ghost-inverse": "text-white hover:bg-white/10 hover:text-white",
         // Small text actions ("Reset plan", "Remove from plan").
@@ -43,7 +41,7 @@ const buttonVariants = cva(
         lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         // Site additions: pill marketing CTAs with comfortable touch targets.
         // Labels wrap on narrow phones (long Spanish CTAs) instead of overflowing.
-        cta: "h-auto min-h-11 gap-2 rounded-full px-5 py-2 text-center text-sm font-medium whitespace-normal",
+        cta: "h-auto min-h-11 gap-2 rounded-full px-5 py-2 text-center text-base font-medium whitespace-normal",
         hero: "h-auto min-h-13 gap-2 rounded-full px-7 py-3 text-center text-base font-medium whitespace-normal",
         bare: "h-auto p-0",
         // Padded, auto-height content (the planner's list rows).

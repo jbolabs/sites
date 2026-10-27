@@ -25,17 +25,18 @@ const fullAddress = `${address.street}, ${address.city}, ${address.region} ${add
 const mapsHref = `https://maps.google.com/?q=${encodeURIComponent(fullAddress)}`;
 ---
 
-<footer class="border-t border-line bg-canvas text-graphite">
-  <div class="mx-auto grid w-full max-w-[1440px] gap-12 px-5 pt-16 pb-12 sm:px-8 md:grid-cols-[1.4fr_1fr_auto] lg:px-10">
+<footer class="bg-canvas text-ink">
+  <div class="container-page footer-name" aria-hidden="true"><img src="/brand/equityfast-ink.webp" alt="" width="1200" height="171" loading="lazy" /></div>
+  <div class="container-page grid gap-12 pt-16 pb-12 md:grid-cols-[1.4fr_1fr_auto]">
     <div class="space-y-6">
-      <img src="/brand/equityfast-ink.webp" alt="EquityFast" width="1200" height="171" loading="lazy" class="h-6 w-auto" />
-      <div class="flex items-center gap-3 text-sm">
+      <img src="/brand/equityfast-ink.webp" alt="EquityFast" width="1200" height="171" loading="lazy" class="h-7 w-auto" />
+      <div class="flex items-center gap-3 text-base">
         <span>{t.poweredBy}</span>
-        <img src="/brand/emc.webp" alt={legalName} width="640" height="145" loading="lazy" class="h-6 w-auto" />
+        <img src="/brand/emc.webp" alt={legalName} width="640" height="145" loading="lazy" class="h-7 w-auto" />
       </div>
-      <p class="font-mono text-xs">NMLS #{nmls} · {t.equalHousing}</p>
+      <p class="text-base">NMLS #{nmls} · {t.equalHousing}</p>
     </div>
-    <address class="space-y-2 text-sm not-italic">
+    <address class="space-y-2 text-base not-italic">
       <a href={mapsHref} rel="noopener" target="_blank" class="block text-ink/80 hover:text-ink">{address.street}<br />{address.city}, {address.region} {address.postalCode}</a>
       <a href={`mailto:${email}`} class="block text-ink/80 hover:text-ink">{email}</a>
       <a href={instagram} rel="noopener me" target="_blank" class="inline-flex items-center gap-2 pt-2 text-ink/80 hover:text-ink">
@@ -43,20 +44,20 @@ const mapsHref = `https://maps.google.com/?q=${encodeURIComponent(fullAddress)}`
       </a>
     </address>
     <nav aria-label={t.footerNav}>
-      <ul class="grid gap-2 text-sm font-medium sm:grid-cols-2 md:grid-cols-1">
+      <ul class="grid gap-2 text-base font-medium sm:grid-cols-2 md:grid-cols-1">
         {items.map((item) => (
-          <li><a href={item.url} class="inline-flex min-h-7 items-center text-ink/80 hover:text-ink">{item.label}</a></li>
+          <li><a href={item.url} class="inline-flex min-h-11 items-center text-ink/80 hover:text-ink">{item.label}</a></li>
         ))}
       </ul>
     </nav>
   </div>
-  <div class="mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-10">
-    <div class="flex flex-col gap-6 border-t border-line pt-8 sm:flex-row sm:items-start">
+  <div class="container-page">
+    <div class="flex flex-col gap-6 pt-8 sm:flex-row sm:items-start">
       <EqualHousingIcon class="size-10 shrink-0 text-ink/70" label={t.equalHousing} />
-      <div class="space-y-3 text-xs leading-relaxed">
+      <div class="legal-copy space-y-4 text-base leading-relaxed">
         {disclosure.map((paragraph) => <p>{paragraph}</p>)}
       </div>
     </div>
-    <p class="pb-safe pt-6 text-xs">&copy; {year} {legalName} {t.rights}</p>
+    <p class="pb-safe pt-6 text-base">&copy; {year} {legalName} {t.rights}</p>
   </div>
 </footer>

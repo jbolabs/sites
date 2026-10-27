@@ -292,7 +292,7 @@ const RenovationPlanner = ({
                   </span>
                   <span
                     className={cn(
-                      "shrink-0 rounded-full px-2.5 py-1 font-mono text-xs tabular-nums",
+                      "shrink-0 rounded-full px-2.5 py-1 text-xs tabular-nums",
                       active ? "bg-ink text-white" : "bg-canvas text-ink"
                     )}
                   >

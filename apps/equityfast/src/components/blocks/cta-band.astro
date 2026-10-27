@@ -1,77 +1,30 @@
 ---
-/**
- * Closing call to action. Centered in an ink panel with a sky glow
- * (optionally with the Instagram link), split (text left, buttons right, in
- * the same panel), or boxed (a quiet canvas panel).
- */
+/** A direct close, with one action and the optional supporting destination. */
 import { sanitizeHref } from "emdash";
 import type { BlockComponentProps } from "emdash/ui";
-
 import ButtonLink from "@/components/button-link.astro";
 import InstagramIcon from "@/components/instagram-icon.astro";
-import { toLocale } from "@/i18n/locales";
-import { ui } from "@/i18n/ui";
-import { applyHref } from "@/lib/apply";
 import { site } from "../../../site.config";
+import { ui } from "@/i18n/ui";
+import { toLocale } from "@/i18n/locales";
+import { applyHref } from "@/lib/apply";
 import type { PageContentCtaBandBlock } from "../../../emdash-env";
 
 type Props = BlockComponentProps<PageContentCtaBandBlock>;
-
 const { value } = Astro.props;
 const t = ui(toLocale(Astro.currentLocale));
 const layout = value.layout ?? "centered";
-const apply = applyHref(Astro.currentLocale);
-const secondary = value.secondary_cta_label && value.secondary_cta_url ? { href: sanitizeHref(value.secondary_cta_url), label: value.secondary_cta_label } : undefined;
 ---
-
-{layout === "centered" && (
-  <section class="py-16 sm:py-24">
-    <div class="container-page">
-      <div data-reveal class="glow-sky relative overflow-hidden rounded-[2rem] bg-ink px-6 py-20 text-center text-white sm:px-12 sm:py-28">
-        <h2 class="headline-section mx-auto max-w-3xl text-white">{value.headline}</h2>
-        {value.body && <p class="mx-auto mt-5 max-w-xl text-lg text-white/70">{value.body}</p>}
-        <div class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          {value.apply_label && <ButtonLink href={apply} data-apply variant="inverse" size="hero">{value.apply_label}</ButtonLink>}
-          {secondary && <ButtonLink href={secondary.href} variant="outline-inverse" size="hero">{secondary.label}</ButtonLink>}
-        </div>
-        {value.show_social && (
-          <a href={site.business.instagram} rel="noopener me" target="_blank" class="mt-8 inline-flex items-center gap-2 text-sm text-white/60 hover:text-white">
-            <InstagramIcon class="size-4" />{t.followUs}
-          </a>
-        )}
+<section class:list={["closing-field", `closing-${layout}`]}>
+  <div class="container-page closing-layout" data-reveal-group>
+    <h2 class="headline-section text-white">{value.headline}</h2>
+    <div>
+      {value.body && <p class="max-w-lg text-base leading-relaxed">{value.body}</p>}
+      <div class="mt-8 flex flex-wrap items-center gap-6">
+        {value.apply_label && <ButtonLink href={applyHref(Astro.currentLocale)} data-apply variant="inverse" size="hero">{value.apply_label}</ButtonLink>}
+        {value.secondary_cta_label && value.secondary_cta_url && <a class="text-link" href={sanitizeHref(value.secondary_cta_url)}>{value.secondary_cta_label}</a>}
       </div>
+      {value.show_social && <a href={site.business.instagram} rel="noopener me" target="_blank" class="text-link mt-6 gap-2"><InstagramIcon class="size-4" />{t.followUs}</a>}
     </div>
-  </section>
-)}
-{layout === "split" && (
-  <section class="py-16 sm:py-24">
-    <div class="container-page">
-      <div data-reveal class="glow-sky flex flex-col gap-8 overflow-hidden rounded-[2rem] bg-ink px-6 py-12 text-white sm:px-12 sm:py-16 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 class="text-[clamp(1.9rem,3.6vw,2.75rem)] leading-tight tracking-[-0.035em] text-white">{value.headline}</h2>
-          {value.body && <p class="mt-3 text-lg text-white/70">{value.body}</p>}
-        </div>
-        <div class="flex shrink-0 flex-col gap-3 sm:flex-row">
-          {secondary && <ButtonLink href={secondary.href} variant="outline-inverse" size="cta">{secondary.label}</ButtonLink>}
-          {value.apply_label && <ButtonLink href={apply} data-apply variant="inverse" size="cta">{value.apply_label}</ButtonLink>}
-        </div>
-      </div>
-    </div>
-  </section>
-)}
-{layout === "boxed" && (
-  <section class="pb-20 sm:pb-28">
-    <div class="container-page">
-      <div data-reveal class="flex flex-col gap-8 rounded-3xl border border-line bg-canvas p-8 sm:p-10 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h2 class="text-2xl tracking-[-0.03em] sm:text-3xl">{value.headline}</h2>
-          {value.body && <p class="mt-2 text-graphite">{value.body}</p>}
-        </div>
-        <div class="flex shrink-0 flex-col gap-3 sm:flex-row">
-          {secondary && <ButtonLink href={secondary.href} variant="outline-ink" size="cta">{secondary.label}</ButtonLink>}
-          {value.apply_label && <ButtonLink href={apply} data-apply variant="accent" size="cta">{value.apply_label}</ButtonLink>}
-        </div>
-      </div>
-    </div>
-  </section>
-)}
+  </div>
+</section>

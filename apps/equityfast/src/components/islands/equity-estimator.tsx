@@ -56,12 +56,10 @@ const DollarSlider = ({
   return (
     <div>
       <div className="flex items-baseline justify-between gap-3">
-        <span id={id} className="text-graphite text-sm">
+        <span id={id} className="text-graphite text-base">
           {label}
         </span>
-        <span className="font-mono text-base font-medium tabular-nums">
-          {usd(value)}
-        </span>
+        <span className="text-base font-medium tabular-nums">{usd(value)}</span>
       </div>
       <Slider
         variant="brand"
@@ -116,7 +114,7 @@ const EquitySplit = ({
         />
       ))}
     </div>
-    <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
+    <dl className="mt-3 grid grid-cols-3 gap-2 text-base">
       {shares.map((share) => (
         <div key={share.key} className="flex min-w-0 flex-col justify-between">
           <dt className="text-graphite flex items-start gap-1.5 leading-tight">
@@ -126,9 +124,7 @@ const EquitySplit = ({
             />
             <span>{share.label}</span>
           </dt>
-          <dd className="mt-1 font-mono font-medium tabular-nums">
-            {usd(share.value)}
-          </dd>
+          <dd className="mt-1 font-medium tabular-nums">{usd(share.value)}</dd>
         </div>
       ))}
     </dl>
@@ -166,25 +162,8 @@ const EquityEstimator = ({ applyHref, strings }: EquityEstimatorProps) => {
   const inRange = line >= MIN_AMOUNT;
 
   return (
-    <div className="text-ink shadow-float rounded-3xl bg-white p-6 ring-1 ring-black/5 sm:p-8">
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <p className="text-graphite text-sm">{strings.line}</p>
-        <p
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
-            inRange ? "bg-sky-wash text-sky-ink" : "bg-canvas text-graphite"
-          )}
-        >
-          <span
-            className={cn(
-              "size-1.5 rounded-full",
-              inRange ? "bg-sky-ink" : "bg-graphite"
-            )}
-            aria-hidden="true"
-          />
-          {inRange ? strings.within : strings.below}
-        </p>
-      </div>
+    <div className="equity-estimator text-ink" data-ui="">
+      <p className="text-base">{strings.line}</p>
       <p
         className="text-figure tracking-figure mt-3 font-medium tabular-nums"
         aria-hidden="true"
@@ -197,7 +176,7 @@ const EquityEstimator = ({ applyHref, strings }: EquityEstimatorProps) => {
 
       <EquitySplit shares={shares} total={home} />
 
-      <div className="border-line mt-7 space-y-6 border-t pt-6">
+      <div className="mt-8 space-y-6">
         <DollarSlider
           label={strings.homeValue}
           range={HOME_VALUE}
@@ -212,6 +191,10 @@ const EquityEstimator = ({ applyHref, strings }: EquityEstimatorProps) => {
         />
       </div>
 
+      <output className="mt-6 block text-base">
+        {inRange ? strings.within : strings.below}
+      </output>
+
       <a
         href={`${applyHref}?amount=${encodeURIComponent(amount)}`}
         data-apply=""
@@ -223,7 +206,7 @@ const EquityEstimator = ({ applyHref, strings }: EquityEstimatorProps) => {
       >
         {strings.cta}
       </a>
-      <p className="text-graphite mt-4 text-center text-xs leading-relaxed">
+      <p className="text-graphite mt-4 text-center text-base leading-relaxed">
         {strings.note}
       </p>
     </div>

@@ -89,7 +89,6 @@ const breadcrumbs = crumbs === undefined ? undefined : JSON.stringify(breadcrumb
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <Font cssVariable="--font-body" preload />
-    <Font cssVariable="--font-numeric" />
     <EmDashHead page={page} />
     <meta property="og:locale" content={LANGUAGE_TAG[locale].replace("-", "_")} />
     {Object.entries(LANGUAGE_TAG).filter(([code]) => code !== locale).map(([, tag]) => <meta property="og:locale:alternate" content={tag.replace("-", "_")} />)}
