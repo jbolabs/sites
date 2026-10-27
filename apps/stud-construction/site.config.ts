@@ -33,7 +33,7 @@ const business: BusinessFacts = {
   email: "office@studconstruction.net",
   fax: "714-415-5538",
   // CSLB #983217, B General Building (public CSLB record, issued 2013). Confirm with the client.
-  license: "CSLB Lic. #983217",
+  license: "CSLB Lic. #983217, B General Building",
   telephone: "+1-714-873-3473",
 };
 
@@ -63,8 +63,8 @@ export const site = {
   /** Prefixes Worker names (`stud-construction-<stage>`) and the Alchemy stack. */
   id: "stud-construction",
 
-  // The client's notification addresses (prod only), filled in when known.
-  leadInbox: [],
+  // Gets every contact form lead (prod only): the office address the old site listed.
+  leadInbox: ["office@studconstruction.net"],
 
   /**
    * Public base URL EmDash downloads seed images from when the stage cannot

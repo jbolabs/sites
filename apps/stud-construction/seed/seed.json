@@ -946,6 +946,97 @@
       "groupName": "Old site"
     },
     {
+      "source": "/video-testimonials",
+      "destination": "/testimonials",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/sc/video-testimonials",
+      "destination": "/testimonials",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/testimonials-category/homepage",
+      "destination": "/testimonials",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project-category/fire-damage",
+      "destination": "/projects/spa-escape",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/project-category/remodel",
+      "destination": "/portfolio",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/testimonial/vogden5",
+      "destination": "/testimonials",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/testimonial/jncornish",
+      "destination": "/testimonials",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/testimonial/bzsmom",
+      "destination": "/testimonials",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/testimonial/brian-taber",
+      "destination": "/testimonials",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/testimonial/sue-a-eskander",
+      "destination": "/testimonials",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/testimonial/553",
+      "destination": "/testimonials",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/testimonial/557",
+      "destination": "/testimonials",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/testimonial/565",
+      "destination": "/testimonials",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
       "source": "/project/av1",
       "destination": "/projects/zen-den",
       "type": 301,
@@ -1079,7 +1170,7 @@
               "_version": 1,
               "_key": "hero",
               "headline": "Remodels built right, down to the studs.",
-              "subheadline": "Whole-home remodels, additions, kitchens, and baths across Orange County. One team designs, prices, and builds your project, and has since 2009.",
+              "subheadline": "Whole-home remodels, additions, kitchens, and baths across Orange County. Since 2009, one team has designed, priced, and built every project.",
               "slides": [
                 {
                   "image": {
@@ -1150,8 +1241,8 @@
                   "label": "Design team, so plans and pricing stay together"
                 },
                 {
-                  "value": "Fixed",
-                  "label": "Detailed bids with no surprise change orders"
+                  "value": "Precise",
+                  "label": "Bids that include everything we discuss"
                 }
               ]
             },
@@ -1159,8 +1250,7 @@
               "_type": "statement",
               "_version": 1,
               "_key": "statement",
-              "text": "Whether your home is stripped to the bare studs or growing with an addition, you deserve a builder you can trust. We coordinate every trade, hold to the agreed budget, and build the space you have been planning for years.",
-              "signature": "Andrei Damian, President"
+              "text": "Whether your home is stripped to the bare studs or growing with an addition, you deserve a builder you can trust. We coordinate every trade, hold to the agreed budget, and build the space you have been planning for years."
             },
             {
               "_type": "services",
@@ -1261,19 +1351,19 @@
                 {
                   "quote": "Hiring Stud Construction was the best decision I made to handle a $400K+ remodel (basically a rebuild) on an original 1976 ranch home. Stud Construction (Andrei, Radu and Kurt) are professional, wise and hard workers. They delivered on the timeframe agreed to; they had large teams working hard and quickly and the added bonus, they had great ideas with reasons why it was a smart change. I appreciated that they had the same Supervisor leading his team everyday and knew the finite details of the job. Thank you Radu!",
                   "name": "Vogden5",
-                  "detail": "Houzz review",
+                  "detail": "Client review",
                   "rating": 5
                 },
                 {
                   "quote": "We recently remodeled our home with Andrei at Stud construction and we could not be more pleased with the results. We were on a very tight timeline with closing escrow on our current home, and doing a remodel on the new home we purchased. They gave us their word of when the job would be complete and they exceeded our expectation getting us in our home almost a week sooner than we anticipated. Andrei is always professional, his team is clean, organized and respectful. The attention to detail and quality of work is great!Even the neighbors were impressed with how clean the house was during construction.",
                   "name": "Jncornish",
-                  "detail": "Houzz review",
+                  "detail": "Client review",
                   "rating": 5
                 },
                 {
                   "quote": "Stud Construction did our remodel project last year. We added on about 600 sq feet, removed walls and gutted our kitchen. And we are so glad they went with this company! They are trustworthy, extremely professional and are very committed to their jobs. The whole project was done in about 3 months and it was done with the highest quality workmanship. They also had wonderful suggestions with regards to the design element of the job. Guests who come to our home have been wowed by the job they did and someone recently told me that it looks like a model home. These guys know what they are doing! They were committed to the project and worked hard to help our family get into our home as quickly as possible.",
                   "name": "bzsmom",
-                  "detail": "Houzz review",
+                  "detail": "Client review",
                   "rating": 5
                 }
               ],
@@ -1419,7 +1509,7 @@
               "_version": 1,
               "_key": "cta",
               "headline": "Let's talk about your home.",
-              "body": "Call the office or send a note, and we will set up a time to meet at your project.",
+              "body": "Call the office at 714-873-3473 or send a note, and we will set up a time to meet at your project.",
               "image": {
                 "$media": {
                   "url": "/_seed/media/chic-beach-house-exterior-dusk.jpg",
@@ -1620,9 +1710,9 @@
               ],
               "image": {
                 "$media": {
-                  "url": "/_seed/media/chic-beach-house-primary-bath.jpg",
-                  "alt": "Primary bath with walnut double vanity, marble counter, brass fixtures and bold botanical wallpaper",
-                  "filename": "chic-beach-house-primary-bath.jpg"
+                  "url": "/_seed/media/the-familial-place-wet-bar.jpg",
+                  "alt": "Wet bar with teal zellige tile, floating oak shelves and beverage fridge by the stair",
+                  "filename": "the-familial-place-wet-bar.jpg"
                 }
               },
               "image_position": "right"
@@ -1693,48 +1783,48 @@
               "_version": 1,
               "_key": "reviews",
               "headline": "In their words",
-              "intro": "Reviews our clients left on Houzz, shared here with their original wording.",
+              "intro": "Reviews from our clients, shared here in their original words.",
               "items": [
                 {
                   "quote": "Bottom line, Andrei and his team did quality, affordable work quickly and professionally. This is the second major remodeling job that Stud Construction has done for us over the past couple of years (first was kitchen, bathroom, flooring, stucco, tearing down walls, etc, second was carpet, master bathroom, ceilings, lighting, closets, etc). They were incredibly organized with our project. Their online tool allows them to share photos, request feedback, see the timeline and budget at any step of the process. They were helpful with suggestions, took the time to take me to different stores to pick out the right materials, and they did ABSOLUTELY GORGEOUS WORK! I could not possibly recommend Andrei and his team at Stud Construction more!",
                   "name": "Rachel Sherer",
-                  "detail": "Houzz review",
+                  "detail": "Client review",
                   "rating": 5
                 },
                 {
                   "quote": "Hiring Stud Construction was the best decision I made to handle a $400K+ remodel (basically a rebuild) on an original 1976 ranch home. Stud Construction (Andrei, Radu and Kurt) are professional, wise and hard workers. They delivered on the timeframe agreed to; they had large teams working hard and quickly and the added bonus, they had great ideas with reasons why it was a smart change. I appreciated that they had the same Supervisor leading his team everyday and knew the finite details of the job. Thank you Radu!",
                   "name": "Vogden5",
-                  "detail": "Houzz review",
+                  "detail": "Client review",
                   "rating": 5
                 },
                 {
                   "quote": "Stud filled 2 roles for us. When we interviewed Stud, we found that they had an amazing eye for design, as well as, being very impressive contractors. They worked seamlessly with our designer, stayed on time and within budget. The best part is that we love our new home…..it is perfect. Any and all issues that we needed ‘cleaned-up’ were done quickly with no argument. Thanks Andrei and Radu and your amazing team!",
                   "name": "Micheal Caito",
-                  "detail": "Houzz review",
+                  "detail": "Client review",
                   "rating": 5
                 },
                 {
                   "quote": "We recently remodeled our home with Andrei at Stud construction and we could not be more pleased with the results. We were on a very tight timeline with closing escrow on our current home, and doing a remodel on the new home we purchased. They gave us their word of when the job would be complete and they exceeded our expectation getting us in our home almost a week sooner than we anticipated. Andrei is always professional, his team is clean, organized and respectful. The attention to detail and quality of work is great!Even the neighbors were impressed with how clean the house was during construction.",
                   "name": "Jncornish",
-                  "detail": "Houzz review",
+                  "detail": "Client review",
                   "rating": 5
                 },
                 {
                   "quote": "Stud Construction did our remodel project last year. We added on about 600 sq feet, removed walls and gutted our kitchen. And we are so glad they went with this company! They are trustworthy, extremely professional and are very committed to their jobs. The whole project was done in about 3 months and it was done with the highest quality workmanship. They also had wonderful suggestions with regards to the design element of the job. Guests who come to our home have been wowed by the job they did and someone recently told me that it looks like a model home. These guys know what they are doing! They were committed to the project and worked hard to help our family get into our home as quickly as possible.",
                   "name": "bzsmom",
-                  "detail": "Houzz review",
+                  "detail": "Client review",
                   "rating": 5
                 },
                 {
                   "quote": "I was very impressed about the job done by Stud construction and especially Mr. Andrei Damian. He was very professional, honest. He did an excellent job with the time frame he promised. I do recommend him and he is the person that can get the job done and his knowledge about every aspect of the construction, regulations was far exceeding my expectations.",
                   "name": "Sue A. Eskander",
-                  "detail": "Houzz review",
+                  "detail": "Client review",
                   "rating": 5
                 },
                 {
                   "quote": "I hired Stud Construction to install a bar in my kitchen area, as well as updating the counter top, sink, faucet, and back splash in my 2nd bathroom. The quality of the work performed was good overall, Andrei and Kurt were great at communicating with me, and they completed the project on time. As a matter of fact, every person that worked on the project was very nice and communicated well. The only reason why I give them 4 out of 5 is that some of the details of the work could’ve been done a bit better. For example, their counter top guy could’ve done a better job with hiding the line in the counter tops where the stone comes together, (this line is virtually invisible in the counter tops that my builder installed,) and the pattern the tile back splash didn’t line-up perfectly. However, overall I would definitely recommend using them to others.",
                   "name": "Brian Taber",
-                  "detail": "Houzz review",
+                  "detail": "Client review",
                   "rating": 4
                 },
                 {
@@ -1781,7 +1871,7 @@
         "status": "published",
         "data": {
           "title": "Start a project",
-          "intro": "Tell us about your home and what you would like to build or change. We reply within one business day."
+          "intro": "Tell us about your home and what you would like to build or change. We will get back to you to set up a time to talk."
         }
       },
       {

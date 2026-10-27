@@ -146,9 +146,16 @@ const ContactForm = ({ turnstileSiteKey }: ContactFormProps) => {
           className="text-timber-deep size-8"
           aria-hidden="true"
         />
-        <h2 className="text-3xl">Thank you. We have your message.</h2>
+        {/* The form is gone, so focus moves here and screen readers hear the confirmation. */}
+        <h2
+          ref={(heading) => heading?.focus()}
+          tabIndex={-1}
+          className="text-3xl outline-none"
+        >
+          Thank you. We have your message.
+        </h2>
         <p className="text-muted-foreground">
-          Our office will be in touch within one business day.
+          Our office will be in touch soon.
         </p>
       </output>
     );

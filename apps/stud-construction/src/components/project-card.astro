@@ -18,7 +18,7 @@ const { aspect = "aspect-[4/3]", headingLevel: Heading = "h3", project, slug } =
 const inProgress = project.progress === "in_progress";
 ---
 
-<article class="group relative flex w-full flex-col">
+<article class="group relative flex w-full flex-col outline-offset-4 outline-ring focus-within:outline-2">
   <div class:list={["relative overflow-hidden bg-muted", aspect]} data-reveal="mask">
     {project.featured_image && (
       <div class="reveal-zoom size-full">

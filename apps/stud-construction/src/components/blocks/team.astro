@@ -22,7 +22,7 @@ const initials = (name: string) =>
       <h2 class="text-4xl sm:text-5xl lg:text-6xl" data-reveal>{value.headline}</h2>
       {value.intro && <p class="mt-6 text-lg leading-relaxed text-muted-foreground" data-reveal style="--reveal-delay: 100ms">{value.intro}</p>}
     </div>
-    <ul class="mt-14 grid gap-px border border-border bg-border sm:grid-cols-2 lg:mt-16">
+    <ul class="mt-14 grid gap-px border border-border bg-border sm:grid-cols-2 sm:[&>li:last-child:nth-child(odd)]:col-span-2 lg:mt-16">
       {value.members.map((member, index) => (
         <li class="flex flex-col gap-6 bg-background p-7 sm:p-10" data-reveal style={`--reveal-delay: ${(index % 2) * 90}ms`}>
           <div class="flex items-center gap-5">
