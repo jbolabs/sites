@@ -1,7 +1,7 @@
 "use client";
 
 import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer";
-import { useDrawerHeight } from "@jakebodea/site-ui/drawer";
+import { pinDrawerToPage, useDrawerHeight } from "@jakebodea/site-ui/drawer";
 import { XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -51,10 +51,14 @@ function DrawerContent({
     <DrawerPrimitive.VirtualKeyboardProvider>
       <DrawerPrimitive.Portal>
         <DrawerPrimitive.Backdrop
+          ref={pinDrawerToPage}
           data-slot="drawer-overlay"
           className="drawer-backdrop"
         />
-        <DrawerPrimitive.Viewport className="drawer-viewport">
+        <DrawerPrimitive.Viewport
+          ref={pinDrawerToPage}
+          className="drawer-viewport"
+        >
           <DrawerPrimitive.Popup
             data-slot="drawer-content"
             className={cn(
@@ -78,7 +82,8 @@ function DrawerContent({
                 render={
                   <Button
                     variant="ghost"
-                    className="absolute top-3 right-3"
+                    // Above and opaque, so a pinned header or scrolled body passes under it.
+                    className="absolute top-3 right-3 z-20 bg-inherit"
                     size="icon-sm"
                   />
                 }

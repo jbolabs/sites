@@ -25,16 +25,40 @@
   position: fixed;
   inset: 0;
   z-index: 50;
-  min-height: 100dvh;
   background-color: rgb(0 0 0 / 0.45);
   opacity: calc(1 - var(--drawer-swipe-progress, 0));
   transition: opacity 450ms var(--ease-drawer);
 }
 
-/* iOS 26+: cover the whole visible viewport, toolbar included. */
+/*
+ * iOS Safari 26+ floats its toolbar over the page and draws the page under
+ * it, but cuts fixed elements off at the toolbar's top edge. A fixed sheet
+ * also makes Safari paint a flat white bar behind the toolbar, so the dim
+ * stops short of the screen edge. Absolute layers avoid both. They anchor
+ * to the document, so `pinDrawerToPage` (`@jakebodea/site-ui/drawer`) moves
+ * them to where the page was scrolled when the sheet opened; the scroll
+ * lock keeps it there. The backdrop runs past the toolbar; the viewport
+ * stops at the visible area so the sheet sits above it.
+ *
+ * Known and accepted: the slide-in carries the white card under the toolbar,
+ * and Safari keeps that color for its bar while the sheet is open. Only an
+ * open without a slide avoids it (tested on iOS 27); the slide is the call.
+ */
 @supports (-webkit-touch-callout: none) {
-  .drawer-backdrop {
+  .drawer-backdrop,
+  .drawer-viewport {
     position: absolute;
+    top: var(--drawer-page-top, 0px);
+  }
+
+  .drawer-backdrop {
+    bottom: auto;
+    height: 150lvh;
+  }
+
+  /* Exactly the visible area: any taller and Safari brings the bar back. */
+  .drawer-viewport {
+    bottom: calc(-1 * var(--drawer-page-top, 0px));
   }
 }
 
@@ -60,6 +84,15 @@
   justify-content: center;
   padding: var(--drawer-inset);
   padding-top: max(var(--drawer-inset), env(safe-area-inset-top, 0px));
+  /*
+   * Rides on top of the software keyboard, as an iOS sheet does. Without
+   * this the keyboard covers the sheet's lower half and Base UI scrolls the
+   * focused field into the strip above it, pushing the question off the top
+   * and the Continue button under the keys. `--drawer-keyboard-inset` comes
+   * from `Drawer.VirtualKeyboardProvider` and is 0 with the keyboard down.
+   */
+  padding-bottom: calc(var(--drawer-inset) + var(--drawer-keyboard-inset, 0px));
+  transition: padding-bottom 300ms var(--ease-drawer);
 }
 
 .drawer-popup {
@@ -68,8 +101,15 @@
   flex-direction: column;
   width: 100%;
   max-height: 100%;
-  /* The home indicator sits over the card's bottom edge, as on iOS. */
-  padding-bottom: max(0px, env(safe-area-inset-bottom, 0px) - 1rem);
+  /*
+   * The home indicator sits over the card's bottom edge, as on iOS. With the
+   * keyboard up there is no indicator below the card, so the inset (hundreds
+   * of px) takes the padding to 0.
+   */
+  padding-bottom: max(
+    0px,
+    env(safe-area-inset-bottom, 0px) - 1rem - var(--drawer-keyboard-inset, 0px)
+  );
   overflow: hidden;
   border-radius: var(--drawer-radius);
   box-shadow:
@@ -77,9 +117,11 @@
     0 2px 6px rgb(0 0 0 / 0.06),
     0 24px 64px -8px rgb(0 0 0 / 0.35);
   outline: 0;
-  transform: translateY(var(--drawer-swipe-movement-y, 0px));
+  /*
+   * No transform at rest: a transformed sheet also brings back Safari's
+   * white toolbar bar. It only moves while opening, closing, or dragged.
+   */
   transition: transform 450ms var(--ease-drawer);
-  will-change: transform;
 }
 
 .drawer-popup[data-starting-style],
@@ -88,6 +130,7 @@
 }
 
 .drawer-popup[data-swiping] {
+  transform: translateY(var(--drawer-swipe-movement-y, 0px));
   user-select: none;
 }
 
@@ -120,6 +163,7 @@
     transform: none;
   }
 
+  .drawer-viewport,
   .drawer-body {
     transition: none;
   }
