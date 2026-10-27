@@ -1,0 +1,93 @@
+---
+import CalendarPlus from "@lucide/astro/icons/calendar-plus";
+import Clock from "@lucide/astro/icons/clock";
+import MapPin from "@lucide/astro/icons/map-pin";
+import { decodeSlug, getSeoMeta } from "emdash";
+import { PortableText } from "emdash/ui";
+import Image from "@jakebodea/cloudflare-kit/astro/image.astro";
+
+import Breadcrumbs from "@/components/breadcrumbs.astro";
+import ButtonLink from "@/components/button-link.astro";
+import PageHeader from "@/components/page-header.astro";
+import Base from "@/layouts/base.astro";
+import { describeSchedule, formatDate, formatMonthDay, isoDate, nextDates, scheduleOf } from "@/lib/calendar";
+import { churchToday, getEvent } from "@/lib/content";
+import { site } from "../../../site.config";
+
+const slug = decodeSlug(Astro.params.slug);
+if (!slug) {
+  return Astro.rewrite("/404");
+}
+const { cacheHint, entry: event } = await getEvent(slug);
+if (!event) {
+  return Astro.rewrite("/404");
+}
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+}
+const { data } = event;
+const schedule = scheduleOf(data, site.timeZone);
+// A one-time event has one date; a repeating one shows its next four.
+const count = schedule?.repeats === "once" ? 1 : 4;
+const upcoming = schedule === undefined ? [] : nextDates(schedule, churchToday(), count);
+const seo = getSeoMeta(event, {
+  defaultDescription: data.summary,
+  path: `/events/${slug}`,
+  siteUrl: Astro.url.origin,
+});
+// A ministry and its weekly gathering often share a name; the event's title says when it meets.
+const when = schedule?.repeats === "once" ? formatMonthDay(schedule.date) : data.weekday && `${data.weekday}s`;
+const pageTitle = seo.title === data.title && when ? `${data.title}, ${when}` : seo.title;
+---
+
+<Base
+  title={pageTitle}
+  description={seo.description}
+  image={seo.ogImage}
+  photo={data.image}
+  canonical={seo.canonical}
+  robots={seo.robots}
+  content={{ collection: "events", id: data.id, slug: event.id }}
+>
+  <PageHeader title={data.title} intro={data.summary}>
+    <Breadcrumbs slot="before" class="mb-6" crumbs={[{ label: "Home", path: "/" }, { label: "Events", path: "/events" }, { label: data.title, path: `/events/${slug}` }]} />
+    <dl class="mt-8 flex flex-wrap gap-x-8 gap-y-3 text-[1.0625rem]">
+      {schedule && (
+        <div class="flex items-center gap-2"><dt class="sr-only">When</dt><Clock class="size-4 text-navy" aria-hidden="true" /><dd>{describeSchedule(schedule)}</dd></div>
+      )}
+      {data.location && (
+        <div class="flex items-center gap-2"><dt class="sr-only">Where</dt><MapPin class="size-4 text-navy" aria-hidden="true" /><dd>{data.location}</dd></div>
+      )}
+    </dl>
+  </PageHeader>
+  <section class="container-page grid gap-12 py-14 sm:py-20 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:gap-20">
+    <div>
+      {data.image && (
+        <div class="mb-10 aspect-[16/10] overflow-hidden rounded-2xl bg-muted">
+          <Image image={data.image} alt={data.image.alt ?? ""} priority sizes="(min-width: 1024px) 55vw, 100vw" class="size-full! object-cover" />
+        </div>
+      )}
+      {data.details && data.details.length > 0 ? (
+        <div class="prose-site" {...event.edit.details}><PortableText value={data.details} /></div>
+      ) : (
+        <p class="prose-site">{data.summary}</p>
+      )}
+    </div>
+    <aside class="self-start rounded-2xl bg-sand p-7 lg:sticky lg:top-28">
+      {upcoming.length > 0 && (
+        <>
+          <h2 class="text-2xl">{upcoming.length === 1 ? "Date" : "Next dates"}</h2>
+          <ul class="mt-4 space-y-2">
+            {upcoming.map((date) => <li><time datetime={isoDate(date)}>{formatDate(date)}</time></li>)}
+          </ul>
+        </>
+      )}
+      {schedule && (
+        <ButtonLink href={`/events/${slug}/calendar.ics`} size="cta" class="mt-6" download>
+          <CalendarPlus class="size-4" aria-hidden="true" />Add to my calendar
+        </ButtonLink>
+      )}
+      <p class="mt-6 text-sm leading-relaxed text-muted-foreground">Questions? Call the church office at <a href={`tel:${site.business.telephone}`} class="numerals whitespace-nowrap text-navy underline decoration-mist underline-offset-4">{site.phone}</a>.</p>
+    </aside>
+  </section>
+</Base>

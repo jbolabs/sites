@@ -1,0 +1,57 @@
+---
+/**
+ * Church (a PlaceOfWorship) JSON-LD on every page. EmDashHead adds the
+ * WebSite graph; this adds the church itself. Unknown facts are omitted
+ * rather than guessed (see site.config.ts).
+ */
+import { site } from "../../site.config";
+
+interface Props {
+  origin: string;
+}
+
+const { origin } = Astro.props;
+const { business } = site;
+interface ChurchJsonLd {
+  readonly "@context": string;
+  readonly "@type": string;
+  readonly address: Record<string, string>;
+  readonly description: string;
+  readonly image: string;
+  readonly logo: string;
+  readonly name: string;
+  readonly alternateName: string;
+  readonly sameAs: readonly string[];
+  readonly url: string;
+  email?: string;
+  telephone?: string;
+}
+
+const data: ChurchJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Church",
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "US",
+    addressLocality: business.address.city,
+    addressRegion: business.address.region,
+    postalCode: business.address.postalCode,
+    streetAddress: business.address.street,
+  },
+  alternateName: "Grace Church of Laguna Niguel",
+  description: site.description,
+  image: `${origin}/og-default.png`,
+  logo: `${origin}/brand/logo.png`,
+  name: site.name,
+  sameAs: [`https://www.youtube.com/channel/${site.liveChannelId}`],
+  url: origin,
+};
+if (business.email !== undefined) {
+  data.email = business.email;
+}
+if (business.telephone !== undefined) {
+  data.telephone = business.telephone;
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(data)} />

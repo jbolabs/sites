@@ -1,0 +1,33 @@
+---
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import type { BlockComponentProps } from "emdash/ui";
+
+import Agenda from "@/components/agenda.astro";
+import CalendarLinks from "@/components/calendar-links.astro";
+import { agenda } from "@/lib/calendar";
+import { churchToday, getEvents, scheduled } from "@/lib/content";
+import type { PageContentThisWeekBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentThisWeekBlock>;
+
+const { value } = Astro.props;
+const events = await getEvents();
+if (Astro.cache?.enabled) {
+  Astro.cache.set(events.cacheHint);
+}
+const days = agenda(scheduled(events.entries), churchToday(), 7);
+---
+
+<section class="py-20 sm:py-28">
+  <div class="container-page grid gap-10 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] lg:gap-20">
+    <div class="lg:sticky lg:top-28 lg:self-start">
+      <h2 class="text-4xl sm:text-5xl">{value.headline}</h2>
+      {value.intro && <p class="mt-4 max-w-md text-lg leading-relaxed text-muted-foreground">{value.intro}</p>}
+      <div class="mt-8 space-y-6">
+        <CalendarLinks />
+        <a href="/events" class="group inline-flex items-center gap-2 font-medium text-navy">Every event<ArrowRight class="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" /></a>
+      </div>
+    </div>
+    <Agenda days={days} />
+  </div>
+</section>

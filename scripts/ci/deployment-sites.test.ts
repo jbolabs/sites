@@ -54,6 +54,7 @@ describe(deploymentSites, () => {
     expect(planned.map(({ origin }) => origin).toSorted()).toStrictEqual([
       "https://ani-wenger-staging.jbolabs.com",
       "https://equityfast-staging.jbolabs.com",
+      "https://gracechurchlagunaniguel-staging.jbolabs.com",
       "https://ms-custom-homes-staging.jbolabs.com",
     ]);
   });
@@ -61,11 +62,12 @@ describe(deploymentSites, () => {
   it("loads the app configs used by the real deployment command", async () => {
     const configured = await loadDeploymentSites(
       new URL("../../", import.meta.url).pathname,
-      ["ani-wenger", "equityfast", "ms-custom-homes"]
+      ["ani-wenger", "equityfast", "gracechurchlagunaniguel", "ms-custom-homes"]
     );
     expect(deploymentSites(configured, "staging")).toStrictEqual([
       "ani-wenger",
       "equityfast",
+      "gracechurchlagunaniguel",
       "ms-custom-homes",
     ]);
   });

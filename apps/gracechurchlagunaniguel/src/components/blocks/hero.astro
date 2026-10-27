@@ -1,0 +1,60 @@
+---
+import { sanitizeHref } from "emdash";
+import Image from "@jakebodea/cloudflare-kit/astro/image.astro";
+import type { BlockComponentProps } from "emdash/ui";
+
+import ButtonLink from "@/components/button-link.astro";
+import SundayCard from "@/components/sunday-card.astro";
+import { getEvents, sundayServices } from "@/lib/content";
+import type { PageContentHeroBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentHeroBlock>;
+
+const { value } = Astro.props;
+const events = await getEvents();
+if (Astro.cache?.enabled) {
+  Astro.cache.set(events.cacheHint);
+}
+const services = sundayServices(events.entries);
+const primary =
+  value.primary_cta_label && value.primary_cta_url
+    ? { href: sanitizeHref(value.primary_cta_url), label: value.primary_cta_label }
+    : undefined;
+const secondary =
+  value.secondary_cta_label && value.secondary_cta_url
+    ? { href: sanitizeHref(value.secondary_cta_url), label: value.secondary_cta_label }
+    : undefined;
+---
+
+<section class="relative isolate flex min-h-[86svh] flex-col overflow-hidden bg-deep text-white lg:min-h-[92svh]">
+  {value.image && (
+    <div class="absolute inset-0 -z-10" aria-hidden="true">
+      <Image image={value.image} alt="" priority sizes="100vw" class="size-full! object-cover object-[60%_center]" />
+    </div>
+  )}
+  <div class="absolute inset-0 -z-10 bg-linear-to-b from-deep/75 via-deep/45 to-deep/90 lg:from-deep/65 lg:via-deep/20" aria-hidden="true"></div>
+  <div class="absolute inset-0 -z-10 bg-linear-to-r from-deep/60 to-transparent" aria-hidden="true"></div>
+
+  <div class="container-page grid flex-1 items-end gap-10 pt-32 pb-24 lg:grid-cols-[minmax(0,1fr)_22rem] lg:pb-16">
+    <div class="max-w-3xl">
+      <h1 class="rise text-[3rem] leading-[1] text-white sm:text-7xl lg:text-[5.5rem]" style="--d: 0.1s">{value.headline}</h1>
+      {value.subheadline && (
+        <p class="rise mt-6 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl" style="--d: 0.3s">{value.subheadline}</p>
+      )}
+      {(primary || secondary) && (
+        <div class="rise mt-9 flex flex-col gap-3 sm:flex-row" style="--d: 0.45s">
+          {primary && <ButtonLink href={primary.href} variant="inverse" size="hero">{primary.label}</ButtonLink>}
+          {secondary && <ButtonLink href={secondary.href} variant="outline-inverse" size="hero">{secondary.label}</ButtonLink>}
+        </div>
+      )}
+    </div>
+    {services.length > 0 && (
+      <div class="hidden lg:block"><SundayCard services={services} /></div>
+    )}
+  </div>
+</section>
+{services.length > 0 && (
+  <div class="container-page relative z-10 -mt-14 lg:hidden">
+    <SundayCard services={services} />
+  </div>
+)}

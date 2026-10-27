@@ -120,6 +120,49 @@
         "wrangler": "catalog:",
       },
     },
+    "apps/gracechurchlagunaniguel": {
+      "name": "@sites/gracechurchlagunaniguel",
+      "dependencies": {
+        "@astrojs/cloudflare": "catalog:",
+        "@astrojs/react": "catalog:",
+        "@base-ui/react": "catalog:",
+        "@eisbachcode/emdash-plugin-analytics": "catalog:",
+        "@emdash-cms/cloudflare": "catalog:",
+        "@jakebodea/cloudflare-kit": "workspace:*",
+        "@jakebodea/site-ui": "workspace:*",
+        "@lucide/astro": "catalog:",
+        "astro": "catalog:",
+        "class-variance-authority": "catalog:",
+        "clsx": "catalog:",
+        "effect": "catalog:",
+        "emdash": "catalog:",
+        "lucide-react": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "tailwind-merge": "catalog:",
+      },
+      "devDependencies": {
+        "@alchemy.run/frontend-frameworks": "catalog:",
+        "@astrojs/check": "catalog:",
+        "@cloudflare/workers-types": "catalog:",
+        "@effect/platform-bun": "catalog:",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@emnapi/core": "catalog:",
+        "@emnapi/runtime": "catalog:",
+        "@jakebodea/config": "workspace:*",
+        "@tailwindcss/vite": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "alchemy": "catalog:",
+        "tailwindcss": "catalog:",
+        "tw-animate-css": "catalog:",
+        "typescript": "catalog:typescript-api",
+        "vitest": "catalog:",
+        "wrangler": "catalog:",
+      },
+    },
     "apps/ms-custom-homes": {
       "name": "@sites/ms-custom-homes",
       "dependencies": {
@@ -1222,6 +1265,8 @@
     "@sites/ani-wenger": ["@sites/ani-wenger@workspace:apps/ani-wenger"],
 
     "@sites/equityfast": ["@sites/equityfast@workspace:apps/equityfast"],
+
+    "@sites/gracechurchlagunaniguel": ["@sites/gracechurchlagunaniguel@workspace:apps/gracechurchlagunaniguel"],
 
     "@sites/ms-custom-homes": ["@sites/ms-custom-homes@workspace:apps/ms-custom-homes"],
 

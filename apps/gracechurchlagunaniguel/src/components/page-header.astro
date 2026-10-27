@@ -1,0 +1,21 @@
+---
+/** The title band at the top of every inner page. Slots: `before` (breadcrumbs) and default (meta, actions). */
+import Logo from "@/components/brand/logo.astro";
+
+interface Props {
+  title: string;
+  intro?: string | null | undefined;
+}
+
+const { intro, title } = Astro.props;
+---
+
+<section class="relative overflow-hidden border-b border-border bg-sand">
+  <Logo variant="mark" class="pointer-events-none absolute top-1/2 -right-8 hidden h-[140%] w-auto -translate-y-1/2 opacity-[0.08] md:block" />
+  <div class="container-page relative pt-14 pb-12 sm:pt-20 sm:pb-16">
+    <slot name="before" />
+    <h1 class="max-w-4xl text-[2.75rem] leading-[1.04] sm:text-6xl lg:text-7xl">{title}</h1>
+    {intro && <p class="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">{intro}</p>}
+    <slot />
+  </div>
+</section>
