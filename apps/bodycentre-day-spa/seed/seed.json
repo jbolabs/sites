@@ -164,9 +164,8 @@
                   },
                   {
                     "slug": "score",
-                    "label": "Score out of 5",
-                    "type": "string",
-                    "required": true
+                    "label": "Score out of 5 (leave empty to show the count only)",
+                    "type": "string"
                   },
                   {
                     "slug": "count",
@@ -522,44 +521,47 @@
                   "text": "OC Weekly Best of 2019"
                 },
                 {
-                  "text": "Spa, recovery studio, and training gym under one roof"
+                  "text": "Woman, veteran, and family owned since 1994"
+                },
+                {
+                  "text": "A homemade baked treat after every service"
                 }
               ],
               "ratings": [
                 {
                   "source": "Yelp",
-                  "score": "[[4.x]]",
-                  "count": "[[843]] reviews",
+                  "score": "4.6",
+                  "count": "843 reviews",
                   "url": "https://www.yelp.com/biz/bodycentre-day-spa-costa-mesa-2"
                 },
                 {
-                  "source": "[[ClassPass]]",
-                  "score": "[[4.9]]",
-                  "count": "[[10,000+]] ratings",
-                  "url": ""
+                  "source": "Google",
+                  "score": "4.9",
+                  "count": "46 reviews on Birdeye",
+                  "url": "https://reviews.birdeye.com/bodycentre-day-spa-149488407678084"
                 },
                 {
-                  "source": "[[Groupon]]",
-                  "score": "[[4.8]]",
-                  "count": "[[770]] ratings",
-                  "url": ""
+                  "source": "Tripadvisor",
+                  "score": "5.0",
+                  "count": "7 reviews",
+                  "url": "https://www.tripadvisor.com/Attraction_Review-g32253-d10265175-Reviews-Bodycentre_Day_Spa_Fitness_Studio-Costa_Mesa_California.html"
                 }
               ],
               "quotes": [
                 {
-                  "quote": "[[Paste a real guest review here.]]",
-                  "author": "[[Reviewer name]]",
-                  "source": "[[Yelp]]"
+                  "quote": "Absolutely love it here! I’ve had both massages and facials and leave feeling like a million bucks!",
+                  "author": "Allison R.",
+                  "source": "Yelp"
                 },
                 {
-                  "quote": "[[Paste a real guest review here.]]",
-                  "author": "[[Reviewer name]]",
-                  "source": "[[Google]]"
+                  "quote": "I just had the most amazing facial ever! Elizabeth was outstanding! She is a true professional with wonderful products.",
+                  "author": "Suzi F.",
+                  "source": "Yelp"
                 },
                 {
-                  "quote": "[[Paste a real guest review here.]]",
-                  "author": "[[Reviewer name]]",
-                  "source": "[[ClassPass]]"
+                  "quote": "Had a deep tissue massage with Daniel who resolved several tight muscle problems. This is a lovely spa with amazing services and products.",
+                  "author": "Audrey W.",
+                  "source": "Google"
                 }
               ]
             },
@@ -572,15 +574,15 @@
               "hours": [
                 {
                   "days": "Monday to Thursday",
-                  "time": "[[9 am to 7 pm]]"
+                  "time": "9 am to 7 pm"
                 },
                 {
                   "days": "Friday and Saturday",
-                  "time": "[[9 am to 5 pm]]"
+                  "time": "9 am to 5 pm"
                 },
                 {
                   "days": "Sunday",
-                  "time": "[[Closed]]"
+                  "time": "Closed"
                 }
               ],
               "note": "Online booking is open 24 hours a day. To book by phone, call during business hours.",

@@ -17,15 +17,15 @@ const more = value.items.filter((item) => !item.image);
 
 <section id="treatments" class="bg-stone py-20 sm:py-28">
   <div class="container-page">
-    <div class="max-w-2xl">
+    <div class="max-w-2xl" data-reveal>
       <h2 class="text-4xl sm:text-5xl"><Fill text={value.headline} /></h2>
       {value.intro && <p class="mt-4 text-lg leading-relaxed text-muted-foreground"><Fill text={value.intro} /></p>}
     </div>
     <ul class="mt-12 grid gap-6 md:grid-cols-3">
-      {featured.map((item) => (
-        <li class="flex flex-col overflow-hidden rounded-xl bg-card">
+      {featured.map((item, index) => (
+        <li class="group flex flex-col overflow-hidden rounded-xl bg-card" data-reveal style={`--i: ${index}`}>
           {item.image && (
-            <div class="aspect-[3/2] bg-muted">
+            <div class="zoom-photo aspect-[3/2] overflow-hidden bg-muted">
               <Image image={item.image} alt={item.image.alt ?? ""} sizes="(min-width: 768px) 30vw, 100vw" class="size-full! object-cover" />
             </div>
           )}
@@ -38,7 +38,7 @@ const more = value.items.filter((item) => !item.image);
       ))}
     </ul>
     {more.length > 0 && (
-      <ul class="mt-6 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-5">
+      <ul class="mt-6 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-5" data-reveal>
         {more.map((item) => (
           <li class="flex flex-col bg-card p-6">
             <h3 class="text-2xl leading-tight"><Fill text={item.title} /></h3>
@@ -48,7 +48,7 @@ const more = value.items.filter((item) => !item.image);
         ))}
       </ul>
     )}
-    <div class="mt-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+    <div class="mt-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between" data-reveal>
       {value.note && <p class="max-w-2xl text-muted-foreground"><Fill text={value.note} /></p>}
       <ButtonLink href={site.business.bookingUrl} size="cta" class="self-start sm:self-auto">See times and book</ButtonLink>
     </div>
