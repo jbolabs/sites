@@ -273,30 +273,41 @@ const ApplicationForm = ({
 
   return (
     <form id={APPLY_FORM_ID} onSubmit={onSubmit} noValidate>
-      <div ref={heading} tabIndex={-1} className="outline-none">
-        <div key={step} className={enter}>
-          {renderTitle(copy.title)}
-          <p className="text-graphite mt-2 text-base leading-relaxed">
-            {"sub" in copy ? copy.sub : t.saves}
-          </p>
+      {/*
+       * In the phone sheet the question stays pinned while the fields scroll
+       * under it, as in an iOS sheet. With the keyboard up the sheet is
+       * shorter than the step, and the drawer centers the focused field,
+       * which would otherwise push the question off the top. The negative
+       * margins reach into the padding so the cover runs edge to edge without
+       * moving anything. Drawer only: the dialog scrolls inside its padding,
+       * where a pinned header would sit on the first field.
+       */}
+      <div className="z-10 -mx-5 -mt-5 bg-white px-5 pt-5 pb-1 in-data-[slot=drawer-content]:sticky in-data-[slot=drawer-content]:top-0">
+        <div ref={heading} tabIndex={-1} className="outline-none">
+          <div key={step} className={enter}>
+            {renderTitle(copy.title)}
+            <p className="text-graphite mt-2 text-base leading-relaxed">
+              {"sub" in copy ? copy.sub : t.saves}
+            </p>
+          </div>
         </div>
-      </div>
-      <div className="mt-5 flex gap-1" aria-hidden="true">
-        {steps.map((key, position) => (
-          <span
-            key={key}
-            className={cn(
-              "h-1 flex-1 rounded-full",
-              position <= index ? "bg-ink" : "bg-line"
-            )}
-          />
-        ))}
+        <div className="mt-5 flex gap-1" aria-hidden="true">
+          {steps.map((key, position) => (
+            <span
+              key={key}
+              className={cn(
+                "h-1 flex-1 rounded-full",
+                position <= index ? "bg-ink" : "bg-line"
+              )}
+            />
+          ))}
+        </div>
       </div>
       <p className="sr-only" aria-live="polite">
         {index + 1} / {steps.length}
       </p>
 
-      <div key={step} className={cn("mt-6", enter)}>
+      <div key={step} className={cn("mt-5", enter)}>
         <StepFields
           form={form}
           step={step}

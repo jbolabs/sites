@@ -78,7 +78,8 @@ function DrawerContent({
                 render={
                   <Button
                     variant="ghost"
-                    className="absolute top-3 right-3"
+                    // Above and opaque, so a pinned header or scrolled body passes under it.
+                    className="absolute top-3 right-3 z-20 bg-inherit"
                     size="icon-sm"
                   />
                 }
