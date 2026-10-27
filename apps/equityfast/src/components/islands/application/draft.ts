@@ -35,7 +35,10 @@ export const readDraft = (): Draft => {
   const params = new URLSearchParams(storage()?.getItem(DRAFT_KEY) ?? "");
   const answers = { ...EMPTY_ANSWERS };
   for (const field of TEXT_FIELDS) {
-    answers[field] = params.get(field) ?? "";
+    // A blank answer falls back to the default too (other income starts at $0).
+    const saved = params.get(field);
+    answers[field] =
+      saved === null || saved === "" ? EMPTY_ANSWERS[field] : saved;
   }
   const step =
     STEP_KEYS.find((key) => key === params.get(STEP_PARAM)) ?? "amount";

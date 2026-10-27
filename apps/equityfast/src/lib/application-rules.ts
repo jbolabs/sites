@@ -117,11 +117,9 @@ export const digits = (value: string): string =>
 export const dollars = (value: string): number =>
   Number(digits(value).replace(LEADING_ZEROS, "") || "0");
 
-/** `75000` -> `$75,000`; empty input stays empty. */
-export const formatDollars = (value: string): string => {
-  const amount = digits(value).replace(LEADING_ZEROS, "");
-  return amount === "" ? "" : `$${Number(amount).toLocaleString("en-US")}`;
-};
+/** `75000` -> `$75,000`, `0` -> `$0`; input with no digits stays empty. */
+export const formatDollars = (value: string): string =>
+  digits(value) === "" ? "" : `$${dollars(value).toLocaleString("en-US")}`;
 
 /** Whole dollars, required but may be 0 (`Other income: $0`). */
 export const isIncome = (value: string): boolean =>
@@ -271,7 +269,8 @@ export const EMPTY_ANSWERS: ApplicationAnswers = {
   lastName: "",
   middleName: "",
   occupancy: "",
-  otherIncome: "",
+  /** Most applicants have none, so it starts at $0 rather than blank. */
+  otherIncome: "$0",
   ownership: "",
   phone: "",
   primaryCity: "",
@@ -314,6 +313,12 @@ export const stepsFor = (answers: ApplicationAnswers): readonly StepKey[] =>
     (step) =>
       step !== "primaryAddress" || answers.occupancy !== "Primary residence"
   );
+
+/** The step on screen: `key`, or the first step if these answers skip it. */
+export const shownStep = (
+  key: StepKey,
+  answers: ApplicationAnswers
+): StepKey => (stepsFor(answers).includes(key) ? key : "amount");
 
 type Field = keyof ApplicationAnswers;
 

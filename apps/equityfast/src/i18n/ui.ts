@@ -69,11 +69,11 @@ const en = {
     no: "No",
     optional: "optional",
     otherIncome: "Other income",
-    otherIncomeHelp: "Enter 0 if none",
+    otherIncomeHelp: "Leave at $0 if none",
     phoneLabel: "Phone number",
     saves: "Your answers save on this device as you go.",
     security: "Quick security check so we know you're human.",
-    sending: "Sending…",
+    sending: "Submitting…",
     state: "State",
     statePlaceholder: "Select",
     steps: {
@@ -102,6 +102,7 @@ const en = {
     successTitleAnonymous: "Thanks for reaching out.",
     turnstileFailed:
       "The security check could not load. Please refresh the page.",
+    verifyFirst: "Finish the security check above to continue.",
     yes: "Yes",
     zip: "ZIP code",
   },
@@ -220,7 +221,7 @@ const es: UiStrings = {
     no: "No",
     optional: "opcional",
     otherIncome: "Otros ingresos",
-    otherIncomeHelp: "Ingrese 0 si no tiene",
+    otherIncomeHelp: "Deje $0 si no tiene",
     phoneLabel: "Número de teléfono",
     saves: "Sus respuestas se guardan en este dispositivo mientras avanza.",
     security:
@@ -257,6 +258,7 @@ const es: UiStrings = {
     successTitleAnonymous: "Gracias por contactarnos.",
     turnstileFailed:
       "La verificación de seguridad no pudo cargar. Actualice la página.",
+    verifyFirst: "Complete la verificación de seguridad para continuar.",
     yes: "Sí",
     zip: "Código postal",
   },

@@ -6,12 +6,12 @@ export {
   LeadMailFromConfig,
   LeadNotice,
   MAX_LEAD_ANSWERS,
-  isEmailAddress,
   leadInboxConfig,
   leadNotificationText,
   leadFailureText,
   submitContact,
 } from "./contact.ts";
+export { isEmailAddress } from "../contact-rules.ts";
 export type {
   ContactRequest,
   LeadFailure,

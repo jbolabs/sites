@@ -1,7 +1,7 @@
 import { secureCompare } from "@emdash-cms/auth";
 import { Schema } from "effect";
 
-import { isEmailAddress } from "../server/contact.ts";
+import { isEmailAddress } from "../contact-rules.ts";
 
 export const OWNER_BOOTSTRAP_PATH = "/_emdash/api/setup/owner";
 export const BOOTSTRAP_HEADER = "x-cms-bootstrap-token";
