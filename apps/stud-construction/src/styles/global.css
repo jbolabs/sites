@@ -155,7 +155,8 @@
 /*
  * Scroll reveals. `reveal.ts` adds `.is-visible` once an element enters the
  * viewport; without JavaScript (or with reduced motion) everything is visible.
- * `--reveal-delay` staggers siblings.
+ * `--reveal-delay` staggers siblings. Text only: photos stay still (image
+ * reveals read as dated).
  */
 .js [data-reveal] {
   opacity: 0;
@@ -166,81 +167,9 @@
   transition-delay: var(--reveal-delay, 0ms);
 }
 
-.js [data-reveal="fade"] {
-  transform: none;
-}
-
-/*
- * Mask reveals slide a cover (the section's color, `--reveal-mask`) off the photo
- * instead of clipping it: Chrome's IntersectionObserver and lazy image loading
- * both ignore fully clipped elements, so a clipped photo would never appear.
- */
-.js [data-reveal="mask"] {
-  opacity: 1;
-  transform: none;
-}
-
-.js [data-reveal="mask"]::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background: var(--reveal-mask, var(--background));
-  transform-origin: top;
-  transition: transform 1s var(--ease-in-out-quint);
-  transition-delay: var(--reveal-delay, 0ms);
-  pointer-events: none;
-}
-
-.js [data-reveal="mask"].is-visible::after {
-  transform: scaleY(0);
-}
-
 .js [data-reveal].is-visible {
   opacity: 1;
   transform: none;
-}
-
-/* Photos inside a mask reveal settle from a slight zoom as the mask opens. */
-.js [data-reveal="mask"] > .reveal-zoom {
-  transform: scale(1.12);
-  transition: transform 1.4s var(--ease-out-expo);
-  transition-delay: var(--reveal-delay, 0ms);
-}
-
-.js [data-reveal="mask"].is-visible > .reveal-zoom {
-  transform: scale(1);
-}
-
-/* Marks inside a revealed row (the process steps' timber bars) draw downward after it. */
-.js [data-reveal] .reveal-mark {
-  transform: scaleY(0);
-  transform-origin: top;
-  transition: transform 0.7s var(--ease-out-expo);
-  transition-delay: calc(var(--reveal-delay, 0ms) + 150ms);
-}
-
-.js [data-reveal].is-visible .reveal-mark {
-  transform: none;
-}
-
-/*
- * Gallery photos rise as they scroll into view. Scroll-driven, so it needs no
- * script and cannot fight React hydration; browsers without it show the photos.
- */
-@supports (animation-timeline: view()) {
-  .scroll-rise {
-    animation: scroll-rise var(--ease-out) both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 60%;
-  }
-}
-
-@keyframes scroll-rise {
-  from {
-    opacity: 0;
-    transform: translateY(32px);
-  }
 }
 
 /* The contact form's thank-you panel replaces the form, so it eases in rather than appearing. */
@@ -284,22 +213,12 @@
     animation: none !important;
   }
 
-  .js [data-reveal="mask"]::after {
-    display: none;
-  }
-
-  .scroll-rise {
-    animation: none;
-  }
-
   .success-panel,
   .success-panel .success-icon {
     transform: none !important;
   }
 
-  .js [data-reveal] .reveal-mark,
-  .js [data-reveal],
-  .js [data-reveal="mask"] > .reveal-zoom {
+  .js [data-reveal] {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;

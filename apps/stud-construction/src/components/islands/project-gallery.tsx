@@ -56,10 +56,7 @@ const ProjectGallery = ({ images, title }: ProjectGalleryProps) => {
         {images.map((image, index) => (
           <li
             key={image.src}
-            className={cn(
-              "scroll-rise",
-              isPortrait(image) ? undefined : "sm:col-span-2"
-            )}
+            className={cn(isPortrait(image) ? undefined : "sm:col-span-2")}
           >
             <Button
               variant="media"

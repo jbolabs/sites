@@ -20,8 +20,8 @@ const { value } = Astro.props;
       {value.items.map((item, index) => (
         <li class="group grid gap-6 md:grid-cols-2 md:items-center md:gap-12 lg:gap-20">
           {item.image && (
-            <div class:list={["relative aspect-[16/10] overflow-hidden bg-muted", { "md:order-last": index % 2 === 1 }]} style="--reveal-mask: var(--brand-concrete)" data-reveal="mask">
-              <div class="reveal-zoom size-full">
+            <div class:list={["relative aspect-[16/10] overflow-hidden bg-muted", { "md:order-last": index % 2 === 1 }]}>
+              <div class="size-full">
                 <Image
                   image={item.image}
                   alt={item.image.alt ?? ""}

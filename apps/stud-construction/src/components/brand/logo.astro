@@ -34,10 +34,10 @@ const animated = play !== "none";
   fill={color}
   xmlns="http://www.w3.org/2000/svg"
 >
-  <path class="part outline" d={p.outline} fill-rule="evenodd" />
-  <path class="part studs" d={p.studs} />
-  <path class="part letters" d={p.letters} fill-rule="evenodd" />
-  <path class="part text" d={p.text} fill-rule="evenodd" />
+  <path data-part="frame" d={p.outline} fill-rule="evenodd" />
+  <path data-part="studs" d={p.studs} />
+  <path data-part="letters" d={p.letters} fill-rule="evenodd" />
+  <path data-part="text" d={p.text} fill-rule="evenodd" />
 </svg>
 
 <style>
@@ -46,7 +46,11 @@ const animated = play !== "none";
     overflow: visible;
   }
 
-  .part {
+  /*
+   * Parts are named with data attributes, not classes: a class like `outline` or
+   * `text` is also a Tailwind utility and would restyle the path (it drew a 1px box).
+   */
+  [data-part] {
     transform-box: fill-box;
     transform-origin: center;
   }
@@ -55,23 +59,23 @@ const animated = play !== "none";
    * The sequence (about 1.6 s): the house outline settles, the crossed studs
    * snap in from the middle, the letters rise, then the small lines fade up.
    */
-  :global(.js) .logo-anim:not(.is-playing) .part {
+  :global(.js) .logo-anim:not(.is-playing) [data-part] {
     opacity: 0;
   }
 
-  .logo-anim.is-playing .outline {
+  .logo-anim.is-playing [data-part="frame"] {
     animation: logo-settle 0.9s var(--ease-out-expo) 0.1s backwards;
   }
 
-  .logo-anim.is-playing .studs {
+  .logo-anim.is-playing [data-part="studs"] {
     animation: logo-studs 0.8s var(--ease-out-expo) 0.4s backwards;
   }
 
-  .logo-anim.is-playing .letters {
+  .logo-anim.is-playing [data-part="letters"] {
     animation: logo-rise 0.9s var(--ease-out-expo) 0.6s backwards;
   }
 
-  .logo-anim.is-playing .text {
+  .logo-anim.is-playing [data-part="text"] {
     animation: logo-fade 0.8s ease-out 1s backwards;
   }
 
@@ -103,7 +107,7 @@ const animated = play !== "none";
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .logo-anim .part {
+    .logo-anim [data-part] {
       animation: none !important;
       opacity: 1 !important;
     }

@@ -13,7 +13,7 @@ const { value } = Astro.props;
 
 <section class="relative isolate overflow-hidden bg-ink">
   {value.image && (
-    <div class="absolute inset-0 -z-10" data-reveal="fade">
+    <div class="absolute inset-0 -z-10">
       <Image image={value.image} alt="" sizes="100vw" class="size-full! object-cover" />
     </div>
   )}

@@ -19,9 +19,9 @@ const inProgress = project.progress === "in_progress";
 ---
 
 <article class="group relative flex w-full flex-col outline-offset-4 outline-ring has-[a:focus-visible]:outline-2">
-  <div class:list={["relative overflow-hidden bg-muted", aspect]} data-reveal="mask">
+  <div class:list={["relative overflow-hidden bg-muted", aspect]}>
     {project.featured_image && (
-      <div class="reveal-zoom size-full">
+      <div class="size-full">
         <Image
           image={project.featured_image}
           alt={project.featured_image.alt ?? project.title}
