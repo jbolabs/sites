@@ -2292,6 +2292,171 @@
         }
       },
       {
+        "id": "project-leeward",
+        "slug": "leeward",
+        "status": "published",
+        "data": {
+          "title": "Leeward",
+          "project_type": "addition",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 60,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/leeward-exterior.jpg",
+              "alt": "Low contemporary home with white stucco, dark window frames, a charcoal garage door and a desert garden",
+              "filename": "leeward-exterior.jpg"
+            }
+          },
+          "summary": "A 2,511 square foot addition and remodel completed in 2024: a long kitchen with a paneled island, glass walls that open the dining room and kitchen to the patio, and a spa-like primary bath. Interiors by Olga Dean Interior Design.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/leeward-patio.jpg",
+                  "alt": "Rear patio opening into the kitchen through a wide glass wall, with an outdoor dining table",
+                  "filename": "leeward-patio.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/leeward-dining-room.jpg",
+                  "alt": "Dining room with an oak table and a woven pendant before corner sliding glass walls",
+                  "filename": "leeward-dining-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/leeward-kitchen.jpg",
+                  "alt": "Long kitchen with white cabinetry, a charcoal paneled island, brass pendants and a pro range",
+                  "filename": "leeward-kitchen.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/leeward-primary-tub.jpg",
+                  "alt": "Freestanding soaking tub before a fluted wood-look tile wall",
+                  "filename": "leeward-primary-tub.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/leeward-aerial.jpg",
+                  "alt": "Aerial view of the finished home with a standing seam metal roof and ocean-facing yard",
+                  "filename": "leeward-aerial.jpg"
+                }
+              }
+            }
+          ],
+          "location": "Dana Point, CA",
+          "design_style": "Contemporary"
+        }
+      },
+      {
+        "id": "project-urban-orchard",
+        "slug": "urban-orchard",
+        "status": "published",
+        "data": {
+          "title": "Urban Orchard",
+          "project_type": "remodel",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 70,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/urban-orchard-exterior-dusk.jpg",
+              "alt": "Hillside farmhouse at dusk with white board and batten siding, timber gable trim and terraced drought-tolerant planting",
+              "filename": "urban-orchard-exterior-dusk.jpg"
+            }
+          },
+          "summary": "A hillside farmhouse remodel with a vaulted white kitchen around a black island, an open timber stair, patterned tile baths, and terraced decks that step down to a fire pit lounge.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/urban-orchard-kitchen.jpg",
+                  "alt": "Vaulted white kitchen with a black X-braced island, marble counters and yellow dome pendants",
+                  "filename": "urban-orchard-kitchen.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/urban-orchard-kitchen-island.jpg",
+                  "alt": "Black island with marble top and cross-back stools beneath yellow pendants and open walnut shelves",
+                  "filename": "urban-orchard-kitchen-island.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/urban-orchard-living-room.jpg",
+                  "alt": "Living room with a concrete fireplace surround, sliding glass doors to the garden and wide-plank oak floors",
+                  "filename": "urban-orchard-living-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/urban-orchard-dining-room.jpg",
+                  "alt": "Dining room with a long oak table, an open timber stair rail and large windows",
+                  "filename": "urban-orchard-dining-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/urban-orchard-bath-vanity.jpg",
+                  "alt": "Double vanity with vessel sinks, round brass mirrors and a walnut floating cabinet",
+                  "filename": "urban-orchard-bath-vanity.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/urban-orchard-shower.jpg",
+                  "alt": "Walk-in shower with a black geometric tile wall, brass fixtures and a clerestory window",
+                  "filename": "urban-orchard-shower.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/urban-orchard-fire-pit.jpg",
+                  "alt": "Built-in fire pit lounge on a lit terrace with patterned cushions and string lights",
+                  "filename": "urban-orchard-fire-pit.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/urban-orchard-rear-terraces.jpg",
+                  "alt": "Rear of the house at dusk with tiered decks, steel stairs and a glowing fire table",
+                  "filename": "urban-orchard-rear-terraces.jpg"
+                }
+              }
+            }
+          ],
+          "location": "Laguna Niguel, CA",
+          "design_style": "Modern farmhouse"
+        }
+      },
+      {
         "id": "project-home-away-from-home",
         "slug": "home-away-from-home",
         "status": "published",
@@ -2300,7 +2465,7 @@
           "project_type": "remodel",
           "progress": "completed",
           "featured": false,
-          "sort_order": 60,
+          "sort_order": 80,
           "featured_image": {
             "$media": {
               "url": "/_seed/media/home-away-from-home-great-room.jpg",
@@ -2367,7 +2532,7 @@
           "project_type": "whole_home",
           "progress": "completed",
           "featured": false,
-          "sort_order": 70,
+          "sort_order": 90,
           "featured_image": {
             "$media": {
               "url": "/_seed/media/zen-den-kitchen-dining.jpg",
@@ -2487,7 +2652,7 @@
           "project_type": "whole_home",
           "progress": "completed",
           "featured": false,
-          "sort_order": 80,
+          "sort_order": 100,
           "featured_image": {
             "$media": {
               "url": "/_seed/media/book-lovers-dream-great-room-library.jpg",
@@ -2554,7 +2719,7 @@
           "project_type": "whole_home",
           "progress": "completed",
           "featured": false,
-          "sort_order": 90,
+          "sort_order": 110,
           "featured_image": {
             "$media": {
               "url": "/_seed/media/mid-century-escape-living-room.jpg",
@@ -2622,7 +2787,7 @@
           "project_type": "remodel",
           "progress": "completed",
           "featured": false,
-          "sort_order": 100,
+          "sort_order": 120,
           "featured_image": {
             "$media": {
               "url": "/_seed/media/coastal-glam-rear-exterior-dusk.jpg",
@@ -2689,7 +2854,7 @@
           "project_type": "remodel",
           "progress": "completed",
           "featured": false,
-          "sort_order": 110,
+          "sort_order": 130,
           "featured_image": {
             "$media": {
               "url": "/_seed/media/cool-suburban-living-living-room.jpg",
@@ -2757,7 +2922,7 @@
           "project_type": "restoration",
           "progress": "completed",
           "featured": false,
-          "sort_order": 120,
+          "sort_order": 140,
           "featured_image": {
             "$media": {
               "url": "/_seed/media/spa-escape-primary-bath.jpg",
@@ -2865,7 +3030,7 @@
           "project_type": "whole_home",
           "progress": "completed",
           "featured": false,
-          "sort_order": 130,
+          "sort_order": 150,
           "featured_image": {
             "$media": {
               "url": "/_seed/media/sleek-city-house-great-room.jpg",
@@ -2967,7 +3132,7 @@
           "project_type": "kitchen",
           "progress": "completed",
           "featured": false,
-          "sort_order": 140,
+          "sort_order": 160,
           "featured_image": {
             "$media": {
               "url": "/_seed/media/hawley-house-kitchen.jpg",
@@ -3025,7 +3190,7 @@
           "project_type": "remodel",
           "progress": "completed",
           "featured": false,
-          "sort_order": 150,
+          "sort_order": 170,
           "featured_image": {
             "$media": {
               "url": "/_seed/media/quaint-living-backyard-fire-pit.jpg",
@@ -3092,7 +3257,7 @@
           "project_type": "commercial",
           "progress": "completed",
           "featured": false,
-          "sort_order": 160,
+          "sort_order": 180,
           "featured_image": {
             "$media": {
               "url": "/_seed/media/pet-haven-reception.jpg",
@@ -3148,6 +3313,283 @@
               }
             }
           ]
+        }
+      },
+      {
+        "id": "project-bachelor-pad",
+        "slug": "bachelor-pad",
+        "status": "published",
+        "data": {
+          "title": "Bachelor Pad",
+          "project_type": "remodel",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 190,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/bachelor-pad-kitchen.jpg",
+              "alt": "Gray wood kitchen with a curved quartz island, a stainless island hood and glass mosaic backsplash",
+              "filename": "bachelor-pad-kitchen.jpg"
+            }
+          },
+          "summary": "An opened-up two-story remodel with floating stair treads, stacked stone walls, a custom iron fireplace, wood cabinetry with engineered quartz, and room for a game collection.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/bachelor-pad-game-room-stair.jpg",
+                  "alt": "Open room with a retro mural, a stacked stone wall and floating dark wood stair treads",
+                  "filename": "bachelor-pad-game-room-stair.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/bachelor-pad-stair.jpg",
+                  "alt": "Floating stair with steel cable rail rising past a stacked stone wall",
+                  "filename": "bachelor-pad-stair.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/bachelor-pad-family-room.jpg",
+                  "alt": "Family room with a leather sectional, vintage arcade machines and sliding doors to the yard",
+                  "filename": "bachelor-pad-family-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/bachelor-pad-stone-wall-pendant.jpg",
+                  "alt": "Spiral iron pendant glowing against a dark stacked stone wall",
+                  "filename": "bachelor-pad-stone-wall-pendant.jpg"
+                }
+              }
+            }
+          ],
+          "location": "Tustin, CA"
+        }
+      },
+      {
+        "id": "project-rsm-restore",
+        "slug": "rsm-restore",
+        "status": "published",
+        "data": {
+          "title": "RSM Restore",
+          "project_type": "remodel",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 200,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/rsm-restore-kitchen.jpg",
+              "alt": "Open white shaker kitchen with a quartz island, pendant lights and dark hardwood floors",
+              "filename": "rsm-restore-kitchen.jpg"
+            }
+          },
+          "summary": "New shaker cabinetry, quartz counters and a marble backsplash in the kitchen, a hidden media wall, two remodeled bathrooms, and new timber stair treads in place of carpet.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/rsm-restore-kitchen-range.jpg",
+                  "alt": "White shaker cabinetry with quartz counters, a marble subway backsplash and stainless range",
+                  "filename": "rsm-restore-kitchen-range.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/rsm-restore-media-wall.jpg",
+                  "alt": "Fireplace with a marble surround between built-in media cabinets",
+                  "filename": "rsm-restore-media-wall.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/rsm-restore-stair.jpg",
+                  "alt": "Curved staircase with new timber treads, painted risers and white balusters",
+                  "filename": "rsm-restore-stair.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/rsm-restore-guest-bath.jpg",
+                  "alt": "Guest bath with Crema Marfil marble tile, a frameless glass shower and built-in bench",
+                  "filename": "rsm-restore-guest-bath.jpg"
+                }
+              }
+            }
+          ],
+          "location": "Rancho Santa Margarita, CA"
+        }
+      },
+      {
+        "id": "project-newport-fire-rebuild",
+        "slug": "newport-fire-rebuild",
+        "status": "published",
+        "data": {
+          "title": "Newport Fire Rebuild",
+          "project_type": "restoration",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 210,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/newport-fire-rebuild-stair.jpg",
+              "alt": "New stair with oak treads, painted risers and wrought iron balusters beside a painted brick wall",
+              "filename": "newport-fire-rebuild-stair.jpg"
+            }
+          },
+          "summary": "Rebuilding a fire-damaged home: a new oak and wrought iron staircase, a Dutch front door, the original brick fireplace painted and flanked by new bookcases, and refinished kitchen cabinets.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/newport-fire-rebuild-fireplace.jpg",
+                  "alt": "Original brick fireplace painted white over new pale oak floors",
+                  "filename": "newport-fire-rebuild-fireplace.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/newport-fire-rebuild-dutch-door.jpg",
+                  "alt": "New black Dutch front door in a bright entry",
+                  "filename": "newport-fire-rebuild-dutch-door.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/newport-fire-rebuild-stair-landing.jpg",
+                  "alt": "Stair landing with oak treads, square newel posts and iron balusters",
+                  "filename": "newport-fire-rebuild-stair-landing.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/newport-fire-rebuild-kitchen.jpg",
+                  "alt": "Refinished white kitchen with quartz counters and a long glass tile backsplash",
+                  "filename": "newport-fire-rebuild-kitchen.jpg"
+                }
+              }
+            }
+          ],
+          "location": "Newport Beach, CA"
+        }
+      },
+      {
+        "id": "project-mission-restore",
+        "slug": "mission-restore",
+        "status": "published",
+        "data": {
+          "title": "Mission Restore",
+          "project_type": "kitchen",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 220,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/mission-restore-kitchen.jpg",
+              "alt": "White shaker kitchen with glass-front uppers, a gray tile backsplash and dark soapstone counters",
+              "filename": "mission-restore-kitchen.jpg"
+            }
+          },
+          "summary": "A white shaker kitchen with glass-front uppers, soapstone-look counters and a large island with a wine refrigerator, opening to the family room.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/mission-restore-island.jpg",
+                  "alt": "Large white island with wine refrigerator and black counters before a bank of windows",
+                  "filename": "mission-restore-island.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/mission-restore-great-room.jpg",
+                  "alt": "Kitchen island opening to a long great room with dark plank floors",
+                  "filename": "mission-restore-great-room.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/mission-restore-family-room.jpg",
+                  "alt": "Family room with a brick fireplace framed by white built-in shelving",
+                  "filename": "mission-restore-family-room.jpg"
+                }
+              }
+            }
+          ],
+          "location": "Mission Viejo, CA"
+        }
+      },
+      {
+        "id": "project-mv-kitchen",
+        "slug": "mv-kitchen",
+        "status": "published",
+        "data": {
+          "title": "MV Kitchen",
+          "project_type": "kitchen",
+          "progress": "completed",
+          "featured": false,
+          "sort_order": 230,
+          "featured_image": {
+            "$media": {
+              "url": "/_seed/media/mv-kitchen-island.jpg",
+              "alt": "White raised-panel kitchen with a large island, dark counters and amber pendants",
+              "filename": "mv-kitchen-island.jpg"
+            }
+          },
+          "summary": "A kitchen rebuilt around a large island with dark counters and new plank floors throughout, plus a bathroom with a glass tile tub surround.",
+          "gallery": [
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/mv-kitchen-fireplace.jpg",
+                  "alt": "Kitchen opening to a family room with a travertine fireplace and built-in niches",
+                  "filename": "mv-kitchen-fireplace.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/mv-kitchen-kitchen.jpg",
+                  "alt": "Kitchen island with drawer bank and dark countertop beside a wall of windows",
+                  "filename": "mv-kitchen-kitchen.jpg"
+                }
+              }
+            },
+            {
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/mv-kitchen-bath.jpg",
+                  "alt": "Bathroom with a seafoam glass tile tub surround and frameless glass door",
+                  "filename": "mv-kitchen-bath.jpg"
+                }
+              }
+            }
+          ],
+          "location": "Mission Viejo, CA"
         }
       }
     ]
