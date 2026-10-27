@@ -13,13 +13,15 @@
   <path id="bc-c" d="
     M 660 333.4 C 735 330 800 352 840 392 C 846 398 838 407 829 405
     C 800 368 740 349 672 348 A 160 166.5 0 1 0 782 650
-    C 792 642 791 620 785 603 L 795 601 C 798 612 809 635 800.7 643.7
+    C 798 636 814 625 834 617 L 837 624 C 826 634 809 637 800.7 643.7
     A 182 182 0 1 1 660 333.4 Z"/>
+  <!-- The tail runs on into the small leaf; the tall leaf rises on its own stem from the tail. -->
   <path id="bc-leaves" d="
-    M 788 606 C 750 590 712 545 718 480 C 722 440 732 410 739 387
-    C 760 420 815 465 830 505 C 840 540 825 585 788 606 Z
-    M 800 626 C 815 612 830 568 862 550 C 885 538 905 534 918 532
-    C 912 560 900 600 870 622 C 850 636 825 640 800 632 Z"/>
+    M 793 641 C 797 628 800 614 800 598 L 805 598 C 806 614 804 630 801 638 Z
+    M 803 600 C 780 590 714 550 718 480 C 722 440 732 410 739 387
+    C 760 420 815 465 830 505 C 840 545 826 582 803 600 Z
+    M 824 624 C 840 610 852 568 885 546 C 898 540 910 535 918 532
+    C 914 560 900 600 872 618 C 858 627 840 630 826 628 Z"/>
   <!-- Interlace: the B passes over the C at the top crossing, the C over the B's foot. -->
   <clipPath id="bc-top"><rect width="1254" height="420"/></clipPath>
   <clipPath id="bc-bottom"><rect y="420" width="1254" height="491"/></clipPath>
@@ -33,7 +35,7 @@
   </mask>
   <mask id="bc-ribs" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="911">
     <rect width="1254" height="911" fill="#fff"/>
-    <path d="M 786 598 C 772 540 758 460 742 396 M 812 627 C 845 600 880 565 910 538" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 799 600 C 785 540 762 460 742 396 M 836 618 C 860 595 888 562 910 539" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"/>
   </mask>
 </defs>
 <g fill="#28364a">
