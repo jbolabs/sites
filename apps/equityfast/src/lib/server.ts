@@ -5,6 +5,7 @@
  */
 import {
   LeadMailFromConfig,
+  LeadNotice,
   TurnstileLive,
   WaitUntil,
   emailFromEnv,
@@ -14,6 +15,7 @@ import { ConfigProvider, Layer } from "effect";
 import { FetchHttpClient } from "effect/http";
 
 import { FlowAgLive } from "./flow-ag.ts";
+import { renderLeadEmail } from "./lead-email.ts";
 import { LeadStoreEmDash } from "./leads.ts";
 
 export { waitUntil } from "cloudflare:workers";
@@ -31,5 +33,7 @@ export const contactLayer = () =>
   ).pipe(
     Layer.provide(FetchHttpClient.layer),
     Layer.provide(Layer.succeed(WaitUntil, waitUntil)),
-    Layer.provide(configLayer())
+    Layer.provide(configLayer()),
+    // The designed lead email (lead-email.ts) instead of the kit's plain one.
+    Layer.merge(Layer.succeed(LeadNotice, { render: renderLeadEmail }))
   );

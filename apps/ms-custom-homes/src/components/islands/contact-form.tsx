@@ -1,7 +1,17 @@
+import {
+  fitsContactLimit,
+  isEmailAddress,
+} from "@jakebodea/cloudflare-kit/contact-rules";
+import {
+  SUBMITTING,
+  fieldState,
+  useSiteForm,
+  useTurnstile,
+} from "@jakebodea/site-ui/form";
+import type { FieldMessages } from "@jakebodea/site-ui/form";
 import { actions, isInputError } from "astro:actions";
 import { CheckCircle2Icon, LoaderCircleIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import type { SubmitEvent } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,8 +27,6 @@ import {
 } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
-import { loadTurnstile } from "./turnstile";
-
 interface ContactFormProps {
   /** Public Turnstile site key (Cloudflare's always-pass test key outside prod). */
   readonly turnstileSiteKey: string;
@@ -30,12 +38,8 @@ type Status =
   | { readonly state: "sent" }
   | { readonly state: "error"; readonly message: string };
 
-const field = (data: FormData, name: string): string => {
-  const value = data.get(name);
-  return value === null || value instanceof File ? "" : value;
-};
-
-const optional = (value: string) => (value.trim() === "" ? undefined : value);
+const FORM_ID = "contact-form";
+const ID_PREFIX = "contact";
 
 const PROJECT_TYPES = [
   "New custom home",
@@ -45,74 +49,90 @@ const PROJECT_TYPES = [
   "Something else",
 ] as const;
 
+interface ContactValues {
+  readonly name: string;
+  /** Sent as the lead's `company` field, labeled "Project type" in the CMS. */
+  readonly company: string;
+  readonly email: string;
+  readonly phone: string;
+  readonly message: string;
+}
+
+const EMPTY: ContactValues = {
+  company: "",
+  email: "",
+  message: "",
+  name: "",
+  phone: "",
+};
+
+/** The server's `ContactForm` rules, in this site's words. */
+const validate = (values: ContactValues): FieldMessages<ContactValues> => {
+  const messages: { -readonly [Key in keyof ContactValues]?: string } = {};
+  if (!fitsContactLimit("name", values.name)) {
+    messages.name = "Enter your name.";
+  }
+  if (!isEmailAddress(values.email.trim())) {
+    messages.email = "Enter a valid email address, like you@email.com.";
+  }
+  if (!fitsContactLimit("phone", values.phone)) {
+    messages.phone = "Enter a phone number of 40 characters or fewer.";
+  }
+  if (!fitsContactLimit("message", values.message)) {
+    messages.message =
+      values.message.trim().length < 10
+        ? "Tell us a little about the project (10 characters or more)."
+        : "Keep the details under 5,000 characters.";
+  }
+  return messages;
+};
+
+const optional = (value: string) => (value.trim() === "" ? undefined : value);
+
 const ContactForm = ({ turnstileSiteKey }: ContactFormProps) => {
   const [status, setStatus] = useState<Status>({ state: "idle" });
-  const [token, setToken] = useState("");
-  const widget = useRef<HTMLDivElement>(null);
+  const {
+    failed: turnstileFailed,
+    mount: turnstileMount,
+    reset: resetTurnstile,
+    token,
+  } = useTurnstile({ siteKey: turnstileSiteKey });
 
-  useEffect(() => {
-    const element = widget.current;
-    let widgetId: string | undefined;
-    let cancelled = false;
-    const mount = async (target: HTMLDivElement) => {
-      try {
-        const turnstile = await loadTurnstile();
-        if (cancelled) {
-          return;
-        }
-        widgetId = turnstile.render(target, {
-          callback: setToken,
-          "error-callback": () => {
-            setToken("");
-          },
-          "expired-callback": () => {
-            setToken("");
-          },
-          sitekey: turnstileSiteKey,
-          size: "flexible",
-          theme: "light",
-        });
-      } catch {
+  const form = useSiteForm({
+    defaultValues: EMPTY,
+    formId: FORM_ID,
+    onSubmit: async (values) => {
+      if (token === "") {
         setStatus({
-          message: "The spam check could not load. Please refresh the page.",
+          message: "Finish the security check above, then send again.",
           state: "error",
         });
+        return;
       }
-    };
-    if (element !== null) {
-      void mount(element);
-    }
-    return () => {
-      cancelled = true;
-      if (widgetId !== undefined) {
-        window.turnstile?.remove(widgetId);
+      setStatus({ state: "sending" });
+      const { error } = await actions.contact({
+        company: optional(values.company),
+        email: values.email,
+        message: values.message,
+        name: values.name,
+        phone: optional(values.phone),
+        turnstileToken: token,
+      });
+      if (error === undefined) {
+        setStatus({ state: "sent" });
+        return;
       }
-    };
-  }, [turnstileSiteKey]);
-
-  const onSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    setStatus({ state: "sending" });
-    const { error } = await actions.contact({
-      company: optional(field(data, "company")),
-      email: field(data, "email"),
-      message: field(data, "message"),
-      name: field(data, "name"),
-      phone: optional(field(data, "phone")),
-      turnstileToken: token,
-    });
-    if (error === undefined) {
-      setStatus({ state: "sent" });
-      return;
-    }
-    setStatus({
-      message: isInputError(error)
-        ? "Please check your details and try again."
-        : error.message,
-      state: "error",
-    });
-  };
+      // Tokens are single use: a retry needs a new one.
+      resetTurnstile();
+      setStatus({
+        message: isInputError(error)
+          ? "Please check your details and try again."
+          : error.message,
+        state: "error",
+      });
+    },
+    validate,
+  });
 
   if (status.state === "sent") {
     return (
@@ -129,100 +149,170 @@ const ContactForm = ({ turnstileSiteKey }: ContactFormProps) => {
   const sending = status.state === "sending";
   return (
     <form
+      id={FORM_ID}
       onSubmit={(event) => {
-        void onSubmit(event);
+        event.preventDefault();
+        if (!sending) {
+          void form.handleSubmit();
+        }
       }}
       className="border-border bg-card border p-6 sm:p-10"
-      noValidate={false}
+      noValidate
     >
       <FieldGroup>
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field>
-            <FieldLabel htmlFor="contact-name">Name</FieldLabel>
-            <Input
-              id="contact-name"
-              name="name"
-              autoComplete="name"
-              required
-              minLength={2}
-              maxLength={120}
-              className="h-11"
-            />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="contact-company">Project type</FieldLabel>
-            {/* Sent as the lead's `company` field, labeled "Project type" in the CMS. */}
-            <NativeSelect
-              id="contact-company"
-              name="company"
-              defaultValue=""
-              className="w-full"
-              size="lg"
-            >
-              <NativeSelectOption value="">
-                Choose one (optional)
-              </NativeSelectOption>
-              {PROJECT_TYPES.map((type) => (
-                <NativeSelectOption key={type} value={type}>
-                  {type}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="contact-email">Email</FieldLabel>
-            <Input
-              id="contact-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              maxLength={254}
-              className="h-11"
-            />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="contact-phone">
-              Phone{" "}
-              <span className="text-muted-foreground font-normal">
-                (optional)
-              </span>
-            </FieldLabel>
-            <Input
-              id="contact-phone"
-              name="phone"
-              type="tel"
-              autoComplete="tel"
-              maxLength={40}
-              className="h-11"
-            />
-          </Field>
+          <form.Field name="name">
+            {(field) => {
+              const state = fieldState(field, ID_PREFIX);
+              return (
+                <Field data-invalid={state.isInvalid || undefined}>
+                  <FieldLabel htmlFor={state.id}>Name</FieldLabel>
+                  <Input
+                    {...state.control}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => {
+                      field.handleChange(event.currentTarget.value);
+                    }}
+                    autoComplete="name"
+                    className="h-11"
+                  />
+                  {state.isInvalid && (
+                    <FieldError id={state.errorId} errors={state.errors} />
+                  )}
+                </Field>
+              );
+            }}
+          </form.Field>
+          <form.Field name="company">
+            {(field) => {
+              const state = fieldState(field, ID_PREFIX);
+              return (
+                <Field>
+                  <FieldLabel htmlFor={state.id}>Project type</FieldLabel>
+                  <NativeSelect
+                    {...state.control}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => {
+                      field.handleChange(event.currentTarget.value);
+                    }}
+                    className="w-full"
+                    size="lg"
+                  >
+                    <NativeSelectOption value="">
+                      Choose one (optional)
+                    </NativeSelectOption>
+                    {PROJECT_TYPES.map((type) => (
+                      <NativeSelectOption key={type} value={type}>
+                        {type}
+                      </NativeSelectOption>
+                    ))}
+                  </NativeSelect>
+                </Field>
+              );
+            }}
+          </form.Field>
+          <form.Field name="email">
+            {(field) => {
+              const state = fieldState(field, ID_PREFIX);
+              return (
+                <Field data-invalid={state.isInvalid || undefined}>
+                  <FieldLabel htmlFor={state.id}>Email</FieldLabel>
+                  <Input
+                    {...state.control}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => {
+                      field.handleChange(event.currentTarget.value);
+                    }}
+                    type="email"
+                    autoComplete="email"
+                    className="h-11"
+                  />
+                  {state.isInvalid && (
+                    <FieldError id={state.errorId} errors={state.errors} />
+                  )}
+                </Field>
+              );
+            }}
+          </form.Field>
+          <form.Field name="phone">
+            {(field) => {
+              const state = fieldState(field, ID_PREFIX);
+              return (
+                <Field data-invalid={state.isInvalid || undefined}>
+                  <FieldLabel htmlFor={state.id}>
+                    Phone{" "}
+                    <span className="text-muted-foreground font-normal">
+                      (optional)
+                    </span>
+                  </FieldLabel>
+                  <Input
+                    {...state.control}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => {
+                      field.handleChange(event.currentTarget.value);
+                    }}
+                    type="tel"
+                    autoComplete="tel"
+                    className="h-11"
+                  />
+                  {state.isInvalid && (
+                    <FieldError id={state.errorId} errors={state.errors} />
+                  )}
+                </Field>
+              );
+            }}
+          </form.Field>
         </div>
-        <Field>
-          <FieldLabel htmlFor="contact-message">Project details</FieldLabel>
-          <Textarea
-            id="contact-message"
-            name="message"
-            required
-            minLength={10}
-            maxLength={5000}
-            rows={6}
-            className="min-h-36"
-            placeholder="Where is the home, what would you like to build or change, and when are you hoping to start?"
-          />
-        </Field>
-        <div ref={widget} className="min-h-[65px]" />
+        <form.Field name="message">
+          {(field) => {
+            const state = fieldState(field, ID_PREFIX);
+            return (
+              <Field data-invalid={state.isInvalid || undefined}>
+                <FieldLabel htmlFor={state.id}>Project details</FieldLabel>
+                <Textarea
+                  {...state.control}
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(event) => {
+                    field.handleChange(event.currentTarget.value);
+                  }}
+                  rows={6}
+                  className="min-h-36"
+                  placeholder="Where is the home, what would you like to build or change, and when are you hoping to start?"
+                />
+                {state.isInvalid && (
+                  <FieldError id={state.errorId} errors={state.errors} />
+                )}
+              </Field>
+            );
+          }}
+        </form.Field>
+        <div ref={turnstileMount} className="min-h-[65px]" />
+        {turnstileFailed && (
+          <FieldError>
+            The spam check could not load. Please refresh the page.
+          </FieldError>
+        )}
         {status.state === "error" && <FieldError>{status.message}</FieldError>}
         <Button
           type="submit"
           size="hero"
-          disabled={sending || token === ""}
+          disabled={sending}
           className="w-full sm:w-auto sm:self-start"
         >
           {sending && (
             <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
           )}
-          {sending ? "Sending" : "Send message"}
+          {sending ? SUBMITTING : "Send message"}
         </Button>
       </FieldGroup>
     </form>

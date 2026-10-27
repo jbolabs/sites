@@ -10,6 +10,7 @@
  */
 import { Cause, Config, Context, Effect, Layer, Option, Schema } from "effect";
 
+import { CONTACT_LIMITS, isEmailAddress } from "../contact-rules.ts";
 import { Email } from "./email.ts";
 import type { EmailAddress } from "./email.ts";
 import { LeadStore } from "./leads.ts";
@@ -19,26 +20,14 @@ import { Turnstile } from "./turnstile.ts";
 
 export const LEAD_SUBMIT_FAILED = "lead submit failed";
 
-const WHITESPACE = /\s/u;
-
-/** One `@`, a non-empty local part, and a dotted domain. Deliverability is the reply's job. */
-export const isEmailAddress = (value: string): boolean => {
-  const at = value.indexOf("@");
-  const domain = value.slice(at + 1);
-  const hasSingleAt = at > 0 && !domain.includes("@");
-  const dottedDomain =
-    domain.includes(".") && !domain.startsWith(".") && !domain.endsWith(".");
-  return hasSingleAt && dottedDomain && !WHITESPACE.test(value);
-};
-
 const trimmed = (min: number, max: number) =>
   Schema.Trim.check(Schema.isMinLength(min), Schema.isMaxLength(max));
 
 const optionalTrimmed = (max: number) =>
   Schema.optional(Schema.Trim.check(Schema.isMaxLength(max)));
 
-/** Most intake questions a site may add to its form. */
-export const MAX_LEAD_ANSWERS = 8;
+/** Most intake questions a site may add to its form (EquityFast's application asks 11). */
+export const MAX_LEAD_ANSWERS = 12;
 
 /**
  * A site-specific intake question and the visitor's answer (budget, timeline,
@@ -56,18 +45,18 @@ export const ContactForm = Schema.Struct({
   answers: Schema.optional(
     Schema.Array(LeadAnswer).check(Schema.isMaxLength(MAX_LEAD_ANSWERS))
   ),
-  company: optionalTrimmed(120),
+  company: optionalTrimmed(CONTACT_LIMITS.company.max),
   email: Schema.Trim.check(
-    Schema.isMaxLength(254),
+    Schema.isMaxLength(CONTACT_LIMITS.email.max),
     Schema.makeFilter((value: string) =>
       isEmailAddress(value) ? undefined : "Enter a valid email address"
     )
   ),
-  message: trimmed(10, 5000),
-  name: trimmed(2, 120),
-  phone: optionalTrimmed(40),
+  message: trimmed(CONTACT_LIMITS.message.min, CONTACT_LIMITS.message.max),
+  name: trimmed(CONTACT_LIMITS.name.min, CONTACT_LIMITS.name.max),
+  phone: optionalTrimmed(CONTACT_LIMITS.phone.max),
   /** Who sent the visitor (a referral partner or past client), when they say. */
-  referrer: optionalTrimmed(120),
+  referrer: optionalTrimmed(CONTACT_LIMITS.referrer.max),
   turnstileToken: Schema.String,
 });
 export type ContactForm = typeof ContactForm.Type;
@@ -91,6 +80,26 @@ export interface LeadMailRoutes {
 export class LeadMail extends Context.Service<LeadMail, LeadMailRoutes>()(
   "@jakebodea/cloudflare-kit/LeadMail"
 ) {}
+
+/** The email the client inbox gets for a saved lead. */
+export interface LeadNotification {
+  readonly subject: string;
+  readonly text: string;
+  /** A designed version for mail clients that show HTML; `text` stays the fallback. */
+  readonly html?: string;
+}
+
+/**
+ * Optional: how a site words and designs its lead email. Without it the
+ * pipeline sends the plain-text `leadNotificationText` under a generic
+ * "New enquiry" subject.
+ */
+export class LeadNotice extends Context.Service<
+  LeadNotice,
+  {
+    readonly render: (lead: Lead, mail: LeadMailRoutes) => LeadNotification;
+  }
+>()("@jakebodea/cloudflare-kit/LeadNotice") {}
 
 export interface LeadFailure {
   readonly form: Omit<ContactForm, "turnstileToken">;
@@ -155,6 +164,14 @@ export const leadNotificationText = (lead: Lead): string =>
     "",
     lead.message,
   ].join("\n");
+
+const defaultNotification = (lead: Lead): LeadNotification => ({
+  subject:
+    lead.referrer === undefined
+      ? `New enquiry from ${lead.name}`
+      : `New enquiry from ${lead.name} (via ${lead.referrer})`,
+  text: leadNotificationText(lead),
+});
 
 export const leadFailureText = (
   failure: LeadFailure,
@@ -248,19 +265,19 @@ export const submitContact = Effect.fn("submitContact")(function* submitContact(
     .save(lead)
     .pipe(Effect.tapCause(alertFailure("save")));
   yield* Effect.annotateCurrentSpan("lead.id", id);
+  const notification = Option.match(yield* Effect.serviceOption(LeadNotice), {
+    onNone: () => defaultNotification(lead),
+    onSome: (notice) => notice.render(lead, mail),
+  });
   yield* Option.match(Option.all({ from: mail.from, to: mail.inbox }), {
     onNone: () =>
       Effect.logInfo("lead saved; email notifications are not configured"),
     onSome: ({ from, to }) =>
       email
         .send({
+          ...notification,
           from,
           replyTo: lead.email,
-          subject:
-            lead.referrer === undefined
-              ? `New enquiry from ${lead.name}`
-              : `New enquiry from ${lead.name} (via ${lead.referrer})`,
-          text: leadNotificationText(lead),
           to,
         })
         .pipe(

@@ -1,0 +1,20 @@
+---
+/**
+ * EmDash's `<Image>`, fixed; use it wherever a site would use EmDash's. Every
+ * photo shows a blurred placeholder (seeded photos included) instead of an
+ * empty box until it loads, and the srcset stops at the original's width.
+ * See `emdash/photo.ts`.
+ */
+import type { ComponentProps } from "astro/types";
+import { Image as EmDashImage } from "emdash/ui";
+import placeholders from "virtual:seed-placeholders";
+
+import { photoProps } from "../emdash/photo.ts";
+
+type Props = ComponentProps<typeof EmDashImage>;
+
+const { image, placeholder, ...props } = Astro.props;
+const photo = photoProps(image, placeholders, { placeholder });
+---
+
+<EmDashImage image={photo.image} placeholder={false} style={photo.style} {...(photo.widths && { widths: photo.widths })} {...props} />

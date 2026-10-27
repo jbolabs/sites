@@ -14,6 +14,7 @@ import {
   ContactForm,
   LeadMail,
   LeadMailFromConfig,
+  LeadNotice,
   leadNotificationText,
   submitContact,
 } from "./contact.ts";
@@ -92,7 +93,7 @@ describe(ContactForm, () => {
     const answer = { answer: "Under $5k", question: "Budget" };
     const tooMany = Schema.decodeUnknownExit(ContactForm)({
       ...form,
-      answers: Array.from({ length: 9 }, () => answer),
+      answers: Array.from({ length: 13 }, () => answer),
     });
     expect(Exit.isFailure(tooMany)).toBeTruthy();
   });
@@ -147,6 +148,28 @@ describe(submitContact, () => {
       expect((yield* Ref.get(emails))[0]?.subject).toBe(
         "New enquiry from Pat Builder (via Alex Rivera)"
       );
+    })
+  );
+
+  it.effect("sends the site's own subject and HTML when it renders one", () =>
+    Effect.gen(function* rendersSiteNotice() {
+      const { emails, layer } = yield* recorder;
+      const notice = Layer.succeed(LeadNotice, {
+        render: (lead, mail) => ({
+          html: `<p>${lead.name}</p>`,
+          subject: `New application: ${lead.name} (${mail.name})`,
+          text: "plain",
+        }),
+      });
+      yield* submitContact(form, request).pipe(
+        Effect.provide(Layer.mergeAll(layer(), TurnstileAllowAll, notice))
+      );
+      expect((yield* Ref.get(emails))[0]).toMatchObject({
+        html: "<p>Pat Builder</p>",
+        replyTo: "pat@example.com",
+        subject: "New application: Pat Builder (Access Electric website)",
+        text: "plain",
+      });
     })
   );
 
