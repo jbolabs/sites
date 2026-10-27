@@ -31,12 +31,7 @@ import {
 } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/http";
 
-import {
-  digits,
-  dollars,
-  formatAddress,
-  formatDollars,
-} from "./application-rules.ts";
+import { digits, dollars, formatAddress } from "./application-rules.ts";
 import type { Occupancy } from "./application-rules.ts";
 import type { ApplicationForm } from "./application.ts";
 
@@ -56,8 +51,12 @@ const PROPERTY_USE: Record<Occupancy, "Primary" | "Secondary" | "Investment"> =
 
 /**
  * The accept-lead JSON body. Names are Flow AG's canonical field names, not
- * aliases. Anything without a Flow AG field (ownership, listing status,
- * language, consent) goes in `notes`, which the loan team reads on the lead.
+ * aliases. Anything without a documented Flow AG field (income, income
+ * source, ownership, listing status, language, consent) goes in `notes`,
+ * which the loan team reads on the lead. Date of birth goes in both: the
+ * dry run showed Flow AG parses `dob`, and the note keeps it as typed. The docs say the intake
+ * reads income but name no field for it, so it stays in the notes until
+ * Flow AG gives us the spellings.
  */
 export interface FlowAgLead {
   readonly firstName: string;
@@ -92,6 +91,9 @@ export interface FlowAgLead {
 /** Flow AG caps a lead-creation note at 4,000 characters (and truncates past it). */
 const MAX_NOTES = 4000;
 
+/** Whole dollars as `$140,000`, keeping `$0` (the form's formatter blanks it). */
+const usd = (value: string) => `$${dollars(value).toLocaleString("en-US")}`;
+
 const NOTES_INTRO = "HELOC application from the EquityFast website.";
 
 /** An application as the accept-lead body. `leadId` is the CMS entry id. */
@@ -115,14 +117,14 @@ export const toFlowAgLead = (
     ...(form.middleName === undefined || form.middleName === ""
       ? []
       : [`Middle name: ${form.middleName}`]),
+    `Date of birth: ${form.birthDate}`,
+    `Pre-tax annual income: ${usd(form.income)}`,
+    `Other annual income: ${usd(form.otherIncome)}`,
+    `Primary income source: ${form.incomeSource}`,
     `Occupancy: ${form.occupancy}`,
     `Primary residence: ${primary}`,
     `Ownership: ${form.ownership}`,
     `Listed for sale: ${form.forSale}`,
-    // Flow AG's income fields are monthly; the form asks yearly, so the team gets them as asked.
-    `Pre-tax annual income: ${formatDollars(form.income)}`,
-    `Other annual income: ${formatDollars(form.otherIncome)}`,
-    `Income source: ${form.incomeSource}`,
     `Language: ${form.locale === "es" ? "Spanish" : "English"}`,
     "Contact consent: Yes (calls, texts, and email)",
     `Page: ${sourcePath}`,
