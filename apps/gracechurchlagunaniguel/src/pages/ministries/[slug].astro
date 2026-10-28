@@ -1,0 +1,81 @@
+---
+import Clock from "@lucide/astro/icons/clock";
+import User from "@lucide/astro/icons/user";
+import { decodeSlug, getSeoMeta } from "emdash";
+import { PortableText } from "emdash/ui";
+import Image from "@jakebodea/cloudflare-kit/astro/image.astro";
+
+import Breadcrumbs from "@/components/breadcrumbs.astro";
+import ButtonLink from "@/components/button-link.astro";
+import PageHeader from "@/components/page-header.astro";
+import Base from "@/layouts/base.astro";
+import { getMinistries, getMinistry } from "@/lib/content";
+
+const slug = decodeSlug(Astro.params.slug);
+if (!slug) {
+  return Astro.rewrite("/404");
+}
+const [{ cacheHint, entry: ministry }, all] = await Promise.all([getMinistry(slug), getMinistries()]);
+if (!ministry) {
+  return Astro.rewrite("/404");
+}
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+  Astro.cache.set(all.cacheHint);
+}
+const { data } = ministry;
+const others = all.entries.filter((entry) => entry.id !== ministry.id);
+const seo = getSeoMeta(ministry, {
+  defaultDescription: data.summary,
+  path: `/ministries/${slug}`,
+  siteUrl: Astro.url.origin,
+});
+---
+
+<Base
+  title={seo.title}
+  description={seo.description}
+  image={seo.ogImage}
+  photo={data.image}
+  canonical={seo.canonical}
+  robots={seo.robots}
+  content={{ collection: "ministries", id: data.id, slug: ministry.id }}
+>
+  <PageHeader title={data.title} intro={data.summary}>
+    <Breadcrumbs slot="before" class="mb-6" crumbs={[{ label: "Home", path: "/" }, { label: "Ministries", path: "/ministries" }, { label: data.title, path: `/ministries/${slug}` }]} />
+    {(data.meets || data.leader) && (
+      <dl class="mt-8 flex flex-wrap gap-x-8 gap-y-3 text-[1.0625rem]">
+        {data.meets && <div class="flex items-center gap-2"><dt class="sr-only">When</dt><Clock class="size-4 text-navy" aria-hidden="true" /><dd>{data.meets}</dd></div>}
+        {data.leader && <div class="flex items-center gap-2"><dt class="sr-only">Led by</dt><User class="size-4 text-navy" aria-hidden="true" /><dd>Led by {data.leader}</dd></div>}
+      </dl>
+    )}
+  </PageHeader>
+  <section class="container-page grid gap-12 py-14 sm:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-20">
+    {data.image && (
+      <div class="aspect-[4/3] self-start overflow-hidden rounded-2xl bg-muted lg:sticky lg:top-28">
+        <Image image={data.image} alt={data.image.alt ?? ""} priority sizes="(min-width: 1024px) 45vw, 100vw" class="size-full! object-cover" />
+      </div>
+    )}
+    <div>
+      {data.details && data.details.length > 0 && (
+        <div class="prose-site" {...ministry.edit.details}><PortableText value={data.details} /></div>
+      )}
+      <div class="mt-10 flex flex-wrap gap-3">
+        <ButtonLink href="/contact" size="cta">Get connected</ButtonLink>
+        <ButtonLink href="/events" variant="hairline" size="cta">See this week's events</ButtonLink>
+      </div>
+    </div>
+  </section>
+  {others.length > 0 && (
+    <nav aria-label="Other ministries" class="border-t border-border bg-sand py-12">
+      <div class="container-page">
+        <h2 class="text-2xl">Other ministries</h2>
+        <ul class="mt-5 flex flex-wrap gap-2">
+          {others.map((entry) => (
+            <li><a href={`/ministries/${entry.id}`} class="inline-flex rounded-full border border-navy/20 bg-card px-4 py-2 text-[0.9375rem] text-navy transition-colors hover:border-navy hover:bg-navy hover:text-paper">{entry.data.title}</a></li>
+          ))}
+        </ul>
+      </div>
+    </nav>
+  )}
+</Base>

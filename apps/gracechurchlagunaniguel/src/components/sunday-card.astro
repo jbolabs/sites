@@ -1,0 +1,43 @@
+---
+/** This coming Sunday's services and the way there: the one card a visitor or member needs. */
+import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+import MapPin from "@lucide/astro/icons/map-pin";
+
+import { addDays, formatClock, formatDate, weekdayOf, WEEKDAYS } from "@/lib/calendar";
+import type { Scheduled } from "@/lib/calendar";
+import { churchToday } from "@/lib/content";
+import type { Entry, Event } from "@/lib/content";
+import { cn } from "@/lib/utils";
+import { site } from "../../site.config";
+
+interface Props {
+  services: readonly Scheduled<Entry<Event>>[];
+  class?: string;
+}
+
+const { class: className, services } = Astro.props;
+const today = churchToday();
+const sunday = addDays(today, (7 - WEEKDAYS.indexOf(weekdayOf(today))) % 7);
+const isToday = WEEKDAYS.indexOf(weekdayOf(today)) === 0;
+const { address, directionsUrl } = site.business;
+// The home page renders this card twice (beside the hero on desktop, under it on phones).
+const headingId = `sunday-${crypto.randomUUID().slice(0, 8)}`;
+---
+
+<aside class={cn("rounded-2xl bg-card p-6 text-foreground shadow-[0_24px_60px_-20px_rgb(20_30_50/0.35)] sm:p-7", className)} aria-labelledby={headingId}>
+  <h2 id={headingId} class="text-2xl leading-tight">{isToday ? "Today" : "This Sunday"}<span class="block font-sans text-sm tracking-normal text-muted-foreground">{formatDate(sunday)}</span></h2>
+  <ul class="mt-5 divide-y divide-border">
+    {services.map(({ item, schedule }) => (
+      <li>
+        <a href={`/events/${item.id}`} class="group flex items-baseline gap-4 py-3">
+          <span class="numerals w-[5.5rem] shrink-0 font-display text-xl whitespace-nowrap text-navy">{formatClock(schedule.start)}</span>
+          <span class="text-[0.9375rem] font-medium group-hover:underline">{item.data.title}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+  <a href={directionsUrl} target="_blank" rel="noopener" class="group mt-4 flex items-start gap-3 rounded-xl bg-sand p-3.5 text-sm leading-snug transition-colors hover:bg-accent">
+    <MapPin class="mt-0.5 size-4 shrink-0 text-navy" aria-hidden="true" />
+    <span>{address.street}<br />{address.city}, {address.region}<span class="mt-1 flex items-center gap-1 font-medium text-navy">Get directions<ArrowUpRight class="size-3.5" aria-hidden="true" /></span></span>
+  </a>
+</aside>

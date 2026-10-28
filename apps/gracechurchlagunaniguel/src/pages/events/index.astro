@@ -1,0 +1,93 @@
+---
+import { getSeoMeta } from "emdash";
+
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import CalendarLinks from "@/components/calendar-links.astro";
+import PageHeader from "@/components/page-header.astro";
+import Base from "@/layouts/base.astro";
+import { compareDates, describeSchedule, formatClock, formatDate, formatMonthDay, nextDates, WEEKDAYS } from "@/lib/calendar";
+import { churchToday, getEvents, getPage, scheduled } from "@/lib/content";
+
+const [{ cacheHint, entry: page }, events] = await Promise.all([getPage("events"), getEvents()]);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+  Astro.cache.set(events.cacheHint);
+}
+const title = page?.data.title ?? "Events";
+const seo = page ? getSeoMeta(page, { defaultDescription: page.data.intro, path: "/events", siteUrl: Astro.url.origin }) : undefined;
+
+const today = churchToday();
+const all = scheduled(events.entries);
+// One-time events still ahead, soonest first.
+const special = all
+  .flatMap(({ item, schedule }) =>
+    schedule.repeats === "once" && compareDates(schedule.date, today) >= 0 ? [{ date: schedule.date, item, schedule }] : []
+  )
+  .toSorted((left, right) => compareDates(left.date, right.date));
+const week = WEEKDAYS.flatMap((weekday) => {
+  const items = all
+    .filter(({ schedule }) => schedule.repeats !== "once" && schedule.weekday === weekday)
+    .toSorted((left, right) => left.schedule.start - right.schedule.start);
+  return items.length > 0 ? [{ items, weekday }] : [];
+});
+const capitalize = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
+---
+
+<Base
+  title={seo?.title ?? title}
+  description={seo?.description}
+  image={seo?.ogImage}
+  robots={seo?.robots}
+  content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
+>
+  <PageHeader title={title} intro={page?.data.intro}>
+    <div class="mt-8"><CalendarLinks /></div>
+  </PageHeader>
+
+  {special.length > 0 && (
+    <section class="container-page pt-16 sm:pt-20">
+      <h2 class="text-4xl">Coming up</h2>
+      <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {special.map(({ date, item, schedule }) => (
+          <li class="group relative rounded-2xl bg-sand p-6 transition-colors hover:bg-accent">
+            <p class="text-sm text-muted-foreground">{formatDate(date)} · {formatClock(schedule.start)}</p>
+            <h3 class="mt-2 text-2xl leading-tight"><a href={`/events/${item.id}`} class="after:absolute after:inset-0">{item.data.title}</a></h3>
+            <p class="mt-2 leading-relaxed text-foreground/80">{item.data.summary}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  <section class="container-page py-16 sm:py-20">
+    <h2 class="text-4xl">Every week</h2>
+    <div class="mt-8 divide-y divide-border border-y border-border">
+      {week.map((day) => (
+        <div class="grid gap-x-8 gap-y-4 py-8 md:grid-cols-[10rem_minmax(0,1fr)]">
+          <h3 class="text-2xl">{capitalize(day.weekday)}</h3>
+          <ul class="grid gap-x-8 gap-y-6 lg:grid-cols-2">
+            {day.items.map(({ item, schedule }) => {
+              const next = nextDates(schedule, today, 1)[0];
+              return (
+                <li class="group relative grid grid-cols-[5.5rem_minmax(0,1fr)] gap-4">
+                  <span class="numerals pt-0.5 font-display text-xl whitespace-nowrap text-navy">{formatClock(schedule.start)}</span>
+                  <div>
+                    <h4 class="font-sans text-[1.0625rem] font-semibold tracking-normal text-foreground">
+                      <a href={`/events/${item.id}`} class="after:absolute after:inset-0 group-hover:underline group-hover:decoration-mist">{item.data.title}</a>
+                    </h4>
+                    <p class="text-sm text-muted-foreground">
+                      {schedule.repeats === "weekly" ? item.data.location : describeSchedule(schedule)}
+                      {schedule.repeats !== "weekly" && next && <span> · next {formatMonthDay(next)}</span>}
+                    </p>
+                    <p class="mt-1.5 text-[0.9375rem] leading-relaxed text-foreground/75">{item.data.summary}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+  {page && <div {...page.edit.content}><PageBlocks value={page.data.content} /></div>}
+</Base>

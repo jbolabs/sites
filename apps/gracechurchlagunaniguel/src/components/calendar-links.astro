@@ -1,0 +1,26 @@
+---
+/**
+ * Subscribe to the church calendar: `webcal:` opens the phone's or Mac's
+ * calendar app with a subscription, and Google Calendar gets its own link.
+ */
+import CalendarSync from "@lucide/astro/icons/calendar-sync";
+
+import ButtonLink from "@/components/button-link.astro";
+
+interface Props {
+  /** Light or dark surface. */
+  tone?: "light" | "dark";
+}
+
+const { tone = "light" } = Astro.props;
+const feed = new URL("/events/calendar.ics", Astro.site ?? Astro.url);
+const webcal = `webcal://${feed.host}${feed.pathname}`;
+const google = `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcal)}`;
+---
+
+<div class="flex flex-wrap items-center gap-x-5 gap-y-3">
+  <ButtonLink href={webcal} size="cta" variant={tone === "dark" ? "inverse" : "default"}>
+    <CalendarSync class="size-4" aria-hidden="true" />Subscribe to the calendar
+  </ButtonLink>
+  <a href={google} target="_blank" rel="noopener" class:list={["text-sm font-medium underline decoration-mist hover:decoration-current", tone === "dark" ? "text-paper" : "text-navy"]}>Use Google Calendar</a>
+</div>

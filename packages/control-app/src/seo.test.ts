@@ -4,6 +4,7 @@ import {
   decodeEntities,
   iconFindings,
   internalPath,
+  isAuditedResponse,
   pageFindings,
   socialImageFindings,
 } from "./seo.ts";
@@ -213,5 +214,15 @@ describe("origins", () => {
       internalPath("https://other.com/", "https://example.com")
     ).toBeUndefined();
     expect(internalPath("mailto:a@b.c", "https://example.com")).toBeUndefined();
+  });
+});
+
+describe("which responses are pages", () => {
+  it("audits HTML pages, redirects, and errors but not linked files", () => {
+    expect(isAuditedResponse(200, "text/html; charset=utf-8")).toBeTruthy();
+    expect(isAuditedResponse(301, null)).toBeTruthy();
+    expect(isAuditedResponse(404, "text/plain")).toBeTruthy();
+    expect(isAuditedResponse(200, "text/calendar; charset=utf-8")).toBeFalsy();
+    expect(isAuditedResponse(200, "application/pdf")).toBeFalsy();
   });
 });

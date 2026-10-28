@@ -1,0 +1,44 @@
+---
+/** Ministries as photo tiles in an uneven rhythm (two wide, three narrow, repeating). */
+import Image from "@jakebodea/cloudflare-kit/astro/image.astro";
+
+import type { Entry, Ministry } from "@/lib/content";
+
+interface Props {
+  ministries: readonly Entry<Ministry>[];
+  headingLevel?: "h2" | "h3";
+}
+
+const { headingLevel: Heading = "h3", ministries } = Astro.props;
+const NARROW = "lg:col-span-4";
+const SPANS = ["lg:col-span-7", "lg:col-span-5", NARROW, NARROW, NARROW, "lg:col-span-5", "lg:col-span-7", NARROW, NARROW, NARROW];
+const WIDE = new Set([0, 1, 5, 6]);
+// On phones the grid has two columns, so the third narrow tile of each run spans both.
+const PHONE_WIDE = new Set([4, 9]);
+---
+
+<ul class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-12">
+  {ministries.map((ministry, index) => {
+    const position = index % SPANS.length;
+    const wide = WIDE.has(position);
+    return (
+      <li class:list={["group relative isolate overflow-hidden rounded-2xl bg-deep", SPANS[position], wide ? "col-span-2 aspect-[16/10] lg:aspect-auto lg:h-[24rem]" : "lg:aspect-auto lg:h-[20rem]", !wide && (PHONE_WIDE.has(position) ? "col-span-2 aspect-[16/10]" : "aspect-[4/5]")]}>
+        {ministry.data.image && (
+          <Image
+            image={ministry.data.image}
+            alt=""
+            sizes={wide ? "(min-width: 1024px) 58vw, 100vw" : "(min-width: 1024px) 33vw, 50vw"}
+            class="absolute inset-0 -z-10 size-full! object-cover transition-transform duration-700 ease-expo group-hover:scale-[1.04] motion-reduce:transition-none"
+          />
+        )}
+        <div class="absolute inset-0 -z-10 bg-linear-to-t from-deep/90 via-deep/30 to-transparent" aria-hidden="true"></div>
+        <div class="flex h-full flex-col justify-end p-4 sm:p-6">
+          <Heading class:list={["leading-tight text-white", wide ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl"]}>
+            <a href={`/ministries/${ministry.id}`} class="after:absolute after:inset-0">{ministry.data.title}</a>
+          </Heading>
+          {ministry.data.meets && <p class="mt-1 hidden text-sm text-white/75 sm:block">{ministry.data.meets}</p>}
+        </div>
+      </li>
+    );
+  })}
+</ul>

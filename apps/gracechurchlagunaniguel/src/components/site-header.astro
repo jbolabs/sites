@@ -1,0 +1,141 @@
+---
+import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+import CirclePlay from "@lucide/astro/icons/circle-play";
+
+import Logo from "@/components/brand/logo.astro";
+import type { NavItem } from "@/lib/content";
+import { isExternal } from "@/lib/content";
+import MobileMenu from "@jakebodea/site-ui/mobile-menu";
+import ButtonLink from "./button-link.astro";
+import { site } from "../../site.config";
+
+interface Props {
+  title: string;
+  items: readonly NavItem[];
+  /** Float transparent over a full-bleed hero until the page scrolls (header.ts sets `data-scrolled`). */
+  overlay?: boolean;
+}
+
+const { items, overlay = false, title } = Astro.props;
+const current = Astro.url.pathname;
+const isActive = (url: string) =>
+  url === "/" ? current === "/" : current === url || current.startsWith(`${url}/`);
+---
+
+<header
+  class:list={["site-header sticky top-0 z-40", { "is-overlay": overlay }]}
+  data-header
+>
+  <div class="header-surface absolute inset-0 -z-10 border-b border-border bg-background transition-opacity duration-300" aria-hidden="true"></div>
+  <div class="container-page flex h-20 items-center justify-between gap-6 sm:h-22">
+    <a href="/" class="relative flex shrink-0 items-center" aria-label={`${title}, home`}>
+      <Logo class="logo-dark h-16 w-auto transition-opacity duration-300 sm:h-[4.5rem]" />
+      <Logo tone="white" class="logo-light absolute top-0 left-0 h-16 w-auto opacity-0 transition-opacity duration-300 sm:h-[4.5rem]" />
+    </a>
+    <nav aria-label="Main" class="header-ink hidden items-center gap-1 transition-colors duration-300 lg:flex">
+      {items.map((item) => {
+        const external = isExternal(item.url);
+        return (
+          <a
+            href={item.url}
+            target={external ? "_blank" : undefined}
+            rel={external ? "noopener" : undefined}
+            aria-current={!external && isActive(item.url) ? "page" : undefined}
+            class="nav-link relative inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-[0.9375rem] font-medium"
+          >
+            {item.label}
+            {external && <ArrowUpRight class="size-3 opacity-60" aria-hidden="true" />}
+          </a>
+        );
+      })}
+      <div class="ml-4 flex items-center gap-2">
+        <ButtonLink href={site.givingUrl} target="_blank" rel="noopener" variant="hairline" size="cta" class="header-give">Give</ButtonLink>
+        <ButtonLink href="/live" size="cta" class="header-live"><CirclePlay class="size-4" aria-hidden="true" />Watch live</ButtonLink>
+      </div>
+    </nav>
+    <div class="header-ink transition-colors duration-300 lg:hidden">
+      <MobileMenu
+        client:media="(max-width: 1023px)"
+        items={[{ href: "/", label: "Home" }, ...items.map((item) => ({ href: item.url, label: item.label }))]}
+        currentPath={current}
+        classNames={{
+          overlay: "bg-background lg:hidden",
+          nav: "container-page pt-8",
+          link: "font-display text-[2.5rem] leading-tight tracking-[-0.02em] text-navy/50 aria-[current=page]:text-navy",
+          footer: "container-page",
+        }}
+      >
+        <div class="grid grid-cols-2 gap-3">
+          <ButtonLink href="/live" size="hero" class="w-full">Watch live</ButtonLink>
+          <ButtonLink href={site.givingUrl} target="_blank" rel="noopener" variant="hairline" size="hero" class="w-full">Give</ButtonLink>
+        </div>
+      </MobileMenu>
+    </div>
+  </div>
+</header>
+
+<script>
+  import "@/scripts/header";
+</script>
+
+<style>
+  .nav-link {
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .nav-link:hover {
+    background: color-mix(in oklch, currentColor 8%, transparent);
+  }
+
+  .nav-link[aria-current="page"] {
+    background: color-mix(in oklch, currentColor 10%, transparent);
+  }
+
+  .header-ink {
+    color: var(--brand-navy);
+  }
+
+  /*
+   * Over the hero: the header keeps its sticky slot but pulls the hero up beneath
+   * it (negative margin), staying transparent until the page scrolls. Only with
+   * JS, which is what restores the solid header (header.ts). The open mobile
+   * menu sits under a solid header too, like a scrolled page.
+   */
+  :global(.js) .is-overlay {
+    margin-bottom: -5rem;
+  }
+
+  @media (min-width: 40rem) {
+    :global(.js) .is-overlay {
+      margin-bottom: -5.5rem;
+    }
+  }
+
+  :global(.js:not([data-mobile-menu-open])) .is-overlay:not([data-scrolled]) .header-surface,
+  :global(.js:not([data-mobile-menu-open])) .is-overlay:not([data-scrolled]) :global(.logo-dark) {
+    opacity: 0;
+  }
+
+  :global(.js:not([data-mobile-menu-open])) .is-overlay:not([data-scrolled]) :global(.logo-light) {
+    opacity: 1;
+  }
+
+  :global(.js:not([data-mobile-menu-open])) .is-overlay:not([data-scrolled]) .header-ink {
+    color: white;
+  }
+
+  :global(.js:not([data-mobile-menu-open])) .is-overlay:not([data-scrolled]) :global(.header-give) {
+    border-color: rgb(255 255 255 / 0.5);
+    color: white;
+  }
+
+  :global(.js:not([data-mobile-menu-open])) .is-overlay:not([data-scrolled]) :global(.header-give):hover {
+    background: white;
+    color: var(--brand-navy);
+  }
+
+  :global(.js:not([data-mobile-menu-open])) .is-overlay:not([data-scrolled]) :global(.header-live) {
+    background: var(--brand-paper);
+    color: var(--brand-navy);
+  }
+</style>

@@ -1,0 +1,34 @@
+---
+import { sanitizeHref } from "emdash";
+import { PortableText } from "emdash/ui";
+import Image from "@jakebodea/cloudflare-kit/astro/image.astro";
+import type { BlockComponentProps } from "emdash/ui";
+
+import ButtonLink from "@/components/button-link.astro";
+import type { PageContentStoryBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentStoryBlock>;
+
+const { value } = Astro.props;
+const imageRight = value.image_position === "right";
+---
+
+<section class="py-20 sm:py-28">
+  <div class="container-page grid items-center gap-12 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] md:gap-16 lg:gap-24">
+    {value.image && (
+      <div class:list={["relative", { "md:order-2": imageRight }]}>
+        <div class="aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
+          <Image image={value.image} alt={value.image.alt ?? ""} sizes="(min-width: 768px) 42vw, 100vw" class="size-full! object-cover" />
+        </div>
+      </div>
+    )}
+    <div>
+      <h2 class="text-4xl sm:text-5xl">{value.headline}</h2>
+      <div class="prose-site mt-6"><PortableText value={value.body} /></div>
+      {value.signature && <p class="mt-6 font-display text-xl text-navy italic">{value.signature}</p>}
+      {value.cta_label && value.cta_url && (
+        <ButtonLink href={sanitizeHref(value.cta_url)} variant="hairline" size="cta" class="mt-8">{value.cta_label}</ButtonLink>
+      )}
+    </div>
+  </div>
+</section>

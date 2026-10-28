@@ -1,0 +1,84 @@
+---
+import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+
+import Logo from "@/components/brand/logo.astro";
+import { formatClock } from "@/lib/calendar";
+import type { Scheduled } from "@/lib/calendar";
+import type { Entry, Event, NavItem } from "@/lib/content";
+import { site } from "../../site.config";
+
+interface Props {
+  title: string;
+  tagline: string;
+  items: readonly NavItem[];
+  /** Sunday's services, from Events. */
+  services: readonly Scheduled<Entry<Event>>[];
+}
+
+const { items, services, tagline, title } = Astro.props;
+const year = new Date().getFullYear();
+const { address, directionsUrl, email, telephone } = site.business;
+// Long addresses wrap after the @, never mid-word.
+const [emailUser, emailDomain] = (email ?? "").split("@");
+const channel = `https://www.youtube.com/channel/${site.liveChannelId}`;
+const external = [
+  { href: site.givingUrl, label: "Give online" },
+  { href: channel, label: "YouTube" },
+];
+---
+
+<footer class="relative overflow-hidden bg-deep text-paper/75">
+  <Logo variant="mark" tone="white" class="pointer-events-none absolute -right-20 -bottom-24 h-[28rem] w-auto opacity-[0.05]" />
+  <div class="container-page relative grid gap-12 py-16 sm:py-20 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+    <div class="space-y-5">
+      <a href="/" aria-label={`${title}, home`} class="inline-block">
+        <Logo tone="white" class="h-20 w-auto sm:h-24" />
+      </a>
+      <p class="max-w-xs text-sm leading-relaxed">{tagline}</p>
+    </div>
+    {services.length > 0 && (
+      <div>
+        <h2 class="mb-5 font-sans text-sm font-semibold text-white">Sundays</h2>
+        <ul class="space-y-2.5 text-sm">
+          {services.map(({ item, schedule }) => (
+            <li class="flex gap-4">
+              <span class="numerals w-[4.75rem] shrink-0 whitespace-nowrap text-white">{formatClock(schedule.start)}</span>
+              <a href={`/events/${item.id}`} class="transition-colors hover:text-white">{item.data.title}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+    <div>
+      <h2 class="mb-5 font-sans text-sm font-semibold text-white">Visit</h2>
+      <address class="space-y-2.5 text-sm not-italic">
+        <a href={directionsUrl} target="_blank" rel="noopener" class="block leading-relaxed transition-colors hover:text-white">
+          {address.street}<br />{address.city}, {address.region} {address.postalCode}
+        </a>
+        <a href={`tel:${telephone}`} class="numerals block transition-colors hover:text-white">{site.phone}</a>
+        {email && <a href={`mailto:${email}`} class="block transition-colors hover:text-white">{emailUser}@<wbr />{emailDomain}</a>}
+      </address>
+    </div>
+    <nav aria-label="Footer">
+      <h2 class="mb-5 font-sans text-sm font-semibold text-white">Explore</h2>
+      <ul class="grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm">
+        {items.map((item) => (
+          <li><a href={item.url} class="transition-colors hover:text-white">{item.label}</a></li>
+        ))}
+        {external.map((link) => (
+          <li>
+            <a href={link.href} target="_blank" rel="noopener" class="inline-flex items-center gap-1 transition-colors hover:text-white">
+              {link.label}<ArrowUpRight class="size-3 opacity-60" aria-hidden="true" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+  <div class="relative border-t border-white/10">
+    <div class="container-page flex flex-col gap-2 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-xs sm:flex-row sm:justify-between">
+      <p>&copy; {year} Grace Church of Laguna Niguel</p>
+      <p>An independent Reformed church</p>
+    </div>
+  </div>
+</footer>

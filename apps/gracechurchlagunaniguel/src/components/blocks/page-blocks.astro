@@ -1,0 +1,42 @@
+---
+/** Maps each EmDash block type to its renderer. Add new section types here and in seed/seed.json. */
+import { Blocks, defineBlockComponents } from "emdash/ui";
+
+import type { PageContentBlock } from "../../../emdash-env";
+import Announcements from "./announcements.astro";
+import CtaBand from "./cta-band.astro";
+import Faq from "./faq.astro";
+import Hero from "./hero.astro";
+import Highlights from "./highlights.astro";
+import LatestSermon from "./latest-sermon.astro";
+import Leadership from "./leadership.astro";
+import Ministries from "./ministries.astro";
+import RichText from "./rich-text.astro";
+import ServiceTimes from "./service-times.astro";
+import Statement from "./statement.astro";
+import Story from "./story.astro";
+import ThisWeek from "./this-week.astro";
+
+interface Props {
+  value?: PageContentBlock[] | null | undefined;
+}
+
+const { value } = Astro.props;
+const components = defineBlockComponents<PageContentBlock>({
+  announcements: Announcements,
+  cta_band: CtaBand,
+  faq: Faq,
+  hero: Hero,
+  highlights: Highlights,
+  latest_sermon: LatestSermon,
+  leadership: Leadership,
+  ministries: Ministries,
+  rich_text: RichText,
+  service_times: ServiceTimes,
+  statement: Statement,
+  story: Story,
+  this_week: ThisWeek,
+});
+---
+
+<Blocks value={value} components={components} />
