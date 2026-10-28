@@ -1,8 +1,10 @@
 import { createRoot } from "react-dom/client";
 import cmsAdmin from "virtual:cms-admin-config";
 
+import { installAdminMarks } from "#assistant/admin-marks.ts";
 import { Assistant } from "#assistant/assistant.tsx";
 import { installMobileNavigation } from "#assistant/mobile-navigation.ts";
+import { installThemeColor } from "#assistant/theme-color.ts";
 
 import { DEFAULT_PRESETS } from "../options.ts";
 
@@ -17,6 +19,8 @@ const ROOT_ID = "site-assistant";
 
 if (typeof document !== "undefined") {
   installMobileNavigation();
+  installAdminMarks();
+  installThemeColor();
 }
 
 if (typeof document !== "undefined" && cmsAdmin.assistant !== false) {

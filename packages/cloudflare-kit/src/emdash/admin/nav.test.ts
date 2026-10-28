@@ -29,6 +29,13 @@ describe(adminNavCss, () => {
     expect(css).not.toContain("/_emdash/admin/menus");
   });
 
+  it("hides the byline filter on content lists while bylines are hidden", () => {
+    expect(adminNavCss()).toContain(
+      'html[data-theme] main button[aria-label="Filter by byline"]{display:none}'
+    );
+    expect(adminNavCss(["bylines"])).not.toContain("Filter by byline");
+  });
+
   it("adds nothing when a site shows every entry", () => {
     expect(
       adminNavCss([
