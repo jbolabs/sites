@@ -64,7 +64,8 @@ const markLists = () => {
   )) {
     const headers = [...table.querySelectorAll("thead th")].map((header) => ({
       sortable: header.hasAttribute("aria-sort"),
-      text: header.textContent ?? "",
+      // A plugin column names itself in aria-label; its header may be only an icon.
+      text: header.getAttribute("aria-label") ?? header.textContent ?? "",
     }));
     for (const row of table.querySelectorAll("tbody > tr")) {
       const cells = [...row.children];

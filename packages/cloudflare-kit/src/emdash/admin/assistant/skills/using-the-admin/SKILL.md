@@ -36,13 +36,17 @@ Open its part of the site, tap **Add New** at the top right, fill it in, tap **S
 
 **Live View**, at the top of an item, opens the page as visitors see it now. Changes show there only after publishing.
 
+## The item's panel
+
+Publishing details, **Revisions**, and **Move to Trash** live in a panel. On a phone or tablet, tap **Settings** at the top of the item to open it. On a computer it is already open on the right, so skip that step. Ask which they are on if it matters and you cannot tell.
+
 ## Undoing
 
-- Before publishing: tap **Settings**, then **Discard changes**.
-- After publishing: tap **Settings**, open **Revisions**, pick an earlier version, and tap **Restore this version**. Then publish again.
+- Before publishing: in the item's panel, tap **Discard changes**.
+- After publishing: in the item's panel, open **Revisions**, pick an earlier version, and tap **Restore this version**. Then publish again.
 
 ## Taking something off the site
 
 - To hide it but keep it: tap the **Unpublish** button at the top of the item (it names the item, for example **Unpublish Product**).
-- To delete it: tap **Settings**, then **Move to Trash**. It can be brought back from the **Trash** tab of that list: tap **Restore** beside it.
+- To delete it: in the item's panel, tap **Move to Trash**. It can be brought back from the **Trash** tab of that list: tap **Restore** beside it. It comes back as a draft, so open it and publish it again.
 - You (the assistant) cannot publish, unpublish, or delete. Tell the person which button does it.

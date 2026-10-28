@@ -71,7 +71,16 @@ export const Assistant = ({
           showCloseButton={false}
           showOverlay={mobile}
         >
-          <AssistantChat config={config} entry={entry} />
+          <AssistantChat
+            config={config}
+            entry={entry}
+            onOpenLink={() => {
+              // A phone panel covers the screen the link just opened; a desktop pane sits beside it.
+              if (mobile) {
+                setOpen(false);
+              }
+            }}
+          />
         </SheetContent>
       </Sheet>
     </TooltipProvider>

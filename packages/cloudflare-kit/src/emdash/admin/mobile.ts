@@ -124,7 +124,7 @@ const TRASH_CARDS = `
 
 /** The entry editor's scrolling column; its first child is the title row with the actions. */
 const EDITOR =
-  "html[data-theme] main form [data-sidebar-wrapper][data-side=right] > div";
+  "html[data-theme] main form [data-sidebar-wrapper][data-side=right] > div:has(> div:first-child fieldset button[type=submit])";
 const EDITOR_ACTIONS = `${EDITOR} > div:first-child fieldset`;
 /** EmDash labels its publish button "Publish now" or "Publish changes"; "Unpublish …" stays up top. */
 const PUBLISH =
@@ -150,6 +150,7 @@ const EDITOR_ACTION_BAR = `
   ${EDITOR}:has(:is(input:not([type=checkbox], [type=radio]), textarea, [contenteditable=true]):focus) > div:first-child fieldset::before {
     display: none;
   }
+  /* 20 and 21 keep the bar under Kumo's Settings sheet and dialogs, which must cover it. */
   ${EDITOR_ACTIONS}:has(button[type=submit])::before {
     content: "";
     position: fixed;
@@ -264,6 +265,10 @@ export const ADMIN_MOBILE_CSS = `
   html[data-theme] [data-testid=dashboard-metric] > div:last-child {
     padding: 0.75rem;
     font-size: 1.5rem;
+  }
+  /* Cards show no dates, so a date filter's result cannot be seen; search and status remain. */
+  html[data-theme] main :is(button[aria-label="Date field to filter on"], button[aria-label^="Filter by date range"]) {
+    display: none;
   }
   /* Search gets its own full-width row at a touch height; filters follow it. */
   html[data-theme] main label:has(> input[type=search]) {
