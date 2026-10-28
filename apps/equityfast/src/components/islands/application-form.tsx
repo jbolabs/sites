@@ -84,6 +84,7 @@ interface ApplyInput {
   readonly occupancy: string;
   readonly otherIncome: string;
   readonly ownership: string;
+  readonly propertyValue: string;
   readonly phone: string;
   primaryAddress?: Address;
   readonly propertyAddress: Address;
@@ -113,6 +114,7 @@ const submitApplication = async (
     ownership: answers.ownership,
     phone: answers.phone,
     propertyAddress: address(answers, "property"),
+    propertyValue: answers.propertyValue,
     turnstileToken,
   };
   // The primary residence is asked (and sent) only when it isn't the property.
