@@ -21,6 +21,7 @@ import editingEntries from "./skills/editing-entries/SKILL.md?raw";
 import metaDescription from "./skills/meta-description/SKILL.md?raw";
 import pageSections from "./skills/page-sections/SKILL.md?raw";
 import photosAndAltText from "./skills/photos-and-alt-text/SKILL.md?raw";
+import usingTheAdmin from "./skills/using-the-admin/SKILL.md?raw";
 
 const SHARED_SKILLS = [
   copyEditing,
@@ -28,6 +29,7 @@ const SHARED_SKILLS = [
   metaDescription,
   pageSections,
   photosAndAltText,
+  usingTheAdmin,
 ];
 
 /** A bundled `SKILL.md` as a source; `strict` turns a malformed name into a build-time failure in tests. */

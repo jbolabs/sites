@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import cmsAdmin from "virtual:cms-admin-config";
 
+import { installAdminMarks } from "#assistant/admin-marks.ts";
 import { Assistant } from "#assistant/assistant.tsx";
 import { installMobileNavigation } from "#assistant/mobile-navigation.ts";
 
@@ -17,6 +18,7 @@ const ROOT_ID = "site-assistant";
 
 if (typeof document !== "undefined") {
   installMobileNavigation();
+  installAdminMarks();
 }
 
 if (typeof document !== "undefined" && cmsAdmin.assistant !== false) {

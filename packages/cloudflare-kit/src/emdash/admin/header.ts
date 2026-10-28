@@ -1,6 +1,7 @@
 /**
  * One quiet action row; appearance and account details belong in the account menu.
- * Desktop keeps labelled, pointer-sized actions; phones drop the labels for 44px icon targets.
+ * Desktop keeps labelled, pointer-sized actions; phones drop the labels for 44px icon targets,
+ * except the Assistant, which keeps its name.
  */
 export const ADMIN_HEADER_CSS = `
 html[data-theme] [data-admin-header] {
@@ -97,6 +98,18 @@ html[data-theme] [data-admin-theme-toggle] {
   }
   html[data-theme] [data-admin-action-label] {
     display: none;
+  }
+  /* A sparkle alone tells a client nothing; the one way to ask for help keeps its name. */
+  html[data-theme] [data-admin-header] [data-site-assistant-slot] > button {
+    width: auto;
+    gap: 0.375rem;
+    padding-inline: 0.75rem 0.875rem;
+    border-radius: 999px;
+    background: var(--color-kumo-tint);
+    font-size: 0.9375rem;
+  }
+  html[data-theme] [data-site-assistant-slot] [data-admin-action-label] {
+    display: inline;
   }
   html[data-theme] [data-admin-account-menu] :is(a, button) {
     min-height: 44px;

@@ -12,6 +12,7 @@ import type { UIMessage } from "@tanstack/ai-react";
 import { TextPart } from "@tanstack/ai-react/ui";
 import {
   ArrowUpIcon,
+  CircleHelpIcon,
   RotateCwIcon,
   ImageIcon,
   PhoneIcon,
@@ -147,13 +148,15 @@ const AssistantTurn = ({
 };
 
 /**
- * Starters for a client facing an empty box: the everyday jobs on a marketing site.
+ * Starters for a client facing an empty box: the everyday jobs on a marketing site, and
+ * a how-to question, so it is clear the assistant also explains the admin.
  * Each fills the message box rather than sending, so the details can be added first.
  */
 const STARTERS = [
   { icon: <SpellCheckIcon />, prompt: "Fix typos and grammar across the site" },
   { icon: <PhoneIcon />, prompt: "Update our phone number everywhere to " },
-  { icon: <ImageIcon />, prompt: "Write alt text for photos that have none" },
+  { icon: <ImageIcon />, prompt: "Add descriptions to photos that have none" },
+  { icon: <CircleHelpIcon />, prompt: "How do I change a photo on my site?" },
 ] as const;
 
 /** What went wrong, in the person's terms, with the one action that helps. */
