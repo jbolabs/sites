@@ -107,6 +107,14 @@ export class Appointments extends Context.Service<
       state: AppointmentState
     ) => Effect.Effect<void, StoreFailed>;
     readonly markReminded: (id: string) => Effect.Effect<void, StoreFailed>;
+    /**
+     * Moves an appointment to a new start in one row update, so it is never
+     * without a time. `reminderSent` is set with it (see `rescheduleByClient`).
+     */
+    readonly move: (
+      id: string,
+      change: { readonly start: Date; readonly reminderSent: boolean }
+    ) => Effect.Effect<void, StoreFailed>;
   }
 >()("ani-wenger/Appointments") {}
 
@@ -181,7 +189,7 @@ export interface BookingMailRoutes {
   readonly siteOrigin: string;
   /** The verified sender; without one, mail is logged instead of sent. */
   readonly from: Option.Option<EmailAddress>;
-  /** Ani's inbox for new bookings and cancellations. */
+  /** Ani's inbox for new bookings, moves, and cancellations. */
   readonly studioInbox: Option.Option<readonly string[]>;
   /** Where client replies go: Ani's own address. */
   readonly replyTo: string;

@@ -228,6 +228,18 @@ export const appointmentsEmDash = (origin: string) =>
         );
       }),
 
+    move: (id, change) =>
+      withRuntime("Appointments.move", async (runtime) => {
+        unwrap(
+          await runtime.handleContentUpdate("appointments", id, {
+            data: {
+              reminder_sent: change.reminderSent,
+              starts_at: change.start.toISOString(),
+            },
+          })
+        );
+      }),
+
     setState: (id, state) =>
       withRuntime("Appointments.setState", async (runtime) => {
         unwrap(

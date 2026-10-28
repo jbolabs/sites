@@ -1,6 +1,7 @@
 /**
  * The booking pipelines: open times for the calendar, booking a time,
- * cancelling (by the client or by Ani), and day-before reminders.
+ * moving it (by the client), cancelling (by the client or by Ani), and
+ * day-before reminders.
  *
  * Saving the appointment is the point of no return. Everything before it can
  * fail and the client simply tries again; mail after it only logs on failure,
@@ -25,9 +26,11 @@ import {
   clientCancelledMail,
   confirmationMail,
   reminderMail,
+  rescheduledMail,
   studioCancelledForClientMail,
   studioCancelledMail,
   studioNewBookingMail,
+  studioRescheduledMail,
 } from "./mail.ts";
 import type { MailAppointment, MailContext } from "./mail.ts";
 import { MAX_PHOTOS, MAX_PHOTOS_PER_KIND } from "./photo-limits.ts";
@@ -48,6 +51,11 @@ import type { Visit } from "./visit.ts";
 
 const MS_PER_HOUR = 3_600_000;
 const MS_PER_DAY = 24 * MS_PER_HOUR;
+/**
+ * A visit booked (or moved) closer than this gets no day-before reminder: the
+ * confirmation is still fresh.
+ */
+const REMINDER_LEAD_MS = 36 * MS_PER_HOUR;
 /** The booking calendar asks for at most this many days at once. */
 export const MAX_CALENDAR_DAYS = 42;
 
@@ -78,6 +86,12 @@ export class AppointmentNotFound extends Schema.TaggedError<AppointmentNotFound>
 /** Inside the cancellation window: the client has to call. */
 export class TooLateToCancel extends Schema.TaggedError<TooLateToCancel>()(
   "TooLateToCancel",
+  { cutoffHours: Schema.Number }
+) {}
+
+/** Inside the cancellation window (or no longer confirmed): moving it takes a call. */
+export class TooLateToReschedule extends Schema.TaggedError<TooLateToReschedule>()(
+  "TooLateToReschedule",
   { cutoffHours: Schema.Number }
 ) {}
 
@@ -168,6 +182,21 @@ export const CancelRequest = Schema.Struct({
 });
 export type CancelRequest = typeof CancelRequest.Type;
 
+/** Open times for moving the appointment behind a manage link. */
+export const RescheduleTimesRequest = Schema.Struct({
+  ...CancelRequest.fields,
+  days: AvailabilityRequest.fields.days,
+  from: AvailabilityRequest.fields.from,
+});
+export type RescheduleTimesRequest = typeof RescheduleTimesRequest.Type;
+
+/** Move the appointment behind a manage link to `start`, a time the calendar offered. */
+export const RescheduleRequest = Schema.Struct({
+  ...CancelRequest.fields,
+  start: BookingForm.fields.start,
+});
+export type RescheduleRequest = typeof RescheduleRequest.Type;
+
 export interface BookingRequest {
   readonly remoteIp: string | undefined;
   readonly requestId: string;
@@ -189,10 +218,15 @@ const now = Clock.currentTimeMillis.pipe(
   Effect.map((millis) => new Date(millis))
 );
 
-/** Everything that blocks time in [from, to): live appointments (with cleanup) and time off. */
+/**
+ * Everything that blocks time in [from, to): live appointments (with cleanup)
+ * and time off. `except` leaves one appointment out, so a client moving theirs
+ * can choose a time that overlaps the one they are leaving.
+ */
 const busyBetween = Effect.fn("busyBetween")(function* busyBetween(
   from: Date,
-  to: Date
+  to: Date,
+  except?: string
 ) {
   const appointments = yield* Appointments;
   // An appointment that starts before the window can still run into it.
@@ -201,7 +235,7 @@ const busyBetween = Effect.fn("busyBetween")(function* busyBetween(
     appointments.timeOff(from, to),
   ]);
   const taken = booked.flatMap((appointment): Busy[] =>
-    appointment.state === "confirmed"
+    appointment.state === "confirmed" && appointment.id !== except
       ? [{ end: occupiedUntil(appointment), start: appointment.start }]
       : []
   );
@@ -339,11 +373,13 @@ const asMail = (appointment: Appointment): MailAppointment => ({
 const slotIsOpen = Effect.fn("slotIsOpen")(function* slotIsOpen(
   start: Date,
   length: { readonly durationMinutes: number; readonly bufferMinutes: number },
-  policy: SalonPolicy
+  policy: SalonPolicy,
+  except?: string
 ) {
   const busy = yield* busyBetween(
     new Date(start.getTime() - MS_PER_DAY),
-    new Date(start.getTime() + MS_PER_DAY)
+    new Date(start.getTime() + MS_PER_DAY),
+    except
   );
   return isOpenSlot({
     busy,
@@ -519,6 +555,162 @@ export const canCancel = (
   appointment.state === "confirmed" &&
   appointment.start.getTime() - at.getTime() >= cutoffHours * MS_PER_HOUR;
 
+/** Moving follows the cancel rule: confirmed, and outside the same cutoff. */
+export const canReschedule = canCancel;
+
+/**
+ * Open times to move an appointment to. The visit keeps its stored length
+ * (Ani may have adjusted it), and its own current time does not block.
+ */
+export const rescheduleTimes = Effect.fn("rescheduleTimes")(
+  function* rescheduleTimes(request: RescheduleTimesRequest) {
+    const catalog = yield* Catalog;
+    const appointment = yield* appointmentForLink(request);
+    const policy = yield* catalog.policy;
+    const at = yield* now;
+    if (!canReschedule(appointment, policy.cancelCutoffHours, at)) {
+      return yield* new TooLateToReschedule({
+        cutoffHours: policy.cancelCutoffHours,
+      });
+    }
+    const { timeZone } = policy.rules;
+    const busy = yield* busyBetween(
+      fromLocal(request.from, 0, timeZone),
+      fromLocal(addDays(request.from, request.days), 0, timeZone),
+      appointment.id
+    );
+    const days: Day[] = availableDays({
+      busy,
+      days: request.days,
+      from: request.from,
+      now: at,
+      rules: policy.rules,
+      service: {
+        bufferMinutes: appointment.bufferMinutes,
+        durationMinutes: appointment.durationMinutes,
+      },
+    });
+    return { days };
+  }
+);
+
+/** What the manage page shows after a move. */
+export interface RescheduleConfirmation {
+  readonly moved: boolean;
+  readonly start: string;
+  readonly end: string;
+}
+
+/**
+ * The client moves their appointment from the link in their confirmation.
+ * The same row gets the new start in one update while holding the booking
+ * lock, so the client is never without a time and nobody can take the new
+ * one in between; the old time frees up in that same update. The link's
+ * token stays the same, so earlier emails and calendar entries still open it.
+ */
+export const rescheduleByClient = Effect.fn("rescheduleByClient")(
+  function* rescheduleByClient(request: RescheduleRequest) {
+    const appointments = yield* Appointments;
+    const catalog = yield* Catalog;
+    const lock = yield* BookingLock;
+    const mail = yield* BookingMail;
+    const linked = yield* appointmentForLink(request);
+    const policy = yield* catalog.policy;
+    const start = new Date(request.start);
+    const tooLate = new TooLateToReschedule({
+      cutoffHours: policy.cancelCutoffHours,
+    });
+    if (!canReschedule(linked, policy.cancelCutoffHours, yield* now)) {
+      return yield* tooLate;
+    }
+    if (start.getTime() === linked.start.getTime()) {
+      return {
+        end: endsAt(linked).toISOString(),
+        moved: false,
+        start: linked.start.toISOString(),
+      } satisfies RescheduleConfirmation;
+    }
+    const length = {
+      bufferMinutes: linked.bufferMinutes,
+      durationMinutes: linked.durationMinutes,
+    };
+    // A time that is already gone fails here, without waiting for the lock.
+    if (!(yield* slotIsOpen(start, length, policy, linked.id))) {
+      return yield* new SlotUnavailable();
+    }
+
+    const before = yield* lock.withLock(
+      Effect.gen(function* checkAndMove() {
+        // Read again under the lock: Ani may have cancelled or moved it meanwhile.
+        const current = yield* appointments.find(linked.id);
+        if (Option.isNone(current)) {
+          return yield* new AppointmentNotFound();
+        }
+        const at = yield* now;
+        if (!canReschedule(current.value, policy.cancelCutoffHours, at)) {
+          return yield* tooLate;
+        }
+        if (!(yield* slotIsOpen(start, length, policy, linked.id))) {
+          return yield* new SlotUnavailable();
+        }
+        yield* appointments.move(linked.id, {
+          // A move into the next day and a half is its own fresh
+          // confirmation, so it counts as reminded, like a booking made that
+          // close (see `sendReminders`).
+          reminderSent: start.getTime() - at.getTime() < REMINDER_LEAD_MS,
+          start,
+        });
+        return current.value;
+      })
+    );
+    yield* Effect.annotateCurrentSpan("appointment.id", before.id);
+
+    const moved: MailAppointment = { ...asMail(before), start };
+    const context = mailContext(policy, mail.siteName);
+    const links = {
+      calendarUrl: calendarFileUrl(mail.siteOrigin, before.id, request.token),
+      manageUrl: manageUrl(mail.siteOrigin, before.id, request.token),
+    };
+    const event = calendarEvent({ ...before, start }, policy, {
+      description: `${before.service} with ${mail.siteName}. Change or cancel: ${links.manageUrl}`,
+      summary: `${before.service} with ${mail.siteName}`,
+      updated: yield* now,
+    });
+    const logContext = { appointmentId: before.id };
+    yield* sendQuietly(
+      before.email,
+      {
+        replyTo: mail.replyTo,
+        ...rescheduledMail(moved, {
+          ...context,
+          ...links,
+          googleCalendarUrl: googleCalendarUrl(event),
+          previousStart: before.start,
+        }),
+      },
+      logContext
+    );
+    const toStudio = studioRescheduledMail(moved, {
+      ...context,
+      adminUrl: `${mail.siteOrigin}/_admin`,
+      previousStart: before.start,
+    });
+    // Ani's reply goes to the client; an appointment she added may have no email.
+    yield* sendQuietly(
+      Option.getOrUndefined(mail.studioInbox),
+      before.email === undefined
+        ? toStudio
+        : { ...toStudio, replyTo: before.email },
+      logContext
+    );
+    return {
+      end: endsAt({ ...before, start }).toISOString(),
+      moved: true,
+      start: start.toISOString(),
+    } satisfies RescheduleConfirmation;
+  }
+);
+
 /** The client cancels from the link in their confirmation. Cancelling twice is not an error. */
 export const cancelByClient = Effect.fn("cancelByClient")(
   function* cancelByClient(request: CancelRequest) {
@@ -618,7 +810,7 @@ export const sendReminders = Effect.fn("sendReminders")(
       yield* appointments.markReminded(appointment.id);
       const bookedAhead =
         appointment.start.getTime() - appointment.createdAt.getTime();
-      if (bookedAhead >= 36 * MS_PER_HOUR && appointment.email !== undefined) {
+      if (bookedAhead >= REMINDER_LEAD_MS && appointment.email !== undefined) {
         yield* sendQuietly(
           appointment.email,
           {
