@@ -4,7 +4,7 @@
  * desktop it is a rounded pane beside the page card (see `assistant.css`).
  */
 import { SparklesIcon } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { AssistantChat } from "#assistant/assistant-chat.tsx";
@@ -34,6 +34,12 @@ export const Assistant = ({
   const slot = useHeaderSlot();
   const entry = openEntryFromPath(usePathname());
   useSidePane(open);
+  // A phone panel covers the screen a reply's link just opened; a desktop pane sits beside it.
+  const closeOnPhone = useCallback(() => {
+    if (mobile) {
+      setOpen(false);
+    }
+  }, [mobile]);
 
   return (
     <TooltipProvider>
@@ -74,12 +80,7 @@ export const Assistant = ({
           <AssistantChat
             config={config}
             entry={entry}
-            onOpenLink={() => {
-              // A phone panel covers the screen the link just opened; a desktop pane sits beside it.
-              if (mobile) {
-                setOpen(false);
-              }
-            }}
+            onOpenLink={closeOnPhone}
           />
         </SheetContent>
       </Sheet>

@@ -43,7 +43,7 @@ Publishing details, **Revisions**, and **Move to Trash** live in a panel. On a p
 ## Undoing
 
 - Before publishing: in the item's panel, tap **Discard changes**.
-- After publishing: in the item's panel, open **Revisions**, pick an earlier version, and tap **Restore this version**. Then publish again.
+- After publishing: in the item's panel, open **Revisions**, find the earlier version, tap the curved-arrow button beside it, then tap **Restore** to confirm. Then publish again.
 
 ## Taking something off the site
 

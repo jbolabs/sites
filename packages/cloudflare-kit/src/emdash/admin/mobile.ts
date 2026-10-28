@@ -266,8 +266,11 @@ export const ADMIN_MOBILE_CSS = `
     padding: 0.75rem;
     font-size: 1.5rem;
   }
-  /* Cards show no dates, so a date filter's result cannot be seen; search and status remain. */
-  html[data-theme] main :is(button[aria-label="Date field to filter on"], button[aria-label^="Filter by date range"]) {
+  /*
+   * Cards show no dates, so a date filter's result cannot be seen; search and status remain.
+   * Only while no range is set: a range set on desktop stays visible so it can be cleared.
+   */
+  html[data-theme] main :has(> button[aria-label="Filter by date range: Date range"]) :is(button[aria-label="Date field to filter on"], button[aria-label="Filter by date range: Date range"]) {
     display: none;
   }
   /* Search gets its own full-width row at a touch height; filters follow it. */
