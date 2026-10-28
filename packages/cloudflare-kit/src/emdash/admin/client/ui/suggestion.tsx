@@ -25,7 +25,7 @@ function Suggestion({
         data-slot="suggestion"
         type="button"
         className={cn(
-          "text-foreground hover:bg-muted focus-visible:ring-ring/50 [&_svg]:text-muted-foreground flex min-h-11 w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm transition-colors outline-none focus-visible:ring-3 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
+          "text-foreground hover:bg-muted active:bg-muted focus-visible:ring-ring/50 [&_svg]:text-muted-foreground flex min-h-11 w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm transition-colors outline-none focus-visible:ring-3 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
           className
         )}
         {...props}

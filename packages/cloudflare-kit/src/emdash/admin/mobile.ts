@@ -3,9 +3,11 @@ const LIST = "html[data-theme] main table:has(td[data-testid=content-updated])";
 
 /**
  * A sideways-scrolling table hid each row's status off screen. On a phone each row is a card:
- * the title and its status, then the list's own columns, each named by `client/admin-marks.ts`.
+ * the title and its status, then the list's own columns, each named by `client/admin-marks.ts`,
+ * which also marks the status cell.
  * The whole card opens the entry. Bulk selection, the date, and the row's icon buttons stay
- * on desktop: the editor has Live View, and Move to Trash under Settings, both with names.
+ * on desktop, and so does sorting by a column, on purpose: a phone list should only find and open.
+ * The editor has Live View, and Move to Trash under Settings, both with names.
  */
 const CONTENT_LIST_CARDS = `
   ${LIST} thead {
@@ -57,10 +59,10 @@ const CONTENT_LIST_CARDS = `
     position: absolute;
     inset: 0;
   }
-  ${LIST} td:has(+ td[data-testid=content-updated]) {
+  ${LIST} td[data-admin-cell=status] {
     flex: 0 1 auto;
   }
-  ${LIST} td:has(+ td[data-testid=content-updated]) > span {
+  ${LIST} td[data-admin-cell=status] > span {
     flex-wrap: wrap;
   }
   ${LIST} td[data-label] {
@@ -80,16 +82,59 @@ const CONTENT_LIST_CARDS = `
     display: none;
   }`;
 
+/** A list's Trash tab: EmDash's restore buttons are its only hook. */
+const TRASH = 'html[data-theme] main table:has(button[aria-label^="Restore "])';
+
+/** The Trash tab as cards too, with Restore named, since the skill and the guide send clients there. */
+const TRASH_CARDS = `
+  ${TRASH} thead {
+    display: none;
+  }
+  ${TRASH}, ${TRASH} tbody {
+    display: block;
+  }
+  ${TRASH} tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+  ${TRASH} td {
+    display: block;
+    padding: 0;
+    white-space: normal;
+  }
+  ${TRASH} td:first-child {
+    flex: 1 1 9rem;
+    min-width: 0;
+    font-size: 1rem;
+  }
+  ${TRASH} td:last-child {
+    margin-inline-start: auto;
+  }
+  ${TRASH} button[aria-label^="Restore "] {
+    width: auto;
+    gap: 0.375rem;
+    padding-inline: 0.75rem;
+  }
+  ${TRASH} button[aria-label^="Restore "]::after {
+    content: "Restore";
+  }`;
+
 /** The entry editor's scrolling column; its first child is the title row with the actions. */
 const EDITOR =
   "html[data-theme] main form [data-sidebar-wrapper][data-side=right] > div";
 const EDITOR_ACTIONS = `${EDITOR} > div:first-child fieldset`;
+/** EmDash labels its publish button "Publish now" or "Publish changes"; "Unpublish …" stays up top. */
+const PUBLISH =
+  'button:is([aria-label="Publish now"], [aria-label="Publish changes"])';
 const BAR_INSET = "calc(0.875rem + env(safe-area-inset-bottom, 0px))";
 
 /**
  * Save and Publish ride in a bar along the bottom of the screen, under the thumb and never
  * scrolled away below a long form; Live View, Settings, and Unpublish stay in the title row.
- * `client/admin-marks.ts` marks the publish button, since EmDash gives it no hook.
+ * While the keyboard is up the bar hides, so it never floats over the field being typed in.
  */
 const EDITOR_ACTION_BAR = `
   ${EDITOR} {
@@ -98,6 +143,12 @@ const EDITOR_ACTION_BAR = `
   /* Its backdrop filter would make the title row, not the screen, the bar's containing block. */
   ${EDITOR} > div:first-child {
     backdrop-filter: none;
+  }
+  ${EDITOR}:has(:is(input:not([type=checkbox], [type=radio]), textarea, [contenteditable=true]):focus) > div:first-child fieldset :is(button[type=submit], ${PUBLISH}) {
+    visibility: hidden;
+  }
+  ${EDITOR}:has(:is(input:not([type=checkbox], [type=radio]), textarea, [contenteditable=true]):focus) > div:first-child fieldset::before {
+    display: none;
   }
   ${EDITOR_ACTIONS}:has(button[type=submit])::before {
     content: "";
@@ -109,7 +160,7 @@ const EDITOR_ACTION_BAR = `
     background: var(--color-kumo-elevated);
     box-shadow: 0 -1px 0 var(--color-kumo-line);
   }
-  ${EDITOR_ACTIONS} :is(button[type=submit], [data-admin-action=publish]) {
+  ${EDITOR_ACTIONS} :is(button[type=submit], ${PUBLISH}) {
     position: fixed;
     z-index: 21;
     bottom: ${BAR_INSET};
@@ -120,10 +171,10 @@ const EDITOR_ACTION_BAR = `
     justify-content: center;
     font-size: 1rem;
   }
-  ${EDITOR_ACTIONS}:has([data-admin-action=publish]) button[type=submit] {
+  ${EDITOR_ACTIONS}:has(${PUBLISH}) button[type=submit] {
     right: calc(50% + 0.25rem);
   }
-  ${EDITOR_ACTIONS} button[data-admin-action=publish] {
+  ${EDITOR_ACTIONS} ${PUBLISH} {
     left: calc(50% + 0.25rem);
   }`;
 
@@ -240,16 +291,29 @@ export const ADMIN_MOBILE_CSS = `
     padding-bottom: 0;
   }
 ${CONTENT_LIST_CARDS}
+${TRASH_CARDS}
 ${EDITOR_ACTION_BAR}
 }
 /* Capability-based: tablets with touch benefit too, regardless of viewport width. */
 @media (pointer: coarse) {
+  /* An app, not a document: pulling down must not reload the page over unsaved edits. */
+  html[data-theme], html[data-theme] body {
+    overscroll-behavior: none;
+  }
   html[data-theme] :is(button, a, [role=button], [role=tab]) {
     touch-action: manipulation;
   }
   html[data-theme] :is(button, [role=button], [role=tab]) {
     -webkit-user-select: none;
     user-select: none;
+  }
+  /* Menu items and list cards are controls: a long press should not offer to open a link. */
+  html[data-theme] :is(button, [data-sidebar=menu-button], main table a) {
+    -webkit-touch-callout: none;
+  }
+  /* Kumo's hover tint never shows on touch; the press does instead. */
+  html[data-theme] [data-sidebar=menu-button]:active {
+    background: var(--sidebar-active-bg, var(--color-kumo-tint));
   }
 }
 `;

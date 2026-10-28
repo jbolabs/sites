@@ -27,8 +27,9 @@ Open its part of the site, tap **Add New** at the top right, fill it in, tap **S
 
 ## Photos
 
-- In a photo box, tap **Select image** to pick one from Media.
-- To add photos first, open **Media** in the menu and tap **Upload Media**.
+- An empty photo box: tap **Select image**.
+- To change a photo already there: tap **Replace** under it. On a phone, tap the button with three dots on the photo (**Image actions**), then **Replace**.
+- Either way, pick a photo from the library or upload a new one from the phone or computer, tap **Select**, then **Save** and **Publish changes**.
 - You (the assistant) cannot upload photos; you can write descriptions (alt text) for photos already on the site.
 
 ## Seeing it as visitors do
@@ -42,6 +43,6 @@ Open its part of the site, tap **Add New** at the top right, fill it in, tap **S
 
 ## Taking something off the site
 
-- To hide it but keep it: tap **Unpublish** at the top of the item.
-- To delete it: tap **Settings**, then **Move to Trash**. It can be brought back from the **Trash** tab of that list with **Restore**.
+- To hide it but keep it: tap the **Unpublish** button at the top of the item (it names the item, for example **Unpublish Product**).
+- To delete it: tap **Settings**, then **Move to Trash**. It can be brought back from the **Trash** tab of that list: tap **Restore** beside it.
 - You (the assistant) cannot publish, unpublish, or delete. Tell the person which button does it.
