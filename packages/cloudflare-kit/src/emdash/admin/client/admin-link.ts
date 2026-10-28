@@ -34,6 +34,7 @@ declare global {
 interface QueryClient {
   readonly invalidateQueries: (filters: {
     readonly queryKey: readonly string[];
+    readonly refetchType: "none";
   }) => Promise<void>;
 }
 
@@ -75,8 +76,10 @@ const isAdminRouter = (value: unknown): value is AdminRouter => {
 
 /** EmDash caches content for a minute; the assistant may have just changed what the link opens. */
 const openInPlace = async (router: AdminRouter, path: string) => {
+  // Marked stale only: refetching the screen being left would delay the one being opened.
   await router.options.context.queryClient.invalidateQueries({
     queryKey: ["content"],
+    refetchType: "none",
   });
   await router.navigate({ href: path });
 };
