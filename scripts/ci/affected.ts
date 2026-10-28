@@ -9,7 +9,12 @@
  * and head prune sites whose Worker/assets and deployment inputs match. Unknown
  * fingerprints fail closed. Verification tooling additionally checks every site.
  *
- *   bun scripts/ci/affected.ts <base-ref>     # prints `verify=[…]` and `deploy=[…]` lines
+ *   bun scripts/ci/affected.ts <base-ref>                # prints `verify=[…]` and `deploy=[…]` lines
+ *   bun scripts/ci/affected.ts <base-ref> --paths-only   # candidates only, no comparison builds
+ *
+ * CI verifies the `--paths-only` candidates so verification never waits on the
+ * comparison builds; a separate job prunes `deploy` with them. Pruned `deploy`
+ * is always a subset of those candidates, so every deployed site was verified.
  */
 import { execFileSync } from "node:child_process";
 import { isDeepStrictEqual } from "node:util";
@@ -224,8 +229,10 @@ const sitesAt = (root: string, ref: string): readonly string[] =>
 
 if (import.meta.main) {
   const started = performance.now();
-  const base = process.argv[2] ?? "origin/main";
-  const head = process.argv[3] ?? "HEAD";
+  const pathsOnly = process.argv.includes("--paths-only");
+  const [base = "origin/main", head = "HEAD"] = process.argv
+    .slice(2)
+    .filter((argument) => argument !== "--paths-only");
   const root = execFileSync("git", ["rev-parse", "--show-toplevel"], {
     encoding: "utf-8",
   }).trim();
@@ -243,11 +250,13 @@ if (import.meta.main) {
       ? baseLockfileSites(base, head, root, sites)
       : undefined;
     const candidates = affectedSites(changed, sites, scope);
-    const comparable = comparisonSites(
-      changed,
-      candidates.deploy,
-      new Set(sitesAt(root, base))
-    );
+    const comparable = pathsOnly
+      ? []
+      : comparisonSites(
+          changed,
+          candidates.deploy,
+          new Set(sitesAt(root, base))
+        );
     const fingerprints = await compareRevisionFingerprints(
       root,
       base,

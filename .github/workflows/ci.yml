@@ -24,6 +24,7 @@ env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
 
 jobs:
+  # Path candidates only (seconds): `verify` starts on them without waiting for comparison builds.
   affected:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -33,7 +34,6 @@ jobs:
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     outputs:
       verify: ${{ steps.affected.outputs.verify }}
-      deploy: ${{ steps.affected.outputs.deploy }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -56,6 +56,41 @@ jobs:
           EVENT: ${{ github.event_name }}
           BEFORE: ${{ github.event.before }}
       - name: Affected sites
+        id: affected
+        run: bun scripts/ci/affected.ts "$BASE" --paths-only >> "$GITHUB_OUTPUT"
+        env:
+          BASE: ${{ steps.base.outputs.sha }}
+
+  # Runs alongside `verify`: credential-free base/head builds prune the candidates
+  # whose Worker/assets match, so deploys skip them. Pruned `deploy` is a subset of
+  # the verified candidates. Only deploy jobs read it, through `check`.
+  deploy-scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: deploy-scope-${{ github.event.pull_request.number || github.sha }}-${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && github.event.label.name != 'client-preview' && github.event.label.name != 'production-content' && 'labels' || 'code' }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    outputs:
+      deploy: ${{ steps.affected.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      # Same diff base as the affected job.
+      - name: Diff base
+        id: base
+        run: |
+          if [ "$EVENT" = pull_request ]; then
+            echo "sha=$(git rev-parse HEAD^1)" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=$BEFORE" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+      - name: Deployed sites
         id: affected
         # Paths choose candidates; compare credential-free base/head builds to prune them.
         run: bun scripts/ci/affected.ts "$BASE" >> "$GITHUB_OUTPUT"
@@ -166,13 +201,13 @@ jobs:
 
   # The ruleset requires one `check` context; this gathers the parallel jobs into it.
   check:
-    needs: [affected, lint-test, verify, dependency-review]
+    needs: [affected, deploy-scope, lint-test, verify, dependency-review]
     if: always()
     runs-on: ubuntu-latest
     permissions:
       actions: write
     outputs:
-      deploy: ${{ needs.affected.outputs.deploy }}
+      deploy: ${{ needs.deploy-scope.outputs.deploy }}
     steps:
       - name: Require every gate
         if: contains(needs.*.result, 'failure')

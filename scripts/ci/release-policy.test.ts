@@ -26,12 +26,22 @@ describe("main release queue", () => {
 
   it("includes dependency review in the required aggregate while permitting intentional skips", () => {
     expect(job("check")).toContain(
-      "needs: [affected, lint-test, verify, dependency-review]"
+      "needs: [affected, deploy-scope, lint-test, verify, dependency-review]"
     );
     expect(job("check")).toContain("if: always()");
     expect(job("check")).toContain("contains(needs.*.result, 'failure')");
     expect(job("dependency-review")).toContain(
       "if: github.event_name == 'pull_request' && !github.event.repository.private"
+    );
+  });
+
+  it("verifies path candidates without waiting on the comparison builds that prune deploys", () => {
+    expect(job("affected")).toContain("--paths-only");
+    expect(job("verify")).toContain("needs: affected\n");
+    expect(job("verify")).toContain("fromJSON(needs.affected.outputs.verify)");
+    expect(job("deploy-scope")).not.toContain("--paths-only");
+    expect(job("check")).toContain(
+      `deploy: \${{ needs.deploy-scope.outputs.deploy }}`
     );
   });
 
