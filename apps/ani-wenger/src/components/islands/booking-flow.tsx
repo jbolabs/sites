@@ -403,7 +403,16 @@ const BookingFlow = ({
           <>
             <TimeStep
               key={selected.join(",")}
-              services={visit.services.map((service) => service.slug)}
+              fetchDays={async ({ days, from }) => {
+                const { data, error } = await actions.availability({
+                  days,
+                  from,
+                  services: visit.services.map((service) => service.slug),
+                });
+                return error === undefined
+                  ? { days: data.days }
+                  : { message: error.message };
+              }}
               today={today}
               selected={slot}
               phone={phone}

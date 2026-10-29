@@ -30,6 +30,8 @@ export const whenText = (start: Date, timeZone: string): string => {
   return `${formatDate(local.date)} at ${formatTime(local.minutes)}`;
 };
 
+const SIGN_OFF = "See you soon,";
+
 const firstName = (name: string) => name.trim().split(/\s+/u)[0] ?? name;
 
 export const confirmationMail = (
@@ -51,13 +53,13 @@ export const confirmationMail = (
     context.location,
     "",
     `Add it to your calendar: ${context.calendarUrl}`,
-    `Need to cancel? ${context.manageUrl}`,
+    `Need to change or cancel? ${context.manageUrl}`,
     "",
     context.bookingNote,
     "",
     `Questions? Reply to this email or call ${context.phone}.`,
     "",
-    "See you soon,",
+    SIGN_OFF,
     context.siteName,
   ].join("\n"),
 });
@@ -115,6 +117,60 @@ export const clientCancelledMail = (
   ].join("\n"),
 });
 
+/** The client moved their own appointment: the new time, a fresh calendar file, and the same link. */
+export const rescheduledMail = (
+  appointment: MailAppointment,
+  context: MailContext & {
+    readonly previousStart: Date;
+    readonly manageUrl: string;
+    readonly calendarUrl: string;
+    readonly googleCalendarUrl: string;
+  }
+) => ({
+  subject: `Moved: ${appointment.service}, ${whenText(appointment.start, context.timeZone)}`,
+  text: [
+    `Hi ${firstName(appointment.clientName)},`,
+    "",
+    `Your ${appointment.service} has moved to a new time:`,
+    "",
+    `${whenText(appointment.start, context.timeZone)} (about ${appointment.durationMinutes} minutes)`,
+    context.location,
+    "",
+    `It was ${whenText(context.previousStart, context.timeZone)}. If you saved that time in your calendar, please delete it.`,
+    "",
+    `Add the new time to your calendar: ${context.calendarUrl}`,
+    `Or to Google Calendar: ${context.googleCalendarUrl}`,
+    `Need to change or cancel? ${context.manageUrl}`,
+    "",
+    `Questions? Reply to this email or call ${context.phone}.`,
+    "",
+    SIGN_OFF,
+    context.siteName,
+  ].join("\n"),
+});
+
+/** Ani's copy of a move: who, from when, to when. */
+export const studioRescheduledMail = (
+  appointment: MailAppointment,
+  context: MailContext & {
+    readonly previousStart: Date;
+    readonly adminUrl: string;
+  }
+) => ({
+  subject: `Moved: ${appointment.clientName}, now ${whenText(appointment.start, context.timeZone)}`,
+  text: [
+    `${appointment.clientName} moved ${appointment.service}.`,
+    "",
+    `New time: ${whenText(appointment.start, context.timeZone)} (${appointment.durationMinutes} minutes)`,
+    `Was: ${whenText(context.previousStart, context.timeZone)}. That time is open again on the website.`,
+    "",
+    `Phone: ${appointment.phone ?? "-"}`,
+    `Email: ${appointment.email ?? "-"}`,
+    "",
+    `See your schedule: ${context.adminUrl}`,
+  ].join("\n"),
+});
+
 export const studioCancelledMail = (
   appointment: MailAppointment,
   context: MailContext
@@ -161,7 +217,7 @@ export const reminderMail = (
     "",
     `If something has come up, please cancel with the link in your confirmation email, or call ${context.phone}, so someone else can have the time.`,
     "",
-    "See you soon,",
+    SIGN_OFF,
     context.siteName,
   ].join("\n"),
 });
