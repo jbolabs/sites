@@ -1,0 +1,65 @@
+---
+import type { NavItem } from "@/lib/content";
+import { site } from "../../site.config";
+
+interface Props {
+  title: string;
+  tagline: string;
+  items: readonly NavItem[];
+}
+
+const { items, tagline, title } = Astro.props;
+const year = new Date().getFullYear();
+const { address, bookingUrl, mapUrl, telephone } = site.business;
+const social = [
+  { href: "https://www.instagram.com/bodycentredayspa/", label: "Instagram" },
+  { href: "https://www.facebook.com/BodyCentreDaySpa", label: "Facebook" },
+  { href: "https://www.yelp.com/biz/bodycentre-day-spa-costa-mesa-2", label: "Yelp" },
+  { href: "https://www.youtube.com/channel/UC0klIRFggZ81Oo3tGrKpfJw", label: "YouTube" },
+];
+---
+
+<footer class="bg-stone text-foreground/80">
+  <div class="container-page grid gap-12 py-16 sm:py-20 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+    <div class="space-y-5">
+      <a href="/" aria-label={`${title}, home`} class="inline-block">
+        <img src="/brand/logo.svg" alt="" width="1321" height="926" loading="lazy" class="h-28 w-auto" />
+      </a>
+      <p class="max-w-xs leading-relaxed">{tagline}</p>
+    </div>
+    <div>
+      <h2 class="mb-4 font-sans text-base font-semibold text-slate">Visit</h2>
+      <address class="leading-relaxed not-italic">
+        <a href={mapUrl} target="_blank" rel="noopener" class="underline decoration-border underline-offset-4 transition-colors hover:text-slate">
+          {address.street}<br />{address.city}, {address.region} {address.postalCode}
+        </a>
+      </address>
+      <ul class="mt-4 space-y-2">
+        <li><a href={`tel:${telephone}`} class="lining-nums transition-colors hover:text-slate">{site.phone}</a></li>
+        <li><a href={bookingUrl} class="transition-colors hover:text-slate">Book online</a></li>
+      </ul>
+    </div>
+    <nav aria-label="Footer">
+      <h2 class="mb-4 font-sans text-base font-semibold text-slate">On this page</h2>
+      <ul class="space-y-2">
+        {items.map((item) => (
+          <li><a href={item.url} class="transition-colors hover:text-slate">{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <div>
+      <h2 class="mb-4 font-sans text-base font-semibold text-slate">Follow</h2>
+      <ul class="space-y-2">
+        {social.map((link) => (
+          <li><a href={link.href} target="_blank" rel="noopener" class="transition-colors hover:text-slate">{link.label}</a></li>
+        ))}
+      </ul>
+    </div>
+  </div>
+  <div class="border-t border-border">
+    <div class="container-page flex flex-col gap-2 py-6 pb-28 lg:pb-[max(1.5rem,env(safe-area-inset-bottom))] text-sm text-muted-foreground sm:flex-row sm:justify-between">
+      <p>&copy; {year} {title}. All rights reserved.</p>
+      <p>Products on this site are not intended to diagnose, treat, cure, or prevent any disease.</p>
+    </div>
+  </div>
+</footer>

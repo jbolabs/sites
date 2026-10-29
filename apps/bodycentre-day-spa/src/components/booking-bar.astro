@@ -1,0 +1,26 @@
+---
+/**
+ * Phones only: Book now and Call pinned to the bottom of the screen once the
+ * hero's buttons (`data-hero`) have scrolled away, and out of the way while the closing
+ * call to action is on screen (booking-bar.ts toggles `data-show`).
+ */
+import Phone from "@lucide/astro/icons/phone";
+
+import { site } from "../../site.config";
+import ButtonLink from "./button-link.astro";
+
+const { bookingUrl, telephone } = site.business;
+---
+
+<div class="booking-bar fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden" data-booking-bar>
+  <div class="mx-auto grid max-w-md grid-cols-[1fr_auto] gap-2">
+    <ButtonLink href={bookingUrl} size="cta">Book now</ButtonLink>
+    <ButtonLink href={`tel:${telephone}`} size="cta" variant="hairline" class="lining-nums" aria-label={`Call ${site.phone}`}>
+      <Phone class="size-4" aria-hidden="true" />Call
+    </ButtonLink>
+  </div>
+</div>
+
+<script>
+  import "@/scripts/booking-bar";
+</script>
