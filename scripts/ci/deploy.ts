@@ -105,7 +105,7 @@ const limit = deploymentConcurrency(stage, destroy, sites.length);
 // Site state is separate, but the account-wide state-store service upgrades in place.
 if (limit > 1) {
   const { stdout, stderr } = await execute(
-    ["alchemy", "provider", "cloudflare", "bootstrap"],
+    ["alchemy", "state", "bootstrap", "--backend", "cloudflare", "--no-input"],
     root
   );
   process.stdout.write(stdout);

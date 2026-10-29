@@ -1,3 +1,4 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 /// <reference types="bun" />
 import {
   BUILD_INPUTS_FILE,
@@ -34,7 +35,6 @@ import {
  */
 import * as Alchemy from "alchemy";
 import { AlchemyContext } from "alchemy/AlchemyContext";
-import * as Cloudflare from "alchemy/Cloudflare";
 import { RandomProvider } from "alchemy/Random";
 import * as RemovalPolicy from "alchemy/RemovalPolicy";
 import { Config, Effect, Layer, Option, Redacted } from "effect";
