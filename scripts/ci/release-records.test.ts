@@ -7,7 +7,7 @@ import type { GitHubGet } from "./release-records.ts";
 const SHA = "a".repeat(40);
 /** A release whose job died before writing any status. */
 const unfinished: GitHubGet = (route) =>
-  route.includes("/statuses") ? "[]" : JSON.stringify([{ id: 7 }]);
+  route.includes("/statuses") ? "[]" : JSON.stringify([{ id: 7, payload: {} }]);
 /** A staging release that succeeded, then got the inactive status GitHub adds. */
 const supersededByJob: GitHubGet = (route) =>
   route.includes("/statuses")
@@ -16,12 +16,23 @@ const supersededByJob: GitHubGet = (route) =>
         { state: "success" },
         { state: "in_progress" },
       ])
-    : JSON.stringify([{ id: 7 }]);
+    : JSON.stringify([{ id: 7, payload: {} }]);
 /** A succeeded release whose statuses expired, leaving GitHub's inactive. */
 const expired: GitHubGet = (route) =>
   route.includes("/statuses")
     ? JSON.stringify([{ state: "inactive" }])
-    : JSON.stringify([{ id: 7 }]);
+    : JSON.stringify([{ id: 7, payload: {} }]);
+/** A queued prod release recorded by run 5, which is in `runStatus`. */
+const queuedBy =
+  (runStatus: string): GitHubGet =>
+  (route) => {
+    if (route.includes("/actions/runs/")) {
+      return JSON.stringify({ status: runStatus });
+    }
+    return route.includes("/statuses")
+      ? JSON.stringify([{ state: "queued" }])
+      : JSON.stringify([{ id: 7, payload: { run: 5 } }]);
+  };
 
 describe(releasePlan, () => {
   const candidates = {
@@ -50,6 +61,14 @@ describe(releasePlan, () => {
     ).toStrictEqual(["equityfast"]);
   });
 
+  it("leaves a release that another run is still carrying out", () => {
+    expect(
+      releasePlan([], candidates, (stage, site) =>
+        stage === "prod" && site === "ani-wenger" ? "in_flight" : "success"
+      )
+    ).toStrictEqual([]);
+  });
+
   it("retries a prod release that staging queued but production never started", () => {
     expect(
       releasePlan([], candidates, (stage, site) =>
@@ -74,7 +93,7 @@ describe(latestRelease, () => {
       routes.push(route);
       return route.includes("/statuses")
         ? JSON.stringify([{ state: "failure" }])
-        : JSON.stringify([{ id: 7 }]);
+        : JSON.stringify([{ id: 7, payload: {} }]);
     };
     expect(latestRelease(api, "o/r", "prod", "ani-wenger")).toBe("failure");
     expect(routes).toStrictEqual([
@@ -95,6 +114,13 @@ describe(latestRelease, () => {
     );
   });
 
+  it("treats a queued prod release from a run that is still going as in flight, and one from a finished run as unresolved", () => {
+    expect([
+      latestRelease(queuedBy("in_progress"), "o/r", "prod", "ani-wenger"),
+      latestRelease(queuedBy("completed"), "o/r", "prod", "ani-wenger"),
+    ]).toStrictEqual(["in_flight", "queued"]);
+  });
+
   it("reports a record with no status as pending", () => {
     expect(latestRelease(unfinished, "o/r", "staging", "equityfast")).toBe(
       "pending"
@@ -111,19 +137,26 @@ describe(startRelease, () => {
       }
       return JSON.stringify({ id: 42 });
     };
-    expect(startRelease(api, "o/r", "prod", "ani-wenger", SHA)).toBe(42);
+    expect(
+      startRelease(api, "o/r", "prod", "ani-wenger", SHA, 99, "queued")
+    ).toBe(42);
     expect(bodies).toStrictEqual([
       {
         auto_merge: false,
         environment: "production",
-        payload: { kind: "release-v1", site: "ani-wenger", stage: "prod" },
+        payload: {
+          kind: "release-v1",
+          run: 99,
+          site: "ani-wenger",
+          stage: "prod",
+        },
         production_environment: true,
         ref: SHA,
         required_contexts: [],
         task: "release:ani-wenger",
         transient_environment: false,
       },
-      { auto_inactive: false, state: "in_progress" },
+      { auto_inactive: false, state: "queued" },
     ]);
   });
 });

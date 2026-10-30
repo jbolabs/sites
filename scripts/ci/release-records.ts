@@ -41,13 +41,23 @@ const Id = Schema.Struct({ id: Schema.Number });
 const page = <S extends Schema.Top>(item: S) =>
   Schema.fromJsonString(Schema.Array(item));
 const Status = Schema.Struct({ state: Schema.String });
+const Release = Schema.Struct({
+  id: Schema.Number,
+  payload: Schema.Struct({ run: Schema.optional(Schema.Number) }),
+});
+const Run = Schema.fromJsonString(Schema.Struct({ status: Schema.String }));
+/** A queued or running release whose workflow run is still going: not a failure yet. */
+export const IN_FLIGHT = "in_flight";
 
 /** One page of a GET: `per_page=1` must not page through the whole history. */
 export type GitHubGet = (route: string) => string;
 const githubGet: GitHubGet = (route) =>
   execFileSync("gh", ["api", route], { encoding: "utf-8" });
 
-/** The state of a site's latest release on a stage; `undefined` when it never released. */
+/**
+ * The state of a site's latest release on a stage; `undefined` when it never
+ * released, `IN_FLIGHT` while the run that recorded it is still going.
+ */
 export const latestRelease = (
   get: GitHubGet,
   repository: string,
@@ -55,7 +65,7 @@ export const latestRelease = (
   site: string
 ): string | undefined => {
   // GitHub lists deployments newest first.
-  const [latest] = Schema.decodeUnknownSync(page(Id))(
+  const [latest] = Schema.decodeUnknownSync(page(Release))(
     get(
       `repos/${repository}/deployments?environment=${RELEASE_ENVIRONMENTS[stage]}&task=${releaseTask(site)}&per_page=1`
     )
@@ -66,14 +76,27 @@ export const latestRelease = (
   const statuses = Schema.decodeUnknownSync(page(Status))(
     get(`repos/${repository}/deployments/${latest.id}/statuses?per_page=10`)
   );
-  // A record without a status is an attempt whose job died before finishing.
-  if (statuses.length === 0) {
-    return "pending";
-  }
   // GitHub's own deployment for a job in the same environment adds `inactive`
   // on top of an earlier `success`, and drops statuses after 90 days, so only
-  // `inactive` may be left: that release succeeded and was superseded.
-  return statuses.find(({ state }) => state !== "inactive")?.state ?? "success";
+  // `inactive` may be left: that release succeeded and was superseded. A record
+  // without a status is an attempt that died before its first status.
+  const state =
+    statuses.length === 0
+      ? "pending"
+      : (statuses.find((status) => status.state !== "inactive")?.state ??
+        "success");
+  // Another push can plan while an earlier run's prod release is still queued.
+  if (
+    state !== "success" &&
+    state !== "failure" &&
+    latest.payload.run !== undefined &&
+    Schema.decodeUnknownSync(Run)(
+      get(`repos/${repository}/actions/runs/${latest.payload.run}`)
+    ).status !== "completed"
+  ) {
+    return IN_FLIGHT;
+  }
+  return state;
 };
 
 /**
@@ -97,7 +120,7 @@ export const releasePlan = (
   const unresolved = (["staging", "prod"] as const).flatMap((stage) =>
     candidates[stage].filter((site) => {
       const state = latest(stage, site);
-      return state !== undefined && state !== "success";
+      return state !== undefined && state !== "success" && state !== IN_FLIGHT;
     })
   );
   return [...new Set([...requested, ...unresolved])].toSorted();
@@ -122,6 +145,7 @@ export const startRelease = (
   stage: ReleaseStage,
   site: string,
   sha: string,
+  run: number,
   initial: "in_progress" | "queued" = "in_progress"
 ): number => {
   if (!/^[a-f0-9]{40}$/u.test(sha)) {
@@ -131,7 +155,7 @@ export const startRelease = (
     api(`repos/${repository}/deployments`, {
       auto_merge: false,
       environment: RELEASE_ENVIRONMENTS[stage],
-      payload: { kind: "release-v1", site, stage },
+      payload: { kind: "release-v1", run, site, stage },
       production_environment: stage === "prod",
       ref: sha,
       required_contexts: [],
@@ -174,12 +198,13 @@ if (import.meta.main) {
       Schema.decodeUnknownSync(SiteList)(process.env.SITES ?? "[]")
     );
     const sha = process.env.GITHUB_SHA ?? "";
+    const run = Number(process.env.GITHUB_RUN_ID);
     // Record exactly what deploy.ts releases on each stage (prod skips domainless sites).
     const staging = deploymentSites(requested, "staging").map((site) =>
-      startRelease(githubApi, repository, "staging", site, sha)
+      startRelease(githubApi, repository, "staging", site, sha, run)
     );
     const prod = deploymentSites(requested, "prod").map((site) =>
-      startRelease(githubApi, repository, "prod", site, sha, "queued")
+      startRelease(githubApi, repository, "prod", site, sha, run, "queued")
     );
     mkdirSync(path.dirname(RECORDS_FILE), { recursive: true });
     writeFileSync(RECORDS_FILE, JSON.stringify(staging));
@@ -189,9 +214,13 @@ if (import.meta.main) {
     if (state !== "success" && state !== "failure" && state !== "in_progress") {
       throw new Error("--state must be in_progress, success or failure");
     }
+    // An unset or empty output means "use start's file", never an empty decode.
+    const records = process.env.RECORDS ?? "";
+    const fromFile = existsSync(RECORDS_FILE)
+      ? readFileSync(RECORDS_FILE, "utf-8")
+      : "[]";
     const ids = Schema.decodeUnknownSync(Records)(
-      process.env.RECORDS ??
-        (existsSync(RECORDS_FILE) ? readFileSync(RECORDS_FILE, "utf-8") : "[]")
+      records === "" ? fromFile : records
     );
     for (const id of ids) {
       finishRelease(githubApi, repository, id, state);

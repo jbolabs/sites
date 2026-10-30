@@ -18,6 +18,8 @@ const Status = Schema.Struct({ state: Schema.String });
 /** Main's per-site release records (`release-records.ts`). */
 export interface ReleasePayload {
   readonly kind: "release-v1";
+  /** The workflow run that recorded it, so a later run can tell it is still going. */
+  readonly run: number;
   readonly site: string;
   readonly stage: string;
 }

@@ -405,6 +405,8 @@ jobs:
     timeout-minutes: 30
     environment: staging
     permissions:
+      # actions: read tells a still-running run's queued prod record from a failed one.
+      actions: read
       contents: read
       deployments: write
     outputs:
