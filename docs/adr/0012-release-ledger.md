@@ -9,7 +9,7 @@ Main chose what to release only from the pushed diff (`scripts/ci/affected.ts`).
 
 ## Decision
 
-Main's `staging` job runs on every push and plans its release with `scripts/ci/release-records.ts`: the sites the diff selects plus every site whose latest release on staging or prod did not succeed. Each release is a GitHub deployment per site and stage (task `release:<site>`, in the existing `staging`/`production` environments), marked `in_progress` before Alchemy and `success` or `failure` after hosted verification. Production releases exactly what staging just released, so ADR 9 holds for retries too.
+Main's `staging` job runs on every push and plans its release with `scripts/ci/release-records.ts`: the sites the diff selects plus every site whose latest release on staging or prod did not succeed. Each release is a GitHub deployment per site and stage (task `release:<site>`, in the existing `staging`/`production` environments), marked `in_progress` before Alchemy and `success` or `failure` after hosted verification. Staging creates the prod records as `queued`, so a production job that never runs still leaves a retry. Reads skip the `inactive` status GitHub adds to earlier staging records when a job's own deployment succeeds. Production releases exactly what staging just released, so ADR 9 holds for retries too. A dispatch releases exactly the sites it names.
 
 Change detection narrows at the same time:
 
@@ -30,4 +30,5 @@ Change detection narrows at the same time:
 - A failed release retries on the next push to main, whatever that push touches; a dispatch remains for a stage destroyed by hand.
 - Sites with no record are left to change detection, so adopting the ledger redeploys nothing; records start with each site's next release.
 - A broken `deploy.ts` or `migrate.ts` surfaces on the next real release rather than its own PR. Their unit tests and the `preview` label are the guard.
+- A GitHub API failure before any record exists (planning or recording) can still drop one release, as before this ADR; the window is a few seconds a run.
 - A site that keeps failing is retried on every push until fixed, and every push to main starts the `staging` job, which exits after planning when nothing needs releasing.

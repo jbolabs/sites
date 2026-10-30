@@ -8,6 +8,15 @@ const SHA = "a".repeat(40);
 /** A release whose job died before writing any status. */
 const unfinished: GitHubGet = (route) =>
   route.includes("/statuses") ? "[]" : JSON.stringify([{ id: 7 }]);
+/** A staging release that succeeded, then got the inactive status GitHub adds. */
+const supersededByJob: GitHubGet = (route) =>
+  route.includes("/statuses")
+    ? JSON.stringify([
+        { state: "inactive" },
+        { state: "success" },
+        { state: "in_progress" },
+      ])
+    : JSON.stringify([{ id: 7 }]);
 
 describe(releasePlan, () => {
   const candidates = {
@@ -36,6 +45,14 @@ describe(releasePlan, () => {
     ).toStrictEqual(["equityfast"]);
   });
 
+  it("retries a prod release that staging queued but production never started", () => {
+    expect(
+      releasePlan([], candidates, (stage, site) =>
+        stage === "prod" && site === "ani-wenger" ? "queued" : "success"
+      )
+    ).toStrictEqual(["ani-wenger"]);
+  });
+
   it("retries an attempt that never finished, and leaves sites with no record to change detection", () => {
     expect(
       releasePlan([], candidates, (stage, site) =>
@@ -57,8 +74,14 @@ describe(latestRelease, () => {
     expect(latestRelease(api, "o/r", "prod", "ani-wenger")).toBe("failure");
     expect(routes).toStrictEqual([
       "repos/o/r/deployments?environment=production&task=release:ani-wenger&per_page=1",
-      "repos/o/r/deployments/7/statuses?per_page=1",
+      "repos/o/r/deployments/7/statuses?per_page=10",
     ]);
+  });
+
+  it("reads past the inactive status GitHub adds when the staging job's own deployment succeeds", () => {
+    expect(latestRelease(supersededByJob, "o/r", "staging", "ani-wenger")).toBe(
+      "success"
+    );
   });
 
   it("reports a record with no status as pending", () => {

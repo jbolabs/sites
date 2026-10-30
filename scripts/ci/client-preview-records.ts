@@ -25,6 +25,7 @@ const DEPLOYMENT_STATES = [
   "success",
   "inactive",
   "in_progress",
+  "queued",
   "failure",
 ] as const;
 export type DeploymentState = (typeof DEPLOYMENT_STATES)[number];

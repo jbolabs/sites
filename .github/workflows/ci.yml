@@ -409,6 +409,7 @@ jobs:
       deployments: write
     outputs:
       sites: ${{ steps.plan.outputs.sites }}
+      prod_records: ${{ steps.records.outputs.prod_records }}
     concurrency:
       # Both stages can upgrade Alchemy's account-wide state service.
       group: main-site-deploy
@@ -431,9 +432,11 @@ jobs:
           EVENT: ${{ github.event_name }}
           GH_TOKEN: ${{ github.token }}
           SITES: ${{ github.event_name == 'workflow_dispatch' && inputs.sites || needs.check.outputs.deploy }}
-      - name: Record staging releases
+      # Also queues the prod records, so a production job that never runs still retries.
+      - name: Record releases
+        id: records
         if: steps.plan.outputs.sites != '[]'
-        run: bun scripts/ci/release-records.ts start --stage staging
+        run: bun scripts/ci/release-records.ts start >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
           SITES: ${{ steps.plan.outputs.sites }}
@@ -487,11 +490,11 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup
-      - name: Record production releases
-        run: bun scripts/ci/release-records.ts start --stage prod
+      - name: Start production releases
+        run: bun scripts/ci/release-records.ts mark --state in_progress
         env:
           GH_TOKEN: ${{ github.token }}
-          SITES: ${{ needs.staging.outputs.sites }}
+          RECORDS: ${{ needs.staging.outputs.prod_records }}
       - name: Deploy sites to prod
         run: bun scripts/ci/deploy.ts --stage prod --sites "$SITES"
         env:
@@ -503,6 +506,7 @@ jobs:
         run: bun scripts/ci/release-records.ts finish --state "$STATE"
         env:
           GH_TOKEN: ${{ github.token }}
+          RECORDS: ${{ needs.staging.outputs.prod_records }}
           STATE: ${{ job.status == 'success' && 'success' || 'failure' }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()

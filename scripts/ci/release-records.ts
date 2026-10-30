@@ -4,11 +4,13 @@
  * verification. A site whose latest release on either stage is not `success`
  * is released again on the next run, so a failed deploy retries even when the
  * fix lands outside `apps/<site>/`. Sites with no record have never released
- * through the ledger and are left to change detection.
+ * through the ledger and are left to change detection. Staging also queues the
+ * prod records, so a production job that never starts still leaves a retry.
  *
  *   bun scripts/ci/release-records.ts plan --sites '["a"]'    # prints sites=[…] (requested + unresolved)
- *   bun scripts/ci/release-records.ts start --stage staging   # records SITES as in_progress
- *   bun scripts/ci/release-records.ts finish --state success  # closes what start recorded
+ *   bun scripts/ci/release-records.ts start                   # SITES: staging in_progress, prod queued; prints prod_records=[…]
+ *   bun scripts/ci/release-records.ts mark --state in_progress   # RECORDS (or start's file)
+ *   bun scripts/ci/release-records.ts finish --state success  # RECORDS (or start's file)
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -61,9 +63,11 @@ export const latestRelease = (
   if (latest === undefined) {
     return undefined;
   }
-  const [status] = Schema.decodeUnknownSync(page(Status))(
-    get(`repos/${repository}/deployments/${latest.id}/statuses?per_page=1`)
-  );
+  // GitHub's own deployment for a job in the same environment adds `inactive`
+  // on top of an earlier `success`; the release outcome is the newest other status.
+  const status = Schema.decodeUnknownSync(page(Status))(
+    get(`repos/${repository}/deployments/${latest.id}/statuses?per_page=10`)
+  ).find(({ state }) => state !== "inactive");
   // A record without a status is an attempt whose job died before finishing.
   return status?.state ?? "pending";
 };
@@ -113,7 +117,8 @@ export const startRelease = (
   repository: string,
   stage: ReleaseStage,
   site: string,
-  sha: string
+  sha: string,
+  initial: "in_progress" | "queued" = "in_progress"
 ): number => {
   if (!/^[a-f0-9]{40}$/u.test(sha)) {
     throw new Error("A release record requires an exact commit");
@@ -130,7 +135,7 @@ export const startRelease = (
       transient_environment: false,
     })
   );
-  finishRelease(api, repository, id, "in_progress");
+  finishRelease(api, repository, id, initial);
   return id;
 };
 
@@ -160,41 +165,34 @@ if (import.meta.main) {
     );
     process.stdout.write(`sites=${JSON.stringify(sites)}\n`);
   } else if (command === "start") {
-    const stage = flag("--stage");
-    if (stage !== "staging" && stage !== "prod") {
-      throw new Error("--stage must be staging or prod");
-    }
-    const requested = Schema.decodeUnknownSync(SiteList)(
-      process.env.SITES ?? "[]"
+    const requested = await loadDeploymentSites(
+      root,
+      Schema.decodeUnknownSync(SiteList)(process.env.SITES ?? "[]")
     );
-    // Record exactly what deploy.ts will release on this stage (prod skips domainless sites).
-    const sites = deploymentSites(
-      await loadDeploymentSites(root, requested),
-      stage
+    const sha = process.env.GITHUB_SHA ?? "";
+    // Record exactly what deploy.ts releases on each stage (prod skips domainless sites).
+    const staging = deploymentSites(requested, "staging").map((site) =>
+      startRelease(githubApi, repository, "staging", site, sha)
     );
-    const ids = sites.map((site) =>
-      startRelease(
-        githubApi,
-        repository,
-        stage,
-        site,
-        process.env.GITHUB_SHA ?? ""
-      )
+    const prod = deploymentSites(requested, "prod").map((site) =>
+      startRelease(githubApi, repository, "prod", site, sha, "queued")
     );
     mkdirSync(path.dirname(RECORDS_FILE), { recursive: true });
-    writeFileSync(RECORDS_FILE, JSON.stringify(ids));
-  } else if (command === "finish") {
+    writeFileSync(RECORDS_FILE, JSON.stringify(staging));
+    process.stdout.write(`prod_records=${JSON.stringify(prod)}\n`);
+  } else if (command === "mark" || command === "finish") {
     const state = flag("--state");
-    if (state !== "success" && state !== "failure") {
-      throw new Error("--state must be success or failure");
+    if (state !== "success" && state !== "failure" && state !== "in_progress") {
+      throw new Error("--state must be in_progress, success or failure");
     }
-    const ids = existsSync(RECORDS_FILE)
-      ? Schema.decodeUnknownSync(Records)(readFileSync(RECORDS_FILE, "utf-8"))
-      : [];
+    const ids = Schema.decodeUnknownSync(Records)(
+      process.env.RECORDS ??
+        (existsSync(RECORDS_FILE) ? readFileSync(RECORDS_FILE, "utf-8") : "[]")
+    );
     for (const id of ids) {
       finishRelease(githubApi, repository, id, state);
     }
   } else {
-    throw new Error("Usage: release-records.ts plan|start|finish");
+    throw new Error("Usage: release-records.ts plan|start|mark|finish");
   }
 }
