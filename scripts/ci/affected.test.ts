@@ -19,6 +19,13 @@ describe(affectedSites, () => {
     expect(affectedSites(["bun.lock"], sites)).toStrictEqual(every);
   });
 
+  it("deploys every site when a script that runs inside the deploy changes", () => {
+    expect(affectedSites(["scripts/ci/migrate.ts"], sites)).toStrictEqual({
+      deploy: ["access-electric", "ms-homes"],
+      verify: ["access-electric", "ms-homes"],
+    });
+  });
+
   it("verifies every site but deploys none when only verification tooling changes", () => {
     const verifyOnly = { deploy: [], verify: sites };
     expect(affectedSites(["lighthouserc.json"], sites)).toStrictEqual(

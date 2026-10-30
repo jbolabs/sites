@@ -37,10 +37,14 @@ const UNSHIPPED_PATHS = [
   /(?:^|\/)\.artifacts\//u,
   /^packages\/proof\//u,
 ];
+/** CI scripts that run inside a deploy, so changing one ships every site. */
+const DEPLOY_TOOL_PATH =
+  /^scripts\/ci\/(?:deploy|migrate|prepare-content)\.ts$/u;
 /** Checks every site (smoke, SEO, Lighthouse) but ships in none. */
 export const VERIFY_TOOLING_PATHS = [
   /^packages\/control-app\//u,
-  /^scripts\/ci\/.*\.ts$/u,
+  // Every other CI script; the deploy tools must reach SHARED_PATHS.
+  /^scripts\/ci\/(?!(?:deploy|migrate|prepare-content)\.ts$).*\.ts$/u,
   /^\.github\/(?:workflows\/ci\.yml|actions\/setup\/action\.yml)$/u,
   /^lighthouserc\.json$/u,
 ];
@@ -48,7 +52,7 @@ const SHARED_PATHS = [
   /^packages\//u,
   /^stacks\//u,
   /^patches\//u,
-  /^scripts\/ci\/(?:deploy|migrate|prepare-content)\.ts$/u,
+  DEPLOY_TOOL_PATH,
   // Exercise the real comparison when its implementation changes.
   /^scripts\/ci\/(?:affected|revision-build|site-fingerprint)\.ts$/u,
   /^bun\.lock$/u,
