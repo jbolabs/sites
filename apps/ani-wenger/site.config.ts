@@ -67,8 +67,14 @@ export const site = {
   /** Prefixes Worker names (`ani-wenger-<stage>`) and the Alchemy stack. */
   id: "ani-wenger",
 
-  // Ani's notification address for new bookings and messages, set once she confirms it.
-  leadInbox: [],
+  /** Ani's notification inbox for new bookings and messages (confirmed on the 2026-10-28 call). */
+  leadInbox: ["aniwenger@gmail.com"],
+
+  /**
+   * Booking emails come from Ani's domain, registered for sending on prod
+   * (`clientSender`); replies go to her Gmail. Other stages email no client.
+   */
+  leadSender: "bookings@aniwenger.hair",
 
   /**
    * Public base URL EmDash downloads seed images from when the stage cannot
