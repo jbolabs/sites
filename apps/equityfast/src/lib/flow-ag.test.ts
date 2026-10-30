@@ -42,6 +42,7 @@ const form = Schema.decodeUnknownSync(ApplicationForm)({
     street: "3750 S Susan Street",
     zip: "92704",
   },
+  propertyValue: "$700,000",
   turnstileToken: "token",
 });
 
@@ -144,6 +145,7 @@ describe(toFlowAgLead, () => {
       ].join("\n"),
       phone: "7145550123",
       propertyUse: "Investment",
+      propertyValue: 700_000,
       state: "CA",
       zip: "92704",
     });

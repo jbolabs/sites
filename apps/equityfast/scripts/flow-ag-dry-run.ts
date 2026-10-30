@@ -42,6 +42,7 @@ const sample = Schema.decodeUnknownSync(ApplicationForm)({
     street: "3750 S Susan Street",
     zip: "92704",
   },
+  propertyValue: "$750,000",
   turnstileToken: "dry-run",
 });
 
