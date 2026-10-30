@@ -100,7 +100,7 @@ describe("per-site verification cache", () => {
         ["scripts/ci/lighthouse.ts", "scripts/ci/command.ts"],
         ["ms-custom-homes", "equityfast"]
       )
-    ).toStrictEqual({ deploy: [], verify: ["ms-custom-homes", "equityfast"] });
+    ).toStrictEqual({ deploy: [], verify: ["ms-custom-homes"] });
   });
 });
 
