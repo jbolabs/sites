@@ -17,6 +17,11 @@ const supersededByJob: GitHubGet = (route) =>
         { state: "in_progress" },
       ])
     : JSON.stringify([{ id: 7 }]);
+/** A succeeded release whose statuses expired, leaving GitHub's inactive. */
+const expired: GitHubGet = (route) =>
+  route.includes("/statuses")
+    ? JSON.stringify([{ state: "inactive" }])
+    : JSON.stringify([{ id: 7 }]);
 
 describe(releasePlan, () => {
   const candidates = {
@@ -80,6 +85,12 @@ describe(latestRelease, () => {
 
   it("reads past the inactive status GitHub adds when the staging job's own deployment succeeds", () => {
     expect(latestRelease(supersededByJob, "o/r", "staging", "ani-wenger")).toBe(
+      "success"
+    );
+  });
+
+  it("treats a record with only GitHub's inactive status left as a superseded success", () => {
+    expect(latestRelease(expired, "o/r", "staging", "ani-wenger")).toBe(
       "success"
     );
   });

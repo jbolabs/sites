@@ -63,13 +63,17 @@ export const latestRelease = (
   if (latest === undefined) {
     return undefined;
   }
-  // GitHub's own deployment for a job in the same environment adds `inactive`
-  // on top of an earlier `success`; the release outcome is the newest other status.
-  const status = Schema.decodeUnknownSync(page(Status))(
+  const statuses = Schema.decodeUnknownSync(page(Status))(
     get(`repos/${repository}/deployments/${latest.id}/statuses?per_page=10`)
-  ).find(({ state }) => state !== "inactive");
+  );
   // A record without a status is an attempt whose job died before finishing.
-  return status?.state ?? "pending";
+  if (statuses.length === 0) {
+    return "pending";
+  }
+  // GitHub's own deployment for a job in the same environment adds `inactive`
+  // on top of an earlier `success`, and drops statuses after 90 days, so only
+  // `inactive` may be left: that release succeeded and was superseded.
+  return statuses.find(({ state }) => state !== "inactive")?.state ?? "success";
 };
 
 /**
