@@ -1,0 +1,57 @@
+---
+import { env } from "cloudflare:workers";
+import { getSeoMeta } from "emdash";
+
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import ContactForm from "@/components/islands/contact-form";
+import PageHeader from "@/components/page-header.astro";
+import Base from "@/layouts/base.astro";
+import { getPage } from "@/lib/content";
+import { site } from "../../site.config";
+
+const { cacheHint, entry: page } = await getPage("contact");
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+}
+const title = page?.data.title ?? "Contact us";
+const seo = page ? getSeoMeta(page, { defaultDescription: page.data.intro, path: "/contact", siteUrl: Astro.url.origin }) : undefined;
+const { address, email, fax, license, telephone } = site.business;
+---
+
+<Base
+  title={seo?.title ?? title}
+  description={seo?.description}
+  image={seo?.ogImage}
+  robots={seo?.robots}
+  content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
+>
+  <PageHeader title={title} intro={page?.data.intro} />
+  <section class="container-page grid gap-16 py-20 sm:py-28 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-24">
+    <ContactForm client:visible turnstileSiteKey={env.TURNSTILE_SITE_KEY} />
+    <aside class="space-y-10">
+      <div class="border-t-2 border-ink pt-5">
+        <a href={`tel:${telephone}`} aria-label={`Call the office at ${site.phone}`} class="font-display text-4xl font-semibold tracking-[-0.02em] text-ink tabular-nums transition-colors hover:text-timber-deep">{site.phone}</a>
+        {fax && <p class="mt-2 text-base text-muted-foreground">Fax {fax}</p>}
+      </div>
+      {email && (
+        <div class="pt-1">
+          <p class="mb-2 text-base text-muted-foreground">Email</p>
+          <a href={`mailto:${email}`} class="text-lg font-medium break-all text-ink underline decoration-timber decoration-2 underline-offset-4">{email}</a>
+        </div>
+      )}
+      <div class="pt-1">
+        <p class="mb-2 text-base text-muted-foreground">Office</p>
+        <address class="text-lg leading-relaxed text-ink not-italic">{address.street}<br />{address.city}, {address.region} {address.postalCode}</address>
+        <p class="mt-2 text-base text-muted-foreground">Visits by appointment. The coffee is on us.</p>
+      </div>
+      <div class="pt-1">
+        <p class="mb-2 text-base text-muted-foreground">Already a client?</p>
+        <a href={site.clientPortal} target="_blank" rel="noopener" class="text-lg font-medium text-ink underline decoration-timber decoration-2 underline-offset-4">Sign in to your project portal<span class="sr-only"> (opens in a new tab)</span></a>
+      </div>
+      <p class="pt-1 text-base leading-relaxed text-muted-foreground">
+        {license}. Your details are used only to reply to you. See our <a href="/privacy" class="text-ink underline underline-offset-4">privacy notes</a>.
+      </p>
+    </aside>
+  </section>
+  {page && <div {...page.edit.content}><PageBlocks value={page.data.content} /></div>}
+</Base>

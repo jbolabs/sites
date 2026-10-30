@@ -1,0 +1,46 @@
+---
+/**
+ * YouTube videos, embedded from youtube-nocookie.com so nothing loads until a
+ * visitor plays one (the iframe is lazy and sets no cookies before play).
+ */
+import type { BlockComponentProps } from "emdash/ui";
+
+import { youTubeId } from "@/lib/video";
+import type { PageContentVideosBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentVideosBlock>;
+
+const { value } = Astro.props;
+const videos = value.items.flatMap((item) => {
+  const id = youTubeId(item.url);
+  return id === undefined ? [] : [{ id, title: item.title }];
+});
+---
+
+{videos.length > 0 && (
+  <section class="py-24 sm:py-32">
+    <div class="container-page">
+      <div class="max-w-2xl">
+        <h2 class="text-4xl sm:text-5xl lg:text-6xl" data-reveal>{value.headline}</h2>
+        {value.intro && <p class="mt-6 text-lg leading-relaxed text-muted-foreground" data-reveal style="--reveal-delay: 100ms">{value.intro}</p>}
+      </div>
+      <ul class="mt-14 grid gap-8 md:grid-cols-2 lg:mt-16">
+        {videos.map((video, index) => (
+          <li data-reveal style={`--reveal-delay: ${(index % 2) * 90}ms`}>
+            <div class="aspect-video overflow-hidden bg-ink">
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${video.id}?rel=0`}
+                title={video.title}
+                loading="lazy"
+                allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                referrerpolicy="strict-origin-when-cross-origin"
+                class="size-full"
+              ></iframe>
+            </div>
+            <p class="mt-4 font-display text-lg font-semibold text-ink">{video.title}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}

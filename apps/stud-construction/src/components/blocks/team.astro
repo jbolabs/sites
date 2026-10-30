@@ -1,0 +1,48 @@
+---
+import Image from "@jakebodea/cloudflare-kit/astro/image.astro";
+import type { BlockComponentProps } from "emdash/ui";
+
+import type { PageContentTeamBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentTeamBlock>;
+
+const { value } = Astro.props;
+const initials = (name: string) =>
+  name
+    .split(/\s+/u)
+    .map((part) => part.charAt(0))
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+---
+
+<section class="py-24 sm:py-32">
+  <div class="container-page">
+    <div class="max-w-2xl">
+      <h2 class="text-4xl sm:text-5xl lg:text-6xl" data-reveal>{value.headline}</h2>
+      {value.intro && <p class="mt-6 text-lg leading-relaxed text-muted-foreground" data-reveal style="--reveal-delay: 100ms">{value.intro}</p>}
+    </div>
+    <ul class="mt-14 grid gap-6 sm:grid-cols-2 sm:[&>li:last-child:nth-child(odd)]:col-span-2 lg:mt-16">
+      {value.members.map((member, index) => (
+        <li class="flex flex-col gap-6 bg-concrete p-7 sm:p-10" data-reveal style={`--reveal-delay: ${(index % 2) * 90}ms`}>
+          <div class="flex items-center gap-5">
+            {member.photo ? (
+              <div class="size-20 shrink-0 overflow-hidden bg-muted">
+                <Image image={member.photo} alt={member.photo.alt ?? member.name} sizes="80px" class="size-full! object-cover" />
+              </div>
+            ) : (
+              <span class="flex size-20 shrink-0 items-center justify-center bg-ink font-display text-2xl font-semibold text-paper" aria-hidden="true">
+                {initials(member.name)}
+              </span>
+            )}
+            <div>
+              <h3 class="text-2xl">{member.name}</h3>
+              <p class="mt-1 text-base font-medium text-timber-deep">{member.role}</p>
+            </div>
+          </div>
+          <p class="leading-relaxed text-foreground">{member.bio}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

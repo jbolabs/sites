@@ -1,0 +1,42 @@
+---
+import Image from "@jakebodea/cloudflare-kit/astro/image.astro";
+import type { BlockComponentProps } from "emdash/ui";
+
+import type { PageContentServicesBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentServicesBlock>;
+
+const { value } = Astro.props;
+---
+
+<section class="bg-concrete py-24 sm:py-32">
+  <div class="container-page">
+    <div class="grid gap-6 lg:grid-cols-2 lg:items-end">
+      <h2 class="text-4xl sm:text-5xl lg:text-6xl" data-reveal>{value.headline}</h2>
+      {value.intro && <p class="max-w-md text-lg leading-relaxed text-muted-foreground lg:justify-self-end" data-reveal style="--reveal-delay: 100ms">{value.intro}</p>}
+    </div>
+    {/* Alternating rows, so the section reads differently from the project grid that follows it. */}
+    <ul class="mt-14 grid gap-12 sm:gap-14 lg:mt-16 lg:gap-16">
+      {value.items.map((item, index) => (
+        <li class="group grid gap-6 md:grid-cols-2 md:items-center md:gap-12 lg:gap-20">
+          {item.image && (
+            <div class:list={["relative aspect-[16/10] overflow-hidden bg-muted", { "md:order-last": index % 2 === 1 }]}>
+              <div class="size-full">
+                <Image
+                  image={item.image}
+                  alt={item.image.alt ?? ""}
+                  sizes="(min-width: 768px) 45vw, 100vw"
+                  class="size-full! object-cover transition-transform duration-700 ease-expo group-hover:scale-[1.04] motion-reduce:transition-none"
+                />
+              </div>
+            </div>
+          )}
+          <div data-reveal style="--reveal-delay: 120ms">
+            <h3 class="border-t-2 border-ink pt-5 text-3xl sm:text-4xl">{item.title}</h3>
+            <p class="mt-4 max-w-lg text-lg leading-relaxed text-foreground">{item.body}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
