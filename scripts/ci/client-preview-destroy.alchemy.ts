@@ -1,6 +1,6 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 /** State-driven teardown works even when the PR's app was removed from main. */
 import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
 import { RandomProvider } from "alchemy/Random";
 import { Effect, Layer } from "effect";
 

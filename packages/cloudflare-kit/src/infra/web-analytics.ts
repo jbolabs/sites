@@ -1,5 +1,5 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import { AlchemyContext } from "alchemy/AlchemyContext";
-import * as Cloudflare from "alchemy/Cloudflare";
 import type * as Output from "alchemy/Output";
 import type { Redacted } from "effect";
 import { Config, Effect, Option } from "effect";
