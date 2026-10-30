@@ -5,8 +5,8 @@ on:
     types: [opened, synchronize, reopened, labeled]
   push:
     branches: [main]
-  # Re-runs the staging and production deploys for chosen sites (a failed deploy is not retried by a re-run
-  # of an old push, and a fix outside `apps/<site>/` marks no site affected).
+  # Verifies and releases exactly the chosen sites, e.g. after a stage was destroyed by hand.
+  # Failed releases need no dispatch: the next push retries them (scripts/ci/release-records.ts).
   workflow_dispatch:
     inputs:
       sites:
@@ -57,9 +57,17 @@ jobs:
           BEFORE: ${{ github.event.before }}
       - name: Affected sites
         id: affected
-        run: bun scripts/ci/affected.ts "$BASE" --paths-only >> "$GITHUB_OUTPUT"
+        # A dispatch names its sites; verify exactly those instead of diffing.
+        run: |
+          if [ "$EVENT" = workflow_dispatch ]; then
+            echo "verify=$SITES" >> "$GITHUB_OUTPUT"
+          else
+            bun scripts/ci/affected.ts "$BASE" --paths-only >> "$GITHUB_OUTPUT"
+          fi
         env:
           BASE: ${{ steps.base.outputs.sha }}
+          EVENT: ${{ github.event_name }}
+          SITES: ${{ inputs.sites }}
 
   # Runs alongside `verify`: credential-free base/head builds prune the candidates
   # whose Worker/assets match, so deploys skip them. Pruned `deploy` is a subset of
@@ -93,9 +101,16 @@ jobs:
       - name: Deployed sites
         id: affected
         # Paths choose candidates; compare credential-free base/head builds to prune them.
-        run: bun scripts/ci/affected.ts "$BASE" >> "$GITHUB_OUTPUT"
+        run: |
+          if [ "$EVENT" = workflow_dispatch ]; then
+            echo "deploy=$SITES" >> "$GITHUB_OUTPUT"
+          else
+            bun scripts/ci/affected.ts "$BASE" >> "$GITHUB_OUTPUT"
+          fi
         env:
           BASE: ${{ steps.base.outputs.sha }}
+          EVENT: ${{ github.event_name }}
+          SITES: ${{ inputs.sites }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
@@ -382,14 +397,18 @@ jobs:
           path: .artifacts/ci/
           if-no-files-found: ignore
 
+  # Runs on every main push, even with nothing changed, so a failed release retries (ADR 0012).
   staging:
     needs: check
-    if: ${{ !cancelled() && needs.check.result == 'success' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || needs.check.outputs.deploy != '[]') && vars.DEPLOYS_ENABLED == 'true' }}
+    if: ${{ !cancelled() && needs.check.result == 'success' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && vars.DEPLOYS_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: staging
     permissions:
       contents: read
+      deployments: write
+    outputs:
+      sites: ${{ steps.plan.outputs.sites }}
     concurrency:
       # Both stages can upgrade Alchemy's account-wide state service.
       group: main-site-deploy
@@ -404,12 +423,33 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup
-      - name: Deploy affected sites to staging
+      # Planned after taking the deploy lock, so queued runs read current records.
+      - name: Plan release (changed sites plus failed releases)
+        id: plan
+        run: bun scripts/ci/release-records.ts plan --sites "$SITES" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SITES: ${{ github.event_name == 'workflow_dispatch' && inputs.sites || needs.check.outputs.deploy }}
+      - name: Record staging releases
+        if: steps.plan.outputs.sites != '[]'
+        run: bun scripts/ci/release-records.ts start --stage staging
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SITES: ${{ steps.plan.outputs.sites }}
+      - name: Deploy sites to staging
+        if: steps.plan.outputs.sites != '[]'
         run: bun scripts/ci/deploy.ts --stage staging --sites "$SITES"
         env:
-          SITES: ${{ github.event_name == 'workflow_dispatch' && inputs.sites || needs.check.outputs.deploy }}
+          SITES: ${{ steps.plan.outputs.sites }}
       - name: Verify staging
+        if: steps.plan.outputs.sites != '[]'
         run: bun scripts/ci/verify-previews.ts
+      - name: Close staging releases
+        if: always() && steps.plan.outputs.sites != '[]'
+        run: bun scripts/ci/release-records.ts finish --state "$STATE"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STATE: ${{ job.status == 'success' && 'success' || 'failure' }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
@@ -420,7 +460,7 @@ jobs:
   production:
     # Production ships only what staging just deployed and verified (ADR 0009).
     needs: [check, staging]
-    if: ${{ !cancelled() && needs.check.result == 'success' && needs.staging.result == 'success' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || needs.check.outputs.deploy != '[]') && vars.DEPLOYS_ENABLED == 'true' }}
+    if: ${{ !cancelled() && needs.check.result == 'success' && needs.staging.result == 'success' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && needs.staging.outputs.sites != '[]' && vars.DEPLOYS_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production
@@ -428,6 +468,7 @@ jobs:
     # `ci-prod` with this job's GitHub OIDC token. Only this job may read sites-prod.
     permissions:
       contents: read
+      deployments: write
       id-token: write
     concurrency:
       group: main-site-deploy
@@ -445,12 +486,23 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup
-      - name: Deploy affected sites to prod
+      - name: Record production releases
+        run: bun scripts/ci/release-records.ts start --stage prod
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SITES: ${{ needs.staging.outputs.sites }}
+      - name: Deploy sites to prod
         run: bun scripts/ci/deploy.ts --stage prod --sites "$SITES"
         env:
-          SITES: ${{ github.event_name == 'workflow_dispatch' && inputs.sites || needs.check.outputs.deploy }}
+          SITES: ${{ needs.staging.outputs.sites }}
       - name: Verify production
         run: bun scripts/ci/verify-previews.ts --production
+      - name: Close production releases
+        if: always()
+        run: bun scripts/ci/release-records.ts finish --state "$STATE"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STATE: ${{ job.status == 'success' && 'success' || 'failure' }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:

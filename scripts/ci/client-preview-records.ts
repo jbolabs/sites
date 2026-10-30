@@ -15,18 +15,31 @@ const Deployment = Schema.Struct({
 });
 export type PreviewRecord = typeof Deployment.Type;
 const Status = Schema.Struct({ state: Schema.String });
+/** Main's per-site release records (`release-records.ts`). */
+export interface ReleasePayload {
+  readonly kind: "release-v1";
+  readonly site: string;
+  readonly stage: string;
+}
+const DEPLOYMENT_STATES = [
+  "success",
+  "inactive",
+  "in_progress",
+  "failure",
+] as const;
+export type DeploymentState = (typeof DEPLOYMENT_STATES)[number];
 export type GitHubRequest =
   | {
       auto_merge: false;
       environment: string;
-      payload: PreviewPayload;
-      production_environment: false;
+      payload: PreviewPayload | ReleasePayload;
+      production_environment: boolean;
       ref: string;
       required_contexts: readonly string[];
       task: string;
-      transient_environment: true;
+      transient_environment: boolean;
     }
-  | { auto_inactive: false; state: "success" | "inactive" };
+  | { auto_inactive: false; state: DeploymentState };
 
 /** GET returns paginated JSON arrays; callers decode the response for each endpoint. */
 export type GitHubApi = (route: string, body?: GitHubRequest) => string;
