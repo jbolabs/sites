@@ -227,6 +227,12 @@ if (import.meta.main) {
     );
     const sha = process.env.GITHUB_SHA ?? "";
     const run = Number(process.env.GITHUB_RUN_ID);
+    // A record without its run would fail every later plan's decode.
+    if (!Number.isSafeInteger(run) || run <= 0) {
+      throw new Error(
+        "Release records need GITHUB_RUN_ID (run them in Actions)"
+      );
+    }
     // Record exactly what deploy.ts releases on each stage (prod skips domainless sites).
     const staging = deploymentSites(requested, "staging").map((site) =>
       startRelease(githubApi, repository, "staging", site, sha, run)
