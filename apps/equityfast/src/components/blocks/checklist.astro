@@ -1,35 +1,23 @@
 ---
-/** Headline, text, and an optional application button beside a grid of checked benefits. */
-import Check from "@lucide/astro/icons/check";
+/** Benefits read as an editorial list, without repeating a card around every claim. */
 import type { BlockComponentProps } from "emdash/ui";
-
 import ButtonLink from "@/components/button-link.astro";
 import Headline from "@/components/headline.astro";
 import { applyHref } from "@/lib/apply";
 import type { PageContentChecklistBlock } from "../../../emdash-env";
 
 type Props = BlockComponentProps<PageContentChecklistBlock>;
-
 const { value } = Astro.props;
 ---
-
 <section class="section-y">
-  <div class="container-page grid *:min-w-0 gap-12 lg:grid-cols-[1fr_1.5fr] lg:gap-16">
-    <div data-reveal>
+  <div class="container-page benefits-layout">
+    <div data-reveal-group>
       <Headline text={value.headline} accent={value.headline_accent} />
-      {value.body && <p class="mt-6 max-w-md text-lg leading-relaxed text-graphite">{value.body}</p>}
-      {value.apply_label && <ButtonLink href={applyHref(Astro.currentLocale)} data-apply variant="outline-ink" size="hero" class="mt-9">{value.apply_label}</ButtonLink>}
+      {value.body && <p class="mt-8 max-w-md text-base leading-relaxed">{value.body}</p>}
+      {value.apply_label && <ButtonLink href={applyHref(Astro.currentLocale)} data-apply variant="accent" size="hero" class="mt-8">{value.apply_label}</ButtonLink>}
     </div>
-    <ul class="grid gap-4 sm:grid-cols-2" data-reveal-group>
-      {value.items.map((item) => (
-        <li class="rounded-3xl border border-line bg-white p-7">
-          <span class="flex size-10 items-center justify-center rounded-xl bg-sky-wash text-sky-ink" aria-hidden="true">
-            <Check class="size-5" stroke-width={2.5} />
-          </span>
-          <h3 class="mt-8 text-lg leading-snug">{item.title}</h3>
-          <p class="mt-2 leading-relaxed text-graphite">{item.body}</p>
-        </li>
-      ))}
+    <ul class="benefits-list" data-reveal-group>
+      {value.items.map((item) => <li><h3>{item.title}</h3><p>{item.body}</p></li>)}
     </ul>
   </div>
 </section>

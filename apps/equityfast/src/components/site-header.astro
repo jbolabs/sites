@@ -29,14 +29,14 @@ const other: Locale = locale === "en" ? "es" : "en";
 const switchHref = alternates[other] ?? localePath(other, "/");
 ---
 
-<header class="sticky top-0 z-40 border-b border-line bg-white text-ink">
-  <div class="mx-auto flex h-16 w-full max-w-[1440px] items-center gap-4 px-5 sm:px-8 lg:h-[72px] lg:px-10">
+<header class="sticky top-0 z-40 bg-white text-ink">
+  <div class="container-page flex h-18 items-center gap-4 lg:h-22">
     <a href={home} class="flex shrink-0 items-center" aria-label={`${site.name}, ${locale === "es" ? "inicio" : "home"}`}>
       <img src="/brand/equityfast-ink.webp" alt="EquityFast" width="1200" height="171" class="h-5 w-auto sm:h-[22px]" />
     </a>
-    <div class="hidden shrink-0 items-center gap-2.5 border-l border-line pl-4 xl:flex">
+    <div class="hidden shrink-0 items-center gap-2.5 pl-4 xl:flex">
       {/* Below 2xl the label would push the Spanish menu into the logo; the lender logo alone still reads. */}
-      <span class="hidden text-xs leading-tight whitespace-nowrap text-graphite 2xl:inline">{t.poweredBy}</span>
+      <span class="hidden text-base leading-tight whitespace-nowrap text-graphite 2xl:inline">{t.poweredBy}</span>
       <img src="/brand/emc.webp" alt={site.business.legalName} width="640" height="145" loading="lazy" class="h-5 w-auto" />
     </div>
     <nav aria-label={t.mainNav} class="ml-auto hidden shrink-0 items-center gap-0.5 xl:flex">
@@ -45,7 +45,7 @@ const switchHref = alternates[other] ?? localePath(other, "/");
           <a
             href={item.url}
             aria-current={isActive(item.url) ? "page" : undefined}
-            class="rounded-full px-3.5 py-2 text-[15px] font-medium whitespace-nowrap text-graphite hover:text-ink aria-[current=page]:bg-canvas aria-[current=page]:text-ink"
+            class="rounded-full px-3.5 py-2 text-base font-medium whitespace-nowrap text-graphite hover:text-ink aria-[current=page]:bg-canvas aria-[current=page]:text-ink"
           >
             {item.label}
           </a>
@@ -60,7 +60,7 @@ const switchHref = alternates[other] ?? localePath(other, "/");
         href={switchHref}
         hreflang={other}
         lang={other}
-        class="flex h-9 items-center rounded-full border border-line px-3 text-xs font-medium text-ink uppercase hover:border-ink/40"
+        class="flex h-11 items-center rounded-full bg-canvas px-3 text-base font-medium text-ink uppercase hover:border-ink/40"
       >
         <span class="sr-only">{t.switchTo}</span>
         <span aria-hidden="true">{other}</span>
@@ -81,7 +81,7 @@ const switchHref = alternates[other] ?? localePath(other, "/");
         }}
       >
         <ButtonLink href={APPLY_PATH[locale]} data-apply variant="accent" size="hero" class="w-full">{t.startNow}</ButtonLink>
-        <a href={switchHref} hreflang={other} lang={other} class="text-center text-sm text-graphite hover:text-ink">{t.switchTo}</a>
+        <a href={switchHref} hreflang={other} lang={other} class="text-center text-base text-graphite hover:text-ink">{t.switchTo}</a>
       </MobileMenu>
     </div>
   </div>

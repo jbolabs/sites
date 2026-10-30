@@ -36,3 +36,6 @@ emdash-env.d.ts
 
 # Validated public content plans contain production copy, never credentials.
 .published-content.json
+
+# Local design directions and inspector captures
+.taste-skill/
