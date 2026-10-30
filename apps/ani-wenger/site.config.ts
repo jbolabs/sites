@@ -56,12 +56,13 @@ export const site = {
     "Ani Wenger, European master hairstylist at James Matthew Salon in Irvine, California.",
 
   /**
-   * Attached as a custom domain on the `prod` stage only. Unset until the zone is
-   * on the Cloudflare account (attaching an unowned domain fails the deploy), so
-   * only staging deploys until then. aniwenger.com lapsed and was
-   * re-registered by a domain reseller on 2025-10-29; it is not Ani's today.
+   * Attached as a custom domain on the `prod` stage only. The zone must be
+   * active on the Cloudflare account before prod deploys (attaching an unowned
+   * domain fails the deploy). Registered at GoDaddy, nameservers on Cloudflare.
+   * aniwenger.com lapsed and was re-registered by a domain reseller on
+   * 2025-10-29; it is not Ani's today.
    */
-  domain: null,
+  domain: "aniwenger.hair",
 
   /** Prefixes Worker names (`ani-wenger-<stage>`) and the Alchemy stack. */
   id: "ani-wenger",
@@ -73,7 +74,7 @@ export const site = {
    * Public base URL EmDash downloads seed images from when the stage cannot
    * serve them itself (local workerd: EmDash's SSRF guard refuses localhost).
    * Deployed stages use their own `/_seed/media`. Staging is the site's
-   * persistent deployment until it has a production domain.
+   * persistent client preview.
    */
   localSeedMediaBase: "https://ani-wenger-staging.jbolabs.com/_seed/media",
 
