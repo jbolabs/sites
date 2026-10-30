@@ -428,6 +428,7 @@ jobs:
         id: plan
         run: bun scripts/ci/release-records.ts plan --sites "$SITES" >> "$GITHUB_OUTPUT"
         env:
+          EVENT: ${{ github.event_name }}
           GH_TOKEN: ${{ github.token }}
           SITES: ${{ github.event_name == 'workflow_dispatch' && inputs.sites || needs.check.outputs.deploy }}
       - name: Record staging releases

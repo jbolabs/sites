@@ -2,11 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import type { GitHubApi, GitHubRequest } from "./client-preview-records.ts";
 import { latestRelease, releasePlan, startRelease } from "./release-records.ts";
+import type { GitHubGet } from "./release-records.ts";
 
 const SHA = "a".repeat(40);
 /** A release whose job died before writing any status. */
-const unfinished: GitHubApi = (route) =>
-  route.includes("/statuses") ? "[[]]" : JSON.stringify([[{ id: 7 }]]);
+const unfinished: GitHubGet = (route) =>
+  route.includes("/statuses") ? "[]" : JSON.stringify([{ id: 7 }]);
 
 describe(releasePlan, () => {
   const candidates = {
@@ -29,6 +30,12 @@ describe(releasePlan, () => {
     ).toStrictEqual(["ani-wenger", "ms-custom-homes"]);
   });
 
+  it("releases exactly the dispatched sites, even with another site's release failed", () => {
+    expect(
+      releasePlan(["equityfast"], candidates, () => "failure", true)
+    ).toStrictEqual(["equityfast"]);
+  });
+
   it("retries an attempt that never finished, and leaves sites with no record to change detection", () => {
     expect(
       releasePlan([], candidates, (stage, site) =>
@@ -41,11 +48,11 @@ describe(releasePlan, () => {
 describe(latestRelease, () => {
   it("reads the newest status of the site's newest release on that stage", () => {
     const routes: string[] = [];
-    const api: GitHubApi = (route) => {
+    const api: GitHubGet = (route) => {
       routes.push(route);
       return route.includes("/statuses")
-        ? JSON.stringify([[{ state: "failure" }]])
-        : JSON.stringify([[{ id: 7 }]]);
+        ? JSON.stringify([{ state: "failure" }])
+        : JSON.stringify([{ id: 7 }]);
     };
     expect(latestRelease(api, "o/r", "prod", "ani-wenger")).toBe("failure");
     expect(routes).toStrictEqual([

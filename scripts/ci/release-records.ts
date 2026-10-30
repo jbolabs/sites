@@ -10,6 +10,7 @@
  *   bun scripts/ci/release-records.ts start --stage staging   # records SITES as in_progress
  *   bun scripts/ci/release-records.ts finish --state success  # closes what start recorded
  */
+import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
@@ -35,29 +36,34 @@ const releaseTask = (site: string) => {
 };
 
 const Id = Schema.Struct({ id: Schema.Number });
-const pages = <S extends Schema.Top>(item: S) =>
-  Schema.fromJsonString(Schema.Array(Schema.Array(item)));
+const page = <S extends Schema.Top>(item: S) =>
+  Schema.fromJsonString(Schema.Array(item));
 const Status = Schema.Struct({ state: Schema.String });
+
+/** One page of a GET: `per_page=1` must not page through the whole history. */
+export type GitHubGet = (route: string) => string;
+const githubGet: GitHubGet = (route) =>
+  execFileSync("gh", ["api", route], { encoding: "utf-8" });
 
 /** The state of a site's latest release on a stage; `undefined` when it never released. */
 export const latestRelease = (
-  api: GitHubApi,
+  get: GitHubGet,
   repository: string,
   stage: ReleaseStage,
   site: string
 ): string | undefined => {
   // GitHub lists deployments newest first.
-  const [latest] = Schema.decodeUnknownSync(pages(Id))(
-    api(
+  const [latest] = Schema.decodeUnknownSync(page(Id))(
+    get(
       `repos/${repository}/deployments?environment=${RELEASE_ENVIRONMENTS[stage]}&task=${releaseTask(site)}&per_page=1`
     )
-  ).flat();
+  );
   if (latest === undefined) {
     return undefined;
   }
-  const [status] = Schema.decodeUnknownSync(pages(Status))(
-    api(`repos/${repository}/deployments/${latest.id}/statuses?per_page=1`)
-  ).flat();
+  const [status] = Schema.decodeUnknownSync(page(Status))(
+    get(`repos/${repository}/deployments/${latest.id}/statuses?per_page=1`)
+  );
   // A record without a status is an attempt whose job died before finishing.
   return status?.state ?? "pending";
 };
@@ -65,7 +71,8 @@ export const latestRelease = (
 /**
  * Requested sites plus every site whose latest release on either stage did not
  * succeed. A prod-only failure re-releases staging too: prod ships only what
- * staging just verified (ADR 0009).
+ * staging just verified (ADR 0009). A dispatch releases exactly what it names:
+ * its verification checked only those sites.
  */
 export const releasePlan = (
   requested: readonly string[],
@@ -73,8 +80,12 @@ export const releasePlan = (
     readonly staging: readonly string[];
     readonly prod: readonly string[];
   },
-  latest: (stage: ReleaseStage, site: string) => string | undefined
+  latest: (stage: ReleaseStage, site: string) => string | undefined,
+  dispatch = false
 ): readonly string[] => {
+  if (dispatch) {
+    return [...new Set(requested)].toSorted();
+  }
   const unresolved = (["staging", "prod"] as const).flatMap((stage) =>
     candidates[stage].filter((site) => {
       const state = latest(stage, site);
@@ -144,7 +155,8 @@ if (import.meta.main) {
         prod: deploymentSites(configured, "prod"),
         staging: deploymentSites(configured, "staging"),
       },
-      (stage, site) => latestRelease(githubApi, repository, stage, site)
+      (stage, site) => latestRelease(githubGet, repository, stage, site),
+      process.env.EVENT === "workflow_dispatch"
     );
     process.stdout.write(`sites=${JSON.stringify(sites)}\n`);
   } else if (command === "start") {
