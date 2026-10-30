@@ -27,6 +27,9 @@ export const assistantAi = (stage: StageSettings) =>
       return { bindModel: process.env.AI_REMOTE === "1", gatewayId: "" };
     }
     const gateway = yield* Cloudflare.AI.Gateway("Assistant", {
+      // Cloudflare rejects new gateways without it (7001). The Worker's AI binding is
+      // pre-authenticated, so the assistant needs no token.
+      authentication: true,
       collectLogs: true,
       id: `${stage.workerName}-assistant`,
       rateLimitingInterval: ASSISTANT_RATE_LIMIT.interval,
