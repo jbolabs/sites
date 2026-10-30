@@ -49,10 +49,25 @@ const Run = Schema.fromJsonString(Schema.Struct({ status: Schema.String }));
 /** A queued or running release whose workflow run is still going: not a failure yet. */
 export const IN_FLIGHT = "in_flight";
 
-/** One page of a GET: `per_page=1` must not page through the whole history. */
+/**
+ * One page of a GET (`per_page=1` must not page through the whole history);
+ * `NOT_FOUND` (an empty body) when GitHub answers 404. Other API errors throw.
+ */
 export type GitHubGet = (route: string) => string;
-const githubGet: GitHubGet = (route) =>
-  execFileSync("gh", ["api", route], { encoding: "utf-8" });
+export const NOT_FOUND = "";
+const githubGet: GitHubGet = (route) => {
+  try {
+    return execFileSync("gh", ["api", route], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("(HTTP 404)")) {
+      return NOT_FOUND;
+    }
+    throw error;
+  }
+};
 
 /**
  * The state of a site's latest release on a stage; `undefined` when it never
@@ -62,7 +77,9 @@ export const latestRelease = (
   get: GitHubGet,
   repository: string,
   stage: ReleaseStage,
-  site: string
+  site: string,
+  /** This run's id: its own records (a rerun keeps the id) are never in flight. */
+  currentRun?: number
 ): string | undefined => {
   // GitHub lists deployments newest first.
   const [latest] = Schema.decodeUnknownSync(page(Release))(
@@ -86,17 +103,21 @@ export const latestRelease = (
       : (statuses.find((status) => status.state !== "inactive")?.state ??
         "success");
   // Another push can plan while an earlier run's prod release is still queued.
+  const { run } = latest.payload;
   if (
-    state !== "success" &&
-    state !== "failure" &&
-    latest.payload.run !== undefined &&
-    Schema.decodeUnknownSync(Run)(
-      get(`repos/${repository}/actions/runs/${latest.payload.run}`)
-    ).status !== "completed"
+    state === "success" ||
+    state === "failure" ||
+    run === undefined ||
+    run === currentRun
   ) {
-    return IN_FLIGHT;
+    return state;
   }
-  return state;
+  // A deleted run (404) has finished for good: retry what it left unresolved.
+  const recorder = get(`repos/${repository}/actions/runs/${run}`);
+  return recorder !== NOT_FOUND &&
+    Schema.decodeUnknownSync(Run)(recorder).status !== "completed"
+    ? IN_FLIGHT
+    : state;
 };
 
 /**
@@ -188,7 +209,14 @@ if (import.meta.main) {
         prod: deploymentSites(configured, "prod"),
         staging: deploymentSites(configured, "staging"),
       },
-      (stage, site) => latestRelease(githubGet, repository, stage, site),
+      (stage, site) =>
+        latestRelease(
+          githubGet,
+          repository,
+          stage,
+          site,
+          Number(process.env.GITHUB_RUN_ID)
+        ),
       process.env.EVENT === "workflow_dispatch"
     );
     process.stdout.write(`sites=${JSON.stringify(sites)}\n`);

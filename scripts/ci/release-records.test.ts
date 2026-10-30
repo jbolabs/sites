@@ -1,8 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import type { GitHubApi, GitHubRequest } from "./client-preview-records.ts";
-import { latestRelease, releasePlan, startRelease } from "./release-records.ts";
 import type { GitHubGet } from "./release-records.ts";
+import {
+  latestRelease,
+  NOT_FOUND,
+  releasePlan,
+  startRelease,
+} from "./release-records.ts";
 
 const SHA = "a".repeat(40);
 /** A release whose job died before writing any status. */
@@ -33,6 +38,15 @@ const queuedBy =
       ? JSON.stringify([{ state: "queued" }])
       : JSON.stringify([{ id: 7, payload: { run: 5 } }]);
   };
+/** A queued prod release recorded by run 5, which has since been deleted. */
+const deletedRun: GitHubGet = (route) => {
+  if (route.includes("/actions/runs/")) {
+    return NOT_FOUND;
+  }
+  return route.includes("/statuses")
+    ? JSON.stringify([{ state: "queued" }])
+    : JSON.stringify([{ id: 7, payload: { run: 5 } }]);
+};
 
 describe(releasePlan, () => {
   const candidates = {
@@ -119,6 +133,13 @@ describe(latestRelease, () => {
       latestRelease(queuedBy("in_progress"), "o/r", "prod", "ani-wenger"),
       latestRelease(queuedBy("completed"), "o/r", "prod", "ani-wenger"),
     ]).toStrictEqual(["in_flight", "queued"]);
+  });
+
+  it("retries a queued release whose run was deleted, and its own rerun's queued release", () => {
+    expect([
+      latestRelease(deletedRun, "o/r", "prod", "ani-wenger"),
+      latestRelease(queuedBy("in_progress"), "o/r", "prod", "ani-wenger", 5),
+    ]).toStrictEqual(["queued", "queued"]);
   });
 
   it("reports a record with no status as pending", () => {
