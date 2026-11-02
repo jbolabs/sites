@@ -4,6 +4,13 @@ A monorepo of client marketing sites. Each site is an Astro + EmDash CMS app on 
 
 Current choices: [docs/stack.md](docs/stack.md). Why each one-way choice was made: [docs/adr/](docs/adr/). Domain terms: [CONTEXT.md](CONTEXT.md).
 
+## Product bar
+
+Build every app and site to the bar of Linear's website or Apple Notes: simple purpose, simple architecture, simple design, simple implementation.
+
+- Cut taglines, helper text and secondary labels. If a screen needs them to make sense, fix the layout.
+- Every decision should improve user experience (UX), developer experience (DX) and agent experience (AX) at once, without breaking anything.
+
 ## Map
 
 | Path | What lives there |
