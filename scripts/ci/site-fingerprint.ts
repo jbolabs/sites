@@ -829,10 +829,6 @@ export const sitePayload = async (
       .filter(({ name }) => !name.endsWith(".mjs"))
       .map((file) => ({ ...file, name: `server/${file.name}` })),
     ...readTree(path.join(directory, "seed"), "seed/"),
-    ...["deploy.ts", "migrate.ts", "prepare-content.ts"].map((name) => ({
-      bytes: readFileSync(path.join(root, "scripts/ci", name)),
-      name: `deploy-tools/${name}`,
-    })),
 
     {
       bytes: Buffer.from(await configuration(root, site)),
