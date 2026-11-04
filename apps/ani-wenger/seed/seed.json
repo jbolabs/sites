@@ -1902,7 +1902,7 @@
                 },
                 {
                   "question": "Can I book more than one service?",
-                  "answer": "Yes. When you book online, choose every service you want, like a cut with color, and add extras such as a gloss or a Kérastase ritual. The booking adds up the time and shows only the times that fit."
+                  "answer": "Yes. When you book online, choose every service you want, like a cut with color, and add extras such as a gloss or a hair treatment. The booking adds up the time and shows only the times that fit."
                 },
                 {
                   "question": "Where do I park?",
@@ -2932,7 +2932,7 @@
         "slug": "brazilian-blowout",
         "status": "published",
         "data": {
-          "title": "Brazilian Blowout smoothing",
+          "title": "Smoothing treatment",
           "category": "treatments",
           "summary": "A professional smoothing treatment that removes frizz and adds shine for up to 12 weeks, with no downtime.",
           "audience": "everyone",
@@ -2941,7 +2941,7 @@
           "color_correction": false,
           "duration_minutes": 150,
           "buffer_minutes": 15,
-          "price": 350,
+          "price": 325,
           "price_from": true,
           "bookable": true,
           "featured": true,
@@ -3066,9 +3066,9 @@
         "slug": "kerastase-ritual",
         "status": "published",
         "data": {
-          "title": "Kérastase ritual",
+          "title": "Hair treatment",
           "category": "treatments",
-          "summary": "A personalized Kérastase treatment for dry, damaged, or color-treated hair, with a scalp massage.",
+          "summary": "A personalized hair treatment for dry, damaged, or color-treated hair, with a scalp massage.",
           "audience": "everyone",
           "add_on": true,
           "ask_photos": false,
@@ -3131,7 +3131,7 @@
           "add_on": false,
           "ask_photos": true,
           "color_correction": false,
-          "duration_minutes": 30,
+          "duration_minutes": 20,
           "buffer_minutes": 0,
           "price": 0,
           "price_from": false,
@@ -3196,7 +3196,7 @@
           "add_on": false,
           "ask_photos": true,
           "color_correction": true,
-          "duration_minutes": 30,
+          "duration_minutes": 20,
           "buffer_minutes": 0,
           "price": 0,
           "price_from": false,
@@ -3314,7 +3314,7 @@
           "add_on": false,
           "ask_photos": false,
           "color_correction": false,
-          "duration_minutes": 30,
+          "duration_minutes": 20,
           "buffer_minutes": 0,
           "price": 0,
           "price_from": false,

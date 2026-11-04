@@ -9,7 +9,10 @@
  * 1. copies `seed/media/` into `public/_seed/media/` (gitignored) so every
  *    stage serves the originals itself, and
  * 2. writes `.emdash/seed.json` (EmDash's first seed lookup path) with those
- *    URLs made absolute against `mediaBase`.
+ *    URLs made absolute against `mediaBase`, and
+ * 3. keeps `seed/placeholders.json` (blurred placeholders by file, see
+ *    `seed-placeholders.ts`) in step with `seed/media/` and serves them to
+ *    pages as `virtual:seed-placeholders`, by the seed's media filenames.
  *
  * Without a `mediaBase` the URLs stay relative and setup skips the images.
  */
@@ -26,8 +29,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { AstroIntegration } from "astro";
+import { Option, Schema } from "effect";
+import { generatePlaceholder } from "emdash/media";
 
 import { readPublishedPlan } from "./published-integration.ts";
+import { SeedPlaceholders } from "./seed-placeholders.ts";
+import type { SeedPlaceholder } from "./seed-placeholders.ts";
 
 export const SEED_MEDIA_PATH = "/_seed/media/";
 
@@ -66,9 +73,109 @@ const syncDirectory = (from: string, to: string): number => {
   return copied;
 };
 
+export const SEED_PLACEHOLDERS_FILE = "seed/placeholders.json";
+
+/** Formats EmDash's placeholder generator decodes. */
+const MIME_TYPES = new Map([
+  [".jpeg", "image/jpeg"],
+  [".jpg", "image/jpeg"],
+  [".png", "image/png"],
+]);
+
+export const readSeedPlaceholders = (file: string): SeedPlaceholders => {
+  try {
+    return Schema.decodeUnknownSync(Schema.fromJsonString(SeedPlaceholders))(
+      readFileSync(file, "utf-8")
+    );
+  } catch {
+    return {};
+  }
+};
+
+const photoPlaceholder = async (
+  file: string,
+  known: SeedPlaceholder | undefined
+): Promise<SeedPlaceholder | undefined> => {
+  const mimeType = MIME_TYPES.get(path.extname(file).toLowerCase());
+  if (mimeType === undefined) {
+    return undefined;
+  }
+  const bytes = statSync(file).size;
+  if (known?.bytes === bytes) {
+    return known;
+  }
+  const placeholder = await generatePlaceholder(
+    new Uint8Array(readFileSync(file)),
+    mimeType
+  );
+  return placeholder === null
+    ? undefined
+    : {
+        blurhash: placeholder.blurhash,
+        bytes,
+        dominantColor: placeholder.dominantColor,
+      };
+};
+
+/** Placeholders for every photo in `mediaDir`, decoding only those `known` lacks or has at another size. */
+export const syncSeedPlaceholders = async (
+  mediaDir: string,
+  known: SeedPlaceholders
+): Promise<SeedPlaceholders> => {
+  const names = readdirSync(mediaDir).toSorted();
+  const placeholders = await Promise.all(
+    names.map(
+      async (name) =>
+        await photoPlaceholder(path.join(mediaDir, name), known[name])
+    )
+  );
+  return Object.fromEntries(
+    names.flatMap((name, index) => {
+      const placeholder = placeholders[index];
+      return placeholder === undefined ? [] : [[name, placeholder] as const];
+    })
+  );
+};
+
+const MEDIA_REFERENCE = /"\$media"\s*:\s*\{[^{}]*\}/gu;
+const SeedMediaReference = Schema.Struct({
+  $media: Schema.Struct({
+    filename: Schema.optional(Schema.String),
+    url: Schema.String.check(Schema.isStartingWith(SEED_MEDIA_PATH)),
+  }),
+});
+
+/**
+ * Placeholders keyed the way pages find them: by the filename EmDash stores on
+ * each media value, which is the seed's `$media.filename` (often not the file's
+ * name) or else the file's name.
+ */
+export const placeholdersByMediaFilename = (
+  seedJson: string,
+  photos: SeedPlaceholders
+): SeedPlaceholders =>
+  Object.fromEntries(
+    // `$media` objects are flat (url, alt, filename, caption).
+    [...seedJson.matchAll(MEDIA_REFERENCE)].flatMap(([reference]) =>
+      Option.toArray(
+        Schema.decodeUnknownOption(Schema.fromJsonString(SeedMediaReference))(
+          `{${reference}}`
+        )
+      ).flatMap(({ $media }) => {
+        const file = $media.url.slice(SEED_MEDIA_PATH.length);
+        const placeholder = photos[file];
+        return placeholder === undefined
+          ? []
+          : [[$media.filename ?? file, placeholder] as const];
+      })
+    )
+  );
+
+const PLACEHOLDERS_MODULE = "virtual:seed-placeholders";
+
 export const seedMedia = (options: SeedMediaOptions): AstroIntegration => ({
   hooks: {
-    "astro:config:setup": ({ config, logger }) => {
+    "astro:config:setup": async ({ config, logger, updateConfig }) => {
       const root = fileURLToPath(config.root);
       const mediaDir = path.join(root, options.media ?? "seed/media");
       if (existsSync(mediaDir)) {
@@ -87,6 +194,38 @@ export const seedMedia = (options: SeedMediaOptions): AstroIntegration => ({
         path.join(root, options.seed ?? "seed/seed.json"),
         "utf-8"
       );
+      const placeholdersFile = path.join(root, SEED_PLACEHOLDERS_FILE);
+      const known = readSeedPlaceholders(placeholdersFile);
+      const placeholders = existsSync(mediaDir)
+        ? await syncSeedPlaceholders(mediaDir, known)
+        : known;
+      const placeholdersJson = `${JSON.stringify(placeholders, null, 2)}\n`;
+      if (
+        !existsSync(placeholdersFile) ||
+        readFileSync(placeholdersFile, "utf-8") !== placeholdersJson
+      ) {
+        writeFileSync(placeholdersFile, placeholdersJson);
+        logger.info(`updated ${SEED_PLACEHOLDERS_FILE}: commit it`);
+      }
+      updateConfig({
+        vite: {
+          plugins: [
+            {
+              load: (id) =>
+                id === `\0${PLACEHOLDERS_MODULE}`
+                  ? `export default ${JSON.stringify(
+                      placeholdersByMediaFilename(seedJson, placeholders)
+                    )}`
+                  : undefined,
+              name: "seed-placeholders",
+              resolveId: (id) =>
+                id === PLACEHOLDERS_MODULE
+                  ? `\0${PLACEHOLDERS_MODULE}`
+                  : undefined,
+            },
+          ],
+        },
+      });
       const plan = readPublishedPlan(root);
       const contentSeed = plan === null ? seedJson : JSON.stringify(plan.seed);
       const resolved =

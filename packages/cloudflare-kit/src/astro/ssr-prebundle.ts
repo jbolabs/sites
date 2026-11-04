@@ -24,6 +24,8 @@ const SHARED = [
   "@jakebodea/cloudflare-kit > @tanstack/ai",
   "@jakebodea/cloudflare-kit > @tanstack/ai/testing",
   "@jakebodea/cloudflare-kit > @tanstack/ai-cloudflare",
+  // The kit's <Image> placeholder (blurhash to a tiny BMP data URI).
+  "@jakebodea/cloudflare-kit > @unpic/placeholder",
   // Server-side Effect code: one pre-bundled chunk each instead of hundreds of modules.
   "effect",
   "effect/http",

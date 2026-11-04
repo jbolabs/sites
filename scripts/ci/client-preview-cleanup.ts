@@ -73,11 +73,10 @@ if (import.meta.main) {
   const repository = process.env.GITHUB_REPOSITORY ?? "";
   const root = path.resolve(import.meta.dirname, "../..");
   const selected = process.env.PR;
-  const records = activePreviews(githubApi, repository).filter(
-    (record) =>
-      selected === undefined ||
-      selected === "" ||
-      record.payload.pull === Number(selected)
+  const records = activePreviews(
+    githubApi,
+    repository,
+    selected === undefined || selected === "" ? undefined : Number(selected)
   );
   const requested = new Set<number>();
   const Pull = Schema.fromJsonString(

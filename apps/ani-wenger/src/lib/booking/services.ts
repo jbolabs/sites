@@ -1,3 +1,4 @@
+import { leadInboxConfig } from "@jakebodea/cloudflare-kit/server";
 import type { EmailAddress } from "@jakebodea/cloudflare-kit/server";
 /**
  * What the booking pipeline needs from the outside world, as Effect services:
@@ -181,7 +182,7 @@ export interface BookingMailRoutes {
   /** The verified sender; without one, mail is logged instead of sent. */
   readonly from: Option.Option<EmailAddress>;
   /** Ani's inbox for new bookings and cancellations. */
-  readonly studioInbox: Option.Option<string>;
+  readonly studioInbox: Option.Option<readonly string[]>;
   /** Where client replies go: Ani's own address. */
   readonly replyTo: string;
 }
@@ -206,7 +207,7 @@ export const bookingMailFromConfig = (options: {
     BookingMail,
     Effect.gen(function* loadBookingMail() {
       const from = yield* nonEmpty("LEAD_NOTIFY_FROM");
-      const studioInbox = yield* nonEmpty("LEAD_NOTIFY_TO");
+      const studioInbox = yield* leadInboxConfig;
       const siteOrigin = yield* Config.String("SITE_ORIGIN");
       return {
         from: from.pipe(

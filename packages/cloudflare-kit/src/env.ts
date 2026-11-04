@@ -7,6 +7,11 @@ export interface WebAnalyticsEnv {
   readonly CF_ANALYTICS_API_TOKEN: string;
 }
 
+/** A Tag Manager container ID on prod; empty everywhere else (see `googleTagManager`). */
+export interface GoogleTagManagerEnv {
+  readonly GTM_CONTAINER_ID: string;
+}
+
 export interface LeadMailEnv {
   readonly LEAD_NOTIFY_FROM: string;
   readonly LEAD_NOTIFY_FROM_NAME: string;

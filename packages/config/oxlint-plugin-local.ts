@@ -251,10 +251,46 @@ export const noPublicAdminImportsRule = defineRule({
   },
 });
 
+/** Centered-dialog modules. Alert dialogs and drawers are fine at any width. */
+const DIALOG_IMPORT = /(?:^|\/)(?:ui\/dialog|@base-ui\/react\/dialog)$/u;
+
+export const noMobileDialogRule = defineRule({
+  create(context) {
+    const filename = context.filename.replaceAll("\\", "/");
+    // The primitives themselves (and ResponsiveDialog, which picks a drawer on phones) may import it.
+    if (
+      SHARED_UI_DIRECTORIES.some((directory) => filename.includes(directory))
+    ) {
+      return {};
+    }
+    return {
+      ImportDeclaration(node) {
+        const literal = node.source.value;
+        if (Predicate.isString(literal) && DIALOG_IMPORT.test(literal)) {
+          context.report({ messageId: "dialog", node: node.source });
+        }
+      },
+    };
+  },
+  meta: {
+    docs: {
+      description:
+        "Disallow centered dialogs outside components/ui. Phones get a drawer or an alert dialog, never a dialog: use ResponsiveDialog (dialog from `sm` up, drawer below), Drawer, or AlertDialog.",
+    },
+    messages: {
+      dialog:
+        "Phones never get a centered dialog. Use `ResponsiveDialog` from components/ui/responsive-dialog (a drawer below `sm`), `Drawer`, or `AlertDialog`.",
+    },
+    schema: [],
+    type: "problem",
+  },
+});
+
 export default definePlugin({
   meta: { name: "local" },
   rules: {
     "no-long-dashes": noLongDashesRule,
+    "no-mobile-dialog": noMobileDialogRule,
     "no-public-admin-imports": noPublicAdminImportsRule,
     "no-transition-colors": noTransitionColorsRule,
     "prefer-shared-controls": preferSharedControlsRule,

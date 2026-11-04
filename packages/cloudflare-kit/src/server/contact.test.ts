@@ -14,6 +14,7 @@ import {
   ContactForm,
   LeadMail,
   LeadMailFromConfig,
+  LeadNotice,
   leadNotificationText,
   submitContact,
 } from "./contact.ts";
@@ -70,7 +71,7 @@ const recorder = Effect.gen(function* recorder() {
         inbox:
           options.inbox === false
             ? Option.none()
-            : Option.some("office@example.com"),
+            : Option.some(["office@example.com", "owner@example.com"]),
         name: "Access Electric website",
         siteOrigin: "https://accesselectricinc.com",
       })
@@ -90,11 +91,13 @@ describe(ContactForm, () => {
 
   it("caps the number of intake answers", () => {
     const answer = { answer: "Under $5k", question: "Budget" };
-    const tooMany = Schema.decodeUnknownExit(ContactForm)({
-      ...form,
-      answers: Array.from({ length: 9 }, () => answer),
-    });
-    expect(Exit.isFailure(tooMany)).toBeTruthy();
+    const decode = (length: number) =>
+      Schema.decodeUnknownExit(ContactForm)({
+        ...form,
+        answers: Array.from({ length }, () => answer),
+      });
+    expect(Exit.isSuccess(decode(16))).toBeTruthy();
+    expect(Exit.isFailure(decode(17))).toBeTruthy();
   });
 });
 
@@ -127,6 +130,10 @@ describe(submitContact, () => {
       expect(result).toStrictEqual({ leadId: "lead-1" });
       expect((yield* Ref.get(leads))[0]?.sourcePath).toBe("/contact");
       expect((yield* Ref.get(emails))[0]?.replyTo).toBe("pat@example.com");
+      expect((yield* Ref.get(emails))[0]?.to).toStrictEqual([
+        "office@example.com",
+        "owner@example.com",
+      ]);
       expect((yield* Ref.get(emails))[0]?.subject).toBe(
         "New enquiry from Pat Builder"
       );
@@ -143,6 +150,28 @@ describe(submitContact, () => {
       expect((yield* Ref.get(emails))[0]?.subject).toBe(
         "New enquiry from Pat Builder (via Alex Rivera)"
       );
+    })
+  );
+
+  it.effect("sends the site's own subject and HTML when it renders one", () =>
+    Effect.gen(function* rendersSiteNotice() {
+      const { emails, layer } = yield* recorder;
+      const notice = Layer.succeed(LeadNotice, {
+        render: (lead, mail) => ({
+          html: `<p>${lead.name}</p>`,
+          subject: `New application: ${lead.name} (${mail.name})`,
+          text: "plain",
+        }),
+      });
+      yield* submitContact(form, request).pipe(
+        Effect.provide(Layer.mergeAll(layer(), TurnstileAllowAll, notice))
+      );
+      expect((yield* Ref.get(emails))[0]).toMatchObject({
+        html: "<p>Pat Builder</p>",
+        replyTo: "pat@example.com",
+        subject: "New application: Pat Builder (Access Electric website)",
+        text: "plain",
+      });
     })
   );
 
@@ -180,7 +209,7 @@ describe(submitContact, () => {
       expect(yield* Ref.get(emails)).toHaveLength(0);
       expect(
         (yield* Ref.get(attempts)).map((message) => message.to)
-      ).toStrictEqual(["office@example.com"]);
+      ).toStrictEqual([["office@example.com", "owner@example.com"]]);
       expect(logs.flat()).toContain("lead notification failed");
     })
   );
@@ -269,7 +298,7 @@ describe("lead mail configuration", () => {
       expect(mail).toStrictEqual({
         alert: Option.some("alerts@jbolabs.com"),
         from: Option.none(),
-        inbox: Option.some("hello@jbolabs.com"),
+        inbox: Option.some(["hello@jbolabs.com", "jake@jbolabs.com"]),
         name: "JBO Labs website",
         siteOrigin: "https://jbolabs.com",
       });
@@ -282,7 +311,7 @@ describe("lead mail configuration", () => {
                 ALERT_EMAIL: "alerts@jbolabs.com",
                 LEAD_NOTIFY_FROM: "",
                 LEAD_NOTIFY_FROM_NAME: "JBO Labs website",
-                LEAD_NOTIFY_TO: "hello@jbolabs.com",
+                LEAD_NOTIFY_TO: "hello@jbolabs.com, jake@jbolabs.com",
                 SITE_ORIGIN: "https://jbolabs.com",
               })
             )

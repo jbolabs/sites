@@ -4,9 +4,11 @@
  * EmDash's entry. The kit's `siteScheduled` owns the crons (analytics plugin
  * settings, EmDash's minute tick, the prod backup). Non-prod stages send
  * `X-Robots-Tag: noindex` so previews never get indexed (a header, not
- * robots.txt, because a Disallow hides the noindex).
+ * robots.txt, because a Disallow hides the noindex). Resized photos go
+ * through the kit's image cache, since EmDash's endpoint re-resizes per view.
  */
 import handler from "@emdash-cms/cloudflare/worker";
+import { fetchCachedImage } from "@jakebodea/cloudflare-kit/emdash/image-cache";
 import { fetchPublicHtml } from "@jakebodea/cloudflare-kit/emdash/public-html";
 import {
   canonicalRedirect,
@@ -26,13 +28,19 @@ export default {
     if (redirect !== undefined) {
       return redirect;
     }
-    const response = await fetchPublicHtml(
+    const response = await fetchCachedImage(
       request,
       env,
       ctx,
       async () =>
-        (await handler.fetch?.(request, env, ctx)) ??
-        new Response(null, { status: 404 })
+        await fetchPublicHtml(
+          request,
+          env,
+          ctx,
+          async () =>
+            (await handler.fetch?.(request, env, ctx)) ??
+            new Response(null, { status: 404 })
+        )
     );
     if (env.STAGE === "prod" || response.status === SWITCHING_PROTOCOLS) {
       return response;

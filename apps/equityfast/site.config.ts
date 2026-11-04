@@ -52,11 +52,32 @@ export const site = {
    */
   domain: "equityfast.homes",
 
+  /**
+   * Kaleidico's (the client's marketing agency) Tag Manager container, live on
+   * prod only. They manage the tags inside it; Cloudflare's Google tag gateway
+   * serves it first-party from `gtmEndpoint`, a path no page may use.
+   */
+  gtmContainerId: "GTM-5CF5JZTT",
+  gtmEndpoint: "/metrics",
+
   /** Prefixes Worker names (`equityfast-<stage>`) and the Alchemy stack. */
   id: "equityfast",
 
-  // The client's notification address, filled in when confirmed.
-  leadInbox: null,
+  /**
+   * Everyone emailed each application, on prod only: the studio, Joe Mercuri
+   * and Hryer Kaprealian at E Mortgage Capital.
+   */
+  leadInbox: [
+    "jake@jbolabs.com",
+    "jmercuri@emortgagecapital.com",
+    "hryerk@emortgagecapital.com",
+  ],
+
+  /**
+   * Applications are emailed from the client's domain, registered for sending
+   * on prod (`clientSender`); other stages send nothing to the client.
+   */
+  leadSender: "applications@equityfast.homes",
 
   /**
    * Public base URL EmDash downloads seed images from when the stage cannot

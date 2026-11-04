@@ -1,3 +1,4 @@
+import { useTurnstile } from "@jakebodea/site-ui/form";
 import { actions, isInputError } from "astro:actions";
 import { useEffect, useRef, useState } from "react";
 
@@ -20,7 +21,6 @@ import type {
   Slot,
 } from "./booking/types";
 import { useHairPhotos } from "./booking/use-hair-photos";
-import { useTurnstile } from "./booking/use-turnstile";
 import { VisitStep, servicesFor } from "./booking/visit-step";
 
 interface BookingFlowProps {
@@ -209,7 +209,7 @@ const BookingFlow = ({
   const [slot, setSlot] = useState<Slot | undefined>();
   const [editing, setEditing] = useState<StepId | undefined>();
   const [submission, setSubmission] = useState<Submission>({ state: "idle" });
-  const turnstile = useTurnstile(turnstileSiteKey);
+  const turnstile = useTurnstile({ siteKey: turnstileSiteKey });
 
   const picked = new Set(selected);
   const chosen = services.filter((service) => picked.has(service.slug));
@@ -423,7 +423,7 @@ const BookingFlow = ({
             bookingNote={bookingNote}
             sending={submission.state === "sending"}
             error={submissionError ?? turnstileError}
-            turnstileRef={turnstile.ref}
+            turnstileRef={turnstile.mount}
             verified={turnstile.token !== ""}
             onSubmit={(details) => {
               void book(details);

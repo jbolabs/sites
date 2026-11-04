@@ -1,8 +1,9 @@
 /**
  * The in-progress application, kept on this device so a closed dialog
  * resumes where it left off. Stored as URL-encoded text: every answer is a
- * string, so reading it back needs no shape checks. Consent is never kept:
- * the visitor ticks it again each time.
+ * string, so reading it back needs no shape checks. Consent is never kept
+ * (the visitor ticks it again each time), and neither is the date of birth,
+ * which shouldn't sit in a shared browser's storage.
  */
 import { EMPTY_ANSWERS, STEP_KEYS } from "@/lib/application-rules";
 import type { ApplicationAnswers, StepKey } from "@/lib/application-rules";
@@ -18,7 +19,7 @@ export interface Draft {
 type TextField = Exclude<keyof ApplicationAnswers, "consent">;
 
 const TEXT_FIELDS = Object.keys(EMPTY_ANSWERS).filter(
-  (key): key is TextField => key !== "consent"
+  (key): key is TextField => key !== "consent" && key !== "birthDate"
 );
 
 const storage = (): Storage | undefined => {
@@ -34,7 +35,10 @@ export const readDraft = (): Draft => {
   const params = new URLSearchParams(storage()?.getItem(DRAFT_KEY) ?? "");
   const answers = { ...EMPTY_ANSWERS };
   for (const field of TEXT_FIELDS) {
-    answers[field] = params.get(field) ?? "";
+    // A blank answer falls back to the default too (other income starts at $0).
+    const saved = params.get(field);
+    answers[field] =
+      saved === null || saved === "" ? EMPTY_ANSWERS[field] : saved;
   }
   const step =
     STEP_KEYS.find((key) => key === params.get(STEP_PARAM)) ?? "amount";
