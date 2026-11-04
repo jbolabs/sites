@@ -37,6 +37,14 @@ describe(hasRunFailed, () => {
     ).toBeTruthy();
   });
 
+  it("flags a dev server whose Vite child exited before it was ready", () => {
+    expect(
+      hasRunFailed(
+        "[Website] fail (local) — Vite child exited with code 1 before becoming ready (152ms)\nalchemy dev: apply failed; keeping dev alive so healthy resources keep serving."
+      )
+    ).toBeTruthy();
+  });
+
   it("lets a boot that is still starting keep polling", () => {
     expect(
       hasRunFailed(

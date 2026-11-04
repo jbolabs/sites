@@ -59,10 +59,11 @@ const READY_TIMEOUT_MS = Number(process.env.APP_READY_TIMEOUT_MS ?? "120000");
  */
 const WEDGED = /FontFamilyNotFound|Invalid hook call|reading 'useState'/u;
 /**
- * `alchemy dev` logs this when the stack itself fails (an import, a missing
- * provider) and then idles until a file changes, so polling can never succeed.
+ * `alchemy dev` logs one of these when the stack fails to load (an import, a
+ * missing provider) or a resource fails to start (the Vite child exits), then
+ * idles until a file changes, so polling can never succeed.
  */
-const RUN_FAILED = /alchemy dev: run failed/u;
+const RUN_FAILED = /alchemy dev: (?:run|apply) failed/u;
 /** Restarts after a wedged boot, each on the cache the previous boot wrote. */
 const WEDGE_RESTARTS = 2;
 /** The first render after boot takes ~7 s; later rounds take ~20 ms, so poll tightly. */

@@ -10,7 +10,10 @@ import { Schema } from "effect";
 
 const TRACKED = [
   "alchemy",
+  "@alchemy.run/cloudflare",
   "@alchemy.run/frontend-frameworks",
+  "@alchemy.run/github",
+  "@alchemy.run/infisical",
   "emdash",
   "@emdash-cms/cloudflare",
 ] as const;

@@ -7,15 +7,18 @@
       "packages/*"
     ],
     "catalog": {
-      "@alchemy.run/frontend-frameworks": "2.0.0-beta.82",
+      "@alchemy.run/cloudflare": "2.0.0-beta.84",
+      "@alchemy.run/frontend-frameworks": "2.0.0-beta.84",
+      "@alchemy.run/github": "2.0.0-beta.84",
+      "@alchemy.run/infisical": "2.0.0-beta.84",
       "@astrojs/check": "0.9.10",
       "@astrojs/cloudflare": "14.3.3",
       "@astrojs/react": "6.0.6",
       "@base-ui/react": "1.8.0",
       "@cloudflare/workers-types": "5.20261005.1",
-      "@effect/platform-bun": "4.0.4",
-      "@effect/platform-node": "4.0.4",
-      "@effect/vitest": "4.0.4",
+      "@effect/platform-bun": "4.0.6",
+      "@effect/platform-node": "4.0.6",
+      "@effect/vitest": "4.0.6",
       "@eisbachcode/emdash-plugin-analytics": "0.3.1",
       "@emdash-cms/cloudflare": "1.1.0",
       "@emnapi/core": "1.11.3",
@@ -26,11 +29,11 @@
       "@types/bun": "1.4.2",
       "@types/react": "19.2.18",
       "@types/react-dom": "19.2.7",
-      "alchemy": "2.0.0-beta.82",
+      "alchemy": "2.0.0-beta.84",
       "astro": "7.3.5",
       "class-variance-authority": "0.7.1",
       "clsx": "2.1.1",
-      "effect": "4.0.4",
+      "effect": "4.0.6",
       "emdash": "1.1.0",
       "lucide-react": "1.52.0",
       "react": "19.2.4",
@@ -85,6 +88,8 @@
     "verify:ci": "node scripts/ci/verify-ci.ts"
   },
   "devDependencies": {
+    "@alchemy.run/cloudflare": "catalog:",
+    "@alchemy.run/github": "catalog:",
     "@cloudflare/workers-types": "catalog:",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
@@ -113,7 +118,7 @@
     "vitest": "catalog:"
   },
   "overrides": {
-    "@effect/platform-node-shared": "4.0.4"
+    "@effect/platform-node-shared": "4.0.6"
   },
   "engines": {
     "bun": ">=1.4.2"
