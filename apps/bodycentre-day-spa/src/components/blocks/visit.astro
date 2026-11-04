@@ -1,0 +1,49 @@
+---
+import type { BlockComponentProps } from "emdash/ui";
+
+import ButtonLink from "@/components/button-link.astro";
+import Fill from "@/components/fill.astro";
+import type { HomeContentVisitBlock } from "../../../emdash-env";
+import { site } from "../../../site.config";
+
+type Props = BlockComponentProps<HomeContentVisitBlock>;
+
+const { value } = Astro.props;
+const { address, bookingUrl, mapUrl, telephone } = site.business;
+---
+
+<section id="visit" class="bg-stone py-20 sm:py-28">
+  <div class="container-page">
+    <div class="max-w-2xl" data-reveal>
+      <h2 class="text-4xl sm:text-5xl"><Fill text={value.headline} /></h2>
+      {value.intro && <p class="mt-4 text-lg leading-relaxed text-muted-foreground"><Fill text={value.intro} /></p>}
+    </div>
+    <div class="mt-12 grid gap-6 lg:grid-cols-2">
+      <div class="rounded-xl bg-card p-6 sm:p-8" data-reveal>
+        <h3 class="text-2xl">Hours</h3>
+        <dl class="mt-4 divide-y divide-border">
+          {value.hours.map((row) => (
+            <div class="flex justify-between gap-4 py-3">
+              <dt><Fill text={row.days} /></dt>
+              <dd class="text-right text-slate lining-nums"><Fill text={row.time} /></dd>
+            </div>
+          ))}
+        </dl>
+        {value.note && <p class="mt-4 text-sm leading-relaxed text-muted-foreground"><Fill text={value.note} /></p>}
+      </div>
+      <div class="flex flex-col rounded-xl bg-card p-6 sm:p-8" data-reveal style="--i: 1">
+        <h3 class="text-2xl">Find us</h3>
+        <address class="mt-4 text-lg leading-relaxed not-italic">
+          {site.name}<br />{address.street}<br />{address.city}, {address.region} {address.postalCode}
+        </address>
+        <p class="mt-4">
+          <a href={`tel:${telephone}`} class="text-lg text-slate underline decoration-border underline-offset-4 lining-nums">{site.phone}</a>
+        </p>
+        <div class="mt-auto grid gap-3 pt-6 sm:flex">
+          <ButtonLink href={mapUrl} target="_blank" rel="noopener" size="cta" variant="hairline">Get directions</ButtonLink>
+          <ButtonLink href={bookingUrl} size="cta">Book now</ButtonLink>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

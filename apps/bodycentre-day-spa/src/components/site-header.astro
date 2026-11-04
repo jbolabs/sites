@@ -1,0 +1,53 @@
+---
+import Phone from "@lucide/astro/icons/phone";
+
+import type { NavItem } from "@/lib/content";
+import MobileMenu from "@jakebodea/site-ui/mobile-menu";
+import { site } from "../../site.config";
+import ButtonLink from "./button-link.astro";
+import Logo from "./logo.astro";
+
+interface Props {
+  title: string;
+  items: readonly NavItem[];
+}
+
+const { items, title } = Astro.props;
+const { bookingUrl, telephone } = site.business;
+---
+
+<header class="site-header sticky top-0 z-40 border-b border-border/80 bg-background">
+  <div class="container-page flex h-18 items-center justify-between gap-4 sm:h-20">
+    <a href="/" class="shrink-0" aria-label={`${title}, home`}>
+      <Logo />
+    </a>
+    <nav aria-label="Main" class="hidden items-center gap-1 text-slate lg:flex">
+      {items.map((item) => (
+        <a href={item.url} class="rounded-full px-4 py-2.5 text-[0.95rem] transition-colors hover:bg-stone">{item.label}</a>
+      ))}
+      <a href={`tel:${telephone}`} class="ml-2 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[0.95rem] lining-nums transition-colors hover:bg-stone">
+        <Phone class="size-4" aria-hidden="true" />{site.phone}
+      </a>
+      <ButtonLink href={bookingUrl} size="cta" class="ml-2">Book now</ButtonLink>
+    </nav>
+    <div class="flex items-center gap-1 text-slate lg:hidden">
+      <a href={`tel:${telephone}`} class="inline-flex size-11 items-center justify-center rounded-full transition-colors hover:bg-stone" aria-label={`Call ${site.phone}`}>
+        <Phone class="size-5" aria-hidden="true" />
+      </a>
+      <MobileMenu
+        client:media="(max-width: 1023px)"
+        items={items.map((item) => ({ href: item.url, label: item.label }))}
+        currentPath={Astro.url.pathname}
+        classNames={{
+          overlay: "bg-background lg:hidden",
+          nav: "container-page pt-10",
+          link: "font-display text-5xl text-slate",
+          footer: "container-page grid gap-3",
+        }}
+      >
+        <ButtonLink href={bookingUrl} size="hero" class="w-full">Book now</ButtonLink>
+        <ButtonLink href={`tel:${telephone}`} size="hero" variant="hairline" class="w-full lining-nums">Call {site.phone}</ButtonLink>
+      </MobileMenu>
+    </div>
+  </div>
+</header>

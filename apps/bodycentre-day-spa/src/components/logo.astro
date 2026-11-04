@@ -1,0 +1,16 @@
+---
+/** The BodyCentre monogram (traced from brand/logo-reference.png) with the name set beside it. */
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<span class:list={["flex items-center gap-3", className]}>
+  <img src="/brand/mark.svg" alt="" width="48" height="48" class="size-11 sm:size-12" />
+  <span class="flex flex-col leading-none">
+    <span class="font-display text-[1.6rem] font-medium tracking-[0.04em] text-slate sm:text-[1.75rem]">BodyCentre</span>
+    <span class="mt-1 text-[0.8rem] text-muted-foreground">Day Spa · Costa Mesa</span>
+  </span>
+</span>

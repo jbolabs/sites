@@ -1,0 +1,35 @@
+---
+import Phone from "@lucide/astro/icons/phone";
+import type { BlockComponentProps } from "emdash/ui";
+import { sanitizeHref } from "emdash";
+
+import ButtonLink from "@/components/button-link.astro";
+import Fill from "@/components/fill.astro";
+import type { HomeContentClosingBlock } from "../../../emdash-env";
+import { site } from "../../../site.config";
+
+type Props = BlockComponentProps<HomeContentClosingBlock>;
+
+const { value } = Astro.props;
+const { bookingUrl, telephone } = site.business;
+---
+
+<section class="py-20 sm:py-28" data-cta>
+  <div class="container-page">
+    <div class="rounded-2xl bg-slate px-6 py-14 text-center text-ivory sm:px-12 sm:py-20" data-reveal>
+      <h2 class="mx-auto max-w-2xl text-4xl text-ivory sm:text-5xl"><Fill text={value.headline} /></h2>
+      {value.body && <p class="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-ivory/75"><Fill text={value.body} /></p>}
+      <div class="mt-9 grid gap-3 sm:flex sm:justify-center">
+        <ButtonLink href={bookingUrl} size="hero" variant="inverse"><Fill text={value.book_label} /></ButtonLink>
+        <ButtonLink href={`tel:${telephone}`} size="hero" variant="outline-inverse" class="lining-nums">
+          <Phone class="size-4" aria-hidden="true" />Call {site.phone}
+        </ButtonLink>
+      </div>
+      {value.second_label && value.second_url && (
+        <a href={sanitizeHref(value.second_url)} class="mt-7 inline-block text-ivory/80 underline decoration-ivory/30 underline-offset-4 transition-colors hover:text-ivory hover:decoration-ivory">
+          <Fill text={value.second_label} />
+        </a>
+      )}
+    </div>
+  </div>
+</section>
