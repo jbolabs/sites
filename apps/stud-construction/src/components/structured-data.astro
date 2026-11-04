@@ -4,6 +4,7 @@
  * WebSite graph; this adds the business itself. Unknown facts are omitted
  * rather than guessed (see site.config.ts).
  */
+import { BUSINESS_ID } from "@/lib/structured-data";
 import { site } from "../../site.config";
 
 interface Props {
@@ -14,10 +15,18 @@ const { origin } = Astro.props;
 const { business } = site;
 interface BusinessJsonLd {
   readonly "@context": string;
+  readonly "@id": string;
   readonly "@type": string;
   readonly address: Record<string, string>;
   readonly areaServed: readonly { "@type": string; name: string }[];
   readonly description: string;
+  readonly foundingDate: string;
+  readonly hasCredential: {
+    readonly "@type": "EducationalOccupationalCredential";
+    readonly credentialCategory: string;
+    readonly name: string;
+    readonly recognizedBy: { readonly "@type": string; readonly name: string };
+  };
   readonly image: string;
   readonly logo: string;
   readonly name: string;
@@ -30,6 +39,7 @@ interface BusinessJsonLd {
 
 const data: BusinessJsonLd = {
   "@context": "https://schema.org",
+  "@id": `${origin}${BUSINESS_ID}`,
   "@type": "GeneralContractor",
   address: {
     "@type": "PostalAddress",
@@ -44,6 +54,13 @@ const data: BusinessJsonLd = {
     name,
   })),
   description: site.description,
+  foundingDate: String(site.founded),
+  hasCredential: {
+    "@type": "EducationalOccupationalCredential",
+    credentialCategory: "license",
+    name: business.license,
+    recognizedBy: { "@type": "GovernmentOrganization", name: "Contractors State License Board" },
+  },
   image: `${origin}/og-default.png`,
   logo: `${origin}/brand/logo.png`,
   name: site.name,

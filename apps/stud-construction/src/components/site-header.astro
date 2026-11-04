@@ -21,9 +21,8 @@ const isActive = (url: string) =>
 
 <header class="sticky top-0 z-40 bg-background">
   <div class="container-page flex h-20 items-center justify-between gap-6 sm:h-24">
-    <a href="/" class="flex shrink-0 items-center gap-3.5" aria-label={`${title}, home`}>
-      <Logo class="h-12 w-auto sm:h-14" />
-      <span class="font-display text-[1.05rem] leading-[1.05] font-bold tracking-[-0.01em] text-ink uppercase" aria-hidden="true">Stud<br />Construction</span>
+    <a href="/" class="flex shrink-0 items-center" aria-label={`${title}, home`}>
+      <Logo class="h-14 w-auto sm:h-16" />
     </a>
     <nav aria-label="Main" class="hidden items-center gap-1 lg:flex">
       {items.map((item) => {

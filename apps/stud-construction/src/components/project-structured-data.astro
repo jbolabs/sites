@@ -1,0 +1,66 @@
+---
+/**
+ * A project as a schema.org CreativeWork: what was built, where, by whom, and
+ * its photos and Instagram posts. Search engines and AI answer engines read
+ * this to cite a project ("a whole-home remodel in Tustin by Stud
+ * Construction") without guessing from the layout. The builder is the
+ * GeneralContractor from `structured-data.astro`, linked by its `@id`.
+ */
+import { mediaPath } from "@jakebodea/cloudflare-kit/media";
+
+import type { MediaImage, Project } from "@/lib/content";
+import { BUSINESS_ID } from "@/lib/structured-data";
+
+interface Props {
+  project: Project;
+  url: string;
+  origin: string;
+  photos: readonly MediaImage[];
+  instagram: readonly string[];
+}
+
+const { instagram, origin, photos, project, url } = Astro.props;
+const location = (project.location ?? "").trim();
+const style = (project.design_style ?? "").trim();
+const summary = (project.summary ?? "").trim();
+interface ProjectJsonLd {
+  readonly "@context": "https://schema.org";
+  readonly "@id": string;
+  readonly "@type": "CreativeWork";
+  readonly creator: { readonly "@id": string };
+  readonly creativeWorkStatus: string;
+  readonly genre: string;
+  readonly image: readonly string[];
+  readonly name: string;
+  readonly url: string;
+  description?: string;
+  keywords?: string;
+  locationCreated?: { readonly "@type": "Place"; readonly name: string };
+  subjectOf?: readonly { readonly "@type": "SocialMediaPosting"; readonly url: string }[];
+}
+const data: ProjectJsonLd = {
+  "@context": "https://schema.org",
+  "@id": `${url}#project`,
+  "@type": "CreativeWork",
+  creativeWorkStatus: project.progress,
+  creator: { "@id": `${origin}${BUSINESS_ID}` },
+  genre: project.project_type,
+  image: photos.slice(0, 10).map((photo) => new URL(mediaPath(photo), origin).href),
+  name: project.title,
+  url,
+};
+if (summary !== "") {
+  data.description = summary;
+}
+if (location !== "") {
+  data.locationCreated = { "@type": "Place", name: location };
+}
+if (style !== "") {
+  data.keywords = style;
+}
+if (instagram.length > 0) {
+  data.subjectOf = instagram.map((link) => ({ "@type": "SocialMediaPosting", url: link }));
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(data)} />

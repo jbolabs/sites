@@ -84,15 +84,18 @@ export const getFeaturedProjects = async () => {
   };
 };
 
-export const PROJECT_TYPES = {
-  addition: "Addition",
-  bath: "Bath remodel",
-  commercial: "Commercial",
-  kitchen: "Kitchen remodel",
-  remodel: "Remodel",
-  restoration: "Fire and water restoration",
-  whole_home: "Whole-home remodel",
-} as const satisfies Record<Project["project_type"], string>;
+/**
+ * The search title for a project with no SEO title of its own, e.g.
+ * "Tuscan Abode, whole-home remodel in Tustin": what it is and where, which
+ * is what people search for.
+ */
+export const projectSearchTitle = (project: Project): string => {
+  const type = project.project_type.toLowerCase();
+  const place = (project.location ?? "").trim();
+  return place === ""
+    ? `${project.title}, ${type}`
+    : `${project.title}, ${type} in ${place}`;
+};
 
 /** External links (the client portal, social profiles) open in a new tab. */
 export const isExternal = (url: string) => /^https?:\/\//u.test(url);
@@ -101,12 +104,8 @@ export const projectFacts = (
   project: Project
 ): { label: string; value: string }[] =>
   [
-    { label: "Type", value: PROJECT_TYPES[project.project_type] },
-    {
-      label: "Status",
-      value:
-        project.progress === "in_progress" ? "Under construction" : "Completed",
-    },
+    { label: "Type", value: project.project_type },
+    { label: "Status", value: project.progress },
     { label: "Location", value: project.location },
     { label: "Style", value: project.design_style },
     { label: "Investment", value: project.cost },

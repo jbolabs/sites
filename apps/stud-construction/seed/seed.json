@@ -8,7 +8,7 @@
   },
   "settings": {
     "title": "Stud Construction",
-    "tagline": "Design-build remodeling in Orange County since 2009. Whole-home remodels, additions, kitchens, baths, and restoration.",
+    "tagline": "Design-build remodeling in Orange County since 2009. Whole-home remodels, additions, kitchens, and baths.",
     "timezone": "America/Los_Angeles"
   },
   "blockTypes": [
@@ -691,62 +691,26 @@
       "supports": ["drafts", "revisions", "preview", "search", "seo"],
       "urlPattern": "/projects/{slug}",
       "admin": {
-        "listColumns": ["project_type", "progress"]
+        "listColumns": ["project_type", "progress", "sort_order"]
       },
       "fields": [
         {
           "slug": "title",
-          "label": "Name",
+          "label": "Project name",
           "type": "string",
           "required": true,
           "searchable": true
         },
         {
-          "slug": "project_type",
-          "label": "Type",
-          "type": "select",
-          "required": true,
-          "indexed": true,
-          "validation": {
-            "options": [
-              "whole_home",
-              "remodel",
-              "addition",
-              "kitchen",
-              "bath",
-              "restoration",
-              "commercial"
-            ]
-          },
-          "defaultValue": "remodel"
-        },
-        {
-          "slug": "progress",
-          "label": "Status",
-          "type": "select",
-          "required": true,
-          "indexed": true,
-          "validation": {
-            "options": ["completed", "in_progress"]
-          },
-          "defaultValue": "completed"
-        },
-        {
-          "slug": "featured",
-          "label": "Show on the home page",
-          "type": "boolean",
-          "defaultValue": false
-        },
-        {
-          "slug": "sort_order",
-          "label": "Order (lower shows first)",
-          "type": "integer",
-          "defaultValue": 100
-        },
-        {
           "slug": "featured_image",
           "label": "Main photo",
           "type": "image"
+        },
+        {
+          "slug": "summary",
+          "label": "Short description",
+          "type": "text",
+          "searchable": true
         },
         {
           "slug": "gallery",
@@ -764,6 +728,50 @@
           }
         },
         {
+          "slug": "instagram",
+          "label": "Instagram posts or reels",
+          "type": "repeater",
+          "validation": {
+            "maxItems": 6,
+            "subFields": [
+              {
+                "slug": "url",
+                "label": "Instagram link",
+                "type": "url"
+              }
+            ]
+          }
+        },
+        {
+          "slug": "project_type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "indexed": true,
+          "validation": {
+            "options": [
+              "Whole-home remodel",
+              "Remodel",
+              "Addition",
+              "Kitchen remodel",
+              "Bath remodel",
+              "Commercial"
+            ]
+          },
+          "defaultValue": "Remodel"
+        },
+        {
+          "slug": "progress",
+          "label": "Status",
+          "type": "select",
+          "required": true,
+          "indexed": true,
+          "validation": {
+            "options": ["Completed", "Under construction"]
+          },
+          "defaultValue": "Completed"
+        },
+        {
           "slug": "location",
           "label": "Location",
           "type": "string"
@@ -775,22 +783,28 @@
         },
         {
           "slug": "cost",
-          "label": "Investment (optional, e.g. $250,000)",
+          "label": "Investment (optional, like $250,000)",
           "type": "string"
         },
         {
-          "slug": "summary",
-          "label": "Short description",
-          "type": "text",
-          "searchable": true
+          "slug": "details",
+          "label": "Full story (optional)",
+          "type": "portableText"
         },
         {
-          "slug": "details",
-          "label": "Story",
-          "type": "portableText"
+          "slug": "featured",
+          "label": "Show on the home page",
+          "type": "boolean",
+          "defaultValue": false
+        },
+        {
+          "slug": "sort_order",
+          "label": "Position in portfolio (lower shows first)",
+          "type": "integer",
+          "defaultValue": 100
         }
       ],
-      "description": "Your portfolio. Published projects appear on the website."
+      "description": "Your portfolio. Published projects show on the website, lowest position first."
     },
     {
       "slug": "leads",
@@ -968,7 +982,7 @@
     },
     {
       "source": "/project-category/fire-damage",
-      "destination": "/projects/spa-escape",
+      "destination": "/portfolio",
       "type": 301,
       "enabled": true,
       "groupName": "Old site"
@@ -1291,17 +1305,6 @@
                       "filename": "modern-hilltop-living-room.jpg"
                     }
                   }
-                },
-                {
-                  "title": "Fire and water restoration",
-                  "body": "We rebuild after fire, water, or mold damage and work directly with your insurance adjuster on your behalf.",
-                  "image": {
-                    "$media": {
-                      "url": "/_seed/media/spa-escape-soaking-tub.jpg",
-                      "alt": "Freestanding soaking tub with lit niche against a wave-textured tile wall",
-                      "filename": "spa-escape-soaking-tub.jpg"
-                    }
-                  }
                 }
               ]
             },
@@ -1437,7 +1440,7 @@
                     {
                       "_type": "span",
                       "_key": "s2",
-                      "text": "We still take disaster restoration work, and we still treat every project like it is our favorite one."
+                      "text": "We treat every project like it is our favorite one."
                     }
                   ]
                 }
@@ -1646,48 +1649,6 @@
             {
               "_type": "story",
               "_version": 1,
-              "_key": "restoration",
-              "headline": "Fire, water, and mold restoration",
-              "body": [
-                {
-                  "_type": "block",
-                  "style": "normal",
-                  "_key": "p0",
-                  "children": [
-                    {
-                      "_type": "span",
-                      "_key": "s0",
-                      "text": "Damage from a natural disaster, a structure fire, water, or mold is stressful enough. We deal with your insurance company for you: we meet the adjusters they send to the site and negotiate the most equitable settlement for your loss."
-                    }
-                  ]
-                },
-                {
-                  "_type": "block",
-                  "style": "normal",
-                  "_key": "p1",
-                  "children": [
-                    {
-                      "_type": "span",
-                      "_key": "s1",
-                      "text": "Then we coordinate everyone involved, rebuild your home, and, if you want, take the chance to create the space you have always wanted."
-                    }
-                  ]
-                }
-              ],
-              "image": {
-                "$media": {
-                  "url": "/_seed/media/spa-escape-soaking-tub.jpg",
-                  "alt": "Freestanding soaking tub with lit niche against a wave-textured tile wall",
-                  "filename": "spa-escape-soaking-tub.jpg"
-                }
-              },
-              "image_position": "left",
-              "cta_label": "Talk to us about a claim",
-              "cta_url": "/contact"
-            },
-            {
-              "_type": "story",
-              "_version": 1,
               "_key": "partners",
               "headline": "Your dream team, assembled",
               "body": [
@@ -1845,8 +1806,8 @@
                 },
                 {
                   "quote": "In February of 2016, we had a house fire and needed a general contractor/ remodel after careful review of about 30 different companies who came to my home to give me business cards. I chose STUD CONSTRUCTION. It was the best choice I could have made.\nThe day after the fire I had a waiting line of claims adjusters, lawyers and construction representatives at my door. Each company was told the same thing.\nJust leave me your card and I will check you out on BBB the California license board and the California court system for any lawsuits. Andrei and his company stood out as one of the best reviewed NO problems on any of those sights. Their initial representative had said to me “ YES check us out, by all means.”\nThe estimate went as well as can be expected. After we had 4 estimates Stud construction was closest to our insurance estimate almost to the dollar. We agreed to hire them and next day Andrei came out and had a thorough discussion of the project. Since we had to do this we also went with a lot of remodeling including two complete bathroom remodels. A kitchen remodels and removal of a load bearing wall this was in addition to the fire and smoke damage.\nAndrei and his designer Kurt were great throughout this whole process. Very helpful informative and knowledgeable. I cannot say enough about their professionalism or the quality of the work.\nThey worked within our time schedule and had all the permits and even dealt directly with our mortgage company and insurance company. Stud Construction went above and beyond meeting my expectations the project was done BEAUTIFULLY and correctly. Andrei and Kurt are great guys to work with. It was always like working WITH them every step of the way we made decisions together. They would input an idea or we would and a plan would be done to do what we all thought was best.",
-                  "name": "Fire restoration client",
-                  "detail": "House fire rebuild",
+                  "name": "Homeowner",
+                  "detail": "Rebuild after a house fire",
                   "rating": 5
                 }
               ],
@@ -1902,7 +1863,7 @@
               "_version": 1,
               "_key": "work",
               "headline": "Recent work",
-              "intro": "A few of the homes we have finished lately, from whole-home remodels to fire rebuilds.",
+              "intro": "A few of the homes we have finished lately, from whole-home remodels to kitchens and additions.",
               "link_label": "View the full portfolio"
             }
           ]
@@ -1994,8 +1955,8 @@
         "status": "published",
         "data": {
           "title": "Tuscan Abode",
-          "project_type": "whole_home",
-          "progress": "completed",
+          "project_type": "Whole-home remodel",
+          "progress": "Completed",
           "featured": true,
           "sort_order": 10,
           "featured_image": {
@@ -2062,8 +2023,8 @@
         "status": "published",
         "data": {
           "title": "Cottage View",
-          "project_type": "remodel",
-          "progress": "completed",
+          "project_type": "Remodel",
+          "progress": "Completed",
           "featured": true,
           "sort_order": 20,
           "featured_image": {
@@ -2129,8 +2090,8 @@
         "status": "published",
         "data": {
           "title": "Chic Beach House",
-          "project_type": "remodel",
-          "progress": "completed",
+          "project_type": "Remodel",
+          "progress": "Completed",
           "featured": true,
           "sort_order": 30,
           "featured_image": {
@@ -2196,8 +2157,8 @@
         "status": "published",
         "data": {
           "title": "Modern Hilltop",
-          "project_type": "remodel",
-          "progress": "completed",
+          "project_type": "Remodel",
+          "progress": "Completed",
           "featured": true,
           "sort_order": 40,
           "featured_image": {
@@ -2263,8 +2224,8 @@
         "status": "published",
         "data": {
           "title": "The Familial Place",
-          "project_type": "remodel",
-          "progress": "completed",
+          "project_type": "Remodel",
+          "progress": "Completed",
           "featured": true,
           "sort_order": 50,
           "featured_image": {
@@ -2331,8 +2292,8 @@
         "status": "published",
         "data": {
           "title": "Leeward",
-          "project_type": "addition",
-          "progress": "completed",
+          "project_type": "Addition",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 60,
           "featured_image": {
@@ -2400,8 +2361,8 @@
         "status": "published",
         "data": {
           "title": "Urban Orchard",
-          "project_type": "remodel",
-          "progress": "completed",
+          "project_type": "Remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 70,
           "featured_image": {
@@ -2496,8 +2457,8 @@
         "status": "published",
         "data": {
           "title": "Home Away from Home",
-          "project_type": "remodel",
-          "progress": "completed",
+          "project_type": "Remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 80,
           "featured_image": {
@@ -2563,8 +2524,8 @@
         "status": "published",
         "data": {
           "title": "Zen Den",
-          "project_type": "whole_home",
-          "progress": "completed",
+          "project_type": "Whole-home remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 90,
           "featured_image": {
@@ -2683,8 +2644,8 @@
         "status": "published",
         "data": {
           "title": "Book Lovers Dream",
-          "project_type": "whole_home",
-          "progress": "completed",
+          "project_type": "Whole-home remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 100,
           "featured_image": {
@@ -2750,8 +2711,8 @@
         "status": "published",
         "data": {
           "title": "Mid Century Escape",
-          "project_type": "whole_home",
-          "progress": "completed",
+          "project_type": "Whole-home remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 110,
           "featured_image": {
@@ -2818,8 +2779,8 @@
         "status": "published",
         "data": {
           "title": "Coastal Glam",
-          "project_type": "remodel",
-          "progress": "completed",
+          "project_type": "Remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 120,
           "featured_image": {
@@ -2885,8 +2846,8 @@
         "status": "published",
         "data": {
           "title": "Cool Suburban Living",
-          "project_type": "remodel",
-          "progress": "completed",
+          "project_type": "Remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 130,
           "featured_image": {
@@ -2953,8 +2914,8 @@
         "status": "published",
         "data": {
           "title": "Spa Escape",
-          "project_type": "restoration",
-          "progress": "completed",
+          "project_type": "Bath remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 140,
           "featured_image": {
@@ -3061,8 +3022,8 @@
         "status": "published",
         "data": {
           "title": "Sleek City House",
-          "project_type": "whole_home",
-          "progress": "completed",
+          "project_type": "Whole-home remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 150,
           "featured_image": {
@@ -3163,8 +3124,8 @@
         "status": "published",
         "data": {
           "title": "Hawley House",
-          "project_type": "kitchen",
-          "progress": "completed",
+          "project_type": "Kitchen remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 160,
           "featured_image": {
@@ -3221,8 +3182,8 @@
         "status": "published",
         "data": {
           "title": "Quaint Living",
-          "project_type": "remodel",
-          "progress": "completed",
+          "project_type": "Remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 170,
           "featured_image": {
@@ -3288,8 +3249,8 @@
         "status": "published",
         "data": {
           "title": "Pet Haven",
-          "project_type": "commercial",
-          "progress": "completed",
+          "project_type": "Commercial",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 180,
           "featured_image": {
@@ -3355,8 +3316,8 @@
         "status": "published",
         "data": {
           "title": "Bachelor Pad",
-          "project_type": "remodel",
-          "progress": "completed",
+          "project_type": "Remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 190,
           "featured_image": {
@@ -3414,8 +3375,8 @@
         "status": "published",
         "data": {
           "title": "RSM Restore",
-          "project_type": "remodel",
-          "progress": "completed",
+          "project_type": "Remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 200,
           "featured_image": {
@@ -3473,8 +3434,8 @@
         "status": "published",
         "data": {
           "title": "Newport Fire Rebuild",
-          "project_type": "restoration",
-          "progress": "completed",
+          "project_type": "Whole-home remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 210,
           "featured_image": {
@@ -3532,8 +3493,8 @@
         "status": "published",
         "data": {
           "title": "Mission Restore",
-          "project_type": "kitchen",
-          "progress": "completed",
+          "project_type": "Kitchen remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 220,
           "featured_image": {
@@ -3582,8 +3543,8 @@
         "status": "published",
         "data": {
           "title": "MV Kitchen",
-          "project_type": "kitchen",
-          "progress": "completed",
+          "project_type": "Kitchen remodel",
+          "progress": "Completed",
           "featured": false,
           "sort_order": 230,
           "featured_image": {
