@@ -23,7 +23,12 @@ import {
 } from "./assistant/affinity.ts";
 import { streamAgent } from "./assistant/agent.ts";
 import { connectEmDashMcp } from "./assistant/mcp.ts";
-import { offlineAdapter, workersAiAdapter } from "./assistant/model.ts";
+import {
+  assistantGateway,
+  decodeGatewayEnv,
+  offlineAdapter,
+  workersAiAdapter,
+} from "./assistant/model.ts";
 import type { WorkersAiBinding } from "./assistant/model.ts";
 import { describePhotoTool } from "./assistant/photo.ts";
 import type { Photo } from "./assistant/photo.ts";
@@ -95,11 +100,6 @@ const handleAssistantTurn: APIRoute = async (context) => {
     Predicate.hasProperty(env, "AI") && isWorkersAi(env.AI)
       ? env.AI
       : undefined;
-  const gatewayId =
-    Predicate.hasProperty(env, "AI_GATEWAY_ID") &&
-    Predicate.isString(env.AI_GATEWAY_ID)
-      ? env.AI_GATEWAY_ID
-      : "";
   const adapter =
     binding === undefined
       ? offlineAdapter(entry?.collection ?? "pages")
@@ -112,7 +112,9 @@ const handleAssistantTurn: APIRoute = async (context) => {
               params.threadId
             )
           ),
-          gatewayId,
+          gateway: Option.getOrUndefined(
+            Option.map(decodeGatewayEnv(env), assistantGateway)
+          ),
           model: assistant.model ?? DEFAULT_ASSISTANT_MODEL,
         });
 

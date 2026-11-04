@@ -4,6 +4,13 @@ A monorepo of client marketing sites. Each site is an Astro + EmDash CMS app on 
 
 Current choices: [docs/stack.md](docs/stack.md). Why each one-way choice was made: [docs/adr/](docs/adr/). Domain terms: [CONTEXT.md](CONTEXT.md).
 
+## Product bar
+
+Build every app and site to the bar of Linear's website or Apple Notes: simple purpose, simple architecture, simple design, simple implementation.
+
+- Cut taglines, helper text and secondary labels. If a screen needs them to make sense, fix the layout.
+- Every decision should improve user experience (UX), developer experience (DX) and agent experience (AX) at once, without breaking anything.
+
 ## Map
 
 | Path | What lives there |
@@ -16,7 +23,7 @@ Current choices: [docs/stack.md](docs/stack.md). Why each one-way choice was mad
 | `packages/control-app` | `bun run app -- …`: run, sign in, screenshot, record, smoke-test a site |
 | `packages/proof` | `bun run proof -- …`: revision-bound proof receipts |
 | `packages/config` | tsconfig + strict oxlint/oxfmt presets + local lint rules |
-| `stacks/` | Repo-level Alchemy stacks: `github.ts` (CI control plane), `turbo-cache.ts` (remote cache). The jbolabs.com site, domain and email live in the separate `jbolabs` repo |
+| `stacks/` | Repo-level Alchemy stacks: `github.ts` (CI control plane), `turbo-cache.ts` (remote cache), `assistant-gateways.ts` (the CMS assistant's shared AI Gateways). The jbolabs.com site, domain and email live in the separate `jbolabs` repo |
 | `scripts/ci/` | Logic the GitHub workflows call (tested TypeScript, thin YAML) |
 | `docs/` | `stack.md` (current choices), `adr/` (one dated record per decision, from `adr/template.md`) |
 
