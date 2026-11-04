@@ -24,7 +24,8 @@ import {
  *
  *   D1 (EmDash content) + R2 (media) + Images binding + session KV (auto)
  *   + Turnstile widget + every-minute cron (EmDash scheduled publishing)
- *   + Workers AI + AI Gateway for the CMS assistant (deployed stages only)
+ *   + Workers AI for the CMS assistant, through the stage's shared AI Gateway
+ *   (`stacks/assistant-gateways.ts`; deployed stages only)
  *   prod only: custom domain, retained backups bucket + daily backup cron,
  *   the agency's Tag Manager container behind Cloudflare's Google tag gateway,
  *   equityfast.homes registered for sending application emails
@@ -100,7 +101,7 @@ export default Alchemy.Stack(
           mode: "managed",
           name: stage.workerName,
         });
-    // CMS assistant: Workers AI behind a rate-limited AI Gateway (no model in offline dev).
+    // CMS assistant: Workers AI behind the stage's shared AI Gateway (no model in offline dev).
     const assistant = yield* assistantAi(stage);
     // Applications (and Flow AG alerts) come from the client's domain on prod; CMS mail stays on the studio sender.
     const leadFrom = yield* clientSender(stage, site.leadSender);

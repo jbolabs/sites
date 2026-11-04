@@ -31,4 +31,10 @@ export {
 export { TURNSTILE_TEST_KEYS } from "./turnstile.ts";
 export { cmsCrons } from "./cms-crons.ts";
 export { siteState } from "./state.ts";
-export { assistantAi, ASSISTANT_RATE_LIMIT } from "./assistant-ai.ts";
+export {
+  assistantAi,
+  assistantGatewayTier,
+  ASSISTANT_GATEWAYS,
+  ASSISTANT_RATE_LIMIT,
+} from "./assistant-ai.ts";
+export type { AssistantGatewayTier } from "./assistant-ai.ts";
