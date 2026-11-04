@@ -3,7 +3,11 @@ import { useCallback, useState } from "react";
 import type { KeyboardEvent } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
 import { cn } from "@/lib/utils";
 
 interface GalleryImage {
@@ -24,7 +28,8 @@ const isPortrait = (image: GalleryImage) => image.height > image.width;
 
 /**
  * The rest of a project's photos as an editorial grid; any photo opens a
- * full-screen viewer with keyboard and button navigation.
+ * full-screen viewer (a bottom sheet on phones) with keyboard and button
+ * navigation.
  */
 const ProjectGallery = ({ images, title }: ProjectGalleryProps) => {
   const [selected, setSelected] = useState<number>();
@@ -83,7 +88,7 @@ const ProjectGallery = ({ images, title }: ProjectGalleryProps) => {
           </li>
         ))}
       </ul>
-      <Dialog
+      <ResponsiveDialog
         open={current !== undefined}
         onOpenChange={(open) => {
           if (!open) {
@@ -92,19 +97,15 @@ const ProjectGallery = ({ images, title }: ProjectGalleryProps) => {
         }}
       >
         {current !== undefined && selected !== undefined && (
-          <DialogContent
-            variant="lightbox"
-            className="max-w-[calc(100%-1rem)] sm:max-w-6xl"
-            onKeyDown={onKeyDown}
-          >
-            <DialogTitle variant="lightbox">
+          <ResponsiveDialogContent variant="lightbox" onKeyDown={onKeyDown}>
+            <ResponsiveDialogTitle variant="lightbox">
               {title}
               {count > 1 && (
                 <span className="ml-3 font-sans text-sm font-light text-white/60">
                   {selected + 1} of {count}
                 </span>
               )}
-            </DialogTitle>
+            </ResponsiveDialogTitle>
             <img
               src={current.src}
               srcSet={current.srcSet}
@@ -138,9 +139,9 @@ const ProjectGallery = ({ images, title }: ProjectGalleryProps) => {
                 </Button>
               </div>
             )}
-          </DialogContent>
+          </ResponsiveDialogContent>
         )}
-      </Dialog>
+      </ResponsiveDialog>
     </>
   );
 };

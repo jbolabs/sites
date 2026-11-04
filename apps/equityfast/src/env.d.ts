@@ -32,6 +32,8 @@ declare global {
       PUBLIC_HTML_CACHE_TTL_SECONDS: string;
       TURNSTILE_SITE_KEY: string;
       TURNSTILE_SECRET_KEY: string;
+      /** Flow AG (E Mortgage Capital's CRM) accept-lead key; empty except on prod. */
+      FLOW_AG_API_KEY: string;
     }
   }
 
@@ -42,5 +44,7 @@ declare module "react" {
   /** CSS custom properties islands set inline for dynamic values (see `scale-x-(--share)`). */
   interface CSSProperties {
     "--share"?: number;
+    /** The centered dialog.s measured content height (`AutoHeight`). */
+    "--auto-height"?: string;
   }
 }

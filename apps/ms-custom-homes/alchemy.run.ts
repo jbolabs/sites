@@ -23,7 +23,8 @@ import {
  *
  *   D1 (EmDash content) + R2 (media) + Images binding + session KV (auto)
  *   + Turnstile widget + every-minute cron (EmDash scheduled publishing)
- *   + Workers AI + AI Gateway for the CMS assistant (deployed stages only)
+ *   + Workers AI for the CMS assistant, through the stage's shared AI Gateway
+ *   (`stacks/assistant-gateways.ts`; deployed stages only)
  *   prod only: custom domain, retained backups bucket + daily backup cron
  *
  * Deploy: `bun alchemy deploy --stage <stage> --profile <profile>` from this
@@ -96,7 +97,7 @@ export default Alchemy.Stack(
           mode: "managed",
           name: stage.workerName,
         });
-    // CMS assistant: Workers AI behind a rate-limited AI Gateway (no model in offline dev).
+    // CMS assistant: Workers AI behind the stage's shared AI Gateway (no model in offline dev).
     const assistant = yield* assistantAi(stage);
     const bindings = {
       ...(yield* webAnalytics(stage)),

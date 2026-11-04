@@ -4,14 +4,20 @@ export {
   LeadAnswer,
   LeadMail,
   LeadMailFromConfig,
+  LeadNotice,
   MAX_LEAD_ANSWERS,
-  isEmailAddress,
   leadInboxConfig,
   leadNotificationText,
   leadFailureText,
   submitContact,
 } from "./contact.ts";
-export type { ContactRequest, LeadFailure, LeadMailRoutes } from "./contact.ts";
+export { isEmailAddress } from "../contact-rules.ts";
+export type {
+  ContactRequest,
+  LeadFailure,
+  LeadMailRoutes,
+  LeadNotification,
+} from "./contact.ts";
 export {
   Email,
   EmailFailed,

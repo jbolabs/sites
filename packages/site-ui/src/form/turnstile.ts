@@ -1,17 +1,24 @@
-/** Loads Cloudflare Turnstile on demand and renders a widget into an element. */
+/** Loads Cloudflare Turnstile once, on demand, for every form on the page. */
 
-interface TurnstileApi {
-  readonly render: (
-    element: HTMLElement,
-    options: {
-      sitekey: string;
-      callback: (token: string) => void;
-      "expired-callback": () => void;
-      "error-callback": () => void;
-      size: "flexible";
-      theme: "light";
-    }
-  ) => string;
+export interface TurnstileOptions {
+  sitekey: string;
+  callback: (token: string) => void;
+  "expired-callback": () => void;
+  "error-callback": () => void;
+  /**
+   * `auto` swaps an expired token (they last 300 s) for a fresh one without
+   * the visitor doing anything, so a widget solved early in a long form still
+   * holds a valid token at submit.
+   */
+  "refresh-expired": "auto" | "manual" | "never";
+  size: "flexible";
+  theme: "light";
+  /** Widget language, e.g. `es`; Turnstile otherwise follows the browser. */
+  language?: string;
+}
+
+export interface TurnstileApi {
+  readonly render: (element: HTMLElement, options: TurnstileOptions) => string;
   readonly remove: (widgetId: string) => void;
   /** Clears a solved widget so it issues a fresh token (tokens are single use). */
   readonly reset: (widgetId: string) => void;
@@ -26,7 +33,7 @@ declare global {
 const SCRIPT_URL =
   "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
-let loading: Promise<TurnstileApi> | undefined;
+let loading: Promise<TurnstileApi> | null = null;
 
 const injectScript = async (): Promise<TurnstileApi> => {
   const { promise, reject, resolve } = Promise.withResolvers<TurnstileApi>();
@@ -41,10 +48,11 @@ const injectScript = async (): Promise<TurnstileApi> => {
     }
   });
   script.addEventListener("error", () => {
+    // A blocked or failed load must not stick: the next form to mount tries again.
+    loading = null;
     reject(new Error("Turnstile failed to load"));
   });
-  // oxlint-disable-next-line unicorn/prefer-modern-dom-apis -- `append` is shadowed by workers-types' HTMLRewriter Element in this shared tsconfig.
-  document.head.insertAdjacentElement("beforeend", script);
+  document.head.append(script);
   return await promise;
 };
 

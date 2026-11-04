@@ -2,13 +2,18 @@
   "action": "apply",
   "body": {
     "amount": "$75,000",
+    "birthDate": "01/15/1980",
     "consent": true,
     "email": "smoke@example.com",
     "firstName": "Smoke",
     "forSale": "No",
+    "income": "$140,000",
+    "incomeSource": "Employment",
     "lastName": "Test",
     "locale": "en",
+    "mortgageBalance": "$250,000",
     "occupancy": "Primary residence",
+    "otherIncome": "$0",
     "ownership": "Sole owner",
     "phone": "(714) 555-0123",
     "propertyAddress": {
