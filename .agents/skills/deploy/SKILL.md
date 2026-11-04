@@ -15,7 +15,7 @@ Always get the user's go-ahead before deploying or destroying anything.
 | `pr-<n>` | CI on same-repo PRs labeled `preview`, affected sites only | Destroyed on label removal or PR close; janitor sweeps leftovers daily |
 | `client-pr-<n>` | Same-repo PR with `client-preview`, after required checks | `<app>-preview-<n>.jbolabs.com`; label removal/PR close destroys recorded resources; daily reconciliation retries |
 | named preview | `cd apps/<site> && ALCHEMY_PROFILE=admin bun alchemy deploy --stage <name>` | Ad-hoc demos; destroy when done |
-| `staging` | CI on merge to `main`, every affected app | Persistent `<app>-staging.jbolabs.com`, separate seeded CMS data |
+| `staging` | CI on merge to `main`, every affected app plus any whose last release failed (ADR 0012); `workflow_dispatch` releases named sites | Persistent `<app>-staging.jbolabs.com`, separate seeded CMS data |
 | `prod` | CI on merge to `main`, apps with `site.domain` only | Deploys alongside staging; the stack refuses domainless prod |
 
 ```bash
@@ -55,6 +55,7 @@ Known causes: seed images missing on deployed stages came from Workers' same-zon
 ```bash
 ALCHEMY_PROFILE=admin bun alchemy deploy stacks/github.ts --stage ci          # environments, ruleset, deploy tokens
 ALCHEMY_PROFILE=admin bun alchemy deploy stacks/turbo-cache.ts --stage shared # remote cache + TURBO_* in GitHub
+ALCHEMY_PROFILE=admin bun alchemy deploy stacks/assistant-gateways.ts --stage shared # CMS assistant AI Gateways, before any site deploy uses them
 ```
 
 Rotate deploy tokens: bump `deployTokens.generation` in `stacks/config.ts`, redeploy `stacks/github.ts`.
