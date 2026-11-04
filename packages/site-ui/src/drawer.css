@@ -6,30 +6,59 @@
  *
  * Phones get a drawer instead of a centered dialog (`ResponsiveDialog`), so
  * the sheet rises from the edge the thumb is on and swipes away. Colors and
- * padding stay with each site's variants; this file owns the motion.
+ * padding stay with each site's variants; this file owns shape and motion.
  *
- * The popup runs `--drawer-bleed` past the bottom of the screen so a fast
- * swipe or an overshoot never shows a gap under it. 450ms on the iOS sheet
- * curve, the drawer timing Base UI and Emil Kowalski's guidance agree on.
+ * The sheet floats like an iOS sheet: a fully rounded card inset from the
+ * screen edges, lifted by a soft shadow over a dimmed page. Its height eases
+ * to fit its content (`useDrawerHeight` from `@jakebodea/site-ui/drawer`),
+ * so a multi-step form grows and shrinks between steps instead of jumping.
+ * 450ms on the iOS sheet curve, the drawer timing Base UI and Emil
+ * Kowalski's guidance agree on.
  */
 :root {
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --drawer-inset: 0.5rem;
+  --drawer-radius: 2rem;
 }
 
 .drawer-backdrop {
   position: fixed;
   inset: 0;
   z-index: 50;
-  min-height: 100dvh;
-  background-color: rgb(0 0 0 / 0.3);
+  background-color: rgb(0 0 0 / 0.45);
   opacity: calc(1 - var(--drawer-swipe-progress, 0));
   transition: opacity 450ms var(--ease-drawer);
 }
 
-/* iOS 26+: cover the whole visible viewport, toolbar included. */
+/*
+ * iOS Safari 26+ floats its toolbar over the page and draws the page under
+ * it, but cuts fixed elements off at the toolbar's top edge. A fixed sheet
+ * also makes Safari paint a flat white bar behind the toolbar, so the dim
+ * stops short of the screen edge. Absolute layers avoid both. They anchor
+ * to the document, so `pinDrawerToPage` (`@jakebodea/site-ui/drawer`) moves
+ * them to where the page was scrolled when the sheet opened; the scroll
+ * lock keeps it there. The backdrop runs past the toolbar; the viewport
+ * stops at the visible area so the sheet sits above it.
+ *
+ * Known and accepted: the slide-in carries the white card under the toolbar,
+ * and Safari keeps that color for its bar while the sheet is open. Only an
+ * open without a slide avoids it (tested on iOS 27); the slide is the call.
+ */
 @supports (-webkit-touch-callout: none) {
-  .drawer-backdrop {
+  .drawer-backdrop,
+  .drawer-viewport {
     position: absolute;
+    top: var(--drawer-page-top, 0px);
+  }
+
+  .drawer-backdrop {
+    bottom: auto;
+    height: 150lvh;
+  }
+
+  /* Exactly the visible area: any taller and Safari brings the bar back. */
+  .drawer-viewport {
+    bottom: calc(-1 * var(--drawer-page-top, 0px));
   }
 }
 
@@ -53,30 +82,55 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  padding: var(--drawer-inset);
+  padding-top: max(var(--drawer-inset), env(safe-area-inset-top, 0px));
+  /*
+   * Rides on top of the software keyboard, as an iOS sheet does. Without
+   * this the keyboard covers the sheet's lower half and Base UI scrolls the
+   * focused field into the strip above it, pushing the question off the top
+   * and the Continue button under the keys. `--drawer-keyboard-inset` comes
+   * from `Drawer.VirtualKeyboardProvider` and is 0 with the keyboard down.
+   */
+  padding-bottom: calc(var(--drawer-inset) + var(--drawer-keyboard-inset, 0px));
+  transition: padding-bottom 300ms var(--ease-drawer);
 }
 
 .drawer-popup {
-  --drawer-bleed: 3rem;
   position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: calc(100dvh - 1.5rem + var(--drawer-bleed));
-  margin-bottom: calc(-1 * var(--drawer-bleed));
-  padding-bottom: calc(var(--drawer-bleed) + env(safe-area-inset-bottom, 0px));
-  border-radius: 1.5rem 1.5rem 0 0;
+  max-height: 100%;
+  /*
+   * The home indicator sits over the card's bottom edge, as on iOS. With the
+   * keyboard up there is no indicator below the card, so the inset (hundreds
+   * of px) takes the padding to 0.
+   */
+  padding-bottom: max(
+    0px,
+    env(safe-area-inset-bottom, 0px) - 1rem - var(--drawer-keyboard-inset, 0px)
+  );
+  overflow: hidden;
+  border-radius: var(--drawer-radius);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.04),
+    0 2px 6px rgb(0 0 0 / 0.06),
+    0 24px 64px -8px rgb(0 0 0 / 0.35);
   outline: 0;
-  transform: translateY(var(--drawer-swipe-movement-y, 0px));
+  /*
+   * No transform at rest: a transformed sheet also brings back Safari's
+   * white toolbar bar. It only moves while opening, closing, or dragged.
+   */
   transition: transform 450ms var(--ease-drawer);
-  will-change: transform;
 }
 
 .drawer-popup[data-starting-style],
 .drawer-popup[data-ending-style] {
-  transform: translateY(calc(100% - var(--drawer-bleed) + 2px));
+  transform: translateY(calc(100% + var(--drawer-inset) + 2rem));
 }
 
 .drawer-popup[data-swiping] {
+  transform: translateY(var(--drawer-swipe-movement-y, 0px));
   user-select: none;
 }
 
@@ -84,26 +138,20 @@
   transition-duration: calc(var(--drawer-swipe-strength, 1) * 400ms);
 }
 
-/* The grab handle: tells the visitor the sheet swipes away. */
-.drawer-handle {
-  flex-shrink: 0;
-  width: 2.75rem;
-  height: 0.3125rem;
-  margin: 0.625rem auto 0;
-  border-radius: 999px;
-  background-color: currentColor;
-  opacity: 0.2;
-}
-
+/*
+ * Holds the measured height. It shrinks (and scrolls) when the content is
+ * taller than the screen allows.
+ */
 .drawer-body {
   min-height: 0;
-  flex: 1;
+  flex: 0 1 auto;
   overflow-y: auto;
   overscroll-behavior: contain;
   touch-action: auto;
+  transition: height 450ms var(--ease-drawer);
 }
 
-/* Reduced motion: the sheet fades in place instead of sliding. */
+/* Reduced motion: the sheet fades in place and resizes at once. */
 @media (prefers-reduced-motion: reduce) {
   .drawer-popup {
     transition: opacity 200ms ease;
@@ -113,5 +161,10 @@
   .drawer-popup[data-ending-style] {
     opacity: 0;
     transform: none;
+  }
+
+  .drawer-viewport,
+  .drawer-body {
+    transition: none;
   }
 }

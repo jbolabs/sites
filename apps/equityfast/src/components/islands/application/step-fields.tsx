@@ -432,6 +432,25 @@ const StepFields = ({
         />
       );
     }
+    case "mortgageBalance": {
+      return (
+        <TextInput
+          form={form}
+          field="mortgageBalance"
+          label={
+            <>
+              {t.mortgageBalance}{" "}
+              <span className="text-graphite text-sm font-normal">
+                ({t.optional})
+              </span>
+            </>
+          }
+          help={t.mortgageBalanceHelp}
+          format={formatDollars}
+          extra={{ inputMode: "numeric", placeholder: "$250,000" }}
+        />
+      );
+    }
     case "income": {
       return (
         <div className="grid gap-5">

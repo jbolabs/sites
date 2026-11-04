@@ -1,14 +1,16 @@
 "use client";
 
 import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer";
+import { pinDrawerToPage, useDrawerHeight } from "@jakebodea/site-ui/drawer";
 import { XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /**
- * A bottom sheet (Base UI Drawer) in shadcn's shape. The motion lives in
- * `@jakebodea/site-ui/drawer.css`; variants here set color and spacing.
+ * A floating bottom sheet (Base UI Drawer) in shadcn's shape. The motion and
+ * shape live in `@jakebodea/site-ui/drawer.css`, and its height follows the
+ * content (`useDrawerHeight`); variants here set color and spacing.
  * Phones reach this through `ResponsiveDialog` rather than directly.
  */
 function Drawer({ ...props }: DrawerPrimitive.Root.Props) {
@@ -22,12 +24,12 @@ function DrawerClose({ ...props }: DrawerPrimitive.Close.Props) {
 const drawerContentVariants = {
   default: "bg-popover text-popover-foreground",
   /** The multi-step application on phones. */
-  application: "bg-white text-ink shadow-2xl",
+  application: "bg-white text-ink",
 } as const;
 
 const drawerBodyVariants = {
-  default: "px-4 pt-3 pb-4",
-  application: "px-5 pt-3 pb-5",
+  default: "p-4",
+  application: "p-5",
 } as const;
 
 function DrawerContent({
@@ -43,15 +45,20 @@ function DrawerContent({
   closeLabel?: string;
   variant?: keyof typeof drawerContentVariants;
 }) {
+  const { measure, style } = useDrawerHeight();
   return (
     // Keeps the focused field above the software keyboard in form sheets.
     <DrawerPrimitive.VirtualKeyboardProvider>
       <DrawerPrimitive.Portal>
         <DrawerPrimitive.Backdrop
+          ref={pinDrawerToPage}
           data-slot="drawer-overlay"
           className="drawer-backdrop"
         />
-        <DrawerPrimitive.Viewport className="drawer-viewport">
+        <DrawerPrimitive.Viewport
+          ref={pinDrawerToPage}
+          className="drawer-viewport"
+        >
           <DrawerPrimitive.Popup
             data-slot="drawer-content"
             className={cn(
@@ -61,19 +68,22 @@ function DrawerContent({
             )}
             {...props}
           >
-            <div className="drawer-handle" aria-hidden="true" />
-            <DrawerPrimitive.Content
-              className={cn("drawer-body", drawerBodyVariants[variant])}
-            >
-              {children}
-            </DrawerPrimitive.Content>
+            <div className="drawer-body" style={style}>
+              <DrawerPrimitive.Content
+                ref={measure}
+                className={drawerBodyVariants[variant]}
+              >
+                {children}
+              </DrawerPrimitive.Content>
+            </div>
             {showCloseButton && (
               <DrawerPrimitive.Close
                 data-slot="drawer-close"
                 render={
                   <Button
                     variant="ghost"
-                    className="absolute top-3 right-3"
+                    // Above and opaque, so a pinned header or scrolled body passes under it.
+                    className="absolute top-3 right-3 z-20 bg-inherit"
                     size="icon-sm"
                   />
                 }

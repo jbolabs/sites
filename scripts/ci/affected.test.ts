@@ -19,8 +19,8 @@ describe(affectedSites, () => {
     expect(affectedSites(["bun.lock"], sites)).toStrictEqual(every);
   });
 
-  it("verifies every site but deploys none when only verification tooling changes", () => {
-    const verifyOnly = { deploy: [], verify: sites };
+  it("verifies only the canary site and deploys none when only verification tooling changes", () => {
+    const verifyOnly = { deploy: [], verify: ["access-electric"] };
     expect(affectedSites(["lighthouserc.json"], sites)).toStrictEqual(
       verifyOnly
     );
@@ -30,6 +30,24 @@ describe(affectedSites, () => {
     expect(affectedSites(["scripts/ci/local-verify.ts"], sites)).toStrictEqual(
       verifyOnly
     );
+  });
+
+  it("verifies the reference site as the canary when it exists", () => {
+    expect(
+      affectedSites(
+        ["scripts/ci/lighthouse.ts"],
+        ["ani-wenger", "equityfast", "ms-custom-homes"]
+      )
+    ).toStrictEqual({ deploy: [], verify: ["ms-custom-homes"] });
+  });
+
+  it("neither verifies nor deploys any site when only a deploy or housekeeping script changes", () => {
+    expect(
+      affectedSites(
+        ["scripts/ci/migrate.ts", "scripts/ci/janitor.ts"],
+        ["ani-wenger", "ms-custom-homes"]
+      )
+    ).toStrictEqual({ deploy: [], verify: [] });
   });
 
   it("deploys only the changed app when tooling changes alongside it", () => {
@@ -178,7 +196,7 @@ describe("built-output pruning", () => {
           head: { "access-electric": "same", "ms-homes": "same" },
         }
       )
-    ).toStrictEqual({ deploy: [], verify: ["access-electric", "ms-homes"] });
+    ).toStrictEqual({ deploy: [], verify: ["access-electric"] });
   });
 
   it("keeps all sites when shared runtime output changes", () => {

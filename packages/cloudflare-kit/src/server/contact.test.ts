@@ -91,11 +91,13 @@ describe(ContactForm, () => {
 
   it("caps the number of intake answers", () => {
     const answer = { answer: "Under $5k", question: "Budget" };
-    const tooMany = Schema.decodeUnknownExit(ContactForm)({
-      ...form,
-      answers: Array.from({ length: 13 }, () => answer),
-    });
-    expect(Exit.isFailure(tooMany)).toBeTruthy();
+    const decode = (length: number) =>
+      Schema.decodeUnknownExit(ContactForm)({
+        ...form,
+        answers: Array.from({ length }, () => answer),
+      });
+    expect(Exit.isSuccess(decode(16))).toBeTruthy();
+    expect(Exit.isFailure(decode(17))).toBeTruthy();
   });
 });
 

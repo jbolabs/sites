@@ -52,6 +52,7 @@ const en = {
       email: "Enter a valid email address, like you@email.com.",
       income: "Enter your yearly income before taxes, in dollars.",
       incomeSource: "Choose your main source of income.",
+      mortgageBalance: "Enter the balance in dollars, or leave it blank.",
       name: "Use letters only, as it appears on your ID.",
       otherIncome: "Enter other yearly income, or 0 if none.",
       phone: "Enter a 10-digit US phone number.",
@@ -66,6 +67,8 @@ const en = {
     incomeSourcePlaceholder: "Select a source",
     lastName: "Last name",
     middleName: "Middle name",
+    mortgageBalance: "Current mortgage balance",
+    mortgageBalanceHelp: "An estimate is fine. Leave blank if you're not sure.",
     no: "No",
     optional: "optional",
     otherIncome: "Other income",
@@ -84,6 +87,10 @@ const en = {
       contact: { title: "How can we reach you?" },
       forSale: { title: "Is the property currently listed for sale?" },
       income: { title: "Last step: a few details to run your numbers" },
+      mortgageBalance: {
+        sub: "Enter $0 if the home is paid off.",
+        title: "How much do you still owe on the property?",
+      },
       name: {
         sub: "Please enter your full legal name as it appears on your ID.",
         title: "What's your name?",
@@ -204,6 +211,7 @@ const es: UiStrings = {
       email: "Ingrese un correo válido, como usted@correo.com.",
       income: "Ingrese sus ingresos anuales antes de impuestos, en dólares.",
       incomeSource: "Elija su principal fuente de ingresos.",
+      mortgageBalance: "Ingrese el saldo en dólares, o déjelo en blanco.",
       name: "Use solo letras, tal como aparece en su identificación.",
       otherIncome: "Ingrese otros ingresos anuales, o 0 si no tiene.",
       phone: "Ingrese un número de teléfono de EE. UU. de 10 dígitos.",
@@ -218,6 +226,9 @@ const es: UiStrings = {
     incomeSourcePlaceholder: "Seleccione una fuente",
     lastName: "Apellido",
     middleName: "Segundo nombre",
+    mortgageBalance: "Saldo actual de la hipoteca",
+    mortgageBalanceHelp:
+      "Un estimado está bien. Déjelo en blanco si no está seguro.",
     no: "No",
     optional: "opcional",
     otherIncome: "Otros ingresos",
@@ -237,6 +248,10 @@ const es: UiStrings = {
       contact: { title: "¿Cómo podemos contactarle?" },
       forSale: { title: "¿La propiedad está actualmente en venta?" },
       income: { title: "Último paso: algunos datos para calcular sus números" },
+      mortgageBalance: {
+        sub: "Ingrese $0 si la vivienda está pagada.",
+        title: "¿Cuánto debe todavía sobre la propiedad?",
+      },
       name: {
         sub: "Ingrese su nombre legal completo tal como aparece en su identificación.",
         title: "¿Cuál es su nombre?",

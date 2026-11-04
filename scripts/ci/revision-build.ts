@@ -11,7 +11,11 @@ import path from "node:path";
 
 import { Schema } from "effect";
 
-import { fingerprintFiles, sitePayload } from "./site-fingerprint.ts";
+import {
+  fingerprintFailure,
+  fingerprintFiles,
+  sitePayload,
+} from "./site-fingerprint.ts";
 
 export interface RevisionFingerprints {
   readonly base: Readonly<Record<string, string>>;
@@ -51,6 +55,10 @@ const fingerprintRevision = async (
   sites: readonly string[]
 ): Promise<Readonly<Record<string, string>>> => {
   const started = performance.now();
+  const report = path.join(root, ".artifacts/ci/affected/fingerprints", ref);
+  rmSync(report, { force: true, recursive: true });
+  mkdirSync(report, { recursive: true });
+  let phase = "checkout";
   try {
     command(directory, "git", [
       "-c",
@@ -69,11 +77,13 @@ const fingerprintRevision = async (
     }
     // Reuse downloads but resolve each revision's own lock/workspace links.
     // Never install a shared Git hook pointing into this disposable checkout.
+    phase = "install";
     command(directory, "bun", [
       "install",
       "--frozen-lockfile",
       "--ignore-scripts",
     ]);
+    phase = "prepare";
     command(directory, "bun", [
       "scripts/ci/local-verify.ts",
       "--prepare",
@@ -90,6 +100,7 @@ const fingerprintRevision = async (
         `${JSON.stringify(comparisonBuildInputs(inputs), null, 2)}\n`
       );
     }
+    phase = "build";
     const output = command(directory, "bun", [
       "x",
       "turbo",
@@ -105,12 +116,7 @@ const fingerprintRevision = async (
         `${ref}: Turbo restored ${cached.count}/${cached.total} tasks\n`
       );
     }
-    const report = path.join(
-      root,
-      ".artifacts/ci/affected/fingerprints",
-      ref.replaceAll("/", "-")
-    );
-    mkdirSync(report, { recursive: true });
+    phase = "fingerprint";
     const results = await Promise.allSettled(
       sites.map(async (site) => {
         const payload = await sitePayload(directory, site);
@@ -130,17 +136,30 @@ const fingerprintRevision = async (
         if (result.status === "fulfilled") {
           return [result.value];
         }
+        const failure = {
+          reason: fingerprintFailure(result.reason),
+          site: sites[index],
+        };
+        writeFileSync(
+          path.join(report, `${sites[index]}.failure.json`),
+          JSON.stringify(failure, null, 2)
+        );
         process.stderr.write(
-          `${sites[index]}: fingerprint unavailable; retaining candidate\n`
+          `::warning::Fingerprint unavailable; retaining candidate: ${JSON.stringify(failure).replaceAll("%", "%25")}\n`
         );
         return [];
       })
     );
     process.stderr.write(`${ref}: ${JSON.stringify(fingerprints)}\n`);
     return fingerprints;
-  } catch {
+  } catch (error) {
+    const failure = { phase, reason: fingerprintFailure(error), revision: ref };
+    writeFileSync(
+      path.join(report, "failure.json"),
+      JSON.stringify(failure, null, 2)
+    );
     process.stderr.write(
-      `${ref}: build/fingerprint unavailable; retaining candidates\n`
+      `::warning::Build/fingerprint unavailable; retaining candidates: ${JSON.stringify(failure).replaceAll("%", "%25")}\n`
     );
     return {};
   } finally {
