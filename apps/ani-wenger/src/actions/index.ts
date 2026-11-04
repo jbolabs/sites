@@ -10,9 +10,13 @@ import {
   AvailabilityRequest,
   BookingForm,
   CancelRequest,
+  RescheduleRequest,
+  RescheduleTimesRequest,
   bookAppointment,
   cancelByClient,
   openTimes,
+  rescheduleByClient,
+  rescheduleTimes,
 } from "@/lib/booking/booking";
 import { bookingLayer, contactLayer, waitUntil } from "@/lib/server";
 
@@ -29,6 +33,9 @@ const failureTag = <E extends { readonly _tag: string }>(
 
 const ADD_ON_MESSAGE =
   "Add-ons book together with a cut, color, or other service. Please choose one too.";
+
+const TOO_LATE_TO_MOVE_MESSAGE =
+  "It is too close to your appointment to change it online. Please call.";
 
 const BUSY_MESSAGE =
   "Booking is busy for a moment. Please try again in a few seconds.";
@@ -227,6 +234,102 @@ export const server = {
         code: "INTERNAL_SERVER_ERROR",
         message:
           "We could not send your message. Please try again in a few minutes.",
+      });
+    },
+  }),
+
+  /** A client moves their appointment from the link in their confirmation email. */
+  rescheduleAppointment: defineAction({
+    accept: "json",
+    // oxlint-disable-next-line anti-slop/no-unknown-parameters -- Astro hands over the raw JSON body; it is decoded with Effect Schema on the next line.
+    handler: async (input: unknown) => {
+      const program = Schema.decodeUnknownEffect(RescheduleRequest)(input).pipe(
+        Effect.flatMap(rescheduleByClient),
+        Effect.withSpan("action.rescheduleAppointment")
+      );
+      const exit = await runRequest(program, bookingLayer(), waitUntil);
+      if (Exit.isSuccess(exit)) {
+        return exit.value;
+      }
+      const tag = failureTag(exit.cause);
+      switch (tag) {
+        case "SchemaError":
+        case "AppointmentNotFound": {
+          throw new ActionError({
+            code: "NOT_FOUND",
+            message:
+              "We could not find that appointment. Please call to change it.",
+          });
+        }
+        case "TooLateToReschedule": {
+          throw new ActionError({
+            code: "FORBIDDEN",
+            message: TOO_LATE_TO_MOVE_MESSAGE,
+          });
+        }
+        case "SlotUnavailable": {
+          throw new ActionError({
+            code: "CONFLICT",
+            message:
+              "That time was just taken. Your appointment has not changed. Please choose another.",
+          });
+        }
+        case "CalendarBusy": {
+          throw new ActionError({
+            code: "TOO_MANY_REQUESTS",
+            message: BUSY_MESSAGE,
+          });
+        }
+        default: {
+          await Effect.runPromise(
+            Effect.logError("reschedule failed", { tag })
+          );
+          throw new ActionError({
+            code: "INTERNAL_SERVER_ERROR",
+            message:
+              "We could not move your appointment just now. It has not changed. Please try again, or call.",
+          });
+        }
+      }
+    },
+  }),
+
+  /** Open times for moving an appointment, from the manage link. */
+  rescheduleTimes: defineAction({
+    accept: "json",
+    // oxlint-disable-next-line anti-slop/no-unknown-parameters -- Astro hands over the raw JSON body; it is decoded with Effect Schema on the next line.
+    handler: async (input: unknown) => {
+      const program = Schema.decodeUnknownEffect(RescheduleTimesRequest)(
+        input
+      ).pipe(
+        Effect.flatMap(rescheduleTimes),
+        Effect.withSpan("action.rescheduleTimes")
+      );
+      const exit = await runRequest(program, bookingLayer(), waitUntil);
+      if (Exit.isSuccess(exit)) {
+        return exit.value;
+      }
+      const tag = failureTag(exit.cause);
+      if (tag === "SchemaError" || tag === "AppointmentNotFound") {
+        throw new ActionError({
+          code: "NOT_FOUND",
+          message:
+            "We could not find that appointment. Please call to change it.",
+        });
+      }
+      if (tag === "TooLateToReschedule") {
+        throw new ActionError({
+          code: "FORBIDDEN",
+          message: TOO_LATE_TO_MOVE_MESSAGE,
+        });
+      }
+      await Effect.runPromise(
+        Effect.logError("reschedule times failed", { tag })
+      );
+      throw new ActionError({
+        code: "INTERNAL_SERVER_ERROR",
+        message:
+          "Open times could not load. Please try again, or call to change it.",
       });
     },
   }),

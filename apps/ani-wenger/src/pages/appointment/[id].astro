@@ -1,15 +1,16 @@
 ---
 /**
  * A client's own appointment, reached from the link in their confirmation:
- * details, add to calendar, and cancel. The token in `?t=` is the only key;
+ * details, add to calendar, move to a new time, and cancel. The token in `?t=` is the only key;
  * a wrong id or token shows the same "not found" page.
  */
 import { Effect } from "effect";
 
 import ButtonLink from "@/components/button-link.astro";
 import CancelAppointment from "@/components/islands/cancel-appointment";
+import RescheduleAppointment from "@/components/islands/reschedule-appointment";
 import Base from "@/layouts/base.astro";
-import { appointmentForLink, calendarEvent, canCancel } from "@/lib/booking/booking";
+import { appointmentForLink, calendarEvent, canCancel, canReschedule } from "@/lib/booking/booking";
 import { formatDate, formatTime, toLocal } from "@/lib/booking/calendar";
 import { googleCalendarUrl } from "@/lib/booking/ics";
 import { runSchedule } from "@/lib/booking/run";
@@ -20,6 +21,8 @@ import { site } from "../../../site.config";
 Astro.response.headers.set("Cache-Control", "private, no-store");
 const id = Astro.params.id ?? "";
 const token = Astro.url.searchParams.get("t") ?? "";
+// Set by the reschedule island after a move, so the reloaded page can say so.
+const justMoved = Astro.url.searchParams.get("moved") === "1";
 const outcome =
   token.length < 16
     ? { ok: false as const, tag: "AppointmentNotFound" }
@@ -39,8 +42,9 @@ const view = outcome.ok
       const start = toLocal(appointment.start, site.timeZone);
       const end = toLocal(endsAt(appointment), site.timeZone);
       const query = `?t=${encodeURIComponent(token)}`;
+      const now = new Date();
       return {
-        cancellable: canCancel(appointment, policy.cancelCutoffHours, new Date()),
+        cancellable: canCancel(appointment, policy.cancelCutoffHours, now),
         cancelled: appointment.state === "cancelled",
         cutoffHours: policy.cancelCutoffHours,
         google: googleCalendarUrl(
@@ -52,10 +56,14 @@ const view = outcome.ok
         ),
         ics: `/appointment/${encodeURIComponent(id)}/event.ics${query}`,
         location: policy.location,
+        movable: canReschedule(appointment, policy.cancelCutoffHours, now),
+        moved: justMoved && appointment.state === "confirmed",
         name: appointment.clientName,
         past: appointment.start.getTime() < Date.now(),
         phone: policy.phone,
         service: appointment.service,
+        start: appointment.start.toISOString(),
+        today: toLocal(now, site.timeZone).date,
         when: `${formatDate(start.date)}, ${formatTime(start.minutes)} to ${formatTime(end.minutes)}`,
       };
     })()
@@ -75,6 +83,9 @@ const view = outcome.ok
         <h1 class="text-display-sm">
           {view.cancelled ? "This appointment is cancelled." : `See you soon, ${view.name.split(" ")[0]}.`}
         </h1>
+        {view.moved && (
+          <p class="mt-4 text-lg text-foreground/80" role="status">Your appointment is moved to the time below. I emailed you the new details.</p>
+        )}
         <dl class="mt-8 divide-y divide-border rounded-2xl border border-border bg-card">
           <div class="p-5 sm:px-7"><dt class="text-sm text-muted-foreground">Service</dt><dd class="font-display mt-1 text-xl text-espresso-deep">{view.service}</dd></div>
           <div class="p-5 sm:px-7"><dt class="text-sm text-muted-foreground">When</dt><dd class:list={["font-display mt-1 text-xl text-espresso-deep", { "line-through": view.cancelled }]}>{view.when}</dd></div>
@@ -90,8 +101,14 @@ const view = outcome.ok
                 <ButtonLink href={view.google} size="hero" variant="outline" target="_blank" rel="noopener">Add to Google Calendar</ButtonLink>
               </div>
             )}
+            {view.movable && (
+              <div class="mt-12 border-t border-border pt-8">
+                <h2 class="text-2xl">Need a different time?</h2>
+                <RescheduleAppointment client:load id={id} token={token} current={view.start} today={view.today} timeZone={site.timeZone} phone={view.phone} />
+              </div>
+            )}
             <div class="mt-12 border-t border-border pt-8">
-              <h2 class="text-2xl">Need to cancel?</h2>
+              <h2 class="text-2xl">{view.movable ? "Need to cancel?" : "Need to change or cancel?"}</h2>
               {view.cancellable ? (
                 <CancelAppointment client:load id={id} token={token} />
               ) : (

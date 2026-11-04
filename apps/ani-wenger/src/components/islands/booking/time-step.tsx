@@ -1,4 +1,3 @@
-import { actions } from "astro:actions";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -26,14 +25,29 @@ import {
 } from "./month";
 import type { Day, Slot } from "./types";
 
+/** Open times for `days` local dates from `from`, or a message to show. */
+export type FetchDays = (request: {
+  readonly from: string;
+  readonly days: number;
+}) => Promise<
+  | { readonly days: readonly Day[]; readonly message?: undefined }
+  | { readonly message: string }
+>;
+
 interface TimeStepProps {
-  /** The visit's services. Remount when they change (`key`): open times depend on its length. */
-  readonly services: readonly string[];
+  /**
+   * Where open times come from (a new visit, or moving one). Read once per
+   * month shown: remount (`key`) when what it answers for changes, such as
+   * the visit's services.
+   */
+  readonly fetchDays: FetchDays;
   /** Today in the salon's time zone, `YYYY-MM-DD`. */
   readonly today: string;
   readonly selected: Slot | undefined;
   readonly onSelect: (slot: Slot) => void;
   readonly phone: string;
+  /** The client's current start (ISO), shown but not offered when moving a visit. */
+  readonly current?: string | undefined;
 }
 
 type Load =
@@ -60,19 +74,18 @@ const openCount = (count: number) => {
 };
 
 const loadMonth = async (
-  services: readonly string[],
+  fetchDays: FetchDays,
   month: string,
   today: string
 ): Promise<Load> => {
   const from = month < today ? today : month;
-  const { data, error } = await actions.availability({
+  const result = await fetchDays({
     days: daysBetween(from, nextMonth(month)),
     from,
-    services,
   });
-  return error === undefined
-    ? { days: data.days, state: "ready" }
-    : { message: error.message, state: "error" };
+  return result.message === undefined
+    ? { days: result.days, state: "ready" }
+    : { message: result.message, state: "error" };
 };
 
 /**
@@ -101,10 +114,11 @@ const isEmpty = (load: Load) =>
 
 /** A month calendar of open days, then the open times of the chosen day. */
 export const TimeStep = ({
+  current,
+  fetchDays,
   onSelect,
   phone,
   selected,
-  services,
   today,
 }: TimeStepProps) => {
   const [month, setMonth] = useState(() => monthStart(today));
@@ -117,12 +131,12 @@ export const TimeStep = ({
   const times = useRef<HTMLDivElement>(null);
 
   const load = loads.get(month);
-  // A string, so a new array with the same services does not refetch.
-  const visitKey = services.join(",");
+  // Kept in a ref: a parent re-render hands over a new function that answers the same.
+  const source = useRef(fetchDays);
   useEffect(() => {
     let cancelled = false;
     const fetchMonth = async () => {
-      const result = await loadMonth(visitKey.split(","), month, today);
+      const result = await loadMonth(source.current, month, today);
       if (cancelled) {
         return;
       }
@@ -138,7 +152,7 @@ export const TimeStep = ({
     return () => {
       cancelled = true;
     };
-  }, [load, month, visitKey, today]);
+  }, [load, month, today]);
 
   const pageTo = (target: string) => {
     autoAdvance.current = 0;
@@ -282,6 +296,12 @@ export const TimeStep = ({
                           key={slot.start}
                           variant="choice"
                           size="slot"
+                          disabled={slot.start === current}
+                          aria-label={
+                            slot.start === current
+                              ? `${formatTime(slot.minutes)}, your current time`
+                              : undefined
+                          }
                           aria-pressed={selected?.start === slot.start}
                           onClick={() => {
                             onSelect(slot);

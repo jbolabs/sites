@@ -8,6 +8,8 @@ import {
   bookAppointment,
   canCancel,
   cancelByClient,
+  rescheduleByClient,
+  rescheduleTimes,
   sendReminders,
 } from "./booking.ts";
 import type { BookingForm, BookingRequest } from "./booking.ts";
@@ -124,6 +126,18 @@ const world = Effect.gen(function* world() {
         Ref.update(book, (all) =>
           all.map((item) =>
             item.id === id ? { ...item, reminderSent: true } : item
+          )
+        ),
+      move: (id, change) =>
+        Ref.update(book, (all) =>
+          all.map((item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  reminderSent: change.reminderSent,
+                  start: change.start,
+                }
+              : item
           )
         ),
       setState: (id, state) =>
@@ -477,6 +491,274 @@ describe(cancelByClient, () => {
         expect(Exit.isFailure(exit) && exit.cause.toString()).toContain(
           "TooLateToCancel"
         );
+      })
+  );
+});
+
+/** The token from a booking's manage link. */
+const linkToken = (manageUrl: string) =>
+  new URL(manageUrl).searchParams.get("t") ?? "";
+
+/** Tuesday 2026-10-27, 2:00 PM PDT. */
+const TUESDAY_TWO = "2026-10-27T21:00:00.000Z";
+
+describe(rescheduleByClient, () => {
+  it.effect(
+    "moves the booking in place, keeps the link, frees the old time, and tells both",
+    () =>
+      Effect.gen(function* moveBooking() {
+        yield* TestClock.setTime(MONDAY_NOON);
+        const { book, layer, sent } = yield* world;
+        const booked = yield* bookAppointment(form(), request).pipe(
+          Effect.provide(layer)
+        );
+        const token = linkToken(booked.manageUrl);
+
+        const result = yield* rescheduleByClient({
+          id: booked.id,
+          start: TUESDAY_TWO,
+          token,
+        }).pipe(Effect.provide(layer));
+        expect(result).toStrictEqual({
+          end: "2026-10-27T21:45:00.000Z",
+          moved: true,
+          start: TUESDAY_TWO,
+        });
+        expect(
+          (yield* Ref.get(book)).map((item) => [
+            item.id,
+            item.start.toISOString(),
+            item.state,
+          ])
+        ).toStrictEqual([["appt-1", TUESDAY_TWO, "confirmed"]]);
+
+        const [toClient, toAni] = (yield* Ref.get(sent)).slice(2);
+        expect([
+          toClient?.to,
+          toClient?.subject,
+          toAni?.to,
+          toAni?.subject,
+        ]).toStrictEqual([
+          "pat@example.com",
+          "Moved: Men's cut, Tuesday, October 27 at 2:00 PM",
+          ["ani@example.com"],
+          "Moved: Pat Rivera, now Tuesday, October 27 at 2:00 PM",
+        ]);
+        // The same link still opens it, and the old time is named so they can delete it.
+        expect([
+          toClient?.text.includes(
+            `Need to change or cancel? https://aniwenger.example/appointment/appt-1?t=${token}`
+          ),
+          toClient?.text.includes("It was Tuesday, October 27 at 10:00 AM."),
+          toAni?.text.includes(
+            "Was: Tuesday, October 27 at 10:00 AM. That time is open again on the website."
+          ),
+        ]).toStrictEqual([true, true, true]);
+
+        const next = yield* bookAppointment(
+          form({ name: "Sam Lee" }),
+          request
+        ).pipe(Effect.provide(layer));
+        expect(next).toMatchObject({ id: "appt-2", start: TUESDAY_TEN });
+      })
+  );
+
+  it.effect("lets a client move into time their own booking holds", () =>
+    Effect.gen(function* overlapOwn() {
+      yield* TestClock.setTime(MONDAY_NOON);
+      const { book, layer } = yield* world;
+      const booked = yield* bookAppointment(form(), request).pipe(
+        Effect.provide(layer)
+      );
+      // 10:30 overlaps the 10:00 to 10:45 visit being moved.
+      yield* rescheduleByClient({
+        id: booked.id,
+        start: "2026-10-27T17:30:00.000Z",
+        token: linkToken(booked.manageUrl),
+      }).pipe(Effect.provide(layer));
+      expect(
+        (yield* Ref.get(book)).map((item) => item.start.toISOString())
+      ).toStrictEqual(["2026-10-27T17:30:00.000Z"]);
+    })
+  );
+
+  it.effect(
+    "refuses a time someone else holds and leaves the booking as it was",
+    () =>
+      Effect.gen(function* takenTime() {
+        yield* TestClock.setTime(MONDAY_NOON);
+        const { book, layer, sent } = yield* world;
+        const booked = yield* bookAppointment(form(), request).pipe(
+          Effect.provide(layer)
+        );
+        yield* bookAppointment(
+          form({ name: "Sam Lee", start: TUESDAY_TWO }),
+          request
+        ).pipe(Effect.provide(layer));
+
+        const exit = yield* rescheduleByClient({
+          id: booked.id,
+          start: TUESDAY_TWO,
+          token: linkToken(booked.manageUrl),
+        }).pipe(Effect.provide(layer), Effect.exit);
+        expect(Exit.isFailure(exit) && exit.cause.toString()).toContain(
+          "SlotUnavailable"
+        );
+        expect(
+          (yield* Ref.get(book)).map((item) => item.start.toISOString())
+        ).toStrictEqual([TUESDAY_TEN, TUESDAY_TWO]);
+        expect(yield* Ref.get(sent)).toHaveLength(4);
+      })
+  );
+
+  it.effect("needs the link's token", () =>
+    Effect.gen(function* wrongToken() {
+      yield* TestClock.setTime(MONDAY_NOON);
+      const { book, layer } = yield* world;
+      const booked = yield* bookAppointment(form(), request).pipe(
+        Effect.provide(layer)
+      );
+      const exit = yield* rescheduleByClient({
+        id: booked.id,
+        start: TUESDAY_TWO,
+        token: "a".repeat(32),
+      }).pipe(Effect.provide(layer), Effect.exit);
+      expect(Exit.isFailure(exit) && exit.cause.toString()).toContain(
+        "AppointmentNotFound"
+      );
+      expect(
+        (yield* Ref.get(book)).map((item) => item.start.toISOString())
+      ).toStrictEqual([TUESDAY_TEN]);
+    })
+  );
+
+  it.effect(
+    "sends the client to the phone within 24 hours of the appointment",
+    () =>
+      Effect.gen(function* tooLateToMove() {
+        yield* TestClock.setTime(MONDAY_NOON);
+        const { book, layer } = yield* world;
+        const booked = yield* bookAppointment(form(), request).pipe(
+          Effect.provide(layer)
+        );
+        const token = linkToken(booked.manageUrl);
+        // Monday 2026-10-26 at noon PDT: 22 hours before the appointment.
+        yield* TestClock.setTime(Date.parse("2026-10-26T19:00:00Z"));
+
+        const move = yield* rescheduleByClient({
+          id: booked.id,
+          start: "2026-11-03T18:00:00.000Z",
+          token,
+        }).pipe(Effect.provide(layer), Effect.exit);
+        const times = yield* rescheduleTimes({
+          days: 14,
+          from: "2026-10-26",
+          id: booked.id,
+          token,
+        }).pipe(Effect.provide(layer), Effect.exit);
+        expect([
+          Exit.isFailure(move) &&
+            move.cause.toString().includes("TooLateToReschedule"),
+          Exit.isFailure(times) &&
+            times.cause.toString().includes("TooLateToReschedule"),
+        ]).toStrictEqual([true, true]);
+        expect(
+          (yield* Ref.get(book)).map((item) => item.start.toISOString())
+        ).toStrictEqual([TUESDAY_TEN]);
+      })
+  );
+
+  it.effect(
+    "reminds before a time moved days ahead, but not one moved into the next day",
+    () =>
+      Effect.gen(function* remindersAfterMove() {
+        yield* TestClock.setTime(MONDAY_NOON);
+        const { book, layer, sent } = yield* world;
+        // Tuesday 2026-10-27 at 5:00 PM PDT.
+        const late = yield* bookAppointment(
+          form({ start: "2026-10-28T00:00:00.000Z" }),
+          request
+        ).pipe(Effect.provide(layer));
+        const early = yield* bookAppointment(
+          form({ name: "Sam Lee" }),
+          request
+        ).pipe(Effect.provide(layer));
+
+        // Sam moves a week out, to Tuesday 2026-11-03 at 10:00 AM PST.
+        yield* rescheduleByClient({
+          id: early.id,
+          start: "2026-11-03T18:00:00.000Z",
+          token: linkToken(early.manageUrl),
+        }).pipe(Effect.provide(layer));
+        // Monday 2026-10-26 at 4:00 PM PDT, 25 hours before Pat's 5:00 PM
+        // visit, Pat moves it to 10:15 AM tomorrow, 18 hours out.
+        yield* TestClock.setTime(Date.parse("2026-10-26T23:00:00Z"));
+        yield* rescheduleByClient({
+          id: late.id,
+          start: "2026-10-27T17:15:00.000Z",
+          token: linkToken(late.manageUrl),
+        }).pipe(Effect.provide(layer));
+        expect(
+          (yield* Ref.get(book)).map((item) => [
+            item.clientName,
+            item.reminderSent,
+          ])
+        ).toStrictEqual([
+          ["Pat Rivera", true],
+          ["Sam Lee", false],
+        ]);
+
+        yield* TestClock.setTime(Date.parse("2026-10-27T00:00:00Z"));
+        expect(
+          yield* sendReminders().pipe(Effect.provide(layer))
+        ).toStrictEqual({
+          reminded: 0,
+        });
+        // Monday 2026-11-02 at 11:00 AM PST: 23 hours before Sam's new time.
+        yield* TestClock.setTime(Date.parse("2026-11-02T19:00:00Z"));
+        expect(
+          yield* sendReminders().pipe(Effect.provide(layer))
+        ).toStrictEqual({
+          reminded: 1,
+        });
+        expect((yield* Ref.get(sent)).at(-1)?.text).toContain(
+          "A reminder of your Men's cut on Tuesday, November 3 at 10:00 AM."
+        );
+      })
+  );
+});
+
+describe(rescheduleTimes, () => {
+  it.effect(
+    "offers times over the client's own booking but not over someone else's",
+    () =>
+      Effect.gen(function* timesToMove() {
+        yield* TestClock.setTime(MONDAY_NOON);
+        const { layer } = yield* world;
+        const booked = yield* bookAppointment(form(), request).pipe(
+          Effect.provide(layer)
+        );
+        yield* bookAppointment(
+          form({ name: "Sam Lee", start: TUESDAY_TWO }),
+          request
+        ).pipe(Effect.provide(layer));
+
+        const { days } = yield* rescheduleTimes({
+          days: 1,
+          from: "2026-10-27",
+          id: booked.id,
+          token: linkToken(booked.manageUrl),
+        }).pipe(Effect.provide(layer));
+        const starts = new Set(
+          days.flatMap((day) => day.slots.map((slot) => slot.start))
+        );
+        // 10:00 and 10:15 overlap Pat's own visit; 1:30 and 2:00 overlap Sam's.
+        expect([
+          starts.has("2026-10-27T17:00:00.000Z"),
+          starts.has("2026-10-27T17:15:00.000Z"),
+          starts.has("2026-10-27T20:30:00.000Z"),
+          starts.has(TUESDAY_TWO),
+        ]).toStrictEqual([true, true, false, false]);
       })
   );
 });
