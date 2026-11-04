@@ -23,7 +23,7 @@ Build every app and site to the bar of Linear's website or Apple Notes: simple p
 | `packages/control-app` | `bun run app -- …`: run, sign in, screenshot, record, smoke-test a site |
 | `packages/proof` | `bun run proof -- …`: revision-bound proof receipts |
 | `packages/config` | tsconfig + strict oxlint/oxfmt presets + local lint rules |
-| `stacks/` | Repo-level Alchemy stacks: `github.ts` (CI control plane), `turbo-cache.ts` (remote cache). The jbolabs.com site, domain and email live in the separate `jbolabs` repo |
+| `stacks/` | Repo-level Alchemy stacks: `github.ts` (CI control plane), `turbo-cache.ts` (remote cache), `assistant-gateways.ts` (the CMS assistant's shared AI Gateways). The jbolabs.com site, domain and email live in the separate `jbolabs` repo |
 | `scripts/ci/` | Logic the GitHub workflows call (tested TypeScript, thin YAML) |
 | `docs/` | `stack.md` (current choices), `adr/` (one dated record per decision, from `adr/template.md`) |
 
