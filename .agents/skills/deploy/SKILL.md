@@ -55,6 +55,7 @@ Known causes: seed images missing on deployed stages came from Workers' same-zon
 ```bash
 ALCHEMY_PROFILE=admin bun alchemy deploy stacks/github.ts --stage ci          # environments, ruleset, deploy tokens
 ALCHEMY_PROFILE=admin bun alchemy deploy stacks/turbo-cache.ts --stage shared # remote cache + TURBO_* in GitHub
+ALCHEMY_PROFILE=admin bun alchemy deploy stacks/assistant-gateways.ts --stage shared # CMS assistant AI Gateways, before any site deploy uses them
 ```
 
 Rotate deploy tokens: bump `deployTokens.generation` in `stacks/config.ts`, redeploy `stacks/github.ts`.

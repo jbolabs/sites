@@ -24,7 +24,8 @@ import {
  *   D1 (EmDash content and appointments) + R2 (media; clients' hair photos) + Images binding + session KV (auto)
  *   + Turnstile widget (contact form and booking) + every-minute cron (EmDash
  *   scheduled publishing, appointment reminders) + a random calendar-feed key
- *   + Workers AI + AI Gateway for the CMS assistant (deployed stages only)
+ *   + Workers AI for the CMS assistant, through the stage's shared AI Gateway
+ *   (`stacks/assistant-gateways.ts`; deployed stages only)
  *   prod only: custom domain, retained backups bucket + daily backup cron,
  *   aniwenger.hair registered for sending booking emails
  *
@@ -114,7 +115,7 @@ export default Alchemy.Stack(
         });
     // The secret part of Ani's calendar feed URL; rotate by replacing this resource.
     const calendarFeed = yield* Random("CalendarFeedKey", { bytes: 24 });
-    // CMS assistant: Workers AI behind a rate-limited AI Gateway (no model in offline dev).
+    // CMS assistant: Workers AI behind the stage's shared AI Gateway (no model in offline dev).
     const assistant = yield* assistantAi(stage);
     // Booking and contact mail come from Ani's domain on prod; CMS mail stays on the studio sender.
     const leadFrom = yield* clientSender(stage, site.leadSender);
