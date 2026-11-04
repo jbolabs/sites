@@ -12,6 +12,7 @@ import type { UIMessage } from "@tanstack/ai-react";
 import { TextPart } from "@tanstack/ai-react/ui";
 import {
   ArrowUpIcon,
+  CircleHelpIcon,
   RotateCwIcon,
   ImageIcon,
   PhoneIcon,
@@ -21,9 +22,10 @@ import {
   SquarePenIcon,
   XIcon,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SubmitEvent } from "react";
 
+import { openAdminLink } from "#assistant/admin-link.ts";
 import { AssistantSteps } from "#assistant/assistant-steps.tsx";
 import { isLongConversation } from "#assistant/conversation-size.ts";
 import { failureKind } from "#assistant/errors.ts";
@@ -147,13 +149,15 @@ const AssistantTurn = ({
 };
 
 /**
- * Starters for a client facing an empty box: the everyday jobs on a marketing site.
+ * Starters for a client facing an empty box: the everyday jobs on a marketing site, and
+ * a how-to question, so it is clear the assistant also explains the admin.
  * Each fills the message box rather than sending, so the details can be added first.
  */
 const STARTERS = [
   { icon: <SpellCheckIcon />, prompt: "Fix typos and grammar across the site" },
   { icon: <PhoneIcon />, prompt: "Update our phone number everywhere to " },
-  { icon: <ImageIcon />, prompt: "Write alt text for photos that have none" },
+  { icon: <ImageIcon />, prompt: "Add descriptions to photos that have none" },
+  { icon: <CircleHelpIcon />, prompt: "How do I change a photo on my site?" },
 ] as const;
 
 /** What went wrong, in the person's terms, with the one action that helps. */
@@ -219,9 +223,12 @@ const presetsFor = (config: PanelConfig, entry: OpenEntry | undefined) =>
 export const AssistantChat = ({
   config,
   entry,
+  onOpenLink,
 }: {
   readonly config: PanelConfig;
   readonly entry: OpenEntry | undefined;
+  /** After a link in a reply opened an admin screen in place. */
+  readonly onOpenLink?: () => void;
 }) => {
   const { messages, sendMessage, status, stop, error, reload, clear } = useChat(
     {
@@ -234,6 +241,20 @@ export const AssistantChat = ({
   const mobile = useMobileLayout();
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const conversationRef = useRef<HTMLDivElement>(null);
+  // Links in replies open their admin screen in place instead of reloading the admin.
+  useEffect(() => {
+    const conversation = conversationRef.current;
+    const onClick = (event: MouseEvent) => {
+      if (openAdminLink(event)) {
+        onOpenLink?.();
+      }
+    };
+    conversation?.addEventListener("click", onClick);
+    return () => {
+      conversation?.removeEventListener("click", onClick);
+    };
+  }, [onOpenLink]);
   const busy = status === "submitted" || status === "streaming";
   const presets = presetsFor(config, entry);
 
@@ -265,7 +286,7 @@ export const AssistantChat = ({
   return (
     <MessageScrollerProvider autoScroll>
       {/* One wrapper, so the sheet's gap does not push the conversation away from its top row. */}
-      <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col" ref={conversationRef}>
         {/* Name the full-screen panel so opening it keeps the user's context. */}
         <SheetDescription className="sr-only">
           {entry === undefined

@@ -1,6 +1,7 @@
 /// <reference types="bun" />
 import {
   BUILD_INPUTS_FILE,
+  clientSender,
   assistantAi,
   cmsCrons,
   TURNSTILE_TEST_KEYS,
@@ -23,8 +24,10 @@ import {
  *   D1 (EmDash content and appointments) + R2 (media; clients' hair photos) + Images binding + session KV (auto)
  *   + Turnstile widget (contact form and booking) + every-minute cron (EmDash
  *   scheduled publishing, appointment reminders) + a random calendar-feed key
- *   + Workers AI + AI Gateway for the CMS assistant (deployed stages only)
- *   prod only: custom domain, retained backups bucket + daily backup cron
+ *   + Workers AI for the CMS assistant, through the stage's shared AI Gateway
+ *   (`stacks/assistant-gateways.ts`; deployed stages only)
+ *   prod only: custom domain, retained backups bucket + daily backup cron,
+ *   aniwenger.hair registered for sending booking emails
  *
  * Deploy: `bun alchemy deploy --stage <stage> --profile <profile>` from this
  * directory (see .agents/skills/deploy). Never export CLOUDFLARE_* variables.
@@ -34,7 +37,7 @@ import { AlchemyContext } from "alchemy/AlchemyContext";
 import * as Cloudflare from "alchemy/Cloudflare";
 import { Random, RandomProvider } from "alchemy/Random";
 import * as RemovalPolicy from "alchemy/RemovalPolicy";
-import { Config, Effect, Layer, Redacted } from "effect";
+import { Config, Effect, Layer, Option, Redacted } from "effect";
 
 import { studio } from "../../stacks/config.ts";
 import { stageSecrets } from "../../stacks/secrets.ts";
@@ -112,13 +115,15 @@ export default Alchemy.Stack(
         });
     // The secret part of Ani's calendar feed URL; rotate by replacing this resource.
     const calendarFeed = yield* Random("CalendarFeedKey", { bytes: 24 });
-    // CMS assistant: Workers AI behind a rate-limited AI Gateway (no model in offline dev).
+    // CMS assistant: Workers AI behind the stage's shared AI Gateway (no model in offline dev).
     const assistant = yield* assistantAi(stage);
+    // Booking and contact mail come from Ani's domain on prod; CMS mail stays on the studio sender.
+    const leadFrom = yield* clientSender(stage, site.leadSender);
     const bindings = {
       ...(yield* webAnalytics(stage)),
       ...leadMail(stage, {
         alertInbox: studio.alertInbox,
-        emailFrom,
+        emailFrom: Option.getOrElse(leadFrom, () => emailFrom),
         fromName: `${site.name} website`,
         inbox: site.leadInbox,
       }),
@@ -158,7 +163,7 @@ export default Alchemy.Stack(
         : {
             ...withModel,
             EMAIL: Cloudflare.Email.SendEmail("Email", {
-              allowedSenderAddresses: [emailFrom],
+              allowedSenderAddresses: [emailFrom, ...Option.toArray(leadFrom)],
             }),
           };
 

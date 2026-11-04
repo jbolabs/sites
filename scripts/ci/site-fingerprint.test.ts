@@ -1,12 +1,69 @@
+import { listSites } from "@jakebodea/control-app/site";
 import { describe, expect, it } from "vitest";
 
 import {
   deployableFiles,
+  authoredInputFiles,
+  FingerprintUnavailable,
   deploymentResolutions,
+  fingerprintFailure,
   fingerprintFiles,
   normalizeModules,
   workerModules,
 } from "./site-fingerprint.ts";
+
+describe("fingerprint diagnostics and tracked provenance", () => {
+  it("reports controlled reasons without exposing arbitrary child-process errors", () => {
+    expect(
+      fingerprintFailure(
+        new FingerprintUnavailable({ message: "Missing Worker entry.mjs" })
+      )
+    ).toBe("Missing Worker entry.mjs");
+    expect(fingerprintFailure(new Error("TOKEN=do-not-print"))).toBe(
+      "Unexpected comparison error; details suppressed"
+    );
+  });
+
+  it.each(listSites(new URL("../../", import.meta.url).pathname))(
+    "can normalize authored inputs for %s before any builds",
+    (site) => {
+      const files = authoredInputFiles(
+        new URL("../../", import.meta.url).pathname,
+        site
+      );
+      expect(files.map(({ name }) => name)).toContain(
+        `apps/${site}/site.config.ts`
+      );
+      expect(
+        deployableFiles(["export const ready = true;"], [], files).map(
+          ({ name, bytes }) => ({
+            name,
+            text: Buffer.from(bytes).toString("utf-8"),
+          })
+        )
+      ).toStrictEqual([
+        { name: "worker-graph", text: '["export const ready = true;"]' },
+      ]);
+    }
+  );
+
+  it("identifies the authored file that cannot be normalized", () => {
+    expect(() =>
+      deployableFiles(
+        ["export const ready = true;"],
+        [],
+        [
+          {
+            bytes: Buffer.from(String.raw`const token="\u0061";`),
+            name: "apps/example/input.ts",
+          },
+        ]
+      )
+    ).toThrow(
+      "apps/example/input.ts: Authored scope token; retaining candidate"
+    );
+  });
+});
 
 describe(workerModules, () => {
   it("assigns identities through cycles, retaining module bytes and graph edges", () => {
