@@ -1,0 +1,121 @@
+---
+import { sanitizeHref } from "emdash";
+import Image from "@jakebodea/cloudflare-kit/astro/image.astro";
+import type { BlockComponentProps } from "emdash/ui";
+
+import ButtonLink from "@/components/button-link.astro";
+import type { PageContentHeroBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentHeroBlock>;
+
+const { value } = Astro.props;
+const slides = value.slides.flatMap((slide) => (slide.image ? [slide.image] : []));
+const primary =
+  value.primary_cta_label && value.primary_cta_url
+    ? { href: sanitizeHref(value.primary_cta_url), label: value.primary_cta_label }
+    : undefined;
+const secondary =
+  value.secondary_cta_label && value.secondary_cta_url
+    ? { href: sanitizeHref(value.secondary_cta_url), label: value.secondary_cta_label }
+    : undefined;
+
+/*
+ * CSS-only slideshow: each slide holds for 7 s, crossfades over 1.4 s, and pushes in
+ * slowly while visible. One keyframe set per slide count, so the timing is exact.
+ */
+const holdSeconds = 7;
+const cycle = slides.length * holdSeconds;
+const fade = (1.4 / cycle) * 100;
+const visible = (holdSeconds / cycle) * 100;
+const pct = (percent: number) => `${percent.toFixed(2)}%`;
+const keyframes =
+  slides.length > 1
+    ? `@keyframes hero-fade-${slides.length}{0%{opacity:0;transform:scale(1.1)}${pct(fade)}{opacity:1}${pct(visible)}{opacity:1}${pct(visible + fade)}{opacity:0;transform:scale(1)}100%{opacity:0;transform:scale(1)}}`
+    : "";
+const words = value.headline.split(" ");
+---
+
+<section class="hero relative isolate flex min-h-[calc(100svh-5rem)] flex-col overflow-hidden bg-ink text-white sm:min-h-[calc(100svh-6rem)]">
+  {keyframes && <style set:html={keyframes} />}
+  <div class="absolute inset-0 -z-10" aria-hidden="true">
+    {slides.map((image, index) => (
+      <div
+        class="hero-slide hero-slide-image absolute inset-0"
+        style={slides.length > 1 ? `animation: hero-fade-${slides.length} ${cycle}s linear infinite; animation-delay: ${index * holdSeconds - 1.4}s;` : undefined}
+      >
+        <Image image={image} alt="" priority={index === 0} sizes="100vw" class="size-full! object-cover" />
+      </div>
+    ))}
+  </div>
+  <div class="absolute inset-0 -z-10 bg-ink/50 lg:bg-ink/40" aria-hidden="true"></div>
+
+  <div class="container-page flex flex-1 flex-col justify-end pt-32 pb-12 sm:pb-16 lg:pb-20">
+    <h1 class="max-w-5xl text-[2.9rem] leading-[0.98] font-semibold tracking-[-0.035em] text-white sm:text-7xl lg:text-[6.25rem]">
+      {words.map((word, index) => (
+        <>
+          <span class="hero-word inline-block">
+            <span class="inline-block" style={`--d: ${(0.15 + index * 0.06).toFixed(2)}s`}>{word}</span>
+          </span>{" "}
+        </>
+      ))}
+    </h1>
+    <div class="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+      {value.subheadline && (
+        <p class="hero-rise max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl" style="--d: 0.45s">{value.subheadline}</p>
+      )}
+      {(primary || secondary) && (
+        <div class="hero-rise flex flex-col gap-3 sm:flex-row" style="--d: 0.55s">
+          {primary && <ButtonLink href={primary.href} variant="inverse" size="hero">{primary.label}</ButtonLink>}
+          {secondary && <ButtonLink href={secondary.href} variant="outline-inverse" size="hero">{secondary.label}</ButtonLink>}
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  /*
+   * Words blur in and rise slightly, unclipped: a clipped slide-up drew hard
+   * horizontal edges through the letters while they moved. `backwards` fill
+   * drops the filter once a word lands, so finished text is never a blurred layer.
+   */
+  .hero-word > span,
+  .hero-rise {
+    animation: hero-rise 0.9s var(--ease-out-expo) backwards;
+    animation-delay: var(--d, 0s);
+  }
+
+  .hero-word > span {
+    animation-name: hero-word;
+  }
+
+  @keyframes hero-word {
+    from {
+      opacity: 0;
+      filter: blur(10px);
+      transform: translateY(0.22em);
+    }
+  }
+
+  @keyframes hero-rise {
+    from {
+      opacity: 0;
+      filter: blur(6px);
+      transform: translateY(12px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-word > span,
+    .hero-rise {
+      animation: hero-fade 0.6s ease backwards;
+      animation-delay: var(--d, 0s);
+    }
+  }
+
+  @keyframes hero-fade {
+    from {
+      opacity: 0;
+    }
+  }
+</style>

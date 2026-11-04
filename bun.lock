@@ -163,6 +163,49 @@
         "wrangler": "catalog:",
       },
     },
+    "apps/stud-construction": {
+      "name": "@sites/stud-construction",
+      "dependencies": {
+        "@astrojs/cloudflare": "catalog:",
+        "@astrojs/react": "catalog:",
+        "@base-ui/react": "catalog:",
+        "@eisbachcode/emdash-plugin-analytics": "catalog:",
+        "@emdash-cms/cloudflare": "catalog:",
+        "@jakebodea/cloudflare-kit": "workspace:*",
+        "@jakebodea/site-ui": "workspace:*",
+        "@lucide/astro": "catalog:",
+        "astro": "catalog:",
+        "class-variance-authority": "catalog:",
+        "clsx": "catalog:",
+        "effect": "catalog:",
+        "emdash": "catalog:",
+        "lucide-react": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "tailwind-merge": "catalog:",
+      },
+      "devDependencies": {
+        "@alchemy.run/frontend-frameworks": "catalog:",
+        "@astrojs/check": "catalog:",
+        "@cloudflare/workers-types": "catalog:",
+        "@effect/platform-bun": "catalog:",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@emnapi/core": "catalog:",
+        "@emnapi/runtime": "catalog:",
+        "@jakebodea/config": "workspace:*",
+        "@tailwindcss/vite": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "alchemy": "catalog:",
+        "tailwindcss": "catalog:",
+        "tw-animate-css": "catalog:",
+        "typescript": "catalog:typescript-api",
+        "vitest": "catalog:",
+        "wrangler": "catalog:",
+      },
+    },
     "packages/cloudflare-kit": {
       "name": "@jakebodea/cloudflare-kit",
       "dependencies": {
@@ -1224,6 +1267,8 @@
     "@sites/equityfast": ["@sites/equityfast@workspace:apps/equityfast"],
 
     "@sites/ms-custom-homes": ["@sites/ms-custom-homes@workspace:apps/ms-custom-homes"],
+
+    "@sites/stud-construction": ["@sites/stud-construction@workspace:apps/stud-construction"],
 
     "@sonarsource/analyzer-commons-configurations": ["@sonarsource/analyzer-commons-configurations@2.31.0-5284", "", {}, "sha512-ruk3blMs9BE9RNSp9LPpWZAIjxJmq4Cp00E3cELIHz7Kym3WxdWGRlKOMYLRQ5tJg/de7jN5AtEElY3bGIfTcw=="],
 

@@ -1,0 +1,68 @@
+---
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+import Star from "@lucide/astro/icons/star";
+import { sanitizeHref } from "emdash";
+import type { BlockComponentProps } from "emdash/ui";
+
+import type { PageContentTestimonialsBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentTestimonialsBlock>;
+
+const { value } = Astro.props;
+const link =
+  value.link_label && value.link_url ? { href: sanitizeHref(value.link_url), label: value.link_label } : undefined;
+const external = link !== undefined && /^https?:\/\//u.test(link.href);
+const STARS = [1, 2, 3, 4, 5];
+---
+
+<section class="bg-concrete py-24 sm:py-32">
+  <div class="container-page">
+    <div class="flex flex-wrap items-end justify-between gap-8">
+      <div class="max-w-2xl">
+        <h2 class="text-4xl sm:text-5xl lg:text-6xl" data-reveal>{value.headline}</h2>
+        {value.intro && <p class="mt-6 text-lg leading-relaxed text-muted-foreground" data-reveal style="--reveal-delay: 100ms">{value.intro}</p>}
+      </div>
+      {link && (
+        <a
+          href={link.href}
+          target={external ? "_blank" : undefined}
+          rel={external ? "noopener" : undefined}
+          class="group inline-flex items-center gap-2 border-b-2 border-timber pb-1 font-medium text-ink"
+          data-reveal
+        >
+          {link.label}
+          {external ? (
+            <ArrowUpRight class="size-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+          ) : (
+            <ArrowRight class="size-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
+          )}
+          {external && <span class="sr-only">(opens in a new tab)</span>}
+        </a>
+      )}
+    </div>
+    <ul class="mt-14 columns-1 gap-6 md:columns-2 lg:mt-16 lg:columns-3">
+      {value.items.map((item, index) => {
+        const rating = Math.min(5, Math.max(0, item.rating ?? 5));
+        return (
+          <li class="mb-6 break-inside-avoid" data-reveal style={`--reveal-delay: ${(index % 3) * 90}ms`}>
+            <figure class="flex flex-col gap-6 bg-paper p-7 sm:p-9">
+              <div class="flex gap-1 text-timber" role="img" aria-label={`Rated ${rating} out of 5`}>
+                {STARS.map((star) => (
+                  <Star class:list={["size-4", star <= rating ? "fill-current" : "opacity-30"]} aria-hidden="true" />
+                ))}
+              </div>
+              <blockquote class="space-y-4 leading-relaxed text-foreground">
+                {item.quote.split(/\n+/u).map((paragraph) => <p>{paragraph}</p>)}
+              </blockquote>
+              <figcaption class="pt-1">
+                <span class="block font-display text-lg font-semibold text-ink">{item.name}</span>
+                {item.detail && <span class="mt-0.5 block text-sm text-muted-foreground">{item.detail}</span>}
+              </figcaption>
+            </figure>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
