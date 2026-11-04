@@ -49,7 +49,6 @@ const PROJECT_TYPES = [
   "Kitchen remodel",
   "Bathroom remodel",
   "Home addition",
-  "Fire, water, or mold restoration",
   "Commercial project",
   "Working with an architect or engineer",
   "Need drafting services",

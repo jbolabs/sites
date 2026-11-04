@@ -47,7 +47,7 @@ export const site = {
   clientPortal: "https://coconstruct.com/app/login/Stud",
 
   description:
-    "Design-build remodeling contractor in Orange County since 2009. Whole-home remodels, additions, kitchens, baths, commercial work, and fire and water restoration.",
+    "Design-build remodeling contractor in Orange County since 2009. Whole-home remodels, additions, kitchens, baths, and commercial work.",
 
   /** Appended to meta descriptions too short for a search snippet (see `metaDescription`). */
   descriptionContext:
@@ -59,6 +59,9 @@ export const site = {
    * only staging deploys until configured. Intended domain: studconstruction.net.
    */
   domain: null,
+
+  /** The year the company started, as the site's own copy states ("since 2009"). */
+  founded: 2009,
 
   /** Prefixes Worker names (`stud-construction-<stage>`) and the Alchemy stack. */
   id: "stud-construction",

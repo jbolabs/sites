@@ -30,6 +30,7 @@ import emdash from "emdash/astro";
 
 import { cms } from "./cms.config.ts";
 import { site } from "./site.config.ts";
+import { projectLinksPlugin } from "./src/plugins/project-links.ts";
 
 const root = import.meta.dirname;
 // Written by alchemy.run.ts per stage (origin, seed media base, CMS email sender).
@@ -112,6 +113,7 @@ export default defineConfig({
       plugins: [
         analyticsPlugin,
         siteAdminPlugin(cms),
+        projectLinksPlugin(),
         ...(inputs.emailFrom === undefined
           ? []
           : [
