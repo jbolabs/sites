@@ -1,0 +1,3986 @@
+{
+  "$schema": "https://emdashcms.com/seed.schema.json",
+  "version": "1",
+  "meta": {
+    "name": "Grace Church",
+    "description": "Church site: pages built from sections, sermons, events with a weekly calendar, news, ministries, and a message inbox.",
+    "author": "Jake Bodea"
+  },
+  "settings": {
+    "title": "Grace Church",
+    "tagline": "An independent Reformed church in Laguna Niguel, California, devoted to God and our neighbor.",
+    "timezone": "America/Los_Angeles"
+  },
+  "blockTypes": [
+    {
+      "slug": "hero",
+      "label": "Hero",
+      "description": "Full-width photo with the headline, buttons, and this Sunday's service times (from Events).",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "subheadline",
+              "label": "Subheadline",
+              "type": "text"
+            },
+            {
+              "slug": "image",
+              "label": "Photo",
+              "type": "image"
+            },
+            {
+              "slug": "primary_cta_label",
+              "label": "Primary button label",
+              "type": "string"
+            },
+            {
+              "slug": "primary_cta_url",
+              "label": "Primary button link",
+              "type": "string",
+              "validation": {
+                "pattern": "^(?:$|(?:https?://|mailto:|tel:|/(?!/)|#).+)$"
+              }
+            },
+            {
+              "slug": "secondary_cta_label",
+              "label": "Secondary button label",
+              "type": "string"
+            },
+            {
+              "slug": "secondary_cta_url",
+              "label": "Secondary button link",
+              "type": "string",
+              "validation": {
+                "pattern": "^(?:$|(?:https?://|mailto:|tel:|/(?!/)|#).+)$"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "announcements",
+      "label": "Latest news",
+      "description": "The newest announcements, pinned ones first, shown automatically.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "count",
+              "label": "How many to show",
+              "type": "integer",
+              "defaultValue": 3,
+              "validation": {
+                "min": 1,
+                "max": 6
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "latest_sermon",
+      "label": "Latest sermon",
+      "description": "The most recent sermon with its video, shown automatically.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "this_week",
+      "label": "This week",
+      "description": "The next seven days of events, shown automatically from Events.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "ministries",
+      "label": "Ministries",
+      "description": "Every published ministry with its photo, shown automatically.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "service_times",
+      "label": "Service times",
+      "description": "Sunday's services from Events, with the address and directions.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "leadership",
+      "label": "Leadership",
+      "description": "Pastors and elders from People, shown automatically.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "story",
+      "label": "Image and text",
+      "description": "A photo beside a heading, text, and an optional button.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "body",
+              "label": "Text",
+              "type": "portableText",
+              "required": true
+            },
+            {
+              "slug": "signature",
+              "label": "Signed by",
+              "type": "string"
+            },
+            {
+              "slug": "image",
+              "label": "Photo",
+              "type": "image"
+            },
+            {
+              "slug": "image_position",
+              "label": "Photo side",
+              "type": "select",
+              "validation": {
+                "options": ["left", "right"]
+              },
+              "defaultValue": "left"
+            },
+            {
+              "slug": "cta_label",
+              "label": "Button label",
+              "type": "string"
+            },
+            {
+              "slug": "cta_url",
+              "label": "Button link",
+              "type": "string",
+              "validation": {
+                "pattern": "^(?:$|(?:https?://|mailto:|tel:|/(?!/)|#).+)$"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "highlights",
+      "label": "Highlights",
+      "description": "A heading over short titled paragraphs, two columns on wide screens.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "items",
+              "label": "Items",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 8,
+                "subFields": [
+                  {
+                    "slug": "title",
+                    "label": "Title",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "body",
+                    "label": "Text",
+                    "type": "text",
+                    "required": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "faq",
+      "label": "Questions",
+      "description": "Questions and answers that open one at a time.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "items",
+              "label": "Questions",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 20,
+                "subFields": [
+                  {
+                    "slug": "question",
+                    "label": "Question",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "answer",
+                    "label": "Answer",
+                    "type": "text",
+                    "required": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "statement",
+      "label": "Scripture",
+      "description": "A verse set large, with its reference.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "text",
+              "label": "Verse",
+              "type": "text",
+              "required": true
+            },
+            {
+              "slug": "reference",
+              "label": "Reference",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "cta_band",
+      "label": "Call to action",
+      "description": "A closing line over a photo with a button and the church address.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "body",
+              "label": "Text",
+              "type": "text"
+            },
+            {
+              "slug": "image",
+              "label": "Background photo",
+              "type": "image"
+            },
+            {
+              "slug": "cta_label",
+              "label": "Button label",
+              "type": "string"
+            },
+            {
+              "slug": "cta_url",
+              "label": "Button link",
+              "type": "string",
+              "validation": {
+                "pattern": "^(?:$|(?:https?://|mailto:|tel:|/(?!/)|#).+)$"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "rich_text",
+      "label": "Text",
+      "description": "Headings, paragraphs, and lists.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string"
+            },
+            {
+              "slug": "body",
+              "label": "Text",
+              "type": "portableText",
+              "required": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "collections": [
+    {
+      "slug": "home",
+      "label": "Home page",
+      "labelSingular": "Home page",
+      "icon": "house",
+      "sortOrder": 0,
+      "supports": ["drafts", "revisions", "preview", "seo"],
+      "urlPattern": "/",
+      "description": "The first page visitors see. Edit its sections to change the home page.",
+      "admin": {
+        "quickCreate": false
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "intro",
+          "label": "Intro",
+          "type": "text"
+        },
+        {
+          "slug": "content",
+          "label": "Sections",
+          "type": "blocks",
+          "validation": {
+            "allowedTypes": [
+              "hero",
+              "announcements",
+              "latest_sermon",
+              "this_week",
+              "ministries",
+              "service_times",
+              "leadership",
+              "story",
+              "highlights",
+              "faq",
+              "statement",
+              "cta_band",
+              "rich_text"
+            ],
+            "maxItems": 20
+          }
+        }
+      ]
+    },
+    {
+      "slug": "announcements",
+      "label": "News",
+      "labelSingular": "Announcement",
+      "icon": "megaphone",
+      "sortOrder": 1,
+      "supports": ["drafts", "revisions", "preview", "seo", "search"],
+      "urlPattern": "/news/{slug}",
+      "dateField": "published_on",
+      "description": "Announcements and updates. Pinned news shows first and in the bar above the header; news hides itself after its end date.",
+      "admin": {
+        "listColumns": ["published_on", "pinned"]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "published_on",
+          "label": "Date",
+          "type": "datetime",
+          "required": true,
+          "indexed": true
+        },
+        {
+          "slug": "summary",
+          "label": "Short summary",
+          "type": "text",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "body",
+          "label": "Full announcement",
+          "type": "portableText"
+        },
+        {
+          "slug": "image",
+          "label": "Photo",
+          "type": "image"
+        },
+        {
+          "slug": "pinned",
+          "label": "Pin to the top (and the bar above the header)",
+          "type": "boolean",
+          "defaultValue": false
+        },
+        {
+          "slug": "expires_on",
+          "label": "Hide after this date (optional)",
+          "type": "datetime"
+        }
+      ]
+    },
+    {
+      "slug": "sermons",
+      "label": "Sermons",
+      "labelSingular": "Sermon",
+      "icon": "book-open",
+      "sortOrder": 2,
+      "supports": ["drafts", "revisions", "preview", "seo", "search"],
+      "urlPattern": "/sermons/{slug}",
+      "dateField": "preached_on",
+      "description": "Each Sunday's sermons with their video and study questions.",
+      "admin": {
+        "listColumns": ["preached_on", "preacher", "series"]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "preached_on",
+          "label": "Date preached",
+          "type": "datetime",
+          "required": true,
+          "indexed": true
+        },
+        {
+          "slug": "preacher",
+          "label": "Preacher",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "passage",
+          "label": "Scripture passage",
+          "type": "string",
+          "searchable": true
+        },
+        {
+          "slug": "series",
+          "label": "Series",
+          "type": "string",
+          "indexed": true
+        },
+        {
+          "slug": "service",
+          "label": "Service",
+          "type": "select",
+          "validation": {
+            "options": [
+              "Morning worship",
+              "Evening worship",
+              "Sunday school",
+              "Other"
+            ]
+          },
+          "defaultValue": "Morning worship"
+        },
+        {
+          "slug": "video_url",
+          "label": "YouTube link",
+          "type": "url"
+        },
+        {
+          "slug": "summary",
+          "label": "Short summary",
+          "type": "text",
+          "searchable": true
+        },
+        {
+          "slug": "study_questions",
+          "label": "Study questions",
+          "type": "portableText"
+        }
+      ]
+    },
+    {
+      "slug": "events",
+      "label": "Events",
+      "labelSingular": "Event",
+      "icon": "calendar",
+      "sortOrder": 3,
+      "supports": ["drafts", "revisions", "preview", "seo"],
+      "urlPattern": "/events/{slug}",
+      "description": "Weekly gatherings and one-time events. The site builds the weekly calendar, Sunday times, and calendar subscriptions from these.",
+      "admin": {
+        "listColumns": ["weekday", "start_time", "repeats"]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Name",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "category",
+          "label": "Kind",
+          "type": "select",
+          "required": true,
+          "indexed": true,
+          "validation": {
+            "options": [
+              "Worship",
+              "Study",
+              "Prayer",
+              "Fellowship",
+              "Youth",
+              "Women",
+              "Men",
+              "Community groups",
+              "Special"
+            ]
+          },
+          "defaultValue": "Study"
+        },
+        {
+          "slug": "repeats",
+          "label": "How often",
+          "type": "select",
+          "required": true,
+          "validation": {
+            "options": [
+              "Every week",
+              "First week of the month",
+              "First and third weeks of the month",
+              "One date only"
+            ]
+          },
+          "defaultValue": "Every week"
+        },
+        {
+          "slug": "weekday",
+          "label": "Day of the week (repeating events)",
+          "type": "select",
+          "validation": {
+            "options": [
+              "Sunday",
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday"
+            ]
+          }
+        },
+        {
+          "slug": "date",
+          "label": "Date (one-time events)",
+          "type": "datetime"
+        },
+        {
+          "slug": "start_time",
+          "label": "Starts (24-hour time, like 18:30)",
+          "type": "string",
+          "required": true,
+          "validation": {
+            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+          }
+        },
+        {
+          "slug": "end_time",
+          "label": "Ends (optional, like 20:00)",
+          "type": "string",
+          "validation": {
+            "pattern": "^(?:$|(?:[01]\\d|2[0-3]):[0-5]\\d)$"
+          }
+        },
+        {
+          "slug": "location",
+          "label": "Where",
+          "type": "string"
+        },
+        {
+          "slug": "sunday_service",
+          "label": "Show with the Sunday service times",
+          "type": "boolean",
+          "defaultValue": false
+        },
+        {
+          "slug": "summary",
+          "label": "Short description",
+          "type": "text",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "details",
+          "label": "More details",
+          "type": "portableText"
+        },
+        {
+          "slug": "image",
+          "label": "Photo",
+          "type": "image"
+        }
+      ]
+    },
+    {
+      "slug": "ministries",
+      "label": "Ministries",
+      "labelSingular": "Ministry",
+      "icon": "users-three",
+      "sortOrder": 4,
+      "supports": ["drafts", "revisions", "preview", "seo"],
+      "urlPattern": "/ministries/{slug}",
+      "description": "Ministries of the church, each with its own page.",
+      "admin": {
+        "listColumns": ["meets", "sort_order"]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Name",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "summary",
+          "label": "Short description",
+          "type": "text",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "meets",
+          "label": "When it meets",
+          "type": "string"
+        },
+        {
+          "slug": "leader",
+          "label": "Led by",
+          "type": "string"
+        },
+        {
+          "slug": "image",
+          "label": "Photo",
+          "type": "image"
+        },
+        {
+          "slug": "details",
+          "label": "More details",
+          "type": "portableText"
+        },
+        {
+          "slug": "sort_order",
+          "label": "Order (lower shows first)",
+          "type": "integer",
+          "defaultValue": 100
+        }
+      ]
+    },
+    {
+      "slug": "people",
+      "label": "People",
+      "labelSingular": "Person",
+      "icon": "user-circle",
+      "sortOrder": 5,
+      "routable": false,
+      "supports": ["drafts", "revisions"],
+      "description": "Pastors, elders, and staff shown on the About page.",
+      "admin": {
+        "listColumns": ["role", "sort_order"]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Name",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "role",
+          "label": "Role",
+          "type": "select",
+          "required": true,
+          "validation": {
+            "options": ["Pastor", "Elder", "Deacon", "Staff"]
+          },
+          "defaultValue": "Elder"
+        },
+        {
+          "slug": "photo",
+          "label": "Photo",
+          "type": "image"
+        },
+        {
+          "slug": "bio",
+          "label": "Short bio",
+          "type": "text"
+        },
+        {
+          "slug": "sort_order",
+          "label": "Order (lower shows first)",
+          "type": "integer",
+          "defaultValue": 100
+        }
+      ]
+    },
+    {
+      "slug": "pages",
+      "label": "Pages",
+      "labelSingular": "Page",
+      "icon": "file-text",
+      "sortOrder": 6,
+      "supports": ["drafts", "revisions", "preview", "seo"],
+      "urlPattern": "/{slug}",
+      "description": "Every other page on the site, like Plan your visit and About.",
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "intro",
+          "label": "Intro",
+          "type": "text"
+        },
+        {
+          "slug": "content",
+          "label": "Sections",
+          "type": "blocks",
+          "validation": {
+            "allowedTypes": [
+              "hero",
+              "announcements",
+              "latest_sermon",
+              "this_week",
+              "ministries",
+              "service_times",
+              "leadership",
+              "story",
+              "highlights",
+              "faq",
+              "statement",
+              "cta_band",
+              "rich_text"
+            ],
+            "maxItems": 20
+          }
+        }
+      ]
+    },
+    {
+      "slug": "leads",
+      "label": "Messages",
+      "labelSingular": "Message",
+      "icon": "envelope-simple",
+      "sortOrder": 7,
+      "routable": false,
+      "supports": [],
+      "description": "Contact form messages and prayer requests. Visitors never see these.",
+      "admin": {
+        "listColumns": ["company", "email"],
+        "quickCreate": false
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "email",
+          "label": "Email",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "phone",
+          "label": "Phone",
+          "type": "string"
+        },
+        {
+          "slug": "company",
+          "label": "Topic",
+          "type": "string"
+        },
+        {
+          "slug": "message",
+          "label": "Message",
+          "type": "text",
+          "required": true
+        },
+        {
+          "slug": "source_path",
+          "label": "Sent from",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "menus": [
+    {
+      "name": "primary",
+      "label": "Main navigation",
+      "items": [
+        {
+          "type": "custom",
+          "label": "Visit",
+          "url": "/visit"
+        },
+        {
+          "type": "custom",
+          "label": "About",
+          "url": "/about"
+        },
+        {
+          "type": "custom",
+          "label": "Sermons",
+          "url": "/sermons"
+        },
+        {
+          "type": "custom",
+          "label": "Events",
+          "url": "/events"
+        },
+        {
+          "type": "custom",
+          "label": "Ministries",
+          "url": "/ministries"
+        },
+        {
+          "type": "custom",
+          "label": "News",
+          "url": "/news"
+        }
+      ]
+    },
+    {
+      "name": "footer",
+      "label": "Footer links",
+      "items": [
+        {
+          "type": "custom",
+          "label": "Plan your visit",
+          "url": "/visit"
+        },
+        {
+          "type": "custom",
+          "label": "About",
+          "url": "/about"
+        },
+        {
+          "type": "custom",
+          "label": "What we believe",
+          "url": "/beliefs"
+        },
+        {
+          "type": "custom",
+          "label": "Membership",
+          "url": "/membership"
+        },
+        {
+          "type": "custom",
+          "label": "Sermons",
+          "url": "/sermons"
+        },
+        {
+          "type": "custom",
+          "label": "Events",
+          "url": "/events"
+        },
+        {
+          "type": "custom",
+          "label": "Ministries",
+          "url": "/ministries"
+        },
+        {
+          "type": "custom",
+          "label": "News",
+          "url": "/news"
+        },
+        {
+          "type": "custom",
+          "label": "Watch live",
+          "url": "/live"
+        },
+        {
+          "type": "custom",
+          "label": "Contact",
+          "url": "/contact"
+        },
+        {
+          "type": "custom",
+          "label": "Privacy",
+          "url": "/privacy"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/our-services",
+      "destination": "/visit",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/what-we-believe",
+      "destination": "/beliefs",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/profiles",
+      "destination": "/about",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/calendar",
+      "destination": "/events",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/sermon-study-questions",
+      "destination": "/sermons",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/Sermon-Study-Questions",
+      "destination": "/sermons",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/sermons/series/isaiah",
+      "destination": "/sermons",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/sermons/speaker/james-wenger",
+      "destination": "/sermons",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/books",
+      "destination": "/ministries/adult-sunday-school",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/courses",
+      "destination": "/ministries/adult-sunday-school",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/ministries/vbs-2",
+      "destination": "/ministries/vbs",
+      "type": 301,
+      "enabled": true,
+      "groupName": "Old site"
+    },
+    {
+      "source": "/home",
+      "destination": "/",
+      "type": 308,
+      "enabled": true,
+      "groupName": "Site structure"
+    }
+  ],
+  "content": {
+    "home": [
+      {
+        "id": "page-home",
+        "slug": "home",
+        "status": "published",
+        "data": {
+          "title": "Home",
+          "content": [
+            {
+              "_type": "hero",
+              "_version": 1,
+              "_key": "hero1",
+              "headline": "Devoted to God and our neighbor.",
+              "subheadline": "Grace Church is an independent Reformed church in Laguna Niguel, committed to the faithful preaching of the apostolic gospel. You are welcome here this Sunday.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/church-building-cross.jpg",
+                  "alt": "Grace Church's brick sanctuary with a cross above olive trees",
+                  "filename": "church-building-cross.jpg"
+                }
+              },
+              "primary_cta_label": "Plan your visit",
+              "primary_cta_url": "/visit",
+              "secondary_cta_label": "Watch live",
+              "secondary_cta_url": "/live"
+            },
+            {
+              "_type": "announcements",
+              "_version": 1,
+              "_key": "announcements2",
+              "headline": "News and announcements",
+              "count": 3
+            },
+            {
+              "_type": "latest_sermon",
+              "_version": 1,
+              "_key": "latestsermon3",
+              "headline": "Hear the Word preached",
+              "intro": "Sunday mornings we are preaching verse by verse through Isaiah, and Sunday evenings through 1 John."
+            },
+            {
+              "_type": "this_week",
+              "_version": 1,
+              "_key": "thisweek4",
+              "headline": "This week at Grace",
+              "intro": "Worship, study, prayer, and fellowship through the week. Subscribe once and every gathering shows up in your phone's calendar."
+            },
+            {
+              "_type": "story",
+              "_version": 1,
+              "_key": "story9",
+              "headline": "Welcome to Grace Church",
+              "image_position": "left",
+              "signature": "Pastor James Wenger",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/pastor-james-wenger.jpg",
+                  "alt": "Pastor James Wenger",
+                  "filename": "pastor-james-wenger.jpg"
+                }
+              },
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b5",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s6",
+                      "text": "I'm so glad you've come to learn a little more about us. Grace Church of Laguna Niguel is an independent Reformed church. We are committed to the faithful preaching of the apostolic gospel."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b7",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s8",
+                      "text": "We hold to the traditions and theology of the reformers and take great pleasure in discovering God through His Word. You are invited to join us this Sunday as we worship our Triune God."
+                    }
+                  ],
+                  "markDefs": []
+                }
+              ],
+              "cta_label": "More about us",
+              "cta_url": "/about"
+            },
+            {
+              "_type": "ministries",
+              "_version": 1,
+              "_key": "ministries10",
+              "headline": "Find your place",
+              "intro": "We work hard to make Grace a place where everyone who comes can connect with God and with each other."
+            },
+            {
+              "_type": "statement",
+              "_version": 1,
+              "_key": "statement11",
+              "text": "For the eyes of the Lord range throughout the earth to strengthen those whose hearts are fully committed to him.",
+              "reference": "2 Chronicles 16:9a"
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "ctaband12",
+              "headline": "Join us this Sunday",
+              "body": "Adult Sunday school at 9:00 am, morning worship at 10:00 am, and evening worship at 6:00 pm.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/church-entry-olive-trees.jpg",
+                  "alt": "The walk to the Grace Church sanctuary under olive trees",
+                  "filename": "church-entry-olive-trees.jpg"
+                }
+              },
+              "cta_label": "Plan your visit",
+              "cta_url": "/visit"
+            }
+          ]
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page-visit",
+        "slug": "visit",
+        "status": "published",
+        "data": {
+          "title": "Plan your visit",
+          "intro": "We are a church committed to Jesus Christ and the historic teachings of the Christian faith. We would love to have you join us this Sunday.",
+          "content": [
+            {
+              "_type": "service_times",
+              "_version": 1,
+              "_key": "servicetimes13",
+              "headline": "Sunday at Grace",
+              "intro": "Services begin promptly, and ushers are glad to help you find your way."
+            },
+            {
+              "_type": "highlights",
+              "_version": 1,
+              "_key": "highlights14",
+              "headline": "What to expect",
+              "items": [
+                {
+                  "title": "A warm welcome",
+                  "body": "You will be greeted with warm smiles and an open door. Ushers are ready to help you find what you need and answer any questions you have."
+                },
+                {
+                  "title": "Worship guided by Scripture",
+                  "body": "Our services include prayer, the reading of Scripture, preaching, singing psalms and hymns, giving, confessing our faith with the Nicene Creed, and the Lord's Supper every week."
+                },
+                {
+                  "title": "Come as you are",
+                  "body": "We worship our God reverently and joyfully. Dress in whatever feels most comfortable to you."
+                },
+                {
+                  "title": "Families worship together",
+                  "body": "Children of all ages are welcome in the service. There is also a nursing mothers' room, a nursery, and children's classes through 5th grade."
+                }
+              ]
+            },
+            {
+              "_type": "story",
+              "_version": 1,
+              "_key": "story21",
+              "headline": "Bringing your children",
+              "image_position": "right",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/childrens-ministry-class.jpg",
+                  "alt": "A teacher with children at a craft table in a Sunday school classroom",
+                  "filename": "childrens-ministry-class.jpg"
+                }
+              },
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b15",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s16",
+                      "text": "The nursery (Room 101, birth to age 3) is open before the service begins."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b17",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s18",
+                      "text": "Older children start in the sanctuary with their families and are dismissed to their classes just before the sermon. Grades 1 through 4 come back for the Lord's Supper and sit with their families; PreK and kindergarten stay in Room 104 until the service ends."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b19",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s20",
+                      "text": "Every lesson points children to Christ, and each class reviews the First Catechism or the Westminster Shorter Catechism."
+                    }
+                  ],
+                  "markDefs": []
+                }
+              ],
+              "cta_label": "Children's ministry",
+              "cta_url": "/ministries/childrens-ministry"
+            },
+            {
+              "_type": "faq",
+              "_version": 1,
+              "_key": "faq22",
+              "headline": "Questions people ask",
+              "items": [
+                {
+                  "question": "What kind of church is Grace?",
+                  "answer": "We are an independent Reformed congregation that seeks to glorify God and enjoy Him forever. Our statement of faith is the Westminster Confession of Faith with the Larger and Shorter Catechisms."
+                },
+                {
+                  "question": "When and where are services?",
+                  "answer": "Sunday morning worship is at 10:00 am and evening worship is at 6:00 pm, at 24600 La Plata Drive in Laguna Niguel. Adult Sunday school meets at 9:00 am."
+                },
+                {
+                  "question": "What is the evening service like?",
+                  "answer": "The Sunday evening service runs from 6:00 to 7:00 pm, with a time of prayer, songs, and a sermon. There is no childcare in the evening."
+                },
+                {
+                  "question": "How can I get connected?",
+                  "answer": "Start by joining us for worship. From there you will find a monthly fellowship meal on the first Sunday after the service, weekly community groups, men's and women's studies, youth and young adults groups, and ways to serve in the church and the community."
+                },
+                {
+                  "question": "Can I watch online?",
+                  "answer": "Yes. Sunday services stream live on our YouTube channel, and recent sermons are on the sermons page."
+                }
+              ]
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "ctaband23",
+              "headline": "We would love to meet you",
+              "body": "Questions before you come? Call the church office or send us a message.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/church-sign.jpg",
+                  "alt": "The Grace Church sign on La Plata Drive",
+                  "filename": "church-sign.jpg"
+                }
+              },
+              "cta_label": "Contact us",
+              "cta_url": "/contact"
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-about",
+        "slug": "about",
+        "status": "published",
+        "data": {
+          "title": "About Grace Church",
+          "intro": "A group of believers bound together through a common faith in the Lord Jesus Christ, and firmly committed to the authority of God's Word.",
+          "content": [
+            {
+              "_type": "story",
+              "_version": 1,
+              "_key": "story28",
+              "headline": "Who we are",
+              "image_position": "right",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/congregation-singing.jpg",
+                  "alt": "The congregation standing to sing during Sunday worship",
+                  "filename": "congregation-singing.jpg"
+                }
+              },
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b24",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s25",
+                      "text": "Grace Church of Laguna Niguel is an independent Reformed church committed to the exegetical teaching of God's Word. We hold to the traditions and theology of the reformers and take great pleasure in discovering God through His Word."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b26",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s27",
+                      "text": "Our hope is to serve you as you seek to grow in the grace and knowledge of our Lord and Savior Jesus Christ. Call the church office any time, or come and see us on Sunday."
+                    }
+                  ],
+                  "markDefs": []
+                }
+              ],
+              "cta_label": "Plan your visit",
+              "cta_url": "/visit"
+            },
+            {
+              "_type": "highlights",
+              "_version": 1,
+              "_key": "highlights29",
+              "headline": "What shapes us",
+              "items": [
+                {
+                  "title": "Christ-centered preaching",
+                  "body": "At Grace you will be nourished in the Word through a deep commitment to Christ-centered, expository preaching, verse by verse through books of the Bible."
+                },
+                {
+                  "title": "Led by elders",
+                  "body": "Grace Church is led by a plurality of pastors and elders under the authority of Jesus Christ, the Chief Shepherd."
+                },
+                {
+                  "title": "A historic confession",
+                  "body": "Our statement of faith is contained in the Westminster Standards, and every Sunday we confess our faith together with the Nicene Creed."
+                },
+                {
+                  "title": "Life together",
+                  "body": "Fellowships, community groups, and studies fill our weekly and monthly calendar, so deep and lasting friendships can grow within the church body."
+                }
+              ]
+            },
+            {
+              "_type": "leadership",
+              "_version": 1,
+              "_key": "leadership30",
+              "headline": "Our pastors and elders",
+              "intro": "Shepherd the flock of God that is among you. 1 Peter 5:2"
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "ctaband31",
+              "headline": "What we believe",
+              "body": "We accept the Scriptures as our only authority in matters of faith and practice.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/isaiah-open-bible.jpg",
+                  "alt": "A Bible open to the book of Isaiah",
+                  "filename": "isaiah-open-bible.jpg"
+                }
+              },
+              "cta_label": "Read our beliefs",
+              "cta_url": "/beliefs"
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-beliefs",
+        "slug": "beliefs",
+        "status": "published",
+        "data": {
+          "title": "What we believe",
+          "intro": "For the word of God and for the testimony of Jesus Christ. Revelation 1:9",
+          "content": [
+            {
+              "_type": "rich_text",
+              "_version": 1,
+              "_key": "richtext62",
+              "headline": "Our doctrine",
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b32",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s33",
+                      "text": "Our statement of faith is contained in the Westminster Standards: the Westminster Confession of Faith, the Larger Catechism, and the Shorter Catechism."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b34",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s35",
+                      "text": "We accept the Scriptures as our only authority in matters of faith and practice. Our doctrine may be summarized as follows."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "listItem": "number",
+                  "level": 1,
+                  "_key": "b36",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s37",
+                      "text": "We believe in the Scriptures of both the Old and New Testament as being verbally and plenarily inspired by God, inerrant and infallible in the original writings, and of supreme and final authority in matters of faith and practice (Matt. 5:17-18; Prov. 30:5-6; 2 Tim. 3:16-17; 2 Pet. 1:20-21; John 10:35; Luke 16:17)."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "listItem": "number",
+                  "level": 1,
+                  "_key": "b38",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s39",
+                      "text": "We believe God is a Spirit, in and of Himself infinite in being, glory, blessedness, and perfection; all-sufficient, eternal, unchangeable, incomprehensible, everywhere present, almighty, knowing all things, most wise, most holy, most just, most merciful and gracious, longsuffering, and abundant in goodness and truth. We believe in the Holy Trinity: there are three persons in the Godhead, the Father, the Son, and the Holy Spirit, and these three are one true, eternal God, the same in substance, equal in power and glory, although distinguished by their personal properties (Deut. 6:4; Isa. 45:5-6; Ps. 90:1-2; Gen. 1:1; Matt. 28:19; Eph. 4:4-6; John 15:26; 16:15; 1 Pet. 1:2; John 1:1; 20:28; Heb. 1:8; Phil. 2:6; Acts 5:4, 9)."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "listItem": "number",
+                  "level": 1,
+                  "_key": "b40",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s41",
+                      "text": "We believe that Jesus Christ was begotten by God, conceived by the Holy Spirit, and born of the virgin Mary (John 1:1-14; Matt. 1:18-25; Luke 1:26-38; Isa. 7:14)."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "listItem": "number",
+                  "level": 1,
+                  "_key": "b42",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s43",
+                      "text": "We believe in the Holy Spirit, the third person of the Trinity, the Lord and giver of life, who convicts the world of sin, righteousness, and judgment. He empowers the preaching and teaching of the Gospel and applies the benefits of Christ's saving work in the life of believers (John 14:16; 16:7-11; 3:5-8; 1 Cor. 12:13; Titus 3:5; Eph. 1:13; 4:30; Rom. 8:9-11; Gal. 5:16, 22-25)."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "listItem": "number",
+                  "level": 1,
+                  "_key": "b44",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s45",
+                      "text": "We believe that mankind was created in the image of God, both male and female, in a state of righteousness, knowledge, and holiness, yet mutably so. They sinned, through their own free will and the temptation of Satan, and thereby incurred not only physical death but spiritual death, which is alienation from and enmity with God, and human beings are born with a sinful nature which renders them incapable of saving themselves (Gen. 1:27; 5:1; 1 Cor. 11:7; Rom. 6:23; 3:10; 8:7; Gal. 3:22)."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "listItem": "number",
+                  "level": 1,
+                  "_key": "b46",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s47",
+                      "text": "We believe that the Lord Jesus Christ died for our sins according to the Scriptures as a representative and substitutionary sacrifice, and that all who believe in Him are justified through faith alone, apart from works, on the basis of His shed blood and perfect righteousness (2 Cor. 5:14-21; 1 Cor. 15:3, 22; Heb. 4:15-16; Rom. 5:8; 1 John 2:2; Gal. 2:16; 3:11; Rom. 3:23-26; 4:5-8, 25; 8:33)."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "listItem": "number",
+                  "level": 1,
+                  "_key": "b48",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s49",
+                      "text": "We believe in the bodily resurrection of our crucified Lord on the third day, His appearances to His disciples, His ascension into heaven, and His present life there as High Priest and Advocate for us, having been given all authority in heaven and on earth (Luke 24:23-40; 1 Cor. 15:12-23; Acts 1:1-11; 1 Pet. 3:22; Heb. 4:14; 7:25; 8:1-2; 9:11-15)."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "listItem": "number",
+                  "level": 1,
+                  "_key": "b50",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s51",
+                      "text": "We believe in the blessed hope and the personal, visible return of our Lord and Savior Jesus Christ at the end of the age (Titus 2:13; Rom. 8:18-25; 1 Pet. 1:7, 13; 2 Thess. 1:7; Acts 1:11; Mark 13:33-37; Matt. 24:42-51)."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "listItem": "number",
+                  "level": 1,
+                  "_key": "b52",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s53",
+                      "text": "We believe that all who receive by faith the Lord Jesus Christ have been born again by the Holy Spirit, have been forgiven of their sins, and are adopted by God and made heirs of eternal life (Rom. 10:14, 17; Eph. 2:8-10; Titus 3:5; John 1:12-13; 3:3-8; Ezek. 36:26; 2 Cor. 5:17; Rom. 8:14-17; 1 John 3:2)."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "listItem": "number",
+                  "level": 1,
+                  "_key": "b54",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s55",
+                      "text": "We believe in the bodily resurrection of the just and the unjust at the return of Christ, the everlasting conscious suffering of the lost in hell, and the fellowship of the saved in heaven (1 Thess. 4:13-18; 1 Cor. 15:51-58; Rev. 20:11-15; 21:8, 27; Matt. 25:31-46; Luke 16:19-31; 2 Cor. 5:6-9; Phil. 1:23; John 14:1-6)."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "listItem": "number",
+                  "level": 1,
+                  "_key": "b56",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s57",
+                      "text": "We believe in the existence of a personal devil, who is still working in the world to destroy the souls of men, and that he and all his angels and all who do not receive Christ as their personal Savior will eternally perish in the lake of fire (Isa. 14:12-15; Rev. 19:20; 20:10, 14-15)."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "listItem": "number",
+                  "level": 1,
+                  "_key": "b58",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s59",
+                      "text": "We believe in the Church, whose mission it is to preach the Scriptures to all the world, all of its endeavors being guided by a parity and plurality of elders and supported by the wise stewardship of God's people (Eph. 1:22-23; 5:23-32; Col. 1:18; Matt. 28:18-20; Acts 14:23; 20:28-31; Titus 1:7; 1 Pet. 4:10; 1 Cor. 16:2; 2 Cor. 8:24-9:15)."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "listItem": "number",
+                  "level": 1,
+                  "_key": "b60",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s61",
+                      "text": "We believe that the sacraments of the Church, given by the Lord, are Baptism and the Lord's Table (Communion) (Rom. 6:3-4; Acts 2:38-41; 8:12, 36-38; Matt. 28:19-20; 26:26-30; 1 Cor. 10:16; 11:23-30)."
+                    }
+                  ],
+                  "markDefs": []
+                }
+              ]
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "ctaband63",
+              "headline": "Have questions?",
+              "body": "We would be glad to talk with you about what we believe and why.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/church-lawn.jpg",
+                  "alt": "The lawn in front of Grace Church",
+                  "filename": "church-lawn.jpg"
+                }
+              },
+              "cta_label": "Contact us",
+              "cta_url": "/contact"
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-membership",
+        "slug": "membership",
+        "status": "published",
+        "data": {
+          "title": "Membership",
+          "intro": "We believe it is biblical for Christians to commit themselves to a local church, and for that church's leaders to shepherd them.",
+          "content": [
+            {
+              "_type": "rich_text",
+              "_version": 1,
+              "_key": "richtext68",
+              "headline": "The membership class",
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b64",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s65",
+                      "text": "In the membership class you will learn about the vision of Grace Church, our leadership, our doctrinal statement, how to become involved in ministry, and the privileges and responsibilities of church membership."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b66",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s67",
+                      "text": "Classes are held once a year. Contact the church office to ask about the next one."
+                    }
+                  ],
+                  "markDefs": []
+                }
+              ]
+            },
+            {
+              "_type": "highlights",
+              "_version": 1,
+              "_key": "highlights69",
+              "headline": "Why become a member?",
+              "items": [
+                {
+                  "title": "Membership is biblical",
+                  "body": "While the term is never used, the concept is implicit throughout the New Testament: believers identified with a specific local body and devoted themselves to it (Acts 2:42; Heb. 10:25; Rom. 12:5; 1 Cor. 14:12, 26)."
+                },
+                {
+                  "title": "It helps the elders shepherd",
+                  "body": "Membership helps the leaders of the church fulfill their God-given task of shepherding, and identifies disciples who build and sustain its ministries (Gal. 6:10; Heb. 13:17)."
+                },
+                {
+                  "title": "It strengthens you",
+                  "body": "Membership moves each of us out of the vague cloud of good intentions and into the clear light of committed participation (1 Cor. 12:7)."
+                }
+              ]
+            },
+            {
+              "_type": "highlights",
+              "_version": 1,
+              "_key": "highlights70",
+              "headline": "How to become a member",
+              "items": [
+                {
+                  "title": "Learn",
+                  "body": "Complete the church membership class."
+                },
+                {
+                  "title": "Commit",
+                  "body": "Pledge yourself to the local body of Grace Church."
+                },
+                {
+                  "title": "Celebrate",
+                  "body": "New members are presented at a worship service so the whole church can rejoice together."
+                }
+              ]
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "ctaband71",
+              "headline": "Interested in membership?",
+              "body": "Let us know and we will tell you when the next class meets.",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/congregation-singing.jpg",
+                  "alt": "The congregation in worship",
+                  "filename": "congregation-singing.jpg"
+                }
+              },
+              "cta_label": "Contact us",
+              "cta_url": "/contact"
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-events",
+        "slug": "events",
+        "status": "published",
+        "data": {
+          "title": "Events",
+          "intro": "Worship, study, prayer, and fellowship at Grace Church, every week of the year.",
+          "content": []
+        }
+      },
+      {
+        "id": "page-sermons",
+        "slug": "sermons",
+        "status": "published",
+        "data": {
+          "title": "Sermons",
+          "intro": "All Scripture is inspired by God and profitable for teaching, for reproof, for correction, for training in righteousness. 2 Timothy 3:16",
+          "content": []
+        }
+      },
+      {
+        "id": "page-news",
+        "slug": "news",
+        "status": "published",
+        "data": {
+          "title": "News and announcements",
+          "intro": "What is happening in the life of the church.",
+          "content": []
+        }
+      },
+      {
+        "id": "page-ministries",
+        "slug": "ministries",
+        "status": "published",
+        "data": {
+          "title": "Ministries",
+          "intro": "Christ-centered ministries for every age and season of life.",
+          "content": []
+        }
+      },
+      {
+        "id": "page-live",
+        "slug": "live",
+        "status": "published",
+        "data": {
+          "title": "Watch live",
+          "intro": "Sunday morning and evening worship stream live on our YouTube channel. The rest of the week, catch up on the latest sermon here.",
+          "content": []
+        }
+      },
+      {
+        "id": "page-contact",
+        "slug": "contact",
+        "status": "published",
+        "data": {
+          "title": "Contact us",
+          "intro": "We would love to tell you more about our church and hear more about you. Call, email, or send a message, including prayer requests.",
+          "content": []
+        }
+      },
+      {
+        "id": "page-privacy",
+        "slug": "privacy",
+        "status": "published",
+        "data": {
+          "title": "Privacy",
+          "intro": "How this site handles analytics, videos, and the information you send us.",
+          "content": [
+            {
+              "_type": "rich_text",
+              "_version": 1,
+              "_key": "richtext82",
+              "body": [
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b72",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s73",
+                      "text": "This site uses anonymous, cookieless analytics to understand which pages are useful. It does not set cookies, store identifiers in your browser, or build a profile of you."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b74",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s75",
+                      "text": "When you send the contact form, we store your name, email, phone, and message so the church office can reply. We do not sell or share this information. The form is protected by Cloudflare Turnstile, which checks that a person, not a bot, is sending it."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b76",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s77",
+                      "text": "Sermon videos load from YouTube only after you press play. The live page shows YouTube's player directly, and YouTube's own privacy policy applies to it."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b78",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s79",
+                      "text": "Online giving takes you to Cornerstone, which has its own privacy policy."
+                    }
+                  ],
+                  "markDefs": []
+                },
+                {
+                  "_type": "block",
+                  "style": "normal",
+                  "_key": "b80",
+                  "children": [
+                    {
+                      "_type": "span",
+                      "_key": "s81",
+                      "text": "To ask about or delete information you have sent us, use the contact form and mention this page."
+                    }
+                  ],
+                  "markDefs": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "announcements": [
+      {
+        "id": "news-fellowship-meal-november",
+        "slug": "fellowship-meal-november",
+        "status": "published",
+        "data": {
+          "title": "Fellowship meal this Sunday",
+          "published_on": "2026-10-26T16:00:00.000Z",
+          "pinned": true,
+          "expires_on": "2026-11-02T07:59:00.000Z",
+          "summary": "Stay after morning worship on Sunday, November 1 for our monthly potluck. Bring a dish or two to share.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/fellowship-meal.jpg",
+              "alt": "A table of shared dishes",
+              "filename": "fellowship-meal.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b207",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s208",
+                  "text": "Join us on the first Sunday of every month after the worship service for a potluck meal. It is a great time to meet others in the church over good food."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b209",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s210",
+                  "text": "Bring a dish or two to share and stick around. New to Grace? This is one of the best ways to get to know people."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "news-womens-study-nehemiah",
+        "slug": "womens-bible-study-nehemiah",
+        "status": "published",
+        "data": {
+          "title": "Women's Bible study: Nehemiah",
+          "published_on": "2026-09-08T16:00:00.000Z",
+          "summary": "This year's study is Nehemiah: Rebuilt and Rebuilding, by Kathleen B. Nielson. Join the morning or evening group any time.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/womens-bible-study.jpg",
+              "alt": "A woman studying an open Bible with notes",
+              "filename": "womens-bible-study.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b211",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s212",
+                  "text": "The morning group meets at church on the first and third Thursdays, 9:30 to 11:00 am. The evening group meets in a home in Mission Viejo on the first and third Tuesdays, 6:30 to 8:00 pm."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b213",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s214",
+                  "text": "You are welcome to join either group at any point in the year. Call the church office to connect with a leader."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "news-sermon-study-questions",
+        "slug": "sermon-study-questions-every-tuesday",
+        "status": "published",
+        "data": {
+          "title": "Sermon study questions, every Tuesday",
+          "published_on": "2026-09-01T16:00:00.000Z",
+          "summary": "Pastor James posts study questions for Sunday's sermon every Tuesday. You will find them on each sermon's page.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/isaiah-open-bible.jpg",
+              "alt": "A Bible open to the book of Isaiah",
+              "filename": "isaiah-open-bible.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b215",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s216",
+                  "text": "Our hope is that these questions promote deeper personal study and further build up our church body. Our community groups are working through them this season too."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b217",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s218",
+                  "text": "Open any sermon on the sermons page to find its questions below the video."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "news-wednesday-prayer",
+        "slug": "wednesday-prayer-meeting",
+        "status": "published",
+        "data": {
+          "title": "Pray with us on Wednesday mornings",
+          "published_on": "2026-08-25T16:00:00.000Z",
+          "summary": "We pray together on Zoom every Wednesday at 8:00 am. Call the church office to be added to the email list for the link.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/prayer-meeting-zoom.jpg",
+              "alt": "A laptop showing a video call beside a coffee mug",
+              "filename": "prayer-meeting-zoom.jpg"
+            }
+          },
+          "body": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b219",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s220",
+                  "text": "An invitation with the Zoom link is sent out every week through our church email group. Call the church office at (949) 388-5537 to be added."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      }
+    ],
+    "sermons": [
+      {
+        "id": "sermon-1-john-4-1-6",
+        "slug": "1-john-4-1-6",
+        "status": "published",
+        "data": {
+          "title": "1 John 4:1-6",
+          "preached_on": "2026-10-26T01:00:00.000Z",
+          "preacher": "James Wenger",
+          "passage": "1 John 4:1-6",
+          "series": "1 John",
+          "service": "Evening worship",
+          "video_url": "https://www.youtube.com/watch?v=rcWtc6b2UKo"
+        }
+      },
+      {
+        "id": "sermon-watchmen-asleep-god-awake",
+        "slug": "watchmen-asleep-god-awake",
+        "status": "published",
+        "data": {
+          "title": "Watchmen Asleep, God Awake",
+          "preached_on": "2026-10-25T17:00:00.000Z",
+          "preacher": "James Wenger",
+          "passage": "Isaiah 56:9-57:21",
+          "series": "Isaiah",
+          "service": "Morning worship",
+          "video_url": "https://www.youtube.com/watch?v=M9neSO0mLwE"
+        }
+      },
+      {
+        "id": "sermon-1-john-3-19-24",
+        "slug": "1-john-3-19-24",
+        "status": "published",
+        "data": {
+          "title": "1 John 3:19-24",
+          "preached_on": "2026-10-19T01:00:00.000Z",
+          "preacher": "Brad Dickey",
+          "passage": "1 John 3:19-24",
+          "series": "1 John",
+          "service": "Evening worship",
+          "video_url": "https://www.youtube.com/watch?v=Q6jTe5Sco8Y"
+        }
+      },
+      {
+        "id": "sermon-living-in-the-light-of-gods-grace",
+        "slug": "living-in-the-light-of-gods-grace",
+        "status": "published",
+        "data": {
+          "title": "Living in the Light of God's Grace",
+          "preached_on": "2026-10-18T17:00:00.000Z",
+          "preacher": "James Wenger",
+          "passage": "Isaiah 56:1-8",
+          "series": "Isaiah",
+          "service": "Morning worship",
+          "video_url": "https://www.youtube.com/watch?v=Hk_8CcNMX7I",
+          "summary": "God's grace calls His people to godly living, and because of the Servant's work the Lord welcomes outcasts to Himself.",
+          "study_questions": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "b83",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s84",
+                  "text": "Read Isaiah 56:1-8."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "b85",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s86",
+                  "text": "The Bible makes clear that we are saved by grace alone through faith alone in Christ alone. Does it then matter how we live? Some say it does not; this is known as antinomianism. What is antinomianism?"
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "b87",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s88",
+                  "text": "In verses 1 and 2 we see that God's grace calls us to godly living: to keep justice and do righteousness. What is justice, and how do we keep it?"
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "b89",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s90",
+                  "text": "What is righteousness? What is the difference between positional and practical righteousness?"
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "b91",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s92",
+                  "text": "In verse 2 the Lord points to the need to keep the Sabbath. In principle, what is the Sabbath?"
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "b93",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s94",
+                  "text": "What is the origin of the Sabbath? Why was the day we observe it changed under the New Covenant?"
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "b95",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s96",
+                  "text": "Because of the work of the Servant (chapter 53), the Lord now welcomes outcasts to Himself (verses 3 to 8). What did the Servant of the Lord, Jesus Christ, do to accomplish this? See Ephesians 2:11-16."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "b97",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s98",
+                  "text": "God welcomes all to Himself because of the work of Christ, and He requires those who come to Him to keep His commandments. Why does He require obedience if our obedience has nothing to do with our salvation?"
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "b99",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s100",
+                  "text": "What practical application can you make from this text and sermon?"
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "number",
+              "level": 1,
+              "_key": "b101",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s102",
+                  "text": "Pray!"
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "sermon-1-john-3-11-14",
+        "slug": "1-john-3-11-14",
+        "status": "published",
+        "data": {
+          "title": "1 John 3:11-14",
+          "preached_on": "2026-10-12T01:00:00.000Z",
+          "preacher": "Brad Dickey",
+          "passage": "1 John 3:11-14",
+          "series": "1 John",
+          "service": "Evening worship",
+          "video_url": "https://www.youtube.com/watch?v=aCQMOFo5OAA"
+        }
+      },
+      {
+        "id": "sermon-celebrating-the-servant",
+        "slug": "celebrating-the-servant",
+        "status": "published",
+        "data": {
+          "title": "Celebrating the Servant!",
+          "preached_on": "2026-10-11T17:00:00.000Z",
+          "preacher": "James Wenger",
+          "passage": "Isaiah 55",
+          "series": "Isaiah",
+          "service": "Morning worship",
+          "video_url": "https://www.youtube.com/watch?v=voc89YG4INw"
+        }
+      },
+      {
+        "id": "sermon-1-john-3-4-10",
+        "slug": "1-john-3-4-10",
+        "status": "published",
+        "data": {
+          "title": "1 John 3:4-10",
+          "preached_on": "2026-10-05T01:00:00.000Z",
+          "preacher": "Brad Dickey",
+          "passage": "1 John 3:4-10",
+          "series": "1 John",
+          "service": "Evening worship",
+          "video_url": "https://www.youtube.com/watch?v=flL0oWdbow8"
+        }
+      },
+      {
+        "id": "sermon-rebuilding-the-ruins",
+        "slug": "rebuilding-the-ruins",
+        "status": "published",
+        "data": {
+          "title": "Rebuilding the Ruins",
+          "preached_on": "2026-10-04T17:00:00.000Z",
+          "preacher": "James Wenger",
+          "passage": "Isaiah 54",
+          "series": "Isaiah",
+          "service": "Morning worship",
+          "video_url": "https://www.youtube.com/watch?v=P71xpkpRHwM"
+        }
+      },
+      {
+        "id": "sermon-1-john-2-28-3-3",
+        "slug": "1-john-2-28-3-3",
+        "status": "published",
+        "data": {
+          "title": "1 John 2:28-3:3",
+          "preached_on": "2026-09-28T01:00:00.000Z",
+          "preacher": "Brad Dickey",
+          "passage": "1 John 2:28-3:3",
+          "series": "1 John",
+          "service": "Evening worship",
+          "video_url": "https://www.youtube.com/watch?v=ILxoZWxGvY8"
+        }
+      },
+      {
+        "id": "sermon-the-suffering-servant",
+        "slug": "the-suffering-servant",
+        "status": "published",
+        "data": {
+          "title": "The Suffering Servant",
+          "preached_on": "2026-09-20T17:00:00.000Z",
+          "preacher": "James Wenger",
+          "passage": "Isaiah 52:13-53:12",
+          "series": "Isaiah",
+          "service": "Morning worship",
+          "video_url": "https://www.youtube.com/watch?v=K4x2TDpPyno"
+        }
+      }
+    ],
+    "events": [
+      {
+        "id": "event-adult-sunday-school",
+        "slug": "adult-sunday-school",
+        "status": "published",
+        "data": {
+          "title": "Adult Sunday School",
+          "category": "Study",
+          "repeats": "Every week",
+          "weekday": "Sunday",
+          "start_time": "09:00",
+          "location": "Room 102",
+          "summary": "Study and prayer before morning worship, taught by Pastor Clark Gallagher. Childcare and coffee are provided.",
+          "sunday_service": true,
+          "end_time": "09:50",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/adult-sunday-school.jpg",
+              "alt": "Adults seated for a Sunday school class",
+              "filename": "adult-sunday-school.jpg"
+            }
+          }
+        }
+      },
+      {
+        "id": "event-sunday-morning-worship",
+        "slug": "sunday-morning-worship",
+        "status": "published",
+        "data": {
+          "title": "Morning Worship",
+          "category": "Worship",
+          "repeats": "Every week",
+          "weekday": "Sunday",
+          "start_time": "10:00",
+          "location": "Sanctuary",
+          "summary": "Scripture reading, psalms and hymns, prayer, the preaching of the Word, the Nicene Creed, and the Lord's Supper.",
+          "sunday_service": true,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/congregation-singing.jpg",
+              "alt": "The congregation singing in the sanctuary",
+              "filename": "congregation-singing.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b109",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s110",
+                  "text": "Join us every Sunday morning at 10:00 for our weekly worship service."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b111",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s112",
+                  "text": "Our worship includes the reading of Holy Scripture, singing of psalms, hymns, and traditional songs, the offering of prayer, the expository preaching of the Word, and the presentation of offerings. Every Sunday we confess our faith by reciting the Nicene Creed together and observing the Lord's Supper."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "event-church-fellowship-meal",
+        "slug": "church-fellowship-meal",
+        "status": "published",
+        "data": {
+          "title": "Church Fellowship Meal",
+          "category": "Fellowship",
+          "repeats": "First week of the month",
+          "weekday": "Sunday",
+          "start_time": "11:45",
+          "location": "Fellowship Hall",
+          "summary": "A potluck after morning worship on the first Sunday of every month. Bring a dish or two to share and stay a while.",
+          "sunday_service": false,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/fellowship-meal.jpg",
+              "alt": "A table of shared dishes",
+              "filename": "fellowship-meal.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b113",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s114",
+                  "text": "Join us every first Sunday of the month after the worship service for a potluck meal. It is a great time to meet others in the church over good food. Bring a dish or two to share and stick around."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "event-sunday-evening-worship",
+        "slug": "sunday-evening-worship",
+        "status": "published",
+        "data": {
+          "title": "Evening Worship",
+          "category": "Worship",
+          "repeats": "Every week",
+          "weekday": "Sunday",
+          "start_time": "18:00",
+          "location": "Sanctuary",
+          "summary": "A brief time of prayer, songs, and a sermon. There is no childcare at this service.",
+          "sunday_service": true,
+          "end_time": "19:00",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/church-building-cross.jpg",
+              "alt": "The Grace Church sanctuary",
+              "filename": "church-building-cross.jpg"
+            }
+          }
+        }
+      },
+      {
+        "id": "event-young-adults",
+        "slug": "young-adults",
+        "status": "published",
+        "data": {
+          "title": "Young Adults",
+          "category": "Youth",
+          "repeats": "Every week",
+          "weekday": "Tuesday",
+          "start_time": "18:30",
+          "location": "Grace Church",
+          "summary": "Young adults looking closely at God's Word together each week, building one another up and enjoying the gift of fellowship.",
+          "sunday_service": false,
+          "end_time": "20:00",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/young-adults.jpg",
+              "alt": "Friends standing together on a hillside at sunset",
+              "filename": "young-adults.jpg"
+            }
+          }
+        }
+      },
+      {
+        "id": "event-womens-evening-study",
+        "slug": "womens-evening-study",
+        "status": "published",
+        "data": {
+          "title": "Women's Evening Study",
+          "category": "Women",
+          "repeats": "First and third weeks of the month",
+          "weekday": "Tuesday",
+          "start_time": "18:30",
+          "location": "Mission Viejo (a member's home)",
+          "summary": "This year's study: Nehemiah, Rebuilt and Rebuilding, by Kathleen B. Nielson. Meets in a home in Mission Viejo.",
+          "sunday_service": false,
+          "end_time": "20:00",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/womens-bible-study.jpg",
+              "alt": "A woman studying an open Bible with notes",
+              "filename": "womens-bible-study.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b115",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s116",
+                  "text": "The special bond Christian women share is a gift from God. We study together to become grounded in Scripture and grow as we apply it to everyday life."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b117",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s118",
+                  "text": "You are welcome to join any time during the year. Call the church office for the address."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "event-prayer-meeting",
+        "slug": "prayer-meeting",
+        "status": "published",
+        "data": {
+          "title": "Prayer Meeting",
+          "category": "Prayer",
+          "repeats": "Every week",
+          "weekday": "Wednesday",
+          "start_time": "08:00",
+          "location": "Zoom",
+          "summary": "An hour of prayer together on Zoom. The link goes out each week by email; call the church office to be added to the list.",
+          "sunday_service": false,
+          "end_time": "09:00",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/prayer-meeting-zoom.jpg",
+              "alt": "A laptop showing a video call beside a coffee mug",
+              "filename": "prayer-meeting-zoom.jpg"
+            }
+          }
+        }
+      },
+      {
+        "id": "event-youth-group",
+        "slug": "youth-group",
+        "status": "published",
+        "data": {
+          "title": "Youth Group",
+          "category": "Youth",
+          "repeats": "Every week",
+          "weekday": "Wednesday",
+          "start_time": "18:30",
+          "location": "Grace Church",
+          "summary": "Middle and high school students, 6th to 12th grade, studying God's Word together each week. Led by Pastor Brad Dickey.",
+          "sunday_service": false,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/youth-group.jpg",
+              "alt": "The Grace Church youth group on the lawn",
+              "filename": "youth-group.jpg"
+            }
+          }
+        }
+      },
+      {
+        "id": "event-community-group-laguna-niguel",
+        "slug": "community-group-laguna-niguel",
+        "status": "published",
+        "data": {
+          "title": "Community Group (Laguna Niguel)",
+          "category": "Community groups",
+          "repeats": "Every week",
+          "weekday": "Wednesday",
+          "start_time": "18:30",
+          "location": "Grace Church",
+          "summary": "A midweek small group for fellowship, prayer, and study, meeting at Grace Church.",
+          "sunday_service": false,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/community-group-coffee.jpg",
+              "alt": "Hands around coffee mugs and an open Bible at a small group",
+              "filename": "community-group-coffee.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b103",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s104",
+                  "text": "Community groups meet midweek in the homes of members. Each evening begins with fellowship and prayer, then a study time with discussion, using Sunday's sermon, a book of the Bible, a video series, or a book."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b105",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s106",
+                  "text": "Right now the groups are working through the sermon study questions, posted every Tuesday."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b107",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s108",
+                  "text": "Call the church office for the address, other groups, or a Zoom link."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "event-community-group-irvine",
+        "slug": "community-group-irvine",
+        "status": "published",
+        "data": {
+          "title": "Community Group (Irvine)",
+          "category": "Community groups",
+          "repeats": "Every week",
+          "weekday": "Wednesday",
+          "start_time": "19:00",
+          "location": "Irvine (a member's home)",
+          "summary": "A midweek small group in a member's home in Irvine (except the last Wednesday of each month).",
+          "sunday_service": false,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/community-group-bibles.jpg",
+              "alt": "Open Bibles on a wooden table during a group study",
+              "filename": "community-group-bibles.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b103",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s104",
+                  "text": "Community groups meet midweek in the homes of members. Each evening begins with fellowship and prayer, then a study time with discussion, using Sunday's sermon, a book of the Bible, a video series, or a book."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b105",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s106",
+                  "text": "Right now the groups are working through the sermon study questions, posted every Tuesday."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b107",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s108",
+                  "text": "Call the church office for the address, other groups, or a Zoom link."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "event-womens-morning-study",
+        "slug": "womens-morning-study",
+        "status": "published",
+        "data": {
+          "title": "Women's Morning Study",
+          "category": "Women",
+          "repeats": "First and third weeks of the month",
+          "weekday": "Thursday",
+          "start_time": "09:30",
+          "location": "Grace Church",
+          "summary": "This year's study: Nehemiah, Rebuilt and Rebuilding, by Kathleen B. Nielson. Meets at church.",
+          "sunday_service": false,
+          "end_time": "11:00",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/womens-bible-study.jpg",
+              "alt": "A woman studying an open Bible with notes",
+              "filename": "womens-bible-study.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b119",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s120",
+                  "text": "The special bond Christian women share is a gift from God. We study together to become grounded in Scripture and grow as we apply it to everyday life."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b121",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s122",
+                  "text": "You are welcome to join any time during the year."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "event-community-group-san-clemente",
+        "slug": "community-group-san-clemente",
+        "status": "published",
+        "data": {
+          "title": "Community Group (San Clemente)",
+          "category": "Community groups",
+          "repeats": "Every week",
+          "weekday": "Thursday",
+          "start_time": "18:30",
+          "location": "San Clemente (a member's home)",
+          "summary": "A midweek small group in a member's home in San Clemente.",
+          "sunday_service": false,
+          "end_time": "20:00",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/community-group-bibles.jpg",
+              "alt": "Open Bibles on a wooden table during a group study",
+              "filename": "community-group-bibles.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b103",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s104",
+                  "text": "Community groups meet midweek in the homes of members. Each evening begins with fellowship and prayer, then a study time with discussion, using Sunday's sermon, a book of the Bible, a video series, or a book."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b105",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s106",
+                  "text": "Right now the groups are working through the sermon study questions, posted every Tuesday."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b107",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s108",
+                  "text": "Call the church office for the address, other groups, or a Zoom link."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "event-community-group-mission-viejo",
+        "slug": "community-group-mission-viejo",
+        "status": "published",
+        "data": {
+          "title": "Community Group (Mission Viejo)",
+          "category": "Community groups",
+          "repeats": "Every week",
+          "weekday": "Thursday",
+          "start_time": "19:00",
+          "location": "Mission Viejo (a member's home)",
+          "summary": "A midweek small group in a member's home in Mission Viejo.",
+          "sunday_service": false,
+          "end_time": "20:00",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/community-group-coffee.jpg",
+              "alt": "Hands around coffee mugs and an open Bible at a small group",
+              "filename": "community-group-coffee.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b103",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s104",
+                  "text": "Community groups meet midweek in the homes of members. Each evening begins with fellowship and prayer, then a study time with discussion, using Sunday's sermon, a book of the Bible, a video series, or a book."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b105",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s106",
+                  "text": "Right now the groups are working through the sermon study questions, posted every Tuesday."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b107",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s108",
+                  "text": "Call the church office for the address, other groups, or a Zoom link."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "event-mens-study",
+        "slug": "mens-study",
+        "status": "published",
+        "data": {
+          "title": "Men's Study",
+          "category": "Men",
+          "repeats": "First week of the month",
+          "weekday": "Saturday",
+          "start_time": "07:30",
+          "location": "Fellowship Hall",
+          "summary": "Coffee, fellowship, and prayer, then a study through John Calvin's Institutes of the Christian Religion. All men are welcome.",
+          "sunday_service": false,
+          "image": {
+            "$media": {
+              "url": "/_seed/media/mens-ministry.jpg",
+              "alt": "The men of Grace Church gathered on the patio",
+              "filename": "mens-ministry.jpg"
+            }
+          }
+        }
+      }
+    ],
+    "ministries": [
+      {
+        "id": "ministry-childrens-ministry",
+        "slug": "childrens-ministry",
+        "status": "published",
+        "data": {
+          "title": "Children's Ministry",
+          "sort_order": 10,
+          "summary": "Care and Bible teaching for children from infancy through 5th grade during Sunday morning worship.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/childrens-ministry-class.jpg",
+              "alt": "Children at a craft table with their teacher",
+              "filename": "childrens-ministry-class.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b123",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s124",
+                  "text": "Parents can keep their children with them in worship or have them attend Sunday school."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "b125",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s126",
+                  "text": "During the service"
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b127",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s128",
+                  "text": "Nursery, Room 101 (birth to age 3), open before worship begins."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b129",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s130",
+                  "text": "All other children start in the sanctuary with their families and are dismissed before the sermon to the Fellowship Room, where teachers sign them in to class."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b131",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s132",
+                  "text": "PreK and kindergarten, Room 104, stay in class until the service ends."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b133",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s134",
+                  "text": "Grades 1 and 2 (Room 103) and grades 3 and 4 (Room 102) return for communion and sit with their families."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "b135",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s136",
+                  "text": "What children learn"
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b137",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s138",
+                  "text": "Our curriculum, Ligonier Ministries' Growing in God's Word, points children to Christ and teaches the truths of the Bible through questions and answers, with Scripture memory along the way. Each Sunday PreK through grade 2 review the First Catechism, and grades 3 through 5 review the Westminster Shorter Catechism."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b139",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s140",
+                  "text": "A list of Sunday school teachers and the rotation schedule is posted on the bulletin board above the drinking fountain. Children's ministry pamphlets are in the church foyer."
+                }
+              ],
+              "markDefs": []
+            }
+          ],
+          "meets": "Sundays during morning worship"
+        }
+      },
+      {
+        "id": "ministry-youth-ministry",
+        "slug": "youth-ministry",
+        "status": "published",
+        "data": {
+          "title": "Youth Ministry",
+          "sort_order": 20,
+          "summary": "Middle and high school students committed to God's Word, building each other up and enjoying fellowship.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/youth-group.jpg",
+              "alt": "The youth group together on the church lawn",
+              "filename": "youth-group.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b141",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s142",
+                  "text": "As a youth group we are committed to God's Word, and we look closely at it every week."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b143",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s144",
+                  "text": "We believe the church is a crucial part of being connected to God, and we love meeting together to build each other up and encourage one another as we enjoy the amazing gift of life and fellowship. We would love to have you join us."
+                }
+              ],
+              "markDefs": []
+            }
+          ],
+          "meets": "Wednesdays, 6:30 pm",
+          "leader": "Pastor Brad Dickey"
+        }
+      },
+      {
+        "id": "ministry-young-adults",
+        "slug": "young-adults",
+        "status": "published",
+        "data": {
+          "title": "Young Adults",
+          "sort_order": 30,
+          "summary": "Young adults studying God's Word together every week and encouraging one another in the faith.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/young-adults.jpg",
+              "alt": "Young adults together on a hillside at sunset",
+              "filename": "young-adults.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b145",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s146",
+                  "text": "Our young adults ministry is committed to God's Word, and we look closely at it every week."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b147",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s148",
+                  "text": "We believe the church is a crucial part of being connected to God, and we love meeting together to build each other up and encourage one another. We would love to have you join us."
+                }
+              ],
+              "markDefs": []
+            }
+          ],
+          "meets": "Tuesdays, 6:30 pm at Grace Church"
+        }
+      },
+      {
+        "id": "ministry-adult-sunday-school",
+        "slug": "adult-sunday-school",
+        "status": "published",
+        "data": {
+          "title": "Adult Sunday School",
+          "sort_order": 40,
+          "summary": "Study and prayer every Sunday before morning worship. Childcare and coffee are provided.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/adult-sunday-school.jpg",
+              "alt": "Adults listening during a Sunday school class",
+              "filename": "adult-sunday-school.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b149",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s150",
+                  "text": "Every Sunday morning we gather from 9:00 to 9:50 am for a time of study and prayer in Room 102. We are currently going through a study titled The Whole Christ with Pastor Clark Gallagher."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b151",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s152",
+                  "text": "Childcare and coffee are provided."
+                }
+              ],
+              "markDefs": []
+            }
+          ],
+          "meets": "Sundays, 9:00 to 9:50 am in Room 102",
+          "leader": "Pastor Clark Gallagher"
+        }
+      },
+      {
+        "id": "ministry-community-groups",
+        "slug": "community-groups",
+        "status": "published",
+        "data": {
+          "title": "Community Groups",
+          "sort_order": 50,
+          "summary": "Small groups that meet midweek in members' homes for fellowship, prayer, and study.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/community-group-bibles.jpg",
+              "alt": "Open Bibles on a table during a group study",
+              "filename": "community-group-bibles.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b153",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s154",
+                  "text": "Community groups meet midweek in the homes of members of our congregation. Each evening begins with fellowship and prayer, followed by a study time with discussion, using Sunday's sermon, a book of the Bible, a video series, or a book."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b155",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s156",
+                  "text": "These groups are a wonderful way to connect with others in the church and help one another grow. Right now the groups are reviewing the sermon study questions, posted every Tuesday."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "b157",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s158",
+                  "text": "Groups"
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b159",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s160",
+                  "text": "Laguna Niguel: Wednesdays at 6:30 pm at Grace Church, led by Bill Barto."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b161",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s162",
+                  "text": "Irvine: Wednesdays at 7:00 pm (except the last Wednesday of the month), led by Michael Robirds."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b163",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s164",
+                  "text": "Mission Viejo: Thursdays at 7:00 pm, led by Ken Dilitkanich."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b165",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s166",
+                  "text": "San Clemente: Thursdays at 6:30 pm."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b167",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s168",
+                  "text": "Call the church office for addresses, other groups, or a Zoom link."
+                }
+              ],
+              "markDefs": []
+            }
+          ],
+          "meets": "Wednesday and Thursday evenings"
+        }
+      },
+      {
+        "id": "ministry-womens-ministry",
+        "slug": "womens-ministry",
+        "status": "published",
+        "data": {
+          "title": "Women's Ministry",
+          "sort_order": 60,
+          "summary": "Morning and evening Bible studies where women grow together in Scripture and in friendship.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/womens-bible-study.jpg",
+              "alt": "A woman with an open Bible and notes",
+              "filename": "womens-bible-study.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b169",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s170",
+                  "text": "The special bond Christian women share is a gift from God. We are called to study and become grounded in Scripture together, and we grow as we apply His precepts to our everyday lives, so that God is glorified by minds transformed by the Word."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "_key": "b171",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s172",
+                  "text": "Bible study, 2026 to 2027"
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b173",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s174",
+                  "text": "This year we are studying Nehemiah: Rebuilt and Rebuilding, by Kathleen B. Nielson. You are welcome to join either group any time during the year."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b175",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s176",
+                  "text": "Morning study: first and third Thursdays, 9:30 to 11:00 am, at church, led by Tavia Reyes."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b177",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s178",
+                  "text": "Evening study: first and third Tuesdays, 6:30 to 8:00 pm, in a home in Mission Viejo, led by Donna Morgigno."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b179",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s180",
+                  "text": "Call the church office to connect with either leader."
+                }
+              ],
+              "markDefs": []
+            }
+          ],
+          "meets": "First and third Tuesdays and Thursdays"
+        }
+      },
+      {
+        "id": "ministry-mens-ministry",
+        "slug": "mens-ministry",
+        "status": "published",
+        "data": {
+          "title": "Men's Ministry",
+          "sort_order": 70,
+          "summary": "A monthly Saturday study, outings, and an annual retreat for the men of the church.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/mens-ministry.jpg",
+              "alt": "The men of Grace Church gathered on the patio",
+              "filename": "mens-ministry.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b181",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s182",
+                  "text": "There is a special blessing when men come together in fellowship. We are called to be the spiritual leaders of our homes and church, and we are best able to do that as we build real relationships with one another and share our joys and victories as well as our trials and fears. By meeting together, the iron sharpening iron of Proverbs becomes a reality."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b183",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s184",
+                  "text": "We meet the first Saturday of each month at 7:30 am in the Fellowship Hall, starting with coffee, fellowship, and prayer before we study. We are currently reading John Calvin's Institutes of the Christian Religion."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b185",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s186",
+                  "text": "We also have outings for fun and fellowship (barbecues, movie nights, volleyball, hockey games) and an annual men's retreat. All men are welcome, including young men from junior high up."
+                }
+              ],
+              "markDefs": []
+            }
+          ],
+          "meets": "First Saturday of the month, 7:30 am"
+        }
+      },
+      {
+        "id": "ministry-missions",
+        "slug": "missions",
+        "status": "published",
+        "data": {
+          "title": "Missions",
+          "sort_order": 80,
+          "summary": "Grace Church prays for and supports missionaries serving at home and around the world.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/missions-globe.jpg",
+              "alt": "Hands holding a globe in a sunlit field",
+              "filename": "missions-globe.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b187",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s188",
+                  "text": "We are glad to partner with these missionaries and their families."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b189",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s190",
+                  "text": "Jude and Lelah Gallagher, Escondido, California: Westminster Seminary student."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b191",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s192",
+                  "text": "J.J. and Maria Matandika, Malawi: a church plant in Mponela through Jars of Clay Ministry. Please pray for their family's health and safety, the church plant, and fruitful studies."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b193",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s194",
+                  "text": "Bogdan and Liliya Mazur, Chernihiv, Ukraine: serving with Lifesong for Orphans."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "listItem": "bullet",
+              "level": 1,
+              "_key": "b195",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s196",
+                  "text": "Cameron Newman, Georgetown University, Washington, DC."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b197",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s198",
+                  "text": "To give to a missionary, write a check to Grace Church with the missionary's name on the memo line."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "ministry-summer-retreat",
+        "slug": "summer-retreat",
+        "status": "published",
+        "data": {
+          "title": "Summer Retreat",
+          "sort_order": 90,
+          "summary": "A summer camp for students from incoming 6th graders through outgoing 12th graders.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/summer-retreat.jpg",
+              "alt": "Students at an archery range at summer camp",
+              "filename": "summer-retreat.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b199",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s200",
+                  "text": "The summer retreat is a great time of growing in faith through the study of God's Word, praying together, and worshiping in song. Students strengthen and make the friendships that are so vital to pressing on in the faith, with a whole lot of fun along the way."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b201",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s202",
+                  "text": "Watch the news page for this year's dates and cost."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "ministry-vbs",
+        "slug": "vbs",
+        "status": "published",
+        "data": {
+          "title": "Vacation Bible School",
+          "sort_order": 100,
+          "summary": "A week each summer of games, crafts, and learning the glories of God in Scripture, for kids 4 years old through 5th grade.",
+          "image": {
+            "$media": {
+              "url": "/_seed/media/vbs-children.jpg",
+              "alt": "Children raising their hands during a lesson",
+              "filename": "vbs-children.jpg"
+            }
+          },
+          "details": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b203",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s204",
+                  "text": "Each summer we spend a week of mornings learning the glories of our God in Scripture, with games, crafts, activities, and tasty treats. All kids from 4 years old through 5th grade are welcome, and VBS is free."
+                }
+              ],
+              "markDefs": []
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "_key": "b205",
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s206",
+                  "text": "This year's VBS, Emerald Crossing: An Irish Adventure through Psalm 23, ran July 20 to 24, 2026. Watch the news page for next summer's dates."
+                }
+              ],
+              "markDefs": []
+            }
+          ]
+        }
+      }
+    ],
+    "people": [
+      {
+        "id": "person-james-wenger",
+        "slug": "james-wenger",
+        "status": "published",
+        "data": {
+          "title": "James Wenger",
+          "role": "Pastor",
+          "sort_order": 10,
+          "photo": {
+            "$media": {
+              "url": "/_seed/media/pastor-james-wenger.jpg",
+              "alt": "Pastor James Wenger",
+              "filename": "pastor-james-wenger.jpg"
+            }
+          }
+        }
+      },
+      {
+        "id": "person-brad-dickey",
+        "slug": "brad-dickey",
+        "status": "published",
+        "data": {
+          "title": "Brad Dickey",
+          "role": "Pastor",
+          "sort_order": 20,
+          "photo": {
+            "$media": {
+              "url": "/_seed/media/pastor-brad-dickey.jpg",
+              "alt": "Pastor Brad Dickey",
+              "filename": "pastor-brad-dickey.jpg"
+            }
+          }
+        }
+      },
+      {
+        "id": "person-clark-gallagher",
+        "slug": "clark-gallagher",
+        "status": "published",
+        "data": {
+          "title": "Clark Gallagher",
+          "role": "Pastor",
+          "sort_order": 30,
+          "photo": {
+            "$media": {
+              "url": "/_seed/media/pastor-clark-gallagher.jpg",
+              "alt": "Pastor Clark Gallagher",
+              "filename": "pastor-clark-gallagher.jpg"
+            }
+          }
+        }
+      },
+      {
+        "id": "person-tony-estrada",
+        "slug": "tony-estrada",
+        "status": "published",
+        "data": {
+          "title": "Tony Estrada",
+          "role": "Elder",
+          "sort_order": 40,
+          "photo": {
+            "$media": {
+              "url": "/_seed/media/elder-tony-estrada.jpg",
+              "alt": "Elder Tony Estrada",
+              "filename": "elder-tony-estrada.jpg"
+            }
+          }
+        }
+      },
+      {
+        "id": "person-norm-mathison",
+        "slug": "norm-mathison",
+        "status": "published",
+        "data": {
+          "title": "Norm Mathison",
+          "role": "Elder",
+          "sort_order": 50,
+          "photo": {
+            "$media": {
+              "url": "/_seed/media/elder-norm-mathison.jpg",
+              "alt": "Elder Norm Mathison",
+              "filename": "elder-norm-mathison.jpg"
+            }
+          }
+        }
+      },
+      {
+        "id": "person-michael-robirds",
+        "slug": "michael-robirds",
+        "status": "published",
+        "data": {
+          "title": "Michael Robirds",
+          "role": "Elder",
+          "sort_order": 60,
+          "photo": {
+            "$media": {
+              "url": "/_seed/media/elder-michael-robirds.jpg",
+              "alt": "Elder Michael Robirds",
+              "filename": "elder-michael-robirds.jpg"
+            }
+          }
+        }
+      },
+      {
+        "id": "person-guy-baker",
+        "slug": "guy-baker",
+        "status": "published",
+        "data": {
+          "title": "Guy Baker",
+          "role": "Elder",
+          "sort_order": 70,
+          "photo": {
+            "$media": {
+              "url": "/_seed/media/elder-guy-baker.jpg",
+              "alt": "Elder Guy Baker",
+              "filename": "elder-guy-baker.jpg"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

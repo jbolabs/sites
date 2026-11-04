@@ -1,0 +1,54 @@
+---
+import ArrowLeft from "@lucide/astro/icons/arrow-left";
+import { decodeSlug, getSeoMeta } from "emdash";
+import { PortableText } from "emdash/ui";
+import Image from "@jakebodea/cloudflare-kit/astro/image.astro";
+
+import Breadcrumbs from "@/components/breadcrumbs.astro";
+import Base from "@/layouts/base.astro";
+import { formatEntryDate, getAnnouncement } from "@/lib/content";
+
+const slug = decodeSlug(Astro.params.slug);
+if (!slug) {
+  return Astro.rewrite("/404");
+}
+const { cacheHint, entry: announcement } = await getAnnouncement(slug);
+if (!announcement) {
+  return Astro.rewrite("/404");
+}
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+}
+const { data } = announcement;
+const seo = getSeoMeta(announcement, {
+  defaultDescription: data.summary,
+  path: `/news/${slug}`,
+  siteUrl: Astro.url.origin,
+});
+---
+
+<Base
+  title={seo.title}
+  description={seo.description}
+  image={seo.ogImage}
+  photo={data.image}
+  canonical={seo.canonical}
+  robots={seo.robots}
+  content={{ collection: "announcements", id: data.id, slug: announcement.id }}
+>
+  <article class="container-narrow py-12 sm:py-16">
+    <Breadcrumbs class="mb-8" crumbs={[{ label: "Home", path: "/" }, { label: "News", path: "/news" }, { label: data.title, path: `/news/${slug}` }]} />
+    <p class="text-muted-foreground"><time datetime={data.published_on}>{formatEntryDate(data.published_on)}</time></p>
+    <h1 class="mt-2 text-[2.75rem] leading-[1.05] sm:text-6xl">{data.title}</h1>
+    <p class="mt-5 text-xl leading-relaxed text-muted-foreground">{data.summary}</p>
+    {data.image && (
+      <div class="mt-10 aspect-[16/10] overflow-hidden rounded-2xl bg-muted">
+        <Image image={data.image} alt={data.image.alt ?? ""} priority sizes="(min-width: 768px) 48rem, 100vw" class="size-full! object-cover" />
+      </div>
+    )}
+    {data.body && data.body.length > 0 && (
+      <div class="prose-site mt-10" {...announcement.edit.body}><PortableText value={data.body} /></div>
+    )}
+    <a href="/news" class="mt-14 inline-flex items-center gap-2 font-medium text-navy hover:underline"><ArrowLeft class="size-4" aria-hidden="true" />All news</a>
+  </article>
+</Base>

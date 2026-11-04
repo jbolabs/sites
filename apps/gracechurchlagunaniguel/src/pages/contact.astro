@@ -1,0 +1,51 @@
+---
+import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+import { env } from "cloudflare:workers";
+import { getSeoMeta } from "emdash";
+
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import ContactForm from "@/components/islands/contact-form";
+import PageHeader from "@/components/page-header.astro";
+import Base from "@/layouts/base.astro";
+import { getPage } from "@/lib/content";
+import { site } from "../../site.config";
+
+const { cacheHint, entry: page } = await getPage("contact");
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+}
+const title = page?.data.title ?? "Contact us";
+const seo = page ? getSeoMeta(page, { defaultDescription: page.data.intro, path: "/contact", siteUrl: Astro.url.origin }) : undefined;
+const { address, directionsUrl, email, telephone } = site.business;
+// Long addresses wrap after the @, never mid-word.
+const [emailUser, emailDomain] = (email ?? "").split("@");
+---
+
+<Base
+  title={seo?.title ?? title}
+  description={seo?.description}
+  image={seo?.ogImage}
+  robots={seo?.robots}
+  content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
+>
+  <PageHeader title={title} intro={page?.data.intro} />
+  <section class="container-page grid gap-14 py-16 sm:py-20 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-20">
+    <ContactForm client:visible turnstileSiteKey={env.TURNSTILE_SITE_KEY} />
+    <aside class="space-y-10">
+      <div>
+        <h2 class="font-sans text-sm font-semibold tracking-normal text-muted-foreground">Church office</h2>
+        <a href={`tel:${telephone}`} class="numerals mt-2 block font-display text-4xl text-navy hover:underline hover:decoration-mist">{site.phone}</a>
+        {email && <a href={`mailto:${email}`} class="mt-2 block text-lg text-navy underline decoration-mist underline-offset-4 hover:decoration-navy">{emailUser}@<wbr />{emailDomain}</a>}
+      </div>
+      <div>
+        <h2 class="font-sans text-sm font-semibold tracking-normal text-muted-foreground">Address</h2>
+        <address class="mt-2 text-lg leading-relaxed not-italic">{address.street}<br />{address.city}, {address.region} {address.postalCode}</address>
+        <a href={directionsUrl} target="_blank" rel="noopener" class="mt-2 inline-flex items-center gap-1 font-medium text-navy hover:underline">Get directions<ArrowUpRight class="size-4" aria-hidden="true" /></a>
+      </div>
+      <p class="border-t border-border pt-8 text-sm leading-relaxed text-muted-foreground">
+        Messages and prayer requests are kept private, and your details are used only to reply to you. See our <a href="/privacy" class="text-navy underline underline-offset-4">privacy notes</a>.
+      </p>
+    </aside>
+  </section>
+  {page && <div {...page.edit.content}><PageBlocks value={page.data.content} /></div>}
+</Base>

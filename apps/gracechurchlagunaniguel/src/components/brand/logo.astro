@@ -1,0 +1,43 @@
+---
+/**
+ * The Grace Church logo as inline SVG, so each surface can color it. Geometry
+ * comes from `logo-paths.ts` (traced from the church's logo file).
+ *
+ * `variant="full"` is the cross, ring, and "Grace Church" words; `variant="mark"`
+ * is the cross and ring alone (favicons, small corners).
+ */
+import { logoPaths as p } from "./logo-paths";
+
+interface Props {
+  variant?: "full" | "mark";
+  tone?: "brand" | "white";
+  title?: string;
+  class?: string;
+}
+
+const { class: className, title, tone = "brand", variant = "full" } = Astro.props;
+
+// Sampled from the logo file: navy ink and a cool gray brush ring.
+const TONES = {
+  brand: { ink: "#1F3A5F", ring: "#9AA5B1" },
+  white: { ink: "#FFFFFF", ring: "rgba(255,255,255,0.55)" },
+} as const;
+const colors = TONES[tone];
+
+const VIEW_BOXES = { full: "400 356 1240 958", mark: "400 356 826 958" } as const;
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox={VIEW_BOXES[variant]}
+  class={className}
+  role={title ? "img" : undefined}
+  aria-label={title}
+  aria-hidden={title ? undefined : "true"}
+>
+  <g transform="translate(0 1667) scale(1 -1)">
+    <path fill={colors.ring} d={p.ring} />
+    <path fill={colors.ink} d={p.cross} />
+    {variant === "full" && <path fill={colors.ink} d={p.word} />}
+  </g>
+</svg>

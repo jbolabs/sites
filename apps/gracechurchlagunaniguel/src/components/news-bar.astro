@@ -1,0 +1,19 @@
+---
+/** The pinned announcement, one line above the header (no pinned, current news: no bar). */
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+
+interface Props {
+  slug: string;
+  title: string;
+}
+
+const { slug, title } = Astro.props;
+---
+
+<div class="relative z-50 bg-deep text-paper">
+  <a href={`/news/${slug}`} class="group container-page flex min-h-10 items-center justify-center gap-2 py-2 text-center text-sm">
+    <span class="size-1.5 shrink-0 rounded-full bg-olive" aria-hidden="true"></span>
+    <span class="text-paper/90 transition-colors group-hover:text-white">{title}</span>
+    <ArrowRight class="size-3.5 shrink-0 text-mist transition-transform duration-200 ease-expo group-hover:translate-x-0.5" aria-hidden="true" />
+  </a>
+</div>

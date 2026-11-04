@@ -1,0 +1,31 @@
+---
+import { getSeoMeta } from "emdash";
+
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import MinistryGrid from "@/components/ministry-grid.astro";
+import PageHeader from "@/components/page-header.astro";
+import Base from "@/layouts/base.astro";
+import { getMinistries, getPage } from "@/lib/content";
+
+const [{ cacheHint, entry: page }, ministries] = await Promise.all([getPage("ministries"), getMinistries()]);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+  Astro.cache.set(ministries.cacheHint);
+}
+const title = page?.data.title ?? "Ministries";
+const seo = page ? getSeoMeta(page, { defaultDescription: page.data.intro, path: "/ministries", siteUrl: Astro.url.origin }) : undefined;
+---
+
+<Base
+  title={seo?.title ?? title}
+  description={seo?.description}
+  image={seo?.ogImage}
+  robots={seo?.robots}
+  content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
+>
+  <PageHeader title={title} intro={page?.data.intro} />
+  <section class="container-page py-14 sm:py-20">
+    <MinistryGrid ministries={ministries.entries} headingLevel="h2" />
+  </section>
+  {page && <div {...page.edit.content}><PageBlocks value={page.data.content} /></div>}
+</Base>

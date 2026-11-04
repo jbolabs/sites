@@ -1,0 +1,48 @@
+---
+/** Days with what happens on each, today marked. Empty days stay in the list so the week reads as a week. */
+import { formatClock, formatMonthDay, sameDate, weekdayName } from "@/lib/calendar";
+import type { AgendaDay } from "@/lib/calendar";
+import { churchToday } from "@/lib/content";
+import type { Entry, Event } from "@/lib/content";
+
+interface Props {
+  days: readonly AgendaDay<Entry<Event>>[];
+}
+
+const { days } = Astro.props;
+const today = churchToday();
+---
+
+<ol class="divide-y divide-border border-y border-border">
+  {days.map((day) => {
+    const isToday = sameDate(day.date, today);
+    const weekday = weekdayName(day.date);
+    const date = formatMonthDay(day.date);
+    return (
+      <li class="grid gap-x-6 gap-y-3 py-5 sm:grid-cols-[9rem_minmax(0,1fr)]">
+        <p class="flex items-baseline gap-2 sm:block">
+          <span class="font-display text-xl text-navy">{weekday}</span>
+          <span class="text-sm text-muted-foreground sm:block">
+            {date}
+            {isToday && <span class="ml-2 inline-flex items-center gap-1.5 font-medium text-navy sm:ml-0 sm:flex"><span class="size-1.5 rounded-full bg-olive" aria-hidden="true" />Today</span>}
+          </span>
+        </p>
+        {day.items.length > 0 ? (
+          <ul class="space-y-2.5">
+            {day.items.map(({ item, schedule }) => (
+              <li class="grid grid-cols-[4.75rem_minmax(0,1fr)] gap-3">
+                <span class="numerals pt-px text-[0.9375rem] whitespace-nowrap text-muted-foreground">{formatClock(schedule.start)}</span>
+                <span>
+                  <a href={`/events/${item.id}`} class="font-medium hover:underline hover:decoration-mist">{item.data.title}</a>
+                  {item.data.location && <span class="block text-sm text-muted-foreground">{item.data.location}</span>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="text-[0.9375rem] text-muted-foreground/80 sm:pt-1">Nothing scheduled</p>
+        )}
+      </li>
+    );
+  })}
+</ol>

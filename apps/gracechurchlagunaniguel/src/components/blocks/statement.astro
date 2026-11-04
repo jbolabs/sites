@@ -1,0 +1,20 @@
+---
+import type { BlockComponentProps } from "emdash/ui";
+
+import Logo from "@/components/brand/logo.astro";
+import type { PageContentStatementBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentStatementBlock>;
+
+const { value } = Astro.props;
+---
+
+<section class="py-24 sm:py-32">
+  <figure class="container-page flex flex-col items-center text-center">
+    <Logo variant="mark" class="mb-10 h-16 w-auto" />
+    <blockquote class="max-w-4xl font-display text-[1.9rem] leading-[1.25] tracking-[-0.015em] text-navy sm:text-[2.6rem] lg:text-5xl">
+      <p>{value.text}</p>
+    </blockquote>
+    {value.reference && <figcaption class="mt-8 text-muted-foreground">{value.reference}</figcaption>}
+  </figure>
+</section>

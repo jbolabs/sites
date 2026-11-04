@@ -1,0 +1,31 @@
+---
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import type { BlockComponentProps } from "emdash/ui";
+
+import MinistryGrid from "@/components/ministry-grid.astro";
+import { getMinistries } from "@/lib/content";
+import type { PageContentMinistriesBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentMinistriesBlock>;
+
+const { value } = Astro.props;
+const ministries = await getMinistries();
+if (Astro.cache?.enabled) {
+  Astro.cache.set(ministries.cacheHint);
+}
+---
+
+{ministries.entries.length > 0 && (
+  <section class="bg-sand py-20 sm:py-28">
+    <div class="container-page">
+      <div class="mb-10 flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
+        <div class="max-w-2xl">
+          <h2 class="text-4xl sm:text-5xl">{value.headline}</h2>
+          {value.intro && <p class="mt-4 text-lg leading-relaxed text-muted-foreground">{value.intro}</p>}
+        </div>
+        <a href="/ministries" class="group inline-flex items-center gap-2 font-medium text-navy">All ministries<ArrowRight class="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" /></a>
+      </div>
+      <MinistryGrid ministries={ministries.entries} />
+    </div>
+  </section>
+)}

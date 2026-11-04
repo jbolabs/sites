@@ -1,0 +1,99 @@
+---
+import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+import { decodeSlug, getSeoMeta } from "emdash";
+import { PortableText } from "emdash/ui";
+
+import Breadcrumbs from "@/components/breadcrumbs.astro";
+import VideoPlayer from "@/components/video-player.astro";
+import Base from "@/layouts/base.astro";
+import { formatEntryDate, getSeries, getSermon } from "@/lib/content";
+import { youtubeId } from "@/lib/video";
+
+const slug = decodeSlug(Astro.params.slug);
+if (!slug) {
+  return Astro.rewrite("/404");
+}
+const { cacheHint, entry: sermon } = await getSermon(slug);
+if (!sermon) {
+  return Astro.rewrite("/404");
+}
+const series = sermon.data.series ? await getSeries(sermon.data.series) : undefined;
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+  if (series) {
+    Astro.cache.set(series.cacheHint);
+  }
+}
+const { data } = sermon;
+const video = youtubeId(data.video_url);
+const questions = data.study_questions ?? [];
+const others = (series?.entries ?? []).filter((entry) => entry.id !== sermon.id).slice(0, 6);
+const date = formatEntryDate(data.preached_on);
+const passage = data.passage && data.passage !== data.title ? ` (${data.passage})` : "";
+const seo = getSeoMeta(sermon, {
+  defaultDescription: data.summary ?? `${data.title}${passage}, preached by ${data.preacher} at Grace Church on ${date}.`,
+  path: `/sermons/${slug}`,
+  siteUrl: Astro.url.origin,
+});
+---
+
+<Base
+  title={seo.title}
+  description={seo.description}
+  image={seo.ogImage}
+  canonical={seo.canonical}
+  robots={seo.robots}
+  content={{ collection: "sermons", id: data.id, slug: sermon.id }}
+>
+  <article>
+    <header class="border-b border-border bg-sand">
+      <div class="container-page pt-12 pb-10 sm:pt-16">
+        <Breadcrumbs class="mb-6" crumbs={[{ label: "Home", path: "/" }, { label: "Sermons", path: "/sermons" }, { label: data.title, path: `/sermons/${slug}` }]} />
+        <p class="text-muted-foreground"><time datetime={data.preached_on}>{date}</time>{data.service && ` · ${data.service}`}{data.series && ` · ${data.series}`}</p>
+        <h1 class="mt-2 max-w-4xl text-[2.75rem] leading-[1.04] sm:text-6xl">{data.title}</h1>
+        <p class="mt-4 text-lg sm:text-xl">
+          {data.passage && data.passage !== data.title && <span class="text-navy">{data.passage} · </span>}
+          <span class="text-muted-foreground">{data.preacher}</span>
+        </p>
+      </div>
+    </header>
+    <div class="container-page py-12 sm:py-16">
+      {video ? (
+        <VideoPlayer id={video} title={data.title} class="mx-auto max-w-5xl" />
+      ) : (
+        <p class="text-muted-foreground">The video for this sermon is not posted yet.</p>
+      )}
+      {video && (
+        <p class="mx-auto mt-4 max-w-5xl text-sm"><a href={`https://www.youtube.com/watch?v=${video}`} target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-navy hover:underline">Watch on YouTube<ArrowUpRight class="size-3.5" aria-hidden="true" /></a></p>
+      )}
+    </div>
+    {(data.summary || questions.length > 0) && (
+      <div class="container-narrow pb-16 sm:pb-24">
+        {data.summary && <p class="prose-site text-xl! leading-relaxed">{data.summary}</p>}
+        {questions.length > 0 && (
+          <section id="study-questions" class="mt-12 rounded-2xl bg-sand p-7 sm:p-10">
+            <h2 class="text-3xl">Study questions</h2>
+            <p class="mt-2 text-muted-foreground">For personal study, families, and community groups this week.</p>
+            <div class="prose-site mt-6" {...sermon.edit.study_questions}><PortableText value={questions} /></div>
+          </section>
+        )}
+      </div>
+    )}
+  </article>
+  {others.length > 0 && (
+    <section class="border-t border-border bg-sand py-14 sm:py-20">
+      <div class="container-page">
+        <h2 class="text-3xl">More from {data.series}</h2>
+        <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {others.map((entry) => (
+            <li class="group relative rounded-2xl bg-card p-6 transition-shadow hover:shadow-[0_12px_30px_-12px_rgb(20_30_50/0.25)]">
+              <p class="text-sm text-muted-foreground">{formatEntryDate(entry.data.preached_on)}</p>
+              <h3 class="mt-1 text-xl leading-snug"><a href={`/sermons/${entry.id}`} class="after:absolute after:inset-0">{entry.data.title}</a></h3>
+              <p class="text-sm text-muted-foreground">{entry.data.preacher}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+</Base>

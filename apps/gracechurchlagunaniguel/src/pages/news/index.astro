@@ -1,0 +1,41 @@
+---
+import { getSeoMeta } from "emdash";
+
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import NewsItem from "@/components/news-item.astro";
+import PageHeader from "@/components/page-header.astro";
+import Base from "@/layouts/base.astro";
+import { getCurrentNews, getPage } from "@/lib/content";
+
+const [{ cacheHint, entry: page }, news] = await Promise.all([getPage("news"), getCurrentNews()]);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+  Astro.cache.set(news.cacheHint);
+}
+const title = page?.data.title ?? "News";
+const seo = page ? getSeoMeta(page, { defaultDescription: page.data.intro, path: "/news", siteUrl: Astro.url.origin }) : undefined;
+const [lead, ...rest] = news.entries;
+---
+
+<Base
+  title={seo?.title ?? title}
+  description={seo?.description}
+  image={seo?.ogImage}
+  robots={seo?.robots}
+  content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
+>
+  <PageHeader title={title} intro={page?.data.intro} />
+  <section class="container-page py-14 sm:py-20">
+    {lead ? (
+      <div class="grid gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16">
+        <NewsItem entry={lead} lead headingLevel="h2" />
+        <div class="flex flex-col gap-6">
+          {rest.map((entry) => <NewsItem entry={entry} headingLevel="h2" />)}
+        </div>
+      </div>
+    ) : (
+      <p class="py-12 text-center text-lg text-muted-foreground">No announcements right now. Check back soon, or see this week's <a href="/events" class="text-navy underline">events</a>.</p>
+    )}
+  </section>
+  {page && <div {...page.edit.content}><PageBlocks value={page.data.content} /></div>}
+</Base>

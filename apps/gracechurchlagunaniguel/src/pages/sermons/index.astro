@@ -1,0 +1,90 @@
+---
+import ArrowLeft from "@lucide/astro/icons/arrow-left";
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+import { getSeoMeta } from "emdash";
+
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import ButtonLink from "@/components/button-link.astro";
+import PageHeader from "@/components/page-header.astro";
+import VideoPlayer from "@/components/video-player.astro";
+import Base from "@/layouts/base.astro";
+import { formatEntryDate, getPage, getSermons } from "@/lib/content";
+import { youtubeId } from "@/lib/video";
+import { site } from "../../../site.config";
+
+const requested = Number(Astro.url.searchParams.get("page") ?? "1");
+const pageNumber = Number.isSafeInteger(requested) && requested > 0 ? requested : 1;
+const [{ cacheHint, entry: page }, sermons] = await Promise.all([getPage("sermons"), getSermons(pageNumber)]);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+  Astro.cache.set(sermons.cacheHint);
+}
+if (pageNumber > 1 && sermons.entries.length === 0) {
+  return Astro.rewrite("/404");
+}
+const title = page?.data.title ?? "Sermons";
+const path = pageNumber === 1 ? "/sermons" : `/sermons?page=${pageNumber}`;
+const seo = page ? getSeoMeta(page, { defaultDescription: page.data.intro, path, siteUrl: Astro.url.origin }) : undefined;
+// The first page leads with the newest sermon's video.
+const [newest, ...rest] = sermons.entries;
+const lead = pageNumber === 1 ? newest : undefined;
+const list = lead ? rest : sermons.entries;
+const leadVideo = youtubeId(lead?.data.video_url);
+const channel = `https://www.youtube.com/channel/${site.liveChannelId}`;
+---
+
+<Base
+  title={pageNumber === 1 ? (seo?.title ?? title) : `${title}, page ${pageNumber}`}
+  description={seo?.description}
+  image={seo?.ogImage}
+  canonical={`${Astro.url.origin}${path}`}
+  robots={seo?.robots}
+  content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
+>
+  <PageHeader title={title} intro={page?.data.intro} />
+
+  {lead && (
+    <section class="container-page grid items-center gap-10 pt-14 sm:pt-20 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-16">
+      {leadVideo && <VideoPlayer id={leadVideo} title={lead.data.title} />}
+      <div>
+        <p class="text-sm text-muted-foreground">Latest · {formatEntryDate(lead.data.preached_on)}{lead.data.service && ` · ${lead.data.service}`}</p>
+        <h2 class="mt-2 text-4xl leading-tight sm:text-5xl"><a href={`/sermons/${lead.id}`} class="hover:underline hover:decoration-mist">{lead.data.title}</a></h2>
+        <p class="mt-3 text-lg text-muted-foreground">{lead.data.passage && lead.data.passage !== lead.data.title && `${lead.data.passage} · `}{lead.data.preacher}</p>
+        {lead.data.summary && <p class="mt-4 leading-relaxed text-foreground/80">{lead.data.summary}</p>}
+        <ButtonLink href={`/sermons/${lead.id}`} variant="hairline" size="cta" class="mt-6">Sermon and study questions</ButtonLink>
+      </div>
+    </section>
+  )}
+
+  <section class="container-page py-14 sm:py-20">
+    {list.length > 0 && (
+      <>
+        <h2 class="text-3xl">{pageNumber === 1 ? "Recent sermons" : `Sermons, page ${pageNumber}`}</h2>
+        <ol class="mt-6 divide-y divide-border border-y border-border">
+          {list.map((sermon) => (
+            <li class="group relative grid gap-x-8 gap-y-1 py-5 sm:grid-cols-[11rem_minmax(0,1fr)_auto] sm:items-baseline">
+              <p class="numerals text-sm text-muted-foreground"><time datetime={sermon.data.preached_on}>{formatEntryDate(sermon.data.preached_on)}</time></p>
+              <div>
+                <h3 class="text-2xl leading-snug"><a href={`/sermons/${sermon.id}`} class="after:absolute after:inset-0 group-hover:underline group-hover:decoration-mist">{sermon.data.title}</a></h3>
+                <p class="text-[0.9375rem] text-muted-foreground">{sermon.data.passage && sermon.data.passage !== sermon.data.title && `${sermon.data.passage} · `}{sermon.data.preacher}</p>
+              </div>
+              {sermon.data.series && <p class="text-sm text-muted-foreground sm:text-right">{sermon.data.series}</p>}
+            </li>
+          ))}
+        </ol>
+      </>
+    )}
+    <nav aria-label="More sermons" class="mt-10 flex flex-wrap items-center justify-between gap-4">
+      {pageNumber > 1 ? (
+        <a href={pageNumber === 2 ? "/sermons" : `/sermons?page=${pageNumber - 1}`} class="inline-flex items-center gap-2 font-medium text-navy hover:underline"><ArrowLeft class="size-4" aria-hidden="true" />Newer sermons</a>
+      ) : <span />}
+      {sermons.hasMore ? (
+        <a href={`/sermons?page=${pageNumber + 1}`} class="inline-flex items-center gap-2 font-medium text-navy hover:underline">Older sermons<ArrowRight class="size-4" aria-hidden="true" /></a>
+      ) : (
+        <a href={channel} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 font-medium text-navy hover:underline">Earlier sermons on YouTube<ArrowUpRight class="size-4" aria-hidden="true" /></a>
+      )}
+    </nav>
+  </section>
+  {page && <div {...page.edit.content}><PageBlocks value={page.data.content} /></div>}
+</Base>

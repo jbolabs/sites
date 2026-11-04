@@ -1,0 +1,20 @@
+---
+import Logo from "@/components/brand/logo.astro";
+import ButtonLink from "@/components/button-link.astro";
+import Base from "@/layouts/base.astro";
+
+Astro.response.status = 404;
+---
+
+<Base title="Page not found" robots="noindex">
+  <section class="container-page flex min-h-[70svh] flex-col items-center justify-center gap-6 py-24 text-center">
+    <Logo variant="mark" class="h-24 w-auto" />
+    <h1 class="text-5xl sm:text-6xl">We couldn't find that page.</h1>
+    <p class="max-w-xl text-lg text-muted-foreground">It may have moved when the site was updated. Service times, sermons, and events are a good place to start.</p>
+    <div class="mt-2 flex flex-wrap justify-center gap-3">
+      <ButtonLink href="/visit" size="cta">Plan your visit</ButtonLink>
+      <ButtonLink href="/sermons" size="cta" variant="hairline">Sermons</ButtonLink>
+      <ButtonLink href="/events" size="cta" variant="hairline">Events</ButtonLink>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,85 @@
+---
+/**
+ * The live stream during Sunday worship (YouTube's live player for the
+ * church's channel), and the latest sermon the rest of the week: outside a
+ * broadcast YouTube's live player only says the video is unavailable.
+ */
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+import { getSeoMeta } from "emdash";
+
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import PageHeader from "@/components/page-header.astro";
+import VideoPlayer from "@/components/video-player.astro";
+import Base from "@/layouts/base.astro";
+import { clockIn, formatClock, formatDate, sameDate, streamStatus } from "@/lib/calendar";
+import { churchToday, formatEntryDate, getEvents, getLatestSermon, getPage, sundayServices } from "@/lib/content";
+import { youtubeId } from "@/lib/video";
+import { site } from "../../site.config";
+
+const [{ cacheHint, entry: page }, latest, events] = await Promise.all([getPage("live"), getLatestSermon(), getEvents()]);
+if (Astro.cache?.enabled) {
+  for (const hint of [cacheHint, latest.cacheHint, events.cacheHint]) {
+    Astro.cache.set(hint);
+  }
+}
+const title = page?.data.title ?? "Watch live";
+const seo = page ? getSeoMeta(page, { defaultDescription: page.data.intro, path: "/live", siteUrl: Astro.url.origin }) : undefined;
+const channel = `https://www.youtube.com/channel/${site.liveChannelId}`;
+const sermon = latest.entry;
+const sermonVideo = youtubeId(sermon?.data.video_url);
+
+// Worship services stream; Sunday school does not.
+const streamed = sundayServices(events.entries).flatMap(({ item, schedule }) => (item.data.category === "Worship" ? [schedule] : []));
+const now = new Date();
+const today = churchToday(now);
+const status = streamStatus(streamed, today, clockIn(site.timeZone, now));
+const showLive = status.live || sermonVideo === undefined;
+const nextDay = status.next && (sameDate(status.next.date, today) ? "Today" : formatDate(status.next.date));
+const nextLabel = status.next && `${nextDay} at ${formatClock(status.next.start)}`;
+---
+
+<Base
+  title={seo?.title ?? title}
+  description={seo?.description}
+  image={seo?.ogImage}
+  robots={seo?.robots}
+  content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
+>
+  <PageHeader title={title} intro={page?.data.intro} />
+  <section class="container-page py-12 sm:py-16">
+    {!status.live && nextLabel && (
+      <p class="mb-6 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-lg">
+        <span class="text-muted-foreground">We are not live right now. Next stream:</span>
+        <span class="font-medium text-navy">{nextLabel}</span>
+      </p>
+    )}
+    {showLive ? (
+      <div class="aspect-video overflow-hidden rounded-2xl bg-deep shadow-[0_30px_80px_-40px_rgb(20_30_50/0.6)]">
+        <iframe
+          src={`https://www.youtube.com/embed/live_stream?channel=${site.liveChannelId}&rel=0`}
+          title="Grace Church live stream"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          class="size-full"
+        ></iframe>
+      </div>
+    ) : (
+      sermon && sermonVideo && (
+        <div>
+          <VideoPlayer id={sermonVideo} title={sermon.data.title} class="shadow-[0_30px_80px_-40px_rgb(20_30_50/0.6)]" />
+          <a href={`/sermons/${sermon.id}`} class="group mt-5 inline-flex flex-wrap items-baseline gap-x-2 text-lg">
+            <span class="text-muted-foreground">Latest sermon:</span>
+            <span class="font-medium text-navy group-hover:underline">{sermon.data.title}</span>
+            <span class="text-muted-foreground">{formatEntryDate(sermon.data.preached_on)}</span>
+            <ArrowRight class="size-4 shrink-0 self-center text-navy transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          </a>
+        </div>
+      )
+    )}
+    <p class="mt-6">
+      <a href={channel} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 font-medium text-navy hover:underline">Open our YouTube channel<ArrowUpRight class="size-4" aria-hidden="true" /></a>
+    </p>
+  </section>
+  {page && <div {...page.edit.content}><PageBlocks value={page.data.content} /></div>}
+</Base>
