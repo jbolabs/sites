@@ -63,7 +63,7 @@ describe("CI diff base", () => {
   it("diffs a PR against today's main, not the commit it branched from", () => {
     const cwd = prCheckout();
     const today = git(cwd, "rev-parse", "main");
-    for (const name of ["affected", "lint-test"]) {
+    for (const name of ["affected", "deploy-scope", "lint-test"]) {
       expect(run(diffBaseScript(name), cwd, { EVENT: "pull_request" })).toBe(
         `sha=${today}\n`
       );
@@ -81,6 +81,7 @@ describe("CI diff base", () => {
   it("feeds that base to site selection and Turborepo's affected filter", () => {
     const base = `\${{ steps.base.outputs.sha }}`;
     expect(job("affected")).toContain(`BASE: ${base}`);
+    expect(job("deploy-scope")).toContain(`BASE: ${base}`);
     expect(job("lint-test")).toContain(`TURBO_SCM_BASE: ${base}`);
     expect(workflow).not.toContain("github.event.pull_request.base.sha");
   });

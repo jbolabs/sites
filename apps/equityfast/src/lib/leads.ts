@@ -16,9 +16,10 @@ import { AMOUNT_QUESTION } from "./application.ts";
  * public page, sitemap, or query. The entry's text is the same summary the
  * notification email carries, so the two never disagree.
  *
- * Next step (not built): forward applications to E Mortgage Capital's own
- * intake (CRM/LOS) once they share its API, and only then collect the
- * sensitive fields the previous site asked for (see `application-rules.ts`).
+ * Saved applications are then forwarded to E Mortgage Capital's CRM, Flow AG
+ * (`flow-ag.ts`). The sensitive fields the previous site asked for stay out
+ * until the CMS and email copies no longer carry them (see
+ * `application-rules.ts`).
  *
  * `withEmDashRuntime` is EmDash's trusted server-side entry point (public
  * routes get no write handlers on `locals`); input is validated by

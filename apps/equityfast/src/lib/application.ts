@@ -18,6 +18,7 @@ import {
   isCity,
   isEmail,
   isIncome,
+  isMortgageBalance,
   isName,
   isPhone,
   isState,
@@ -67,6 +68,10 @@ export const ApplicationForm = Schema.Struct({
       "Enter a name using letters only"
     )
   ),
+  /** Optional; the island sends `""` when it is left blank. */
+  mortgageBalance: Schema.optional(
+    rule(isMortgageBalance, "Enter the mortgage balance in dollars")
+  ),
   occupancy: Schema.Literals(OCCUPANCY),
   /** Other annual income; `0` when there is none. */
   otherIncome: income,
@@ -93,6 +98,7 @@ export const QUESTION = {
   income: "Pre-tax annual income",
   incomeSource: "Income source",
   language: "Language",
+  mortgageBalance: "Mortgage balance",
   occupancy: "Occupancy",
   otherIncome: "Other income",
   ownership: "Ownership",
@@ -100,6 +106,9 @@ export const QUESTION = {
   propertyAddress: "Property address",
 } as const;
 export const AMOUNT_QUESTION = QUESTION.amount;
+
+/** An optional answer left blank. */
+const NOT_GIVEN = "Not given";
 
 /** The primary-residence answer when the visitor lives at the property. */
 export const SAME_AS_PROPERTY = "Same as property";
@@ -131,6 +140,10 @@ export const toContactForm = (form: ApplicationForm): ContactForm => {
     { answer: formatDollars(form.otherIncome), question: QUESTION.otherIncome },
     { answer: form.incomeSource, question: QUESTION.incomeSource },
     { answer: form.forSale, question: QUESTION.forSale },
+    {
+      answer: formatDollars(form.mortgageBalance ?? "") || NOT_GIVEN,
+      question: QUESTION.mortgageBalance,
+    },
     { answer: "Yes (calls, texts, and email)", question: QUESTION.consent },
     { answer: LANGUAGE_NAME[form.locale], question: QUESTION.language },
   ];

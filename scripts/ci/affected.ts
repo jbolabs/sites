@@ -7,9 +7,17 @@
  *
  * Paths choose cheap candidates, then credential-free builds at the exact base
  * and head prune sites whose Worker/assets and deployment inputs match. Unknown
- * fingerprints fail closed. Verification tooling additionally checks every site.
+ * fingerprints fail closed. A change to the verifier itself checks one canary
+ * site; other CI scripts ship in no site and are covered by their unit tests.
+ * Main's deploy jobs also retry sites whose last release failed
+ * (`release-records.ts`), so a fix outside `apps/<site>/` needs no redeploy-all.
  *
- *   bun scripts/ci/affected.ts <base-ref>     # prints `verify=[…]` and `deploy=[…]` lines
+ *   bun scripts/ci/affected.ts <base-ref>                # prints `verify=[…]` and `deploy=[…]` lines
+ *   bun scripts/ci/affected.ts <base-ref> --paths-only   # candidates only, no comparison builds
+ *
+ * CI verifies the `--paths-only` candidates so verification never waits on the
+ * comparison builds; a separate job prunes `deploy` with them. Pruned `deploy`
+ * is always a subset of those candidates, so every deployed site was verified.
  */
 import { execFileSync } from "node:child_process";
 import { isDeepStrictEqual } from "node:util";
@@ -32,18 +40,21 @@ const UNSHIPPED_PATHS = [
   /(?:^|\/)\.artifacts\//u,
   /^packages\/proof\//u,
 ];
-/** Checks every site (smoke, SEO, Lighthouse) but ships in none. */
+/** The site that checks a change to the verifier; the reference site. */
+export const CANARY_SITE = "ms-custom-homes";
+/** Changes how sites are checked (smoke, SEO, Lighthouse) but ships in none: verify the canary. */
 export const VERIFY_TOOLING_PATHS = [
   /^packages\/control-app\//u,
-  /^scripts\/ci\/.*\.ts$/u,
+  /^scripts\/ci\/(?:command|control-check|lighthouse|local-verify|local-worker|verify-ci|verify-script)\.ts$/u,
   /^\.github\/(?:workflows\/ci\.yml|actions\/setup\/action\.yml)$/u,
   /^lighthouserc\.json$/u,
 ];
+/** CI scripts outside the verifier and the comparison: their unit tests cover them. */
+const CI_SCRIPT_PATH = /^scripts\/ci\/.*\.ts$/u;
 const SHARED_PATHS = [
   /^packages\//u,
   /^stacks\//u,
   /^patches\//u,
-  /^scripts\/ci\/(?:deploy|migrate|prepare-content)\.ts$/u,
   // Exercise the real comparison when its implementation changes.
   /^scripts\/ci\/(?:affected|revision-build|site-fingerprint)\.ts$/u,
   /^bun\.lock$/u,
@@ -55,6 +66,10 @@ const SHARED_PATHS = [
 
 const matchesAny = (file: string, patterns: readonly RegExp[]) =>
   patterns.some((pattern) => pattern.test(file));
+const ciOnly = (file: string) =>
+  CI_SCRIPT_PATH.test(file) &&
+  !matchesAny(file, VERIFY_TOOLING_PATHS) &&
+  !matchesAny(file, SHARED_PATHS);
 
 const Entries = Schema.Record(Schema.String, Schema.Unknown);
 const decodeEntries = Schema.decodeUnknownSync(Entries);
@@ -129,7 +144,7 @@ export const affectedSites = (
     matchesAny(file, VERIFY_TOOLING_PATHS)
   );
   const runtime = shipped.filter(
-    (file) => !matchesAny(file, VERIFY_TOOLING_PATHS)
+    (file) => !matchesAny(file, VERIFY_TOOLING_PATHS) && !ciOnly(file)
   );
   const touched = new Set(
     runtime.flatMap((file) => {
@@ -145,7 +160,16 @@ export const affectedSites = (
     const after = fingerprints?.head[site];
     return before === undefined || after === undefined || before !== after;
   });
-  return { deploy, verify: tooling.length > 0 ? [...sites] : deploy };
+  const canary = sites.includes(CANARY_SITE)
+    ? [CANARY_SITE]
+    : sites.slice(0, 1);
+  return {
+    deploy,
+    verify:
+      tooling.length > 0
+        ? [...new Set([...deploy, ...canary])].toSorted()
+        : deploy,
+  };
 };
 
 /**
@@ -224,8 +248,10 @@ const sitesAt = (root: string, ref: string): readonly string[] =>
 
 if (import.meta.main) {
   const started = performance.now();
-  const base = process.argv[2] ?? "origin/main";
-  const head = process.argv[3] ?? "HEAD";
+  const pathsOnly = process.argv.includes("--paths-only");
+  const [base = "origin/main", head = "HEAD"] = process.argv
+    .slice(2)
+    .filter((argument) => argument !== "--paths-only");
   const root = execFileSync("git", ["rev-parse", "--show-toplevel"], {
     encoding: "utf-8",
   }).trim();
@@ -243,11 +269,13 @@ if (import.meta.main) {
       ? baseLockfileSites(base, head, root, sites)
       : undefined;
     const candidates = affectedSites(changed, sites, scope);
-    const comparable = comparisonSites(
-      changed,
-      candidates.deploy,
-      new Set(sitesAt(root, base))
-    );
+    const comparable = pathsOnly
+      ? []
+      : comparisonSites(
+          changed,
+          candidates.deploy,
+          new Set(sitesAt(root, base))
+        );
     const fingerprints = await compareRevisionFingerprints(
       root,
       base,

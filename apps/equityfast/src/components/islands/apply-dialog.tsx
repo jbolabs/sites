@@ -9,7 +9,6 @@ import {
 import type { UiStrings } from "@/i18n/ui";
 
 import ApplicationForm from "./application-form";
-import AutoHeight from "./application/auto-height";
 
 interface ApplyDialogProps {
   readonly locale: "en" | "es";
@@ -73,24 +72,22 @@ const ApplyDialog = ({
         <ResponsiveDialogDescription className="sr-only">
           {strings.applyIntro}
         </ResponsiveDialogDescription>
-        <AutoHeight>
-          <ApplicationForm
-            key={session}
-            locale={locale}
-            strings={strings}
-            turnstileSiteKey={turnstileSiteKey}
-            initialAmount={amount}
-            homeHref={locale === "es" ? "/es" : "/"}
-            onDone={() => {
-              setOpen(false);
-            }}
-            renderTitle={(title) => (
-              <ResponsiveDialogTitle variant="application">
-                {title}
-              </ResponsiveDialogTitle>
-            )}
-          />
-        </AutoHeight>
+        <ApplicationForm
+          key={session}
+          locale={locale}
+          strings={strings}
+          turnstileSiteKey={turnstileSiteKey}
+          initialAmount={amount}
+          homeHref={locale === "es" ? "/es" : "/"}
+          onDone={() => {
+            setOpen(false);
+          }}
+          renderTitle={(title) => (
+            <ResponsiveDialogTitle variant="application">
+              {title}
+            </ResponsiveDialogTitle>
+          )}
+        />
       </ResponsiveDialogContent>
     </ResponsiveDialog>
   );
