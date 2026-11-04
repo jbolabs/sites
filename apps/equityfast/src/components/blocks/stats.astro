@@ -1,26 +1,16 @@
 ---
-/** A row of big figures with small labels, on ink with a faint sky glow. */
+/** Program facts in a compact, neutral summary. */
 import type { BlockComponentProps } from "emdash/ui";
-
 import type { PageContentStatsBlock } from "../../../emdash-env";
 
 type Props = BlockComponentProps<PageContentStatsBlock>;
-
 const { value } = Astro.props;
 ---
-
-<section class="py-6 sm:py-8">
+<section class="facts-field">
   <div class="container-page">
-    <div class="glow-sky relative overflow-hidden rounded-[2rem] bg-ink px-6 py-12 text-white sm:px-12 sm:py-16">
-      {value.headline && <h2 class="sr-only">{value.headline}</h2>}
-      <dl data-reveal-group class="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-4 lg:gap-0">
-        {value.items.map((item) => (
-          <div class="flex flex-col-reverse gap-3 lg:border-l lg:border-white/10 lg:px-8 lg:first:border-l-0 lg:first:pl-0">
-            <dt class="text-sm text-white/60">{item.label}</dt>
-            <dd class="text-[clamp(1.875rem,4vw,3.5rem)] break-words leading-[1.02] font-medium tracking-[-0.045em] text-balance tabular-nums">{item.value}</dd>
-          </div>
-        ))}
-      </dl>
-    </div>
+    {value.headline && <h2 class="headline-section mb-8" data-reveal>{value.headline}</h2>}
+    <dl data-reveal-group class="facts-list">
+      {value.items.map((item) => <div><dt>{item.label}</dt><dd class:list={{ "fact-words": item.value.length > 6 }}>{item.value}</dd></div>)}
+    </dl>
   </div>
 </section>
