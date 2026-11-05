@@ -1,11 +1,14 @@
 ---
 import type { BlockComponentProps } from "emdash/ui";
 
+import ButtonLink from "@/components/button-link.astro";
 import type { PageContentTestimonialsBlock } from "../../../emdash-env";
+import { site } from "../../../site.config";
 
 type Props = BlockComponentProps<PageContentTestimonialsBlock>;
 
 const { value } = Astro.props;
+const external = { rel: "noopener", target: "_blank" } as const;
 ---
 
 <section id="reviews" class="py-20 sm:py-28">
@@ -22,6 +25,11 @@ const { value } = Astro.props;
           </figcaption>
         </figure>
       ))}
+    </div>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <ButtonLink href={site.reviews.write} size="sm-cta" {...external}>Leave a review</ButtonLink>
+      <ButtonLink href={site.reviews.google} size="sm-cta" variant="outline" {...external}>More on Google</ButtonLink>
+      <ButtonLink href={site.reviews.yelp} size="sm-cta" variant="outline" {...external}>More on Yelp</ButtonLink>
     </div>
   </div>
 </section>
