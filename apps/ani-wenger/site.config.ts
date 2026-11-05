@@ -89,6 +89,18 @@ export const site = {
   /** Display form of `business.telephone`. */
   phone: "949-275-6251",
 
+  /**
+   * Ani's own review listings, linked under the quotes. The quotes themselves are
+   * hand-picked in EmDash (no live feed), so these buttons are how visitors reach
+   * the rest. `write` is the short link Ani shares to ask clients for a Google review.
+   */
+  reviews: {
+    google:
+      "https://www.google.com/maps/place/Ani+Wenger/data=!4m2!3m1!1s0x80dcef42bd71eadb:0x3f0f98f4fb799851",
+    write: "https://maps.app.goo.gl/tqqaXxc9NrJaK8rq8",
+    yelp: "https://www.yelp.com/biz/ani-wenger-european-hairstylist-irvine",
+  },
+
   shortName: "Ani Wenger",
 
   stagingBaseDomain: studio.domain,
