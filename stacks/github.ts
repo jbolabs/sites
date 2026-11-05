@@ -1,3 +1,5 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
+import * as GitHub from "@alchemy.run/github";
 /**
  * CI control plane, as code: the repository's GitHub environments, the `main`
  * ruleset, and scoped, expiring Cloudflare deploy tokens written into those
@@ -16,8 +18,6 @@
  * Infisical value is copied into the GitHub `production` environment.
  */
 import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as GitHub from "alchemy/GitHub";
 import { Random, RandomProvider } from "alchemy/Random";
 import { Config, Effect, Layer } from "effect";
 
@@ -298,16 +298,14 @@ export default Alchemy.Stack(
       enforcement: "active",
       name: "main",
       owner,
+      pullRequest: { requiredApprovingReviewCount: 0 },
       repository: repo,
-      rules: {
-        pullRequest: { requiredApprovingReviewCount: 0 },
-        requiredStatusChecks: {
-          checks: [{ context: "check" }],
-          // A PR need not be rebased onto the latest main before merging: with many parallel PRs
-          // that reran every check after each merge. The push to main reruns `check` (affected
-          // sites, cached) before `production` deploys, so a conflict between two PRs fails there.
-          strictRequiredStatusChecksPolicy: false,
-        },
+      requiredStatusChecks: {
+        checks: [{ context: "check" }],
+        // A PR need not be rebased onto the latest main before merging: with many parallel PRs
+        // that reran every check after each merge. The push to main reruns `check` (affected
+        // sites, cached) before `production` deploys, so a conflict between two PRs fails there.
+        strictRequiredStatusChecksPolicy: false,
       },
       target: "branch",
     });

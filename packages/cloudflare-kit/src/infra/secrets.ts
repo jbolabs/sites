@@ -1,3 +1,4 @@
+import * as Infisical from "@alchemy.run/infisical";
 /**
  * Generic stage → Infisical source mapping for Alchemy's native provider
  * (Effect Config, never `process.env`). A repo binds its own project ids in
@@ -16,7 +17,6 @@
  * The process environment is always read last (Alchemy's default).
  */
 import type { StackSecrets } from "alchemy";
-import * as Infisical from "alchemy/Infisical";
 
 import { isPullRequestStage } from "./stage.ts";
 
