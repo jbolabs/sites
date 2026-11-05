@@ -35,6 +35,7 @@
     "tailwind-merge": "catalog:"
   },
   "devDependencies": {
+    "@alchemy.run/cloudflare": "catalog:",
     "@alchemy.run/frontend-frameworks": "catalog:",
     "@astrojs/check": "catalog:",
     "@cloudflare/workers-types": "catalog:",

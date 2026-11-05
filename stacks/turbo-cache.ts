@@ -1,3 +1,5 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
+import * as GitHub from "@alchemy.run/github";
 /**
  * Turborepo remote cache hosted on Cloudflare (Worker + R2), shared by CI and
  * every agent worktree. The bearer token is minted by Alchemy and written to
@@ -11,8 +13,6 @@
  * `TURBO_TEAM`, `TURBO_TOKEN`, and run turbo under `bun run secrets -- …`.
  */
 import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as GitHub from "alchemy/GitHub";
 import { Random, RandomProvider } from "alchemy/Random";
 import * as RemovalPolicy from "alchemy/RemovalPolicy";
 import { Effect, Layer } from "effect";

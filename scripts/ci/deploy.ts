@@ -103,9 +103,10 @@ const execute = promisify(
 );
 const limit = deploymentConcurrency(stage, destroy, sites.length);
 // Site state is separate, but the account-wide state-store service upgrades in place.
+// `state bootstrap` never prompts, so it takes no `--yes` (beta 85 rejects the flag).
 if (limit > 1) {
   const { stdout, stderr } = await execute(
-    ["alchemy", "provider", "cloudflare", "bootstrap"],
+    ["alchemy", "state", "bootstrap", "--backend", "cloudflare", "--no-input"],
     root
   );
   process.stdout.write(stdout);
