@@ -12,6 +12,7 @@ import {
   isBirthDate,
   isCity,
   isMortgageBalance,
+  isPropertyValue,
   isName,
   isPhone,
   isState,
@@ -191,6 +192,16 @@ describe(isMortgageBalance, () => {
   });
 });
 
+describe(isPropertyValue, () => {
+  it("requires an estimated home value from $10,000", () => {
+    expect(isPropertyValue("$750,000")).toBeTruthy();
+    expect(isPropertyValue("10000")).toBeTruthy();
+    expect(isPropertyValue("")).toBeFalsy();
+    expect(isPropertyValue("$9,999")).toBeFalsy();
+    expect(isPropertyValue("$100,000,000")).toBeFalsy();
+  });
+});
+
 describe(stepsFor, () => {
   it("skips the primary-address question when the property is the primary residence", () => {
     expect(
@@ -203,6 +214,7 @@ describe(stepsFor, () => {
       "occupancy",
       "ownership",
       "forSale",
+      "propertyValue",
       "mortgageBalance",
       "income",
     ]);

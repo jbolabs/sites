@@ -26,6 +26,7 @@ const primaryResidenceForm = {
     street: "3750 S Susan Street",
     zip: "92704",
   },
+  propertyValue: "$725,000",
   turnstileToken: "token",
 };
 
@@ -62,6 +63,7 @@ describe(toContactForm, () => {
         { answer: "$0", question: "Other income" },
         { answer: "Employment", question: "Income source" },
         { answer: "No", question: "Listed for sale" },
+        { answer: "$725,000", question: "Estimated home value" },
         { answer: "$250,000", question: "Mortgage balance" },
         {
           answer: "Yes (calls, texts, and email)",
@@ -90,7 +92,7 @@ describe(toContactForm, () => {
 
   it("says the mortgage balance was not given when it was left blank", () => {
     const form = decode({ ...primaryResidenceForm, mortgageBalance: "" });
-    expect(toContactForm(form).answers?.[10]).toStrictEqual({
+    expect(toContactForm(form).answers?.[11]).toStrictEqual({
       answer: "Not given",
       question: "Mortgage balance",
     });
@@ -109,6 +111,12 @@ describe(ApplicationForm, () => {
 
   it("rejects an application without contact consent", () => {
     expect(() => decode({ ...submitted, consent: false })).toThrow("consent");
+  });
+
+  it("rejects an application without a home value, which Flow AG needs", () => {
+    expect(() => decode({ ...submitted, propertyValue: "" })).toThrow(
+      "Enter an estimated home value in dollars"
+    );
   });
 
   it("rejects an amount outside the program range", () => {

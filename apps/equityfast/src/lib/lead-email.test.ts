@@ -28,6 +28,7 @@ const lead = {
     { answer: "$12,000", question: "Other income" },
     { answer: "Other", question: "Income source" },
     { answer: "No", question: "Listed for sale" },
+    { answer: "$680,000", question: "Estimated home value" },
     { answer: "$250,000", question: "Mortgage balance" },
     { answer: "Yes (calls, texts, and email)", question: "Contact consent" },
     { answer: "English", question: "Language" },
@@ -100,6 +101,7 @@ Address: 3750 S Susan Street, Santa Ana, CA 92704
 Occupancy: Primary residence
 Ownership: Joint owner
 Listed for sale: No
+Estimated home value: $680,000
 Mortgage balance: $250,000
 
 Income
@@ -143,6 +145,7 @@ const application = {
     street: "88 Harbor Way",
     zip: "92660",
   },
+  propertyValue: "$1,200,000",
   turnstileToken: "token",
 };
 
@@ -179,6 +182,7 @@ describe("each occupancy and ownership", () => {
         ["Occupancy", occupancy],
         ["Ownership", ownership],
         ["Listed for sale", "No"],
+        ["Estimated home value", "$1,200,000"],
         ["Mortgage balance", "Not given"],
         ["Pre-tax annual income", "$210,000"],
         ["Other income", "$0"],
@@ -198,7 +202,7 @@ describe("each occupancy and ownership", () => {
         livesElsewhere ? 1 : 0
       );
       expect(count(notice.text, "Same as property")).toBe(0);
-      expect(notice.text.split("\n")).toHaveLength(livesElsewhere ? 30 : 27);
+      expect(notice.text.split("\n")).toHaveLength(livesElsewhere ? 31 : 28);
     }
   );
 });

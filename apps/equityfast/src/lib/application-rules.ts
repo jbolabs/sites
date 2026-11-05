@@ -31,6 +31,9 @@ export const INCOME_SOURCES = [
 export const MAX_INCOME = 99_999_999;
 /** Past this a stated mortgage balance is a typo or spam. */
 export const MAX_MORTGAGE_BALANCE = 99_999_999;
+/** An estimated home value outside this range is a typo or spam. */
+export const MIN_PROPERTY_VALUE = 10_000;
+export const MAX_PROPERTY_VALUE = 99_999_999;
 /** Borrowers must be adults; past this age a date of birth is a typo. */
 export const MIN_AGE = 18;
 export const MAX_AGE = 120;
@@ -130,6 +133,15 @@ export const dollars = (value: string): number => {
 /** `75000` -> `$75,000`, `0` -> `$0`; input with no digits stays empty. */
 export const formatDollars = (value: string): string =>
   digits(value) === "" ? "" : `$${dollars(value).toLocaleString("en-US")}`;
+
+/**
+ * Required: Flow AG needs the home's value to build a HELOC proposal, and a
+ * lead without it waits on a call to ask.
+ */
+export const isPropertyValue = (value: string): boolean => {
+  const amount = dollars(value);
+  return amount >= MIN_PROPERTY_VALUE && amount <= MAX_PROPERTY_VALUE;
+};
 
 /** Optional: blank means the visitor didn't say, which is sent on as 0. */
 export const isMortgageBalance = (value: string): boolean =>
@@ -265,6 +277,7 @@ export interface ApplicationAnswers {
   readonly primaryZip: string;
   readonly ownership: string;
   readonly forSale: string;
+  readonly propertyValue: string;
   readonly mortgageBalance: string;
   readonly income: string;
   readonly otherIncome: string;
@@ -296,6 +309,7 @@ export const EMPTY_ANSWERS: ApplicationAnswers = {
   propertyCity: "",
   propertyState: "",
   propertyStreet: "",
+  propertyValue: "",
   propertyZip: "",
 };
 
@@ -308,6 +322,7 @@ export type StepKey =
   | "primaryAddress"
   | "ownership"
   | "forSale"
+  | "propertyValue"
   | "mortgageBalance"
   | "income";
 
@@ -321,6 +336,7 @@ export const STEP_KEYS: readonly StepKey[] = [
   "primaryAddress",
   "ownership",
   "forSale",
+  "propertyValue",
   "mortgageBalance",
   "income",
 ];
@@ -416,6 +432,11 @@ export const stepProblems = (
     }
     case "forSale": {
       return failing([[oneOf(FOR_SALE, answers.forSale), "forSale"]]);
+    }
+    case "propertyValue": {
+      return failing([
+        [isPropertyValue(answers.propertyValue), "propertyValue"],
+      ]);
     }
     case "mortgageBalance": {
       return failing([

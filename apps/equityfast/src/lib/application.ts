@@ -21,6 +21,7 @@ import {
   isMortgageBalance,
   isName,
   isPhone,
+  isPropertyValue,
   isState,
   isStreet,
   isZip,
@@ -80,6 +81,11 @@ export const ApplicationForm = Schema.Struct({
   /** Omitted when the property is the primary residence. */
   primaryAddress: Schema.optional(Address),
   propertyAddress: Address,
+  /** Estimated home value, whole dollars as typed (`$750,000`). */
+  propertyValue: rule(
+    isPropertyValue,
+    "Enter an estimated home value in dollars"
+  ),
   turnstileToken: Schema.String,
 });
 export type ApplicationForm = typeof ApplicationForm.Type;
@@ -104,6 +110,7 @@ export const QUESTION = {
   ownership: "Ownership",
   primaryAddress: "Primary residence",
   propertyAddress: "Property address",
+  propertyValue: "Estimated home value",
 } as const;
 export const AMOUNT_QUESTION = QUESTION.amount;
 
@@ -140,6 +147,10 @@ export const toContactForm = (form: ApplicationForm): ContactForm => {
     { answer: formatDollars(form.otherIncome), question: QUESTION.otherIncome },
     { answer: form.incomeSource, question: QUESTION.incomeSource },
     { answer: form.forSale, question: QUESTION.forSale },
+    {
+      answer: formatDollars(form.propertyValue),
+      question: QUESTION.propertyValue,
+    },
     {
       answer: formatDollars(form.mortgageBalance ?? "") || NOT_GIVEN,
       question: QUESTION.mortgageBalance,
