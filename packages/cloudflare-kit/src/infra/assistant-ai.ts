@@ -1,4 +1,3 @@
-import * as Cloudflare from "@alchemy.run/cloudflare";
 import { AlchemyContext } from "alchemy/AlchemyContext";
 import { Effect } from "effect";
 

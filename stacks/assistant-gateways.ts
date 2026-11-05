@@ -1,3 +1,4 @@
+import * as Cloudflare from "@alchemy.run/cloudflare";
 /**
  * The three AI Gateways every site's CMS assistant shares: one each for
  * previews, staging and prod (`ASSISTANT_GATEWAYS` in the kit's `assistantAi`).
@@ -13,7 +14,6 @@ import {
   ASSISTANT_RATE_LIMIT,
 } from "@jakebodea/cloudflare-kit/infra";
 import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
 import * as RemovalPolicy from "alchemy/RemovalPolicy";
 import { Effect, Layer } from "effect";
 

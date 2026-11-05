@@ -298,16 +298,14 @@ export default Alchemy.Stack(
       enforcement: "active",
       name: "main",
       owner,
+      pullRequest: { requiredApprovingReviewCount: 0 },
       repository: repo,
-      rules: {
-        pullRequest: { requiredApprovingReviewCount: 0 },
-        requiredStatusChecks: {
-          checks: [{ context: "check" }],
-          // A PR need not be rebased onto the latest main before merging: with many parallel PRs
-          // that reran every check after each merge. The push to main reruns `check` (affected
-          // sites, cached) before `production` deploys, so a conflict between two PRs fails there.
-          strictRequiredStatusChecksPolicy: false,
-        },
+      requiredStatusChecks: {
+        checks: [{ context: "check" }],
+        // A PR need not be rebased onto the latest main before merging: with many parallel PRs
+        // that reran every check after each merge. The push to main reruns `check` (affected
+        // sites, cached) before `production` deploys, so a conflict between two PRs fails there.
+        strictRequiredStatusChecksPolicy: false,
       },
       target: "branch",
     });
