@@ -661,6 +661,14 @@
           "defaultValue": "confirmed"
         },
         {
+          "slug": "client_for",
+          "label": "Who it's for",
+          "type": "select",
+          "validation": {
+            "options": ["women", "men"]
+          }
+        },
+        {
           "slug": "phone",
           "label": "Phone",
           "type": "string"

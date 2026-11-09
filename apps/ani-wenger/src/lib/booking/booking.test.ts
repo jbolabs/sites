@@ -260,6 +260,25 @@ describe(bookAppointment, () => {
       })
   );
 
+  it.effect("keeps who the visit is for and tells Ani", () =>
+    Effect.gen(function* bookForMen() {
+      yield* TestClock.setTime(MONDAY_NOON);
+      const { book, layer, sent } = yield* world;
+      yield* bookAppointment(form({ clientFor: "men" }), request).pipe(
+        Effect.provide(layer)
+      );
+
+      const [saved] = yield* Ref.get(book);
+      expect(saved?.clientFor).toBe("men");
+      const toAni = (yield* Ref.get(sent)).find((message) =>
+        message.to.includes("ani@example.com")
+      );
+      expect(toAni?.text).toContain(
+        "When: Tuesday, October 27 at 10:00 AM (45 minutes)\nFor: Men\n"
+      );
+    })
+  );
+
   it.effect("refuses a visit of only add-ons", () =>
     Effect.gen(function* refuseAddOnOnly() {
       yield* TestClock.setTime(MONDAY_NOON);

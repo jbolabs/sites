@@ -11,8 +11,12 @@
 import { Effect, Layer, Option, Schema } from "effect";
 import { withEmDashRuntime } from "emdash/middleware";
 
-import { HAIR_HISTORY_ORDER } from "../labels.ts";
+import { CLIENT_FOR, HAIR_HISTORY_ORDER } from "../labels.ts";
 import { addressLine } from "../studio.ts";
+import {
+  CLIENT_FOR_FIELD,
+  ensureAppointmentFields,
+} from "./appointment-fields.ts";
 import type { Busy } from "./availability.ts";
 import { parsePhotosText, photosText } from "./hair-photos.ts";
 import { bookingRules } from "./rules.ts";
@@ -85,6 +89,7 @@ const OptionalCount = Schema.optional(Schema.NullOr(Schema.Number));
 
 const AppointmentData = Schema.Struct({
   buffer_minutes: OptionalCount,
+  client_for: OptionalText,
   duration_minutes: Schema.Number,
   email: OptionalText,
   // An unknown answer (an editor's typo) reads as no answer rather than hiding the appointment.
@@ -113,6 +118,7 @@ const toAppointment = (item: Item): Option.Option<Appointment> =>
   Schema.decodeUnknownOption(AppointmentData)(item.data).pipe(
     Option.map((data): Appointment => ({
       bufferMinutes: data.buffer_minutes ?? 0,
+      clientFor: CLIENT_FOR.find((answer) => answer === data.client_for),
       clientName: data.title,
       createdAt: new Date(item.createdAt),
       durationMinutes: data.duration_minutes,
@@ -164,6 +170,46 @@ const toBusy = (item: Item): Busy[] =>
     ],
   });
 
+/**
+ * The Appointments fields, after adding any that came after launch (usually
+ * the minute tick already has). If that fails, the booking still goes
+ * through, just without the newer answers.
+ */
+const appointmentFields = withRuntime(
+  "Appointments.fields",
+  async (runtime) => {
+    const fields = await ensureAppointmentFields(runtime.schemaRegistry);
+    return fields.present;
+  }
+).pipe(
+  Effect.catchCause((cause) =>
+    Effect.logWarning("appointment fields: could not add").pipe(
+      Effect.annotateLogs({ cause: String(cause) }),
+      Effect.as(new Set<string>())
+    )
+  )
+);
+
+/**
+ * Adds the Appointments fields that came after launch to a live site; the
+ * worker runs it on the minute tick, so a deploy has them within a minute.
+ */
+export const addLaterAppointmentFields = withRuntime(
+  "Appointments.addLaterFields",
+  async (runtime) => {
+    const fields = await ensureAppointmentFields(runtime.schemaRegistry);
+    return fields.added;
+  }
+).pipe(
+  Effect.tap((added) =>
+    added.length === 0
+      ? Effect.void
+      : Effect.logInfo("appointment fields added").pipe(
+          Effect.annotateLogs({ fields: added.join(", ") })
+        )
+  )
+);
+
 /** The appointment book; `origin` makes the stored photo links complete URLs. */
 export const appointmentsEmDash = (origin: string) =>
   Layer.succeed(Appointments, {
@@ -181,34 +227,46 @@ export const appointmentsEmDash = (origin: string) =>
       ).pipe(Effect.flatMap(decodeAll)),
 
     create: (appointment) =>
-      withRuntime("Appointments.create", async (runtime) => {
-        const result = unwrap(
-          await runtime.handleContentCreate("appointments", {
-            data: {
-              buffer_minutes: appointment.bufferMinutes,
-              duration_minutes: appointment.durationMinutes,
-              email: appointment.email,
-              hair_history: appointment.hairHistory ?? null,
-              hair_photos:
-                appointment.hairPhotos.length === 0
-                  ? null
-                  : photosText(appointment.hairPhotos, origin),
-              manage_token_hash: appointment.tokenHash,
-              notes: appointment.notes ?? null,
-              phone: appointment.phone,
-              reminder_sent: false,
-              service: appointment.service,
-              service_slug: appointment.serviceSlug,
-              source: "website",
-              starts_at: appointment.start.toISOString(),
-              state: "confirmed",
-              title: appointment.clientName,
-            },
-            // Not public content: drafts never reach a page, sitemap, or export.
-            status: "draft",
-          })
-        );
-        return { id: result.item.id };
+      Effect.gen(function* createAppointment() {
+        const fields =
+          appointment.clientFor === undefined
+            ? new Set<string>()
+            : yield* appointmentFields;
+        return yield* withRuntime("Appointments.create", async (runtime) => {
+          const clientFor =
+            appointment.clientFor !== undefined &&
+            fields.has(CLIENT_FOR_FIELD.slug)
+              ? { client_for: appointment.clientFor }
+              : {};
+          const result = unwrap(
+            await runtime.handleContentCreate("appointments", {
+              data: {
+                ...clientFor,
+                buffer_minutes: appointment.bufferMinutes,
+                duration_minutes: appointment.durationMinutes,
+                email: appointment.email,
+                hair_history: appointment.hairHistory ?? null,
+                hair_photos:
+                  appointment.hairPhotos.length === 0
+                    ? null
+                    : photosText(appointment.hairPhotos, origin),
+                manage_token_hash: appointment.tokenHash,
+                notes: appointment.notes ?? null,
+                phone: appointment.phone,
+                reminder_sent: false,
+                service: appointment.service,
+                service_slug: appointment.serviceSlug,
+                source: "website",
+                starts_at: appointment.start.toISOString(),
+                state: "confirmed",
+                title: appointment.clientName,
+              },
+              // Not public content: drafts never reach a page, sitemap, or export.
+              status: "draft",
+            })
+          );
+          return { id: result.item.id };
+        });
       }),
 
     find: (id) =>

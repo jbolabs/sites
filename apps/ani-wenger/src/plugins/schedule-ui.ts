@@ -7,7 +7,7 @@ import type { Block, BlockResponse } from "@emdash-cms/blocks";
 
 import { formatDate, formatTime, toLocal } from "../lib/booking/calendar.ts";
 import type { Appointment } from "../lib/booking/services.ts";
-import { HAIR_HISTORY } from "../lib/labels.ts";
+import { HAIR_HISTORY, serviceFor } from "../lib/labels.ts";
 
 export const CANCEL_ACTION = "cancel";
 export const PAGE_ACTION = "page";
@@ -40,7 +40,7 @@ const row = (appointment: Appointment, timeZone: string, today: string) => ({
     type: "link",
   },
   phone: appointment.phone ?? "",
-  service: appointment.service,
+  service: serviceFor(appointment.service, appointment.clientFor),
   when: when(appointment.start, timeZone, today),
 });
 
@@ -95,7 +95,7 @@ const hairNotes = (
           : HAIR_HISTORY[appointment.hairHistory];
       return [
         {
-          text: `${appointment.clientName}: ${appointment.service}, ${when(appointment.start, timeZone, today)}`,
+          text: `${appointment.clientName}: ${serviceFor(appointment.service, appointment.clientFor)}, ${when(appointment.start, timeZone, today)}`,
           type: "section",
         },
         ...(history === undefined
@@ -212,7 +212,7 @@ export const todayWidget = ({
         : {
             fields: next.map((appointment) => ({
               label: when(appointment.start, timeZone, today),
-              value: `${appointment.clientName}, ${appointment.service}`,
+              value: `${appointment.clientName}, ${serviceFor(appointment.service, appointment.clientFor)}`,
             })),
             type: "fields",
           },

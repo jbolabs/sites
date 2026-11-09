@@ -13,6 +13,7 @@ import { calendarFile } from "@/lib/booking/ics";
 import { runSchedule } from "@/lib/booking/run";
 import { Appointments, Catalog } from "@/lib/booking/services";
 import { sameSecret } from "@/lib/booking/token";
+import { serviceFor } from "@/lib/labels";
 
 const DAY_MS = 86_400_000;
 
@@ -48,7 +49,7 @@ const calendarFeed: APIRoute = async ({ params }) => {
                 ]
                   .filter((line) => line !== undefined)
                   .join("\n"),
-                summary: `${appointment.clientName}: ${appointment.service}`,
+                summary: `${appointment.clientName}: ${serviceFor(appointment.service, appointment.clientFor)}`,
                 updated: appointment.createdAt,
               }),
             ]

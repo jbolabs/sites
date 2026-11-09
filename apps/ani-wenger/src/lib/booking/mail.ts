@@ -2,11 +2,12 @@
  * The words in booking emails. Plain text: it reads well in every inbox and
  * on every phone, and nothing in it can break.
  */
-import { HAIR_HISTORY } from "../labels.ts";
-import type { HairHistory } from "../labels.ts";
+import { AUDIENCE_LABELS, HAIR_HISTORY } from "../labels.ts";
+import type { ClientFor, HairHistory } from "../labels.ts";
 import { formatDate, formatTime, toLocal } from "./calendar.ts";
 
 export interface MailAppointment {
+  readonly clientFor: ClientFor | undefined;
   readonly clientName: string;
   readonly email: string | undefined;
   readonly hairHistory: HairHistory | undefined;
@@ -88,6 +89,9 @@ export const studioNewBookingMail = (
     `${appointment.clientName} booked ${appointment.service}.`,
     "",
     `When: ${whenText(appointment.start, context.timeZone)} (${appointment.durationMinutes} minutes)`,
+    ...(appointment.clientFor === undefined
+      ? []
+      : [`For: ${AUDIENCE_LABELS[appointment.clientFor]}`]),
     `Phone: ${appointment.phone ?? "-"}`,
     `Email: ${appointment.email ?? "-"}`,
     ...(appointment.notes === undefined
