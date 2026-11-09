@@ -54,7 +54,10 @@ export const listMarks = (
       status ??= index;
     } else if (text !== "") {
       labels.set(index, text);
-      kinds.set(index, index > date ? "extension" : "field");
+      // Without a date column the list is not one this knows, so no cell is marked to hide.
+      if (date !== -1) {
+        kinds.set(index, index > date ? "extension" : "field");
+      }
     }
   }
   if (status !== undefined) {

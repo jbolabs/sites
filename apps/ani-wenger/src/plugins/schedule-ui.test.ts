@@ -1,11 +1,14 @@
 /* oxlint-disable sonarjs/no-undefined-assignment -- `Appointment` keeps "not given" as a required `undefined` field, so the fixture spells each one out. */
+import { validateBlockResponse } from "@emdash-cms/blocks/server";
 import { describe, expect, it } from "vitest";
 
 import type { Appointment } from "../lib/booking/services.ts";
 import {
   appointmentLines,
   byDay,
+  CANCEL_ACTION,
   dayLabel,
+  schedulePage,
   todayWidget,
 } from "./schedule-ui.ts";
 
@@ -139,6 +142,119 @@ describe(todayWidget, () => {
     ).toStrictEqual({
       text: "No upcoming appointments.",
       type: "context",
+    });
+  });
+});
+
+describe(schedulePage, () => {
+  const now = new Date("2026-11-09T16:00:00Z");
+  const feedUrl = "https://aniwenger.hair/calendar/key.ics";
+
+  it("gives each appointment its lines and Open and Cancel", () => {
+    const { blocks } = schedulePage({
+      feedUrl,
+      now,
+      timeZone: LA,
+      upcoming: [
+        appointment("a", "2026-11-09T22:00:00Z", { clientName: "Maya Chen" }),
+      ],
+    });
+    expect(blocks.slice(2, 7)).toStrictEqual([
+      { type: "divider" },
+      { text: "Today, November 9", type: "header" },
+      { text: "2:00 PM · Maya Chen", type: "section" },
+      { text: "Women's precision cut", type: "context" },
+      {
+        elements: [
+          {
+            appearance: "secondary",
+            label: "Open",
+            target: { collection: "appointments", id: "a", kind: "content" },
+            type: "link",
+          },
+          {
+            action_id: CANCEL_ACTION,
+            confirm: {
+              confirm: "Cancel and tell the client",
+              deny: "Keep it",
+              style: "danger",
+              text: "Maya Chen will get an email asking them to choose a new time.",
+              title: "Cancel this appointment?",
+            },
+            label: "Cancel",
+            style: "secondary",
+            type: "button",
+            value: "a",
+          },
+        ],
+        type: "actions",
+      },
+    ]);
+  });
+
+  it("lists the first 30 and counts the rest", () => {
+    const upcoming = Array.from({ length: 33 }, (_, index) =>
+      appointment(
+        String(index),
+        new Date(now.getTime() + (index + 1) * 3_600_000).toISOString()
+      )
+    );
+    const { blocks } = schedulePage({ feedUrl, now, timeZone: LA, upcoming });
+    expect(blocks.filter((block) => block.type === "actions")).toHaveLength(30);
+    expect(
+      blocks.find(
+        (block) => block.type === "context" && block.text.endsWith("them all.")
+      )
+    ).toStrictEqual({
+      text: "3 more after these. Open Appointments in the menu to see them all.",
+      type: "context",
+    });
+  });
+
+  it("says so when nothing is booked", () => {
+    expect(
+      schedulePage({ feedUrl, now, timeZone: LA, upcoming: [] }).blocks[2]
+    ).toStrictEqual({ text: "No upcoming appointments yet.", type: "context" });
+  });
+
+  it("stays inside EmDash's size limits on the busiest page it can draw", () => {
+    // A day apart each, so every one gets its own header and divider; the first 8 with notes and 4 photos.
+    const busy = {
+      clientFor: "women",
+      clientName: "Alexandra Montgomery-Whitfield",
+      phone: "19495550142",
+    } as const;
+    const upcoming = Array.from({ length: 60 }, (_, index) => {
+      const id = String(index);
+      const start = new Date(
+        now.getTime() + (index + 1) * 86_400_000
+      ).toISOString();
+      return index < 8
+        ? appointment(id, start, {
+            ...busy,
+            hairHistory: "home-color",
+            hairPhotos: [
+              { kind: "now", path: `/hair-photos/${id}-1.jpg` },
+              { kind: "now", path: `/hair-photos/${id}-2.jpg` },
+              { kind: "goal", path: `/hair-photos/${id}-3.jpg` },
+              { kind: "goal", path: `/hair-photos/${id}-4.jpg` },
+            ],
+          })
+        : appointment(id, start, busy);
+    });
+    const page = {
+      ...schedulePage({ feedUrl, now, timeZone: LA, upcoming }),
+      toast: {
+        message: "Cancelled. The client has been emailed.",
+        type: "success",
+      },
+    };
+    const { errors, valid } = validateBlockResponse(page, {
+      pluginPagePaths: ["/schedule"],
+    });
+    expect({ errors: [...errors], valid }).toStrictEqual({
+      errors: [],
+      valid: true,
     });
   });
 });

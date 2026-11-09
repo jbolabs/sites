@@ -87,4 +87,16 @@ describe(listMarks, () => {
     const marks = listMarks([sorted("Title"), sorted("Status"), plain("")], 0);
     expect([...marks.kinds]).toStrictEqual([[1, "status"]]);
   });
+
+  it("names but marks nothing to hide on a list with no sortable column", () => {
+    const marks = listMarks(
+      [plain("Title"), plain("Brand"), plain("Price"), plain("Actions")],
+      0
+    );
+    expect([...marks.labels]).toStrictEqual([
+      [1, "Brand"],
+      [2, "Price"],
+    ]);
+    expect([...marks.kinds]).toStrictEqual([]);
+  });
 });

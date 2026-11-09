@@ -78,6 +78,12 @@ const CONTENT_LIST_CARDS = `
     color: var(--text-color-kumo-default);
     white-space: normal;
   }
+  ${LIST} td[data-label] > span[data-admin-format=phone] {
+    white-space: nowrap;
+  }
+  ${LIST} td[data-label]:has(> span:empty) {
+    display: none;
+  }
   ${LIST} td:last-child {
     display: none;
   }`;

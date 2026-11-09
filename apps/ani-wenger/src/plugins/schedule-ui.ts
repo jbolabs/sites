@@ -113,8 +113,8 @@ const days = (
     ...list.flatMap(entry),
   ]);
 
-/** The Schedule page lists this many appointments; the rest are under Appointments. */
-const PAGE_SHOWN = 50;
+/** The Schedule page lists this many appointments, the rest are under Appointments; a full page of them stays well inside EmDash's 2000-node limit (see the test). */
+const PAGE_SHOWN = 30;
 /** The dashboard card lists this many. */
 const WIDGET_SHOWN = 6;
 
