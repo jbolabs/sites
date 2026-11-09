@@ -8,7 +8,7 @@ import type { EmailAddress } from "@jakebodea/cloudflare-kit/server";
  */
 import { Config, Context, Effect, Layer, Option, Schema } from "effect";
 
-import type { HairHistory } from "../labels.ts";
+import type { ClientFor, HairHistory } from "../labels.ts";
 import type { BookingRules, Busy } from "./availability.ts";
 
 export const APPOINTMENT_STATES = [
@@ -27,6 +27,8 @@ export interface Appointment {
   readonly notes: string | undefined;
   readonly service: string;
   readonly serviceSlug: string | undefined;
+  /** Women or Men, as the client answered on the booking page. */
+  readonly clientFor: ClientFor | undefined;
   readonly hairHistory: HairHistory | undefined;
   /** Photos the client sent, as `HairPhotoLink`s (see `hair-photos.ts`). */
   readonly hairPhotos: readonly HairPhotoLink[];
@@ -47,6 +49,7 @@ export interface NewAppointment {
   readonly service: string;
   /** Every service in the visit, comma-separated. */
   readonly serviceSlug: string;
+  readonly clientFor: ClientFor | undefined;
   readonly hairHistory: HairHistory | undefined;
   readonly hairPhotos: readonly HairPhotoLink[];
   readonly start: Date;

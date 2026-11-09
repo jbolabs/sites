@@ -290,6 +290,7 @@ const BookingFlow = ({
     setSubmission({ state: "sending" });
     const withHair = steps.includes("hair");
     const { data, error } = await actions.book({
+      clientFor: audience,
       email: details.email,
       hairHistory:
         withHair && asksHistory(visit.services) ? history : undefined,

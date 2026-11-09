@@ -14,7 +14,7 @@ import {
 import type { EmailMessage } from "@jakebodea/cloudflare-kit/server";
 import { Clock, Effect, Option, Schema } from "effect";
 
-import { HAIR_HISTORY_ORDER } from "../labels.ts";
+import { CLIENT_FOR, HAIR_HISTORY_ORDER } from "../labels.ts";
 import { availableDays, isOpenSlot } from "./availability.ts";
 import type { Busy, Day } from "./availability.ts";
 import { addDays, fromLocal, isLocalDate } from "./calendar.ts";
@@ -124,6 +124,8 @@ export type AvailabilityRequest = typeof AvailabilityRequest.Type;
 
 /** What the booking form sends. Field limits double as spam guards. */
 export const BookingForm = Schema.Struct({
+  /** "Who is the appointment for?", the first question on the booking page. */
+  clientFor: Schema.optional(Schema.Literals(CLIENT_FOR)),
   email: Schema.Trim.check(
     Schema.isMaxLength(254),
     Schema.makeFilter((value: string) =>
@@ -325,6 +327,7 @@ const sendQuietly = Effect.fn("sendQuietly")(function* sendQuietly(
 });
 
 const asMail = (appointment: Appointment): MailAppointment => ({
+  clientFor: appointment.clientFor,
   clientName: appointment.clientName,
   durationMinutes: appointment.durationMinutes,
   email: appointment.email,
@@ -407,6 +410,7 @@ export const bookAppointment = Effect.fn("bookAppointment")(
         }
         return yield* appointments.create({
           ...length,
+          clientFor: form.clientFor,
           clientName: form.name,
           email: form.email,
           hairHistory,
@@ -423,6 +427,7 @@ export const bookAppointment = Effect.fn("bookAppointment")(
     yield* Effect.annotateCurrentSpan("appointment.id", id);
 
     const appointment: MailAppointment = {
+      clientFor: form.clientFor,
       clientName: form.name,
       durationMinutes: service.durationMinutes,
       email: form.email,

@@ -76,6 +76,16 @@ export const AUDIENCE_LABELS = {
 } as const;
 export type Audience = keyof typeof AUDIENCE_LABELS;
 
+/** "Who is the appointment for?" on the booking page, kept with the appointment. */
+export const CLIENT_FOR = ["women", "men"] as const;
+export type ClientFor = (typeof CLIENT_FOR)[number];
+
+/** "Gray blending (Women)": how Ani's schedule and calendar name a visit. */
+export const serviceFor = (service: string, clientFor?: ClientFor): string =>
+  clientFor === undefined
+    ? service
+    : `${service} (${AUDIENCE_LABELS[clientFor]})`;
+
 /**
  * "What is on your hair now?" The answers that change a color appointment
  * into a color correction are flagged: removing old color first takes more

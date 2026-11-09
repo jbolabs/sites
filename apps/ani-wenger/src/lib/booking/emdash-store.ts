@@ -11,7 +11,7 @@
 import { Effect, Layer, Option, Schema } from "effect";
 import { withEmDashRuntime } from "emdash/middleware";
 
-import { HAIR_HISTORY_ORDER } from "../labels.ts";
+import { CLIENT_FOR, HAIR_HISTORY_ORDER } from "../labels.ts";
 import { addressLine } from "../studio.ts";
 import type { Busy } from "./availability.ts";
 import { parsePhotosText, photosText } from "./hair-photos.ts";
@@ -85,6 +85,7 @@ const OptionalCount = Schema.optional(Schema.NullOr(Schema.Number));
 
 const AppointmentData = Schema.Struct({
   buffer_minutes: OptionalCount,
+  client_for: OptionalText,
   duration_minutes: Schema.Number,
   email: OptionalText,
   // An unknown answer (an editor's typo) reads as no answer rather than hiding the appointment.
@@ -113,6 +114,7 @@ const toAppointment = (item: Item): Option.Option<Appointment> =>
   Schema.decodeUnknownOption(AppointmentData)(item.data).pipe(
     Option.map((data): Appointment => ({
       bufferMinutes: data.buffer_minutes ?? 0,
+      clientFor: CLIENT_FOR.find((answer) => answer === data.client_for),
       clientName: data.title,
       createdAt: new Date(item.createdAt),
       durationMinutes: data.duration_minutes,
@@ -164,6 +166,21 @@ const toBusy = (item: Item): Busy[] =>
     ],
   });
 
+/**
+ * `client_for` came after launch, and EmDash refuses a field the collection
+ * lacks. A site that has not added it yet in Content types keeps booking,
+ * just without the answer, instead of turning every client away.
+ */
+const hasField = async (
+  runtime: Runtime,
+  collection: string,
+  slug: string
+): Promise<boolean> => {
+  const schema =
+    await runtime.schemaRegistry.getCollectionWithFields(collection);
+  return schema?.fields.some((field) => field.slug === slug) ?? false;
+};
+
 /** The appointment book; `origin` makes the stored photo links complete URLs. */
 export const appointmentsEmDash = (origin: string) =>
   Layer.succeed(Appointments, {
@@ -182,9 +199,15 @@ export const appointmentsEmDash = (origin: string) =>
 
     create: (appointment) =>
       withRuntime("Appointments.create", async (runtime) => {
+        const clientFor =
+          appointment.clientFor !== undefined &&
+          (await hasField(runtime, "appointments", "client_for"))
+            ? { client_for: appointment.clientFor }
+            : {};
         const result = unwrap(
           await runtime.handleContentCreate("appointments", {
             data: {
+              ...clientFor,
               buffer_minutes: appointment.bufferMinutes,
               duration_minutes: appointment.durationMinutes,
               email: appointment.email,
