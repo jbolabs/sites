@@ -10,6 +10,9 @@ declare module "virtual:cms-admin-config" {
     readonly siteName: string;
     // oxlint-disable-next-line typescript/consistent-type-imports -- an ambient module block cannot import; import() is the only way to name the type.
     readonly assistant: import("./options.ts").AssistantOptions | false;
+    // oxlint-disable-next-line typescript/consistent-type-imports -- as above.
+    readonly lists?: import("./options.ts").CmsAdminOptions["lists"];
+    readonly timeZone?: string;
   };
   export default config;
 }

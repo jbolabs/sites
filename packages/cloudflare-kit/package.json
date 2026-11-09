@@ -45,7 +45,8 @@
     "./emdash/admin/plugin": "./src/emdash/admin/plugin.ts",
     "./emdash/admin/middleware": "./src/emdash/admin/middleware.ts",
     "./emdash/admin/chat-route": "./src/emdash/admin/chat-route.ts",
-    "./emdash/admin/client": "./src/emdash/admin/client/index.tsx"
+    "./emdash/admin/client": "./src/emdash/admin/client/index.tsx",
+    "./emdash/admin/format": "./src/emdash/admin/client/list-values.ts"
   },
   "scripts": {
     "test": "vitest run",

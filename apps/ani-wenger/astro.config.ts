@@ -108,12 +108,14 @@ export default defineConfig({
       // Every admin uses the shared adminFont above, not EmDash's Noto Sans.
       fonts: false,
       middleware: { outer: "@jakebodea/cloudflare-kit/emdash/owner-gate" },
-      // CMS mail (invites, magic links) only once a verified sender exists; until then
-      // EmDash reports "Email is not configured" and invite links are copied by hand.
+      // The schedule first: the dashboard shows plugin cards in this order, and with
+      // `dashboard.widgetsFirst` its Coming up card is the first thing Ani sees.
       plugins: [
+        schedulePlugin(),
         analyticsPlugin,
         siteAdminPlugin(cms),
-        schedulePlugin(),
+        // CMS mail (invites, magic links) only once a verified sender exists; until then
+        // EmDash reports "Email is not configured" and invite links are copied by hand.
         ...(inputs.emailFrom === undefined
           ? []
           : [

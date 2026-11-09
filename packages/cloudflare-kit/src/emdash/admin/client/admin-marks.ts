@@ -1,9 +1,10 @@
 /**
- * The phone layout (`mobile.ts`) needs two things on a content list that EmDash's
- * admin has no hook for: the name of each column, and which cell holds the status.
- * This marks them with data attributes after each render. Nothing is moved or
- * restyled here, so React keeps owning the DOM, and an EmDash change that drops
- * a mark only drops the phone styling that hangs on it.
+ * The phone layout (`mobile.ts`) and the site's list options (`lists.ts`) need things
+ * on a content list that EmDash's admin has no hook for: the name of each column, and
+ * what each cell holds (the status, the date, a site column, a plugin column). This
+ * marks them with data attributes after each render. Nothing is moved or restyled
+ * here, so React keeps owning the DOM, and an EmDash change that drops a mark only
+ * drops the styling that hangs on it.
  */
 
 /**
@@ -17,23 +18,33 @@ export interface ListHeader {
   readonly sortable: boolean;
 }
 
+/** What a cell holds: EmDash's status or date, a collection's own list column, or a plugin's. */
+export type CellKind = "status" | "date" | "field" | "extension";
+
 export interface ListMarks {
   /** Column names to show beside cells, by cell index. */
   readonly labels: ReadonlyMap<number, string>;
   /** EmDash's status column, the first sortable one after the title. */
   readonly status: number | undefined;
+  /** What each marked cell holds, by cell index. */
+  readonly kinds: ReadonlyMap<number, CellKind>;
 }
 
-/** Which cells of a content list row get a name, and which one holds the status badge. */
+/** Which cells of a content list row get a name, and what each one holds. */
 export const listMarks = (
   headers: readonly ListHeader[],
   title: number
 ): ListMarks => {
   const labels = new Map<number, string>();
+  const kinds = new Map<number, CellKind>();
   let status: number | undefined;
   if (title < 0) {
-    return { labels, status };
+    return { kinds, labels, status };
   }
+  // EmDash's date is its last own column, so the last sortable header; plugin columns follow it.
+  const date = headers.findLastIndex(
+    (header, index) => index > title && header.sortable
+  );
   for (const [index, header] of headers.entries()) {
     const text = header.text.trim();
     if (index <= title || index === headers.length - 1) {
@@ -43,9 +54,19 @@ export const listMarks = (
       status ??= index;
     } else if (text !== "") {
       labels.set(index, text);
+      // Without a date column the list is not one this knows, so no cell is marked to hide.
+      if (date !== -1) {
+        kinds.set(index, index > date ? "extension" : "field");
+      }
     }
   }
-  return { labels, status };
+  if (status !== undefined) {
+    kinds.set(status, "status");
+  }
+  if (date > (status ?? title)) {
+    kinds.set(date, "date");
+  }
+  return { kinds, labels, status };
 };
 
 const ENTRY_LINK = ':scope > a[href^="/_emdash/admin/content/"]';
@@ -67,20 +88,26 @@ const markLists = () => {
       // A plugin column names itself in aria-label; its header may be only an icon.
       text: header.getAttribute("aria-label") ?? header.textContent ?? "",
     }));
+    let headerKinds: ReadonlyMap<number, CellKind> | undefined;
     for (const row of table.querySelectorAll("tbody > tr")) {
       const cells = [...row.children];
-      const { labels, status } = listMarks(
+      const { kinds, labels } = listMarks(
         headers,
         cells.findIndex((cell) => cell.querySelector(ENTRY_LINK) !== null)
       );
+      if (kinds.size > 0) {
+        headerKinds ??= kinds;
+      }
       for (const [index, cell] of cells.entries()) {
         setMark(cell, "data-label", labels.get(index));
-        setMark(
-          cell,
-          "data-admin-cell",
-          index === status ? "status" : undefined
-        );
+        setMark(cell, "data-admin-cell", kinds.get(index));
       }
+    }
+    // The headers are marked like the first entry row, so a hidden column hides whole.
+    for (const [index, header] of table
+      .querySelectorAll("thead th")
+      .entries()) {
+      setMark(header, "data-admin-cell", headerKinds?.get(index));
     }
   }
 };

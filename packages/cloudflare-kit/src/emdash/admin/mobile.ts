@@ -78,6 +78,12 @@ const CONTENT_LIST_CARDS = `
     color: var(--text-color-kumo-default);
     white-space: normal;
   }
+  ${LIST} td[data-label] > span[data-admin-format=phone] {
+    white-space: nowrap;
+  }
+  ${LIST} td[data-label]:has(> span:empty) {
+    display: none;
+  }
   ${LIST} td:last-child {
     display: none;
   }`;
@@ -203,6 +209,12 @@ export const ADMIN_MOBILE_CSS = `
   }
   html[data-theme] main:not(:has(> form)) {
     padding: 1rem;
+  }
+  /* A long line in a plugin page's code block (a calendar feed address) wraps instead of
+     pushing the whole page sideways. */
+  html[data-theme] main:not(:has(> form)) pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
   html[data-theme] main form [data-sidebar-wrapper][data-side=right] > div {
     padding: 1rem;

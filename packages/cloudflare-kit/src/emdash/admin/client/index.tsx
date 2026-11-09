@@ -3,6 +3,7 @@ import cmsAdmin from "virtual:cms-admin-config";
 
 import { installAdminMarks } from "#assistant/admin-marks.ts";
 import { Assistant } from "#assistant/assistant.tsx";
+import { contentListColumns as listColumns } from "#assistant/list-columns.tsx";
 import { installMobileNavigation } from "#assistant/mobile-navigation.ts";
 import { installThemeColor } from "#assistant/theme-color.ts";
 
@@ -50,3 +51,9 @@ if (typeof document !== "undefined" && cmsAdmin.assistant !== false) {
 
 /** EmDash reads plugin pages, widgets and fields from here; this plugin's are Block Kit. */
 export const pages = {};
+
+/** The site's `lists` columns, which EmDash adds to those content lists. */
+export const contentListColumns = listColumns(
+  cmsAdmin.lists,
+  cmsAdmin.timeZone
+);

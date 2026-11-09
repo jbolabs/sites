@@ -4,6 +4,8 @@
  */
 import { defineCmsAdmin } from "@jakebodea/cloudflare-kit/emdash/admin";
 
+import { site } from "./site.config.ts";
+
 export const cms = defineCmsAdmin({
   assistant: {
     collections: ["home", "pages", "services", "questions", "products"],
@@ -26,10 +28,12 @@ export const cms = defineCmsAdmin({
       },
     ],
   },
+  /** Ani opens the admin to see who is coming in, so her bookings lead the home page and the menu. */
+  dashboard: { widgetsFirst: true },
   favicon: "/favicon.png",
   guide: [
     {
-      body: "Schedule, in the sidebar, lists who is coming in. Cancel there and the client gets an email inviting them to rebook; the time opens up on the website right away. To add a phone booking, open Appointments and select Add new.",
+      body: "Schedule, at the top of the menu, lists who is coming in, day by day. Cancel there and the client gets an email inviting them to rebook; the time opens up on the website right away. To add a phone booking, open Appointments and select Add new.",
       title: "See your appointments",
     },
     {
@@ -45,7 +49,38 @@ export const cms = defineCmsAdmin({
       title: "Recommend a product",
     },
   ],
+  /**
+   * Appointments read as bookings, not documents: when, service, phone and whether it is on,
+   * in place of EmDash's publish badge (every booking is a draft) and its last-edited date.
+   */
+  lists: {
+    appointments: {
+      columns: [
+        { field: "starts_at", format: "datetime", label: "When" },
+        { field: "service", label: "Service" },
+        {
+          field: "client_for",
+          label: "For",
+          labels: { men: "Men", women: "Women" },
+        },
+        { field: "phone", format: "phone", label: "Phone" },
+        {
+          fade: ["cancelled", "no_show"],
+          field: "state",
+          label: "Status",
+          labels: {
+            cancelled: "Cancelled",
+            completed: "Done",
+            confirmed: "Booked",
+            no_show: "No show",
+          },
+        },
+      ],
+      hideStatus: true,
+    },
+  },
   logo: "/icon-512.png",
+  nav: { first: ["plugins/schedule/schedule"] },
   siteName: "Ani Wenger",
   theme: {
     brand: "oklch(0.27 0.022 45)",
@@ -53,4 +88,5 @@ export const cms = defineCmsAdmin({
     brandOnDark: "oklch(0.86 0.045 80)",
     canvas: "oklch(0.985 0.005 80)",
   },
+  timeZone: site.timeZone,
 });

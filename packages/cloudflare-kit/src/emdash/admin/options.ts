@@ -55,6 +55,29 @@ export interface AssistantOptions {
   readonly skills?: readonly SiteSkill[];
 }
 
+/**
+ * A column the kit adds to a content list. EmDash's own list columns show a date
+ * without its time and a phone number as raw digits; these read the way people say them.
+ */
+export interface ListColumn {
+  readonly field: string;
+  readonly label: string;
+  /** `datetime`: weekday, date and time in the site's time zone; `phone`: a US number as (949) 555-0142. */
+  readonly format?: "text" | "datetime" | "phone";
+  /** Words for stored option values, e.g. `{ no_show: "No-show" }`; others are capitalized. */
+  readonly labels?: Readonly<Record<string, string>>;
+  /** Values that fade their whole row, e.g. a cancelled booking. */
+  readonly fade?: readonly string[];
+}
+
+/** How one collection's list reads, for records a client looks up rather than publishes. */
+export interface ListOptions {
+  /** Hide EmDash's publish badge and edited date: neither means anything on bookings or messages. */
+  readonly hideStatus?: boolean;
+  /** Shown instead of the collection's own list columns, in this order. */
+  readonly columns?: readonly ListColumn[];
+}
+
 export interface CmsAdminOptions {
   /** Short site name shown in the admin sidebar, tab title, and login screen. */
   readonly siteName: string;
@@ -69,7 +92,17 @@ export interface CmsAdminOptions {
    * Built-in admin screens the site uses that are hidden by default (comments,
    * bylines, tags, ...), so the client's nav lists only what applies to them.
    */
-  readonly nav?: { readonly show?: readonly OptionalNavItem[] };
+  readonly nav?: {
+    readonly show?: readonly OptionalNavItem[];
+    /** Admin paths listed right under Dashboard, e.g. a plugin page the client opens daily. */
+    readonly first?: readonly string[];
+  };
+  /** `widgetsFirst`: plugin cards (a schedule, a guide) lead the dashboard instead of trailing it. */
+  readonly dashboard?: { readonly widgetsFirst?: boolean };
+  /** Per collection slug. */
+  readonly lists?: Readonly<Record<string, ListOptions>>;
+  /** IANA zone the site's dates belong to; list times show in it wherever the admin is opened. */
+  readonly timeZone?: string;
 }
 
 /** EmDash plugin id; also the path segment of the plugin's admin pages and API routes. */
