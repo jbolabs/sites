@@ -7,7 +7,9 @@
 import type { AstroIntegration } from "astro";
 
 import { CHAT_PATH } from "./assistant/protocol.ts";
+import { adminDashboardCss } from "./dashboard.ts";
 import { ADMIN_HEADER_CSS } from "./header.ts";
+import { adminListsCss } from "./lists.ts";
 import { ADMIN_MOBILE_CSS } from "./mobile.ts";
 import { adminNavCss } from "./nav.ts";
 import type { CmsAdminOptions } from "./options.ts";
@@ -25,11 +27,23 @@ export const cmsAdmin = (options: CmsAdminOptions): AstroIntegration => ({
   hooks: {
     "astro:config:setup": ({ addMiddleware, injectRoute, updateConfig }) => {
       // The shared shell first, so a site's canvas and brand land on top of it.
-      const css = `${ADMIN_SHELL_CSS}\n${ADMIN_MOBILE_CSS}\n${ADMIN_HEADER_CSS}\n${ADMIN_SIDEBAR_CSS}\n${adminLogoCss(options.logo)}\n${adminNavCss(options.nav?.show)}\n${adminThemeCss(options.theme)}`;
+      const css = [
+        ADMIN_SHELL_CSS,
+        ADMIN_MOBILE_CSS,
+        ADMIN_HEADER_CSS,
+        ADMIN_SIDEBAR_CSS,
+        adminLogoCss(options.logo),
+        adminNavCss(options.nav?.show, options.nav?.first),
+        adminDashboardCss(options.dashboard),
+        adminListsCss(options.lists),
+        adminThemeCss(options.theme),
+      ].join("\n");
       // Logos, favicons and the theme stay out: the route and the panel need only these.
       const config = {
         assistant: options.assistant ?? {},
+        lists: options.lists,
         siteName: options.siteName,
+        timeZone: options.timeZone,
       };
       addMiddleware({
         entrypoint: "@jakebodea/cloudflare-kit/emdash/admin/middleware",

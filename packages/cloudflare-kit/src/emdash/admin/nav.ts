@@ -30,8 +30,38 @@ const LIST_FILTERS = new Map<string, string>([
 
 const ADMIN_ROOT = "/_emdash/admin/";
 
-/** The rule that hides every optional entry a site has not asked for. */
-export const adminNavCss = (show: readonly OptionalNavItem[] = []): string => {
+const GROUP = "html[data-theme] [data-sidebar=content] [data-sidebar=group]";
+
+/**
+ * Entries listed right under Dashboard. EmDash files plugin pages in a last "Plugins"
+ * group, under every collection; a page the client opens daily belongs on top. Kumo's
+ * groups stack in a flex column, so the pinned entry's group and list dissolve into it
+ * (`display: contents`) and the entry alone takes an order ahead of the rest; its
+ * group's name goes when the entry was all it held. Each step names the group by its
+ * child chain (group > menu > item > link): a `:has()` inside `:has()` is invalid CSS.
+ */
+const pinnedNavCss = (first: readonly string[]): string[] => {
+  if (first.length === 0) {
+    return [];
+  }
+  const links = first
+    .map((path) => `a[href="${ADMIN_ROOT}${path.replace(/^\/+/u, "")}"]`)
+    .join(", ");
+  const item = "[data-sidebar=menu] > [data-sidebar=menu-item]";
+  const group = `${GROUP}:has(> ${item} > :is(${links}))`;
+  return [
+    `${GROUP}:first-child{order:-2}`,
+    `${group}, ${group} > [data-sidebar=menu]{display:contents}`,
+    `html[data-theme] [data-sidebar=content] [data-sidebar=menu-item]:has(> :is(${links})){order:-1}`,
+    `${GROUP}:has(> ${item}:only-child > :is(${links})) > [data-sidebar=group-label]{display:none}`,
+  ];
+};
+
+/** The rule that hides every optional entry a site has not asked for, and puts `first` on top. */
+export const adminNavCss = (
+  show: readonly OptionalNavItem[] = [],
+  first: readonly string[] = []
+): string => {
   const links: string[] = [];
   const filters: string[] = [];
   for (const [name, path] of Object.entries(OPTIONAL_NAV)) {
@@ -54,6 +84,7 @@ export const adminNavCss = (show: readonly OptionalNavItem[] = []): string => {
           `html[data-theme] [data-sidebar=menu-item]:has(> :is(${links.join(", ")})){display:none}`,
         ]),
     ...filters.map((filter) => `html[data-theme] ${filter}{display:none}`),
+    ...pinnedNavCss(first),
   ];
   return rules.join("\n");
 };

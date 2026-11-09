@@ -51,4 +51,43 @@ describe(adminNavCss, () => {
       ])
     ).toBe("");
   });
+
+  it("puts a pinned page right under Dashboard and drops its emptied group's name", () => {
+    const link = 'a[href="/_emdash/admin/plugins/schedule/schedule"]';
+    const group =
+      "html[data-theme] [data-sidebar=content] [data-sidebar=group]";
+    expect(
+      adminNavCss(
+        [
+          "byline-schema",
+          "bylines",
+          "calendar",
+          "categories",
+          "comments",
+          "import",
+          "sections",
+          "tags",
+          "widgets",
+        ],
+        ["/plugins/schedule/schedule"]
+      )
+    ).toBe(
+      [
+        `${group}:first-child{order:-2}`,
+        `${group}:has(> [data-sidebar=menu] > [data-sidebar=menu-item] > :is(${link})), ${group}:has(> [data-sidebar=menu] > [data-sidebar=menu-item] > :is(${link})) > [data-sidebar=menu]{display:contents}`,
+        `html[data-theme] [data-sidebar=content] [data-sidebar=menu-item]:has(> :is(${link})){order:-1}`,
+        `${group}:has(> [data-sidebar=menu] > [data-sidebar=menu-item]:only-child > :is(${link})) > [data-sidebar=group-label]{display:none}`,
+      ].join("\n")
+    );
+  });
+
+  it("never nests :has(), which would void the rule", () => {
+    const rules = adminNavCss([], ["plugins/schedule/schedule"])
+      .split("\n")
+      .filter((rule) => rule.includes("plugins/schedule/schedule"));
+    expect(rules).toHaveLength(3);
+    expect(
+      rules.filter((rule) => /:has\([^)]*:has\(/u.test(rule))
+    ).toStrictEqual([]);
+  });
 });

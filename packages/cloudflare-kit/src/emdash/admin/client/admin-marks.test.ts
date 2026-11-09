@@ -60,4 +60,31 @@ describe(listMarks, () => {
     expect(marks.status).toBeUndefined();
     expect(listMarks(products, 1).labels.get(2)).toBe("Brand");
   });
+
+  it("tells EmDash's status and date from site and plugin columns", () => {
+    const appointments = [
+      plain(""),
+      sorted("Title"),
+      plain("Starts at"),
+      plain("Phone"),
+      sorted("Status"),
+      sorted("Date"),
+      plain("When"),
+      plain("Phone"),
+      plain("Actions"),
+    ];
+    expect([...listMarks(appointments, 1).kinds]).toStrictEqual([
+      [2, "field"],
+      [3, "field"],
+      [6, "extension"],
+      [7, "extension"],
+      [4, "status"],
+      [5, "date"],
+    ]);
+  });
+
+  it("marks no date on a list whose only sortable column is the status", () => {
+    const marks = listMarks([sorted("Title"), sorted("Status"), plain("")], 0);
+    expect([...marks.kinds]).toStrictEqual([[1, "status"]]);
+  });
 });
