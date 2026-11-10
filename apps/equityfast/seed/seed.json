@@ -2469,6 +2469,401 @@
         }
       },
       {
+        "id": "page-debt-consolidation",
+        "slug": "debt-consolidation",
+        "status": "published",
+        "locale": "en",
+        "data": {
+          "title": "Consolidate Debt With a HELOC",
+          "intro": "Roll eligible high-interest balances into one home equity line, and check your options with a soft credit check.",
+          "content": [
+            {
+              "_type": "page_hero",
+              "_version": 1,
+              "_key": "hero",
+              "headline": "Consolidate with",
+              "headline_accent": "one home equity line.",
+              "intro": "A HELOC could help consolidate eligible high-interest debts into a single credit line.*",
+              "apply_label": "Check Your Options",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/info-hero-Clqmc_9J.jpg",
+                  "alt": "A single-story home under tall trees",
+                  "filename": "info-hero.jpg"
+                }
+              }
+            },
+            {
+              "_type": "numbered_cards",
+              "_version": 1,
+              "_key": "how",
+              "tone": "light",
+              "headline": "Several balances.",
+              "headline_accent": "One line.",
+              "items": [
+                {
+                  "title": "Add up what you owe",
+                  "body": "Card balances, personal loans, and other eligible high-interest debt."
+                },
+                {
+                  "title": "Check your options",
+                  "body": "A soft credit check shows your initial options without affecting your score. A full application requires a hard credit inquiry."
+                },
+                {
+                  "title": "Pay them off from your line",
+                  "body": "Draw on your line to pay off the balances you choose, then manage one home equity line instead of several accounts."
+                }
+              ]
+            },
+            {
+              "_type": "guidelines",
+              "_version": 1,
+              "_key": "guidelines",
+              "headline": "Know before",
+              "headline_accent": "you consolidate",
+              "body": "Consolidating with a HELOC moves unsecured debt onto a line secured by your home. Your final terms depend on the program, occupancy, lien position, and your borrower profile.",
+              "items": [
+                {
+                  "label": "Line amounts",
+                  "value": "$5,000 to $1,000,000"
+                },
+                {
+                  "label": "Credit score (FICO®)",
+                  "value": "As low as 600*"
+                },
+                {
+                  "label": "Lien position",
+                  "value": "1st & 2nd"
+                },
+                {
+                  "label": "Funding speed",
+                  "value": "As few as 5 days*"
+                }
+              ],
+              "footnote": "*Using a HELOC to consolidate unsecured debt makes that debt secured by your home. Failure to repay could result in foreclosure. Total borrowing costs may vary. A minimum FICO® of 600 is available only on select program, lien-position, and occupancy combinations. Funding timelines are not guaranteed. Not all applicants or properties will qualify."
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "cta",
+              "headline": "See what you could consolidate.",
+              "body": "Soft credit check only: starting won't affect your score.",
+              "apply_label": "Check Your Options",
+              "layout": "centered"
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-home-renovation",
+        "slug": "home-renovation",
+        "status": "published",
+        "locale": "en",
+        "data": {
+          "title": "Fund Your Home Renovation With a HELOC",
+          "intro": "Put your home equity toward the kitchen, the bath, or the next project on your list, and see which projects pay you back.",
+          "content": [
+            {
+              "_type": "page_hero",
+              "_version": 1,
+              "_key": "hero",
+              "headline": "The kitchen won't",
+              "headline_accent": "remodel itself.",
+              "intro": "Big plans for your home? Put your equity in motion.",
+              "apply_label": "Explore What Your Equity Can Do",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/calculator-hero-C9VXZbVq.jpg",
+                  "alt": "A renovated home exterior",
+                  "filename": "calculator-hero.jpg"
+                }
+              }
+            },
+            {
+              "_type": "numbered_cards",
+              "_version": 1,
+              "_key": "how",
+              "tone": "light",
+              "headline": "Built for projects",
+              "headline_accent": "that happen in stages.",
+              "items": [
+                {
+                  "title": "Draw as the work moves",
+                  "body": "Pay the contractor as invoices come in instead of borrowing it all on day one."
+                },
+                {
+                  "title": "Interest only on what you draw",
+                  "body": "Money you haven't used yet carries no balance."
+                },
+                {
+                  "title": "No full appraisal on many loans",
+                  "body": "An appraisal may not be required on eligible loans under $400,000.*"
+                }
+              ]
+            },
+            {
+              "_type": "renovation_planner",
+              "_version": 1,
+              "_key": "planner",
+              "headline": "Which projects actually",
+              "headline_accent": "pay you back?",
+              "intro": "Tap the projects you're considering. We preload a typical budget; slide to match yours and watch the estimated equity gain update. Figures use national average ROI plus three years of home appreciation.",
+              "projects": [
+                {
+                  "name": "Garage Door Replacement",
+                  "blurb": "Highest return per dollar in the set.",
+                  "roi_percent": 327,
+                  "typical_budget": 4500
+                },
+                {
+                  "name": "Steel Entry Door",
+                  "blurb": "Small spend, outsized curb appeal.",
+                  "roi_percent": 264,
+                  "typical_budget": 2400
+                },
+                {
+                  "name": "Exterior Stonework",
+                  "blurb": "Facade upgrade with strong resale lift.",
+                  "roi_percent": 254,
+                  "typical_budget": 11000
+                },
+                {
+                  "name": "Hardwood Floor Refinish",
+                  "blurb": "Cheapest way to modernize interiors.",
+                  "roi_percent": 180,
+                  "typical_budget": 5000
+                },
+                {
+                  "name": "Minor Kitchen Remodel",
+                  "blurb": "Cabinet fronts, counters, appliances.",
+                  "roi_percent": 138,
+                  "typical_budget": 27000
+                },
+                {
+                  "name": "Bathroom Remodel",
+                  "blurb": "Full refresh of a primary bath.",
+                  "roi_percent": 120,
+                  "typical_budget": 25000
+                },
+                {
+                  "name": "Backup Power Generator",
+                  "blurb": "Value plus resilience in storm markets.",
+                  "roi_percent": 116,
+                  "typical_budget": 15000
+                },
+                {
+                  "name": "Deck / Outdoor Living",
+                  "blurb": "Adds usable square footage outdoors.",
+                  "roi_percent": 115,
+                  "typical_budget": 18000
+                },
+                {
+                  "name": "Roof",
+                  "blurb": "New roof protects the home and reassures buyers.",
+                  "roi_percent": 109,
+                  "typical_budget": 30000
+                },
+                {
+                  "name": "Window Replacement",
+                  "blurb": "Efficiency gains plus resale credit.",
+                  "roi_percent": 106,
+                  "typical_budget": 22000
+                }
+              ],
+              "disclaimer": "Estimates only, based on national average cost-vs-value data plus 3-year appreciation. Actual results vary by market and condition."
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "cta",
+              "headline": "Ready to start the project?",
+              "body": "Soft credit check only: starting won't affect your score.",
+              "apply_label": "Start Now",
+              "layout": "centered"
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-keep-your-rate",
+        "slug": "keep-your-rate",
+        "status": "published",
+        "locale": "en",
+        "data": {
+          "title": "Keep Your Mortgage Rate With a Second-Lien HELOC",
+          "intro": "Use your equity with a second-lien HELOC while your existing first mortgage may remain in place.",
+          "content": [
+            {
+              "_type": "page_hero",
+              "_version": 1,
+              "_key": "hero",
+              "headline": "Love your mortgage rate?",
+              "headline_accent": "Keep it.*",
+              "intro": "Your equity. Your terms. A second-lien HELOC is a new line of credit that sits behind the mortgage you already have.",
+              "apply_label": "Explore Your Options",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/estate-hero-X6IKSjTQ.jpg",
+                  "alt": "A two-story craftsman home lit up at dusk",
+                  "filename": "estate-hero.jpg"
+                }
+              }
+            },
+            {
+              "_type": "comparison",
+              "_version": 1,
+              "_key": "compare",
+              "headline": "Second-lien HELOC",
+              "headline_accent": "vs. cash-out refinance",
+              "feature_label": "Feature",
+              "ours_label": "Second-lien HELOC",
+              "theirs_label": "Cash-out refinance",
+              "rows": [
+                {
+                  "feature": "Your first mortgage",
+                  "ours": "Stays in place*",
+                  "theirs": "Replaced with a new loan"
+                },
+                {
+                  "feature": "How you get funds",
+                  "ours": "A line you draw as needed",
+                  "theirs": "One lump sum at closing"
+                },
+                {
+                  "feature": "Interest",
+                  "ours": "Only on what you draw",
+                  "theirs": "On the full new loan balance"
+                }
+              ]
+            },
+            {
+              "_type": "guidelines",
+              "_version": 1,
+              "_key": "guidelines",
+              "headline": "Second-lien HELOC",
+              "headline_accent": "at a glance",
+              "body": "Your final terms depend on the program, occupancy, and your borrower profile.",
+              "items": [
+                {
+                  "label": "Line amounts",
+                  "value": "$5,000 to $1,000,000"
+                },
+                {
+                  "label": "Lien position",
+                  "value": "2nd, behind your mortgage"
+                },
+                {
+                  "label": "Occupancy",
+                  "value": "Owner & non-owner"
+                },
+                {
+                  "label": "Eligible property types",
+                  "value": "SFR, condo, PUD, townhome, 2-4 unit"
+                }
+              ],
+              "footnote": "*Eligible second-lien HELOC financing only. Existing first mortgage may remain in place. Second-lien HELOC eligibility and approval requirements apply."
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "cta",
+              "headline": "Keep your rate. Use your equity.",
+              "body": "Soft credit check only: starting won't affect your score.",
+              "apply_label": "Explore Your Options",
+              "layout": "centered"
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-digital-heloc",
+        "slug": "digital-heloc",
+        "status": "published",
+        "locale": "en",
+        "data": {
+          "title": "A Digital HELOC With Less Paperwork",
+          "intro": "Approval in as little as 30 minutes and funding in as few as 5 business days, with digitally verified income and e-sign from home.",
+          "content": [
+            {
+              "_type": "page_hero",
+              "_version": 1,
+              "_key": "hero",
+              "headline": "Funding in as few as",
+              "headline_accent": "5 business days.*",
+              "intro": "A digital-first HELOC. Soft credit check to see your options.* No branch visits, no sales calls.",
+              "apply_label": "Skip the Slow Lane",
+              "image": {
+                "$media": {
+                  "url": "/_seed/media/process-hero-CWuZMHda.jpg",
+                  "alt": "A home at twilight",
+                  "filename": "process-hero.jpg"
+                }
+              }
+            },
+            {
+              "_type": "stats",
+              "_version": 1,
+              "_key": "stats",
+              "headline": "At a glance",
+              "items": [
+                {
+                  "value": "30 min",
+                  "label": "Approval in as little as*"
+                },
+                {
+                  "value": "5 days",
+                  "label": "Funding in as few as*"
+                },
+                {
+                  "value": "$5K to $1M",
+                  "label": "Line amounts"
+                },
+                {
+                  "value": "Online",
+                  "label": "Application"
+                }
+              ]
+            },
+            {
+              "_type": "numbered_cards",
+              "_version": 1,
+              "_key": "paperwork",
+              "tone": "light",
+              "headline": "The HELOC with",
+              "headline_accent": "less paperwork.",
+              "apply_label": "Apply Online",
+              "items": [
+                {
+                  "title": "Digitally verified income",
+                  "body": "Income is verified digitally. Additional documents may be required to verify income."
+                },
+                {
+                  "title": "Soft credit check",
+                  "body": "See your initial options without affecting your score. A full application requires a hard credit inquiry."
+                },
+                {
+                  "title": "E-sign from home",
+                  "body": "Review and sign your documents online."
+                },
+                {
+                  "title": "No branch visits",
+                  "body": "Apply, verify, and sign without stopping by an office."
+                }
+              ]
+            },
+            {
+              "_type": "cta_band",
+              "_version": 1,
+              "_key": "cta",
+              "headline": "Skip the slow lane.",
+              "body": "Soft credit check only: starting won't affect your score.",
+              "apply_label": "Apply Online",
+              "layout": "centered"
+            }
+          ]
+        }
+      },
+      {
         "id": "page-calculator-es",
         "slug": "calculadora",
         "status": "published",
