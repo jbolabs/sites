@@ -45,9 +45,11 @@ interface Props {
   alternates?: Alternates | undefined;
   /** Breadcrumb trail (structured data only), ending at this page. */
   crumbs?: readonly Crumb[] | undefined;
+  /** Hide the header and footer menus (ad landing pages), keeping the lender identity and disclosures. */
+  focused?: boolean | undefined;
 }
 
-const { alternates = {}, canonical, content, crumbs, description, image, photo, robots, title } = Astro.props;
+const { alternates = {}, canonical, content, crumbs, description, focused = false, image, photo, robots, title } = Astro.props;
 const locale = toLocale(Astro.currentLocale);
 const t = ui(locale);
 const chrome = await getSiteChrome(locale, site.name);
@@ -102,11 +104,11 @@ const breadcrumbs = crumbs === undefined ? undefined : JSON.stringify(breadcrumb
     <GoogleTagManager part="body" />
     <EmDashBodyStart page={page} />
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-60 focus:bg-white focus:px-4 focus:py-2 focus:text-ink focus:shadow">{t.skipToContent}</a>
-    <SiteHeader locale={locale} items={chrome.primary} alternates={alternates} />
+    <SiteHeader locale={locale} items={focused ? [] : chrome.primary} alternates={alternates} />
     <main id="main" class="flex-1">
       <slot />
     </main>
-    <SiteFooter locale={locale} items={chrome.footer} disclosure={chrome.disclosure} />
+    <SiteFooter locale={locale} items={focused ? [] : chrome.footer} disclosure={chrome.disclosure} />
     <ApplyDialog client:idle locale={locale} strings={t} turnstileSiteKey={env.TURNSTILE_SITE_KEY} />
     <WebAnalyticsBeacon />
     <EmDashBodyEnd page={page} />
