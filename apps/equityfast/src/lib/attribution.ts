@@ -17,6 +17,7 @@ export const AD_PARAMS = [
   "utm_campaign",
   "utm_content",
   "utm_term",
+  "utm_id",
   "gclid",
   "fbclid",
 ] as const;
@@ -167,7 +168,10 @@ export const campaignLabel = (
     attribution.utm_term,
   ].filter((part) => part !== undefined && part !== "");
   if (parts.length > 0) {
-    return parts.join(" / ");
+    const label = parts.join(" / ");
+    return attribution.utm_id === undefined || attribution.utm_id === ""
+      ? label
+      : `${label} (campaign ID ${attribution.utm_id})`;
   }
   if (attribution.gclid !== undefined) {
     return "Google Ads click (gclid)";
@@ -194,6 +198,7 @@ export const adEventParams = (
         ["utm_campaign", attribution?.utm_campaign],
         ["utm_content", attribution?.utm_content],
         ["utm_term", attribution?.utm_term],
+        ["utm_id", attribution?.utm_id],
       ] as const
     ).flatMap(([key, value]) => (value === undefined ? [] : [[key, value]]))
   );

@@ -97,6 +97,8 @@ export interface FlowAgLead {
   readonly utm_campaign?: string;
   readonly utm_content?: string;
   readonly utm_term?: string;
+  /** The ad platform's campaign ID, e.g. Meta's `{{campaign.id}}`. */
+  readonly utm_id?: string;
   readonly gclid?: string;
   readonly fbclid?: string;
   /** Path of the page the visitor first landed on. */
@@ -112,6 +114,7 @@ const ATTRIBUTION_FIELDS = [
   "utm_campaign",
   "utm_content",
   "utm_term",
+  "utm_id",
   "gclid",
   "fbclid",
   "landingPage",

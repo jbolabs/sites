@@ -65,6 +65,7 @@ export const Attribution = Schema.Struct({
   referrer: text(MAX_URL_LENGTH),
   utm_campaign: text(MAX_PARAM_LENGTH),
   utm_content: text(MAX_PARAM_LENGTH),
+  utm_id: text(MAX_PARAM_LENGTH),
   utm_medium: text(MAX_PARAM_LENGTH),
   utm_source: text(MAX_PARAM_LENGTH),
   utm_term: text(MAX_PARAM_LENGTH),

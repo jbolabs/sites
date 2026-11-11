@@ -18,7 +18,7 @@ describe(attributionFromVisit, () => {
         referrer:
           "https://l.facebook.com/l.php?u=https%3A%2F%2Fequityfast.homes",
         search:
-          "?utm_source=facebook&utm_medium=paid_social&utm_campaign=debt-consolidation&utm_content=%20card-a%20&fbclid=IwAR0abc&ref=ignored",
+          "?utm_source=facebook&utm_medium=paid_social&utm_campaign=debt-consolidation&utm_content=%20card-a%20&utm_id=120210000000001&fbclid=IwAR0abc&ref=ignored",
       })
     ).toStrictEqual({
       capturedAt: "2026-11-11T17:30:00.000Z",
@@ -27,6 +27,7 @@ describe(attributionFromVisit, () => {
       referrer: "https://l.facebook.com/l.php",
       utm_campaign: "debt-consolidation",
       utm_content: "card-a",
+      utm_id: "120210000000001",
       utm_medium: "paid_social",
       utm_source: "facebook",
     });
@@ -110,6 +111,16 @@ describe(campaignLabel, () => {
     ).toBe("facebook / paid_social / debt-consolidation / card-a");
   });
 
+  it("adds the ad platform's campaign ID when the ad sends one", () => {
+    expect(
+      campaignLabel({
+        utm_campaign: "debt-consolidation",
+        utm_id: "120210000000001",
+        utm_source: "facebook",
+      })
+    ).toBe("facebook / debt-consolidation (campaign ID 120210000000001)");
+  });
+
   it("falls back to the click id when there are no UTM values", () => {
     expect(campaignLabel({ gclid: "Cj0KCQ" })).toBe("Google Ads click (gclid)");
     expect(campaignLabel({ fbclid: "IwAR0abc" })).toBe(
@@ -126,11 +137,13 @@ describe(adEventParams, () => {
         fbclid: "IwAR0abc",
         landingPage: "/lp/debt-consolidation",
         utm_campaign: "debt-consolidation",
+        utm_id: "120210000000001",
         utm_source: "facebook",
       })
     ).toStrictEqual({
       landing_page: "/lp/debt-consolidation",
       utm_campaign: "debt-consolidation",
+      utm_id: "120210000000001",
       utm_source: "facebook",
     });
     expect(adEventParams()).toStrictEqual({});

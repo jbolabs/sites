@@ -159,6 +159,7 @@ describe(toFlowAgLead, () => {
         referrer: "https://l.facebook.com/l.php",
         utm_campaign: "debt-consolidation",
         utm_content: "card-a",
+        utm_id: "120210000000001",
         utm_medium: "paid_social",
         utm_source: "facebook",
       },
@@ -171,13 +172,14 @@ describe(toFlowAgLead, () => {
       referrer: "https://l.facebook.com/l.php",
       utm_campaign: "debt-consolidation",
       utm_content: "card-a",
+      utm_id: "120210000000001",
       utm_medium: "paid_social",
       utm_source: "facebook",
     });
     expect(Object.keys(lead)).not.toContain("gclid");
     expect(Object.keys(lead)).not.toContain("capturedAt");
     expect(lead.notes.split("\n").slice(-3)).toStrictEqual([
-      "Ad campaign: facebook / paid_social / debt-consolidation / card-a",
+      "Ad campaign: facebook / paid_social / debt-consolidation / card-a (campaign ID 120210000000001)",
       "Landing page: /lp/debt-consolidation",
       "Page: /lp/debt-consolidation",
     ]);
