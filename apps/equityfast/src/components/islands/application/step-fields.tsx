@@ -26,10 +26,7 @@ import { cn } from "@/lib/utils";
 import ChoiceGroup from "./choice-group";
 import type { ApplicationFormApi } from "./use-application-form";
 
-type TextField = Exclude<
-  keyof ApplicationAnswers,
-  "consent" | "marketingConsent"
->;
+type TextField = Exclude<keyof ApplicationAnswers, "consent">;
 type ChoiceField = "occupancy" | "ownership" | "forSale";
 
 /** Ids are `apply-<field>`; the error under a field is `apply-<field>-error`. */
@@ -272,14 +269,11 @@ const ChoiceStep = ({
 const ConsentField = ({
   form,
   label,
-  name,
 }: {
   readonly form: ApplicationFormApi;
   readonly label: string;
-  /** `consent` is required; `marketingConsent` is optional and starts unticked. */
-  readonly name: "consent" | "marketingConsent";
 }) => (
-  <form.Field name={name}>
+  <form.Field name="consent">
     {(field) => {
       const state = fieldState(field, ID_PREFIX);
       return (
@@ -392,15 +386,7 @@ const StepFields = ({
               type: "tel",
             }}
           />
-          <ConsentField form={form} name="consent" label={t.consent} />
-          <ConsentField
-            form={form}
-            name="marketingConsent"
-            label={t.marketingConsent}
-          />
-          <p className="text-graphite text-sm leading-relaxed">
-            {t.contactTerms}
-          </p>
+          <ConsentField form={form} label={t.consent} />
         </div>
       );
     }

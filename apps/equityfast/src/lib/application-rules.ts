@@ -254,8 +254,6 @@ export interface ApplicationAnswers {
   readonly email: string;
   readonly phone: string;
   readonly consent: boolean;
-  /** Optional: updates and offers, separate from contact about this request. */
-  readonly marketingConsent: boolean;
   readonly propertyStreet: string;
   readonly propertyCity: string;
   readonly propertyState: string;
@@ -284,7 +282,6 @@ export const EMPTY_ANSWERS: ApplicationAnswers = {
   income: "",
   incomeSource: "",
   lastName: "",
-  marketingConsent: false,
   middleName: "",
   mortgageBalance: "",
   occupancy: "",

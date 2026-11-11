@@ -39,7 +39,7 @@ const switchHref = alternates[other] ?? localePath(other, "/");
     <div class="hidden shrink-0 items-center gap-2.5 border-l border-line pl-4 xl:flex">
       {/* Below 2xl the label would push the Spanish menu into the logo; the lender logo alone still reads. */}
       <span class="hidden text-xs leading-tight whitespace-nowrap text-graphite 2xl:inline">{t.poweredBy}</span>
-      <img src="/brand/emc.webp" alt={focused ? site.business.tradeName : site.business.legalName} width="640" height="145" loading="lazy" class="h-5 w-auto" />
+      <img src="/brand/emc.webp" alt={site.business.legalName} width="640" height="145" loading="lazy" class="h-5 w-auto" />
     </div>
     <nav aria-label={t.mainNav} class="ml-auto hidden shrink-0 items-center gap-0.5 xl:flex">
       {

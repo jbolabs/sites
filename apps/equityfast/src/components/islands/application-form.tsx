@@ -75,7 +75,6 @@ interface ApplyInput {
   attribution?: Attribution;
   readonly birthDate: string;
   readonly consent: boolean;
-  readonly marketingConsent: boolean;
   readonly email: string;
   readonly firstName: string;
   readonly forSale: string;
@@ -111,7 +110,6 @@ const submitApplication = async (
     incomeSource: answers.incomeSource,
     lastName: answers.lastName,
     locale,
-    marketingConsent: answers.marketingConsent,
     middleName: answers.middleName,
     mortgageBalance: answers.mortgageBalance,
     occupancy: answers.occupancy,

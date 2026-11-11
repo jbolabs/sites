@@ -1,16 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { LANDING_PAGES, SOFT_CHECK, landingPage } from "./landing-pages.ts";
+import { LANDING_PAGES, landingPage } from "./landing-pages.ts";
 import type { LandingPage } from "./landing-pages.ts";
 
-const MARKERS = ["¹", "²", "³"];
 const pageText = (page: LandingPage) =>
-  [
-    page.headline,
-    page.headlineAccent,
-    page.benefit,
-    ...page.points.flatMap((point) => [point.text, point.detail ?? ""]),
-  ].join(" ");
+  [page.headline, page.headlineAccent, page.benefit, ...page.points].join(" ");
 
 describe(landingPage, () => {
   it("finds each campaign page by its slug", () => {
@@ -21,7 +15,7 @@ describe(landingPage, () => {
       "keep-your-rate",
     ]);
     expect(landingPage("debt-consolidation")?.title).toBe(
-      "Consolidate debt with a HELOC"
+      "Consolidate Debt With a HELOC"
     );
   });
 
@@ -30,31 +24,27 @@ describe(landingPage, () => {
     expect(landingPage()).toBeUndefined();
     expect(landingPage("heloc")).toBeUndefined();
     expect(landingPage("digital-heloc")?.headlineAccent).toBe(
-      "5 business days.¹"
+      "5 business days.*"
     );
   });
 
-  it("marks exactly the footnotes each page shows", () => {
-    for (const page of Object.values(LANDING_PAGES)) {
-      const used = MARKERS.filter((marker) => pageText(page).includes(marker));
-      expect(used).toStrictEqual(MARKERS.slice(0, page.notes.length));
-    }
+  it("gives an ad's own asterisk line only to pages that use an asterisk", () => {
+    const pages: readonly LandingPage[] = Object.values(LANDING_PAGES);
+    const withNote = pages.filter((page) => page.note !== undefined);
+    expect(withNote.map((page) => page.note?.startsWith("*"))).not.toContain(
+      false
+    );
+    expect(
+      withNote.filter((page) => !pageText(page).includes("*"))
+    ).toHaveLength(0);
   });
 
-  it("keeps the renovation planner and nothing else below the application", () => {
-    const sections = Object.entries(LANDING_PAGES).flatMap(([slug, page]) =>
-      "sections" in page
-        ? page.sections.map((block) => `${slug}:${block._type}`)
-        : []
-    );
-    expect(sections).toStrictEqual(["home-renovation:renovation_planner"]);
-  });
-
-  it("qualifies every soft-check claim and never says calendar days or sales calls", () => {
-    const all = Object.values(LANDING_PAGES).map(pageText).join(" ");
-    expect(all).not.toMatch(/5 days|no sales calls|Soft credit check only/iu);
-    expect(LANDING_PAGES["debt-consolidation"].points[0]?.text).toBe(
-      SOFT_CHECK
-    );
+  it("shows the planner on the renovation page only", () => {
+    const pages: readonly [string, LandingPage][] =
+      Object.entries(LANDING_PAGES);
+    const withPlanner = pages
+      .filter(([, page]) => page.planner === true)
+      .map(([slug]) => slug);
+    expect(withPlanner).toStrictEqual(["home-renovation"]);
   });
 });

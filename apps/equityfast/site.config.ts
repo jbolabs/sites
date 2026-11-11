@@ -9,8 +9,6 @@ import { studio } from "../../stacks/config.ts";
 /** Facts for the FinancialService JSON-LD and the footer. Leave unknown fields out rather than guessing. */
 interface BusinessFacts {
   readonly legalName: string;
-  /** The name compliance requires in disclosures and structured data. */
-  readonly tradeName: string;
   readonly nmls: string;
   readonly email: string;
   readonly address: {
@@ -34,7 +32,6 @@ const business: BusinessFacts = {
   instagram: "https://www.instagram.com/equityfast/",
   legalName: "E Mortgage Capital, Inc.",
   nmls: "1416824",
-  tradeName: "EquityFast dba E Mortgage Capital",
 };
 
 export const site = {

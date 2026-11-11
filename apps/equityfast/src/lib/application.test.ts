@@ -42,13 +42,6 @@ const submitted = {
 
 const decode = Schema.decodeUnknownSync(ApplicationForm);
 
-const marketingAnswer = (
-  form: typeof submitted & { marketingConsent?: boolean }
-) =>
-  toContactForm(decode(form)).answers?.find(
-    (line) => line.question === "Marketing consent"
-  )?.answer;
-
 describe(toContactForm, () => {
   it("turns an application into a lead with its answers in form order", () => {
     expect(toContactForm(decode(submitted))).toStrictEqual({
@@ -71,10 +64,9 @@ describe(toContactForm, () => {
         { answer: "No", question: "Listed for sale" },
         { answer: "$250,000", question: "Mortgage balance" },
         {
-          answer: "Yes, about this request (calls, texts, and email)",
+          answer: "Yes (calls, texts, and email)",
           question: "Contact consent",
         },
-        { answer: "No", question: "Marketing consent" },
         { answer: "Spanish", question: "Language" },
       ],
       email: "jordan@example.com",
@@ -163,13 +155,6 @@ describe(ApplicationForm, () => {
       mortgageBalance: "$250,000",
       occupancy: "Primary residence",
     });
-  });
-
-  it("records marketing consent only when the optional box is ticked", () => {
-    expect(marketingAnswer({ ...submitted, marketingConsent: true })).toBe(
-      "Yes"
-    );
-    expect(marketingAnswer(submitted)).toBe("No");
   });
 
   it("rejects an application without contact consent", () => {

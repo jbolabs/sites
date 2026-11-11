@@ -37,7 +37,7 @@ const data = {
       image: `${origin}/og-default.png`,
       knowsLanguage: ["en", "es"],
       logo: `${origin}/brand/equityfast.png`,
-      name: business.tradeName,
+      name: business.legalName,
       sameAs: [business.instagram],
       url: origin,
     },
@@ -45,8 +45,8 @@ const data = {
       "@type": "FinancialProduct",
       description:
         locale === "es"
-          ? "Línea de crédito sobre la equidad de su vivienda de $5,000 a $1,000,000, sin avalúo tradicional en préstamos elegibles."
-          : "Home equity line of credit from $5,000 to $1,000,000 with no traditional appraisal on eligible loans.",
+          ? "Línea de crédito sobre la equidad de su vivienda de $5,000 a $1,000,000, sin avalúo en muchos préstamos elegibles menores a $400,000."
+          : "Home equity line of credit from $5,000 to $1,000,000 with no appraisal required on many eligible loans under $400,000.",
       inLanguage: LANGUAGE_TAG[locale],
       name: "EquityFast HELOC",
       provider: { "@id": lender },

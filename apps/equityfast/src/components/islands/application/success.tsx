@@ -37,6 +37,9 @@ const ApplicationSuccess = ({
     <p className="text-graphite mx-auto mt-3 max-w-sm text-lg leading-relaxed">
       {strings.successBody}
     </p>
+    <p className="text-graphite mx-auto mt-4 max-w-sm text-sm">
+      {strings.successNote}
+    </p>
     {onDone === undefined ? (
       <a
         href={homeHref}

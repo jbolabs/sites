@@ -15,48 +15,16 @@ interface Props {
   locale: Locale;
   items: readonly NavItem[];
   disclosure: readonly string[];
-  /**
-   * Ad landing pages: the page's own footnotes, numbered, in place of the
-   * site disclosures, under the lender line compliance requires.
-   */
-  notes?: readonly string[] | undefined;
 }
 
-const { disclosure, items, locale, notes } = Astro.props;
+const { disclosure, items, locale } = Astro.props;
 const t = ui(locale);
-const { address, email, instagram, legalName, nmls, tradeName } = site.business;
-const nmlsHref = `https://www.nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/${nmls}`;
-/** Links compliance asked for that EquityFast still has to supply pages for. */
-const PENDING_LINKS = ["State licensing", "Terms", "Do not sell or share my personal information"];
+const { address, email, instagram, legalName, nmls } = site.business;
 const year = new Date().getFullYear();
 const fullAddress = `${address.street}, ${address.city}, ${address.region} ${address.postalCode}`;
 const mapsHref = `https://maps.google.com/?q=${encodeURIComponent(fullAddress)}`;
 ---
 
-{notes ? (
-<footer class="border-t border-line bg-canvas text-graphite">
-  <div class="mx-auto w-full max-w-[1440px] space-y-8 px-5 pt-12 pb-10 sm:px-8 lg:px-10">
-    <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-      <div class="space-y-3">
-        <img src="/brand/equityfast-ink.webp" alt="EquityFast" width="1200" height="171" loading="lazy" class="h-6 w-auto" />
-        <p class="text-sm">{tradeName}. <a href={nmlsHref} rel="noopener" target="_blank" class="text-ink underline underline-offset-4">NMLS #{nmls}</a>. Equal Housing Lender.</p>
-        <p class="text-sm">{address.street}, {address.city}, {address.region} {address.postalCode} · <a href={`mailto:${email}`} class="text-ink underline underline-offset-4">{email}</a></p>
-      </div>
-      <EqualHousingIcon class="size-10 shrink-0 text-ink/70" label="Equal Housing Lender" />
-    </div>
-    <ol class="space-y-3 text-sm leading-relaxed">
-      {notes.map((note, index) => (
-        <li class="flex gap-2"><sup class="pt-2 font-medium text-ink">{index + 1}</sup><span>{note}</span></li>
-      ))}
-      <li>Not all applicants or properties will qualify, and certain programs may not be available in all states. This is not a commitment to lend. Loan amounts, rates, fees, and terms vary by applicant and state.</li>
-    </ol>
-    <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-      {PENDING_LINKS.map((label) => <li>{label} <span class="text-graphite">[page needed from EquityFast]</span></li>)}
-    </ul>
-    <p class="pb-safe text-sm">&copy; {year} {tradeName}. {t.rights}</p>
-  </div>
-</footer>
-) : (
 <footer class="border-t border-line bg-canvas text-graphite">
   <div class="mx-auto grid w-full max-w-[1440px] gap-12 px-5 pt-16 pb-12 sm:px-8 md:grid-cols-[1.4fr_1fr_auto] lg:px-10">
     <div class="space-y-6">
@@ -92,4 +60,3 @@ const mapsHref = `https://maps.google.com/?q=${encodeURIComponent(fullAddress)}`
     <p class="pb-safe pt-6 text-xs">&copy; {year} {legalName} {t.rights}</p>
   </div>
 </footer>
-)}

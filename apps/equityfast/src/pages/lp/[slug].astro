@@ -2,10 +2,11 @@
 /**
  * Paid-ad landing pages (`src/lib/landing-pages.ts`), English only: one
  * screen with the ad's headline, a line of benefit, three points and the
- * application right on the page, under a header and footer without menus
- * whose disclosures are this page's own numbered footnotes. Temporary
- * campaign pages: noindex and out of the sitemap, menus and CMS. Each lead
- * records `/lp/<slug>` as its landing page.
+ * application right on the page, under a header with one button to the form
+ * and the main site's footer and disclosures (menus hidden). The renovation
+ * page adds the main site's calculator, read live from the CMS so it always
+ * matches. Temporary campaign pages: noindex and out of the sitemap, menus
+ * and CMS. Each lead records `/lp/<slug>` as its landing page.
  */
 import { env } from "cloudflare:workers";
 import Check from "@lucide/astro/icons/check";
@@ -16,7 +17,8 @@ import ApplicationForm from "@/components/islands/application-form";
 import Base from "@/layouts/base.astro";
 import { localePath } from "@/i18n/locales";
 import { ui } from "@/i18n/ui";
-import { landingPage } from "@/lib/landing-pages";
+import { getPage } from "@/lib/content";
+import { PLANNER_SOURCE_SLUG, landingPage } from "@/lib/landing-pages";
 import { site } from "../../../site.config";
 
 const { slug } = Astro.params;
@@ -26,16 +28,17 @@ if (!page) {
 }
 const t = ui("en");
 const origin = Astro.site?.origin ?? Astro.url.origin;
+const calculator = page.planner ? await getPage(PLANNER_SOURCE_SLUG, "en") : undefined;
+const planner = (calculator?.entry?.data.content ?? []).filter((block) => block._type === "renovation_planner");
 ---
 
-<Base title={page.title} description={page.intro} canonical={`${origin}/lp/${slug}`} robots="noindex, follow" focused={{ notes: page.notes }}>
+<Base title={page.title} description={page.intro} canonical={`${origin}/lp/${slug}`} robots="noindex, follow" focused>
   <section class="relative isolate overflow-hidden bg-white">
     <div class="glow-sky-top absolute inset-x-0 top-0 -z-10 h-[40rem]" aria-hidden="true"></div>
     <div class="container-page grid *:min-w-0 gap-8 py-10 sm:py-14 lg:grid-cols-[1fr_minmax(0,30rem)] lg:gap-x-16 lg:py-20">
       <div class="lg:col-start-1">
         <Headline as="h1" text={page.headline} accent={page.headlineAccent} class="text-display!" />
         <p class="mt-5 max-w-xl text-lg leading-relaxed text-graphite sm:text-xl">{page.benefit}</p>
-        {page.warning && <p class="mt-4 max-w-xl border-l-2 border-ink/30 pl-4 text-base leading-relaxed text-ink">{page.warning}</p>}
       </div>
       <div id="apply-form" class="scroll-mt-24 rounded-3xl border border-line bg-white p-6 shadow-float sm:p-8 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start">
         <ApplicationForm client:only="react" locale="en" strings={t} turnstileSiteKey={env.TURNSTILE_SITE_KEY} homeHref={localePath("en", "/")}>
@@ -43,22 +46,19 @@ const origin = Astro.site?.origin ?? Astro.url.origin;
         </ApplicationForm>
       </div>
       <div class="lg:col-start-1">
-        <ul class="space-y-4">
+        <ul class="space-y-3">
           {page.points.map((point) => (
-            <li class="flex items-start gap-3">
-              <Check class="mt-1 size-5 shrink-0 text-ink" aria-hidden="true" />
-              <span>
-                <span class="block text-lg text-ink">{point.text}</span>
-                {point.detail && <span class="mt-0.5 block text-base text-graphite">{point.detail}</span>}
-              </span>
+            <li class="flex items-start gap-3 text-lg text-ink">
+              <Check class="mt-1 size-5 shrink-0 text-sky" aria-hidden="true" />
+              <span>{point}</span>
             </li>
           ))}
         </ul>
-        {page.qualifier && <p class="mt-6 max-w-xl text-base leading-relaxed text-graphite">{page.qualifier}</p>}
+        {page.note && <p class="mt-8 max-w-xl text-xs leading-relaxed text-graphite">{page.note}</p>}
       </div>
     </div>
   </section>
-  {page.sections && <PageBlocks value={page.sections} />}
+  {planner.length > 0 && <PageBlocks value={planner} />}
   <div class="pb-safe sticky bottom-0 z-30 border-t border-line bg-white/95 px-5 py-3 backdrop-blur sm:hidden">
     <a href="#apply-form" class="flex h-12 w-full items-center justify-center rounded-full bg-ink text-base font-medium text-white">Check your options</a>
   </div>

@@ -29,11 +29,7 @@ const lead = {
     { answer: "Other", question: "Income source" },
     { answer: "No", question: "Listed for sale" },
     { answer: "$250,000", question: "Mortgage balance" },
-    {
-      answer: "Yes, about this request (calls, texts, and email)",
-      question: "Contact consent",
-    },
-    { answer: "Yes", question: "Marketing consent" },
+    { answer: "Yes (calls, texts, and email)", question: "Contact consent" },
     { answer: "English", question: "Language" },
   ],
   email: "jordan@example.com",
@@ -66,8 +62,7 @@ describe(renderLeadEmail, () => {
       "Income source",
       "Listed for sale",
       "$250,000",
-      "Yes, about this request (calls, texts, and email)",
-      "Marketing consent",
+      "Yes (calls, texts, and email)",
     ]) {
       expect(notice.html).toContain(value);
     }
@@ -113,8 +108,7 @@ Other income: $12,000
 Income source: Other
 
 Consent and source
-Contact consent: Yes, about this request (calls, texts, and email)
-Marketing consent: Yes
+Contact consent: Yes (calls, texts, and email)
 Language: English
 Submitted from: https://equityfast.homes/apply
 
@@ -135,7 +129,6 @@ const application = {
   incomeSource: "Self-employed",
   lastName: "Ortiz",
   locale: "en",
-  marketingConsent: true,
   otherIncome: "$0",
   phone: "(949) 555-0188",
   primaryAddress: {
@@ -180,8 +173,7 @@ describe("an application from an ad", () => {
     expect(notice.text).toContain(
       [
         "Consent and source",
-        "Contact consent: Yes, about this request (calls, texts, and email)",
-        "Marketing consent: Yes",
+        "Contact consent: Yes (calls, texts, and email)",
         "Language: English",
         "Ad campaign: google / cpc / digital-heloc",
         "Submitted from: https://equityfast.homes/lp/digital-heloc",
@@ -227,11 +219,7 @@ describe("each occupancy and ownership", () => {
         ["Pre-tax annual income", "$210,000"],
         ["Other income", "$0"],
         ["Income source", "Self-employed"],
-        [
-          "Contact consent",
-          "Yes, about this request (calls, texts, and email)",
-        ],
-        ["Marketing consent", "Yes"],
+        ["Contact consent", "Yes (calls, texts, and email)"],
         ["Language", "English"],
         ...(livesElsewhere ? [["Address", "1 Main St, Irvine, CA 92618"]] : []),
       ] as const;
@@ -246,7 +234,7 @@ describe("each occupancy and ownership", () => {
         livesElsewhere ? 1 : 0
       );
       expect(count(notice.text, "Same as property")).toBe(0);
-      expect(notice.text.split("\n")).toHaveLength(livesElsewhere ? 31 : 28);
+      expect(notice.text.split("\n")).toHaveLength(livesElsewhere ? 30 : 27);
     }
   );
 });

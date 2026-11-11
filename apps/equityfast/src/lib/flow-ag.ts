@@ -33,7 +33,6 @@ import { HttpClient, HttpClientRequest } from "effect/http";
 
 import { digits, dollars, formatAddress } from "./application-rules.ts";
 import type { Occupancy } from "./application-rules.ts";
-import { CONTACT_CONSENT } from "./application.ts";
 import type { ApplicationForm } from "./application.ts";
 import { campaignLabel } from "./attribution.ts";
 
@@ -159,8 +158,7 @@ export const toFlowAgLead = (
     `Ownership: ${form.ownership}`,
     `Listed for sale: ${form.forSale}`,
     `Language: ${form.locale === "es" ? "Spanish" : "English"}`,
-    `Contact consent: ${CONTACT_CONSENT}`,
-    `Marketing consent: ${form.marketingConsent === true ? "Yes" : "No"}`,
+    "Contact consent: Yes (calls, texts, and email)",
     ...(campaign === undefined ? [] : [`Ad campaign: ${campaign}`]),
     ...(attribution?.landingPage === undefined
       ? []
