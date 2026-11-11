@@ -4,7 +4,7 @@
  * rules are the same plain functions the browser form uses.
  */
 import type { ContactForm, LeadAnswer } from "@jakebodea/cloudflare-kit/server";
-import { Schema } from "effect";
+import { Effect, Schema } from "effect";
 
 import {
   FOR_SALE,
@@ -25,6 +25,11 @@ import {
   isStreet,
   isZip,
 } from "./application-rules.ts";
+import {
+  MAX_PARAM_LENGTH,
+  MAX_URL_LENGTH,
+  campaignLabel,
+} from "./attribution.ts";
 
 const rule = (test: (value: string) => boolean, message: string) =>
   Schema.Trim.check(
@@ -43,9 +48,36 @@ const Address = Schema.Struct({
 
 const income = rule(isIncome, "Enter an annual amount in dollars, or 0");
 
+const text = (max: number) =>
+  Schema.optional(Schema.Trim.check(Schema.isMaxLength(max)));
+
+/**
+ * The ad that brought the visitor (`attribution.ts`), every field optional and
+ * bounded; unknown keys are dropped. A value that breaks a limit drops the
+ * whole attribution instead of failing the application: a campaign tag is
+ * never worth losing a lead over.
+ */
+export const Attribution = Schema.Struct({
+  capturedAt: text(MAX_PARAM_LENGTH),
+  fbclid: text(MAX_PARAM_LENGTH),
+  gclid: text(MAX_PARAM_LENGTH),
+  landingPage: text(MAX_URL_LENGTH),
+  referrer: text(MAX_URL_LENGTH),
+  utm_campaign: text(MAX_PARAM_LENGTH),
+  utm_content: text(MAX_PARAM_LENGTH),
+  utm_medium: text(MAX_PARAM_LENGTH),
+  utm_source: text(MAX_PARAM_LENGTH),
+  utm_term: text(MAX_PARAM_LENGTH),
+});
+export type Attribution = typeof Attribution.Type;
+
 /** What the application island sends. Field limits double as spam guards. */
 export const ApplicationForm = Schema.Struct({
   amount: rule(isAmount, "Enter an amount from $5,000 to $1,000,000"),
+  /** Sent only when the visit came from an ad; older clients omit it. */
+  attribution: Schema.optional(
+    Attribution.pipe(Schema.catchDecoding(() => Effect.succeedNone))
+  ),
   /** `MM/DD/YYYY`, checked against today's date when the request arrives. */
   birthDate: rule(
     (value) => isBirthDate(value, new Date()),
@@ -93,6 +125,7 @@ const LANGUAGE_NAME = { en: "English", es: "Spanish" } as const;
 export const QUESTION = {
   amount: "Amount seeking",
   birthDate: "Date of birth",
+  campaign: "Ad campaign",
   consent: "Contact consent",
   forSale: "Listed for sale",
   income: "Pre-tax annual income",
@@ -126,6 +159,7 @@ export const toContactForm = (form: ApplicationForm): ContactForm => {
     form.occupancy === "Primary residence" || form.primaryAddress === undefined
       ? SAME_AS_PROPERTY
       : address(form.primaryAddress);
+  const campaign = campaignLabel(form.attribution);
   const answers: LeadAnswer[] = [
     { answer: form.birthDate, question: QUESTION.birthDate },
     { answer: amount, question: QUESTION.amount },
@@ -146,6 +180,9 @@ export const toContactForm = (form: ApplicationForm): ContactForm => {
     },
     { answer: "Yes (calls, texts, and email)", question: QUESTION.consent },
     { answer: LANGUAGE_NAME[form.locale], question: QUESTION.language },
+    ...(campaign === undefined
+      ? []
+      : [{ answer: campaign, question: QUESTION.campaign }]),
   ];
   return {
     answers,

@@ -3,7 +3,9 @@
  * Page shell: EmDash head/body hooks (SEO tags, hreflang for translated
  * entries, plugin contributions, visual editing), fonts, header/footer from
  * the locale's CMS menus, structured data, the application dialog, and
- * analytics and the agency's Tag Manager container when enabled (prod). Pages pass SEO from `getSeoMeta()`.
+ * analytics and the agency's Tag Manager container when enabled (prod), and
+ * the ad attribution capture the application sends with each lead. Pages pass
+ * SEO from `getSeoMeta()`.
  */
 import "@/styles/global.css";
 
@@ -110,8 +112,10 @@ const breadcrumbs = crumbs === undefined ? undefined : JSON.stringify(breadcrumb
     <EmDashBodyEnd page={page} />
     <script>
       import { mountSeamlessEdges } from "@jakebodea/site-ui/seamless-edges";
+      import { captureAttribution } from "@/lib/attribution";
       import { mountReveal } from "@/lib/reveal";
 
+      captureAttribution();
       mountSeamlessEdges();
       mountReveal();
     </script>

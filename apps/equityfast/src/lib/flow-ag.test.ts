@@ -149,6 +149,40 @@ describe(toFlowAgLead, () => {
     });
   });
 
+  it("sends an ad's attribution as Flow AG's tracking fields and names the campaign in the note", () => {
+    const fromAd: ApplicationForm = {
+      ...form,
+      attribution: {
+        capturedAt: "2026-11-11T17:30:00.000Z",
+        fbclid: "IwAR0abc",
+        landingPage: "/lp/debt-consolidation",
+        referrer: "https://l.facebook.com/l.php",
+        utm_campaign: "debt-consolidation",
+        utm_content: "card-a",
+        utm_medium: "paid_social",
+        utm_source: "facebook",
+      },
+    };
+    const lead = toFlowAgLead(fromAd, "entry-1", "/lp/debt-consolidation");
+    expect(lead).toMatchObject({
+      externalId: "entry-1",
+      fbclid: "IwAR0abc",
+      landingPage: "/lp/debt-consolidation",
+      referrer: "https://l.facebook.com/l.php",
+      utm_campaign: "debt-consolidation",
+      utm_content: "card-a",
+      utm_medium: "paid_social",
+      utm_source: "facebook",
+    });
+    expect(Object.keys(lead)).not.toContain("gclid");
+    expect(Object.keys(lead)).not.toContain("capturedAt");
+    expect(lead.notes.split("\n").slice(-3)).toStrictEqual([
+      "Ad campaign: facebook / paid_social / debt-consolidation / card-a",
+      "Landing page: /lp/debt-consolidation",
+      "Page: /lp/debt-consolidation",
+    ]);
+  });
+
   it("sends a blank mortgage balance as 0, which Flow AG accepts", () => {
     const blank = { ...form, mortgageBalance: "" };
     expect(toFlowAgLead(blank, "entry-1", "/apply").mortgageBalance).toBe(0);

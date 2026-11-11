@@ -1,0 +1,22 @@
+---
+/**
+ * Paid-ad landing pages (`src/lib/landing-pages.ts`), English only. They are
+ * temporary campaign pages: kept out of search (noindex), the sitemap, the
+ * menus and the CMS. Apply buttons open the in-page application, so each lead
+ * records `/lp/<slug>` as its page.
+ */
+import PageBlocks from "@/components/blocks/page-blocks.astro";
+import Base from "@/layouts/base.astro";
+import { landingPage } from "@/lib/landing-pages";
+
+const { slug } = Astro.params;
+const page = landingPage(slug);
+if (!page) {
+  return Astro.rewrite("/404");
+}
+const origin = Astro.site?.origin ?? Astro.url.origin;
+---
+
+<Base title={page.title} description={page.intro} canonical={`${origin}/lp/${slug}`} robots="noindex, follow">
+  <PageBlocks value={page.content} />
+</Base>

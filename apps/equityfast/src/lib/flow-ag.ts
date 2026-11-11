@@ -34,6 +34,7 @@ import { HttpClient, HttpClientRequest } from "effect/http";
 import { digits, dollars, formatAddress } from "./application-rules.ts";
 import type { Occupancy } from "./application-rules.ts";
 import type { ApplicationForm } from "./application.ts";
+import { campaignLabel } from "./attribution.ts";
 
 export const FLOW_AG_ACCEPT_LEAD_URL =
   "https://flowag.emortgagecapital.com/api/v1/accept-lead";
@@ -86,7 +87,36 @@ export interface FlowAgLead {
   /** The CMS entry id, so a lead in Flow AG traces back to the site's copy. */
   readonly externalId: string;
   readonly notes: string;
+  /**
+   * The ad that brought the visitor, each only when known. Flow AG stores
+   * these as sent for its campaign reporting but leaves them out of the loan
+   * officer's note, so the note gets its own campaign line too.
+   */
+  readonly utm_source?: string;
+  readonly utm_medium?: string;
+  readonly utm_campaign?: string;
+  readonly utm_content?: string;
+  readonly utm_term?: string;
+  readonly gclid?: string;
+  readonly fbclid?: string;
+  /** Path of the page the visitor first landed on. */
+  readonly landingPage?: string;
+  /** Origin and path of the site that sent them. */
+  readonly referrer?: string;
 }
+
+/** Attribution fields Flow AG takes at the top level of the body, under these names. */
+const ATTRIBUTION_FIELDS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+  "utm_term",
+  "gclid",
+  "fbclid",
+  "landingPage",
+  "referrer",
+] as const;
 
 /** Flow AG caps a lead-creation note at 4,000 characters (and truncates past it). */
 const MAX_NOTES = 4000;
@@ -112,6 +142,8 @@ export const toFlowAgLead = (
           form.primaryAddress.state,
           form.primaryAddress.zip
         );
+  const { attribution } = form;
+  const campaign = campaignLabel(attribution);
   const notes = [
     NOTES_INTRO,
     ...(form.middleName === undefined || form.middleName === ""
@@ -127,10 +159,21 @@ export const toFlowAgLead = (
     `Listed for sale: ${form.forSale}`,
     `Language: ${form.locale === "es" ? "Spanish" : "English"}`,
     "Contact consent: Yes (calls, texts, and email)",
+    ...(campaign === undefined ? [] : [`Ad campaign: ${campaign}`]),
+    ...(attribution?.landingPage === undefined
+      ? []
+      : [`Landing page: ${attribution.landingPage}`]),
     `Page: ${sourcePath}`,
   ]
     .join("\n")
     .slice(0, MAX_NOTES);
+  // Only the fields this visit has: Flow AG keeps whatever it is sent.
+  const tracking = Object.fromEntries(
+    ATTRIBUTION_FIELDS.flatMap((field) => {
+      const value = attribution?.[field];
+      return value === undefined || value === "" ? [] : [[field, value]];
+    })
+  );
   return {
     address: property.street,
     cashOut: 0,
@@ -148,6 +191,7 @@ export const toFlowAgLead = (
     propertyUse: PROPERTY_USE[form.occupancy],
     state: property.state.toUpperCase(),
     zip: property.zip,
+    ...tracking,
   };
 };
 

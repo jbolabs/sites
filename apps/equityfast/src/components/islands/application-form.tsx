@@ -14,6 +14,8 @@ import { FieldError } from "@/components/ui/field";
 import type { UiStrings } from "@/i18n/ui";
 import { STEP_KEYS, shownStep, stepsFor } from "@/lib/application-rules";
 import type { ApplicationAnswers, StepKey } from "@/lib/application-rules";
+import { adEventParams, readAttribution } from "@/lib/attribution";
+import type { Attribution } from "@/lib/attribution";
 import { cn } from "@/lib/utils";
 
 import { clearDraft, readDraft, writeDraft } from "./application/draft";
@@ -70,6 +72,7 @@ interface Address {
 /** What the `apply` action decodes (`ApplicationForm` in lib/application.ts). */
 interface ApplyInput {
   readonly amount: string;
+  attribution?: Attribution;
   readonly birthDate: string;
   readonly consent: boolean;
   readonly email: string;
@@ -93,7 +96,8 @@ interface ApplyInput {
 const submitApplication = async (
   answers: ApplicationAnswers,
   locale: "en" | "es",
-  turnstileToken: string
+  turnstileToken: string,
+  attribution: Attribution | undefined
 ) => {
   const input: ApplyInput = {
     amount: answers.amount,
@@ -118,6 +122,10 @@ const submitApplication = async (
   // The primary residence is asked (and sent) only when it isn't the property.
   if (answers.occupancy !== "Primary residence") {
     input.primaryAddress = address(answers, "primary");
+  }
+  // The ad that brought this visit, when there was one (captured by the layout).
+  if (attribution !== undefined) {
+    input.attribution = attribution;
   }
   return await actions.apply(input);
 };
@@ -190,11 +198,17 @@ const ApplicationForm = ({
 
   const send = async (values: ApplicationAnswers) => {
     setStatus({ state: "sending" });
-    const { error } = await submitApplication(values, locale, token);
+    const attribution = readAttribution();
+    const { error } = await submitApplication(
+      values,
+      locale,
+      token,
+      attribution
+    );
     if (error === undefined) {
       clearDraft();
-      // The agency's ad conversions (Tag Manager, prod only).
-      pushDataLayerEvent("application_submitted");
+      // The agency's ad conversions (Tag Manager, prod only), with the campaign.
+      pushDataLayerEvent("application_submitted", adEventParams(attribution));
       setStatus({ firstName: values.firstName.trim(), state: "sent" });
       return;
     }

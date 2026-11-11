@@ -6,16 +6,31 @@ import type { DataLayerTarget } from "./data-layer.ts";
 describe(pushDataLayerEvent, () => {
   it("creates the dataLayer when the container has not loaded yet", () => {
     const page: DataLayerTarget = {};
-    pushDataLayerEvent("application_submitted", page);
+    pushDataLayerEvent("application_submitted", {}, page);
     expect(page.dataLayer).toStrictEqual([{ event: "application_submitted" }]);
   });
 
   it("appends to the container's existing dataLayer", () => {
     const page = { dataLayer: [{ event: "gtm.js" }] };
-    pushDataLayerEvent("application_submitted", page);
+    pushDataLayerEvent("application_submitted", {}, page);
     expect(page.dataLayer).toStrictEqual([
       { event: "gtm.js" },
       { event: "application_submitted" },
+    ]);
+  });
+
+  it("sends the event's parameters with it, never letting one rename the event", () => {
+    const page: DataLayerTarget = {};
+    pushDataLayerEvent(
+      "application_submitted",
+      { event: "other", landing_page: "/lp/debt-consolidation" },
+      page
+    );
+    expect(page.dataLayer).toStrictEqual([
+      {
+        event: "application_submitted",
+        landing_page: "/lp/debt-consolidation",
+      },
     ]);
   });
 });

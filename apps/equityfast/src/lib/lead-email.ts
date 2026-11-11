@@ -95,7 +95,11 @@ const sectionsFor = (answers: ReadonlyMap<string, string>): Section[] => {
       title: "Income",
     },
     {
-      lines: [{ question: QUESTION.consent }, { question: QUESTION.language }],
+      lines: [
+        { question: QUESTION.consent },
+        { question: QUESTION.language },
+        { question: QUESTION.campaign },
+      ],
       title: "Consent and source",
     },
   ];

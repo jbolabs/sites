@@ -149,6 +149,42 @@ const application = {
 const count = (haystack: string, needle: string) =>
   haystack.split(needle).length - 1;
 
+describe("an application from an ad", () => {
+  it("names the campaign under consent and source", () => {
+    const notice = renderLeadEmail(
+      {
+        ...toContactForm(
+          decode({
+            ...application,
+            attribution: {
+              landingPage: "/lp/digital-heloc",
+              utm_campaign: "digital-heloc",
+              utm_medium: "cpc",
+              utm_source: "google",
+            },
+            occupancy: "Primary residence",
+            ownership: "Sole owner",
+          })
+        ),
+        sourcePath: "/lp/digital-heloc",
+      },
+      mail
+    );
+    expect(notice.text).toContain(
+      [
+        "Consent and source",
+        "Contact consent: Yes (calls, texts, and email)",
+        "Language: English",
+        "Ad campaign: google / cpc / digital-heloc",
+        "Submitted from: https://equityfast.homes/lp/digital-heloc",
+      ].join("\n")
+    );
+    expect(count(notice.html ?? "", ">google / cpc / digital-heloc</td>")).toBe(
+      1
+    );
+  });
+});
+
 const OCCUPANCIES = [
   "Primary residence",
   "Secondary home",
