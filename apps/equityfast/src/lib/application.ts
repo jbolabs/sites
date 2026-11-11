@@ -83,7 +83,7 @@ export const ApplicationForm = Schema.Struct({
     (value) => isBirthDate(value, new Date()),
     "Enter a date of birth as MM/DD/YYYY (18 or older)"
   ),
-  /** Must be true: the visitor agreed to be contacted (TCPA). */
+  /** Must be true: the visitor agreed to be contacted about this request (TCPA). */
   consent: Schema.Literal(true),
   email: rule(isEmail, "Enter a valid email address"),
   firstName: personName,
@@ -93,6 +93,8 @@ export const ApplicationForm = Schema.Struct({
   incomeSource: Schema.Literals(INCOME_SOURCES),
   lastName: personName,
   locale: Schema.Literals(["en", "es"]),
+  /** Optional, unticked by default: updates and offers beyond this request. */
+  marketingConsent: Schema.optional(Schema.Boolean),
   /** The island sends `""` when it is left blank. */
   middleName: Schema.optional(
     rule(
@@ -131,6 +133,7 @@ export const QUESTION = {
   income: "Pre-tax annual income",
   incomeSource: "Income source",
   language: "Language",
+  marketingConsent: "Marketing consent",
   mortgageBalance: "Mortgage balance",
   occupancy: "Occupancy",
   otherIncome: "Other income",
@@ -139,6 +142,10 @@ export const QUESTION = {
   propertyAddress: "Property address",
 } as const;
 export const AMOUNT_QUESTION = QUESTION.amount;
+
+/** What the required box agrees to, as the team reads it. */
+export const CONTACT_CONSENT =
+  "Yes, about this request (calls, texts, and email)";
 
 /** An optional answer left blank. */
 const NOT_GIVEN = "Not given";
@@ -178,7 +185,11 @@ export const toContactForm = (form: ApplicationForm): ContactForm => {
       answer: formatDollars(form.mortgageBalance ?? "") || NOT_GIVEN,
       question: QUESTION.mortgageBalance,
     },
-    { answer: "Yes (calls, texts, and email)", question: QUESTION.consent },
+    { answer: CONTACT_CONSENT, question: QUESTION.consent },
+    {
+      answer: form.marketingConsent === true ? "Yes" : "No",
+      question: QUESTION.marketingConsent,
+    },
     { answer: LANGUAGE_NAME[form.locale], question: QUESTION.language },
     ...(campaign === undefined
       ? []

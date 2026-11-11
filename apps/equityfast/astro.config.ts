@@ -70,6 +70,18 @@ const bodyFont = {
   weights: [400, 500, 600],
 } satisfies NonNullable<AstroUserConfig["fonts"]>[number];
 
+/**
+ * EquityFast's brand font, on the ad landing pages only for now (the
+ * lender's review asked for it there; the rest of the site keeps Geist).
+ */
+const brandFont = {
+  cssVariable: "--font-brand",
+  fallbacks: ["ui-sans-serif", "system-ui", "sans-serif"],
+  name: "Inter",
+  provider: fontProviders.google(),
+  weights: [400, 500, 600],
+} satisfies NonNullable<AstroUserConfig["fonts"]>[number];
+
 /** Figures and the ticker: tabular, like a rate sheet. */
 const numericFont = {
   cssVariable: "--font-numeric",
@@ -82,7 +94,7 @@ const numericFont = {
 export default defineConfig({
   ...(buildCaches && { cacheDir: buildCaches.astro }),
   devToolbar: { enabled: false },
-  fonts: [bodyFont, numericFont, adminFont],
+  fonts: [bodyFont, brandFont, numericFont, adminFont],
   /**
    * English at `/`, Spanish under `/es/`. EmDash reads this config: each locale
    * is its own CMS entry linked as a translation, and EmDash emits the

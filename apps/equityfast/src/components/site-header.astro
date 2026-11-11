@@ -18,9 +18,11 @@ interface Props {
   locale: Locale;
   items: readonly NavItem[];
   alternates: Alternates;
+  /** Ad landing pages: logo and one button to the application on the page. */
+  focused?: boolean;
 }
 
-const { alternates, items, locale } = Astro.props;
+const { alternates, focused = false, items, locale } = Astro.props;
 const t = ui(locale);
 const current = Astro.url.pathname.replace(/\/$/u, "") || "/";
 const home = localePath(locale, "/");
@@ -37,7 +39,7 @@ const switchHref = alternates[other] ?? localePath(other, "/");
     <div class="hidden shrink-0 items-center gap-2.5 border-l border-line pl-4 xl:flex">
       {/* Below 2xl the label would push the Spanish menu into the logo; the lender logo alone still reads. */}
       <span class="hidden text-xs leading-tight whitespace-nowrap text-graphite 2xl:inline">{t.poweredBy}</span>
-      <img src="/brand/emc.webp" alt={site.business.legalName} width="640" height="145" loading="lazy" class="h-5 w-auto" />
+      <img src="/brand/emc.webp" alt={focused ? site.business.tradeName : site.business.legalName} width="640" height="145" loading="lazy" class="h-5 w-auto" />
     </div>
     <nav aria-label={t.mainNav} class="ml-auto hidden shrink-0 items-center gap-0.5 xl:flex">
       {
@@ -52,6 +54,11 @@ const switchHref = alternates[other] ?? localePath(other, "/");
         ))
       }
     </nav>
+    {focused ? (
+      <div class="ml-auto flex items-center">
+        <ButtonLink href="#apply-form" variant="accent" size="cta" class="hidden sm:inline-flex">Check your options</ButtonLink>
+      </div>
+    ) : (
     <div class="ml-auto flex items-center gap-1.5 xl:ml-3">
       <a href={site.business.instagram} rel="noopener me" target="_blank" class="hidden size-10 items-center justify-center rounded-full text-graphite hover:bg-canvas hover:text-ink sm:flex" aria-label="Instagram @equityfast">
         <InstagramIcon class="size-[18px]" />
@@ -84,5 +91,6 @@ const switchHref = alternates[other] ?? localePath(other, "/");
         <a href={switchHref} hreflang={other} lang={other} class="text-center text-sm text-graphite hover:text-ink">{t.switchTo}</a>
       </MobileMenu>
     </div>
+    )}
   </div>
 </header>

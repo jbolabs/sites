@@ -1,11 +1,16 @@
-import { existsSync } from "node:fs";
-import path from "node:path";
-
 import { describe, expect, it } from "vitest";
 
-import { LANDING_PAGES, landingPage } from "./landing-pages.ts";
+import { LANDING_PAGES, SOFT_CHECK, landingPage } from "./landing-pages.ts";
+import type { LandingPage } from "./landing-pages.ts";
 
-const SEED_MEDIA = path.join(import.meta.dirname, "../../seed/media");
+const MARKERS = ["¹", "²", "³"];
+const pageText = (page: LandingPage) =>
+  [
+    page.headline,
+    page.headlineAccent,
+    page.benefit,
+    ...page.points.flatMap((point) => [point.text, point.detail ?? ""]),
+  ].join(" ");
 
 describe(landingPage, () => {
   it("finds each campaign page by its slug", () => {
@@ -16,7 +21,7 @@ describe(landingPage, () => {
       "keep-your-rate",
     ]);
     expect(landingPage("debt-consolidation")?.title).toBe(
-      "Consolidate Debt With a HELOC"
+      "Consolidate debt with a HELOC"
     );
   });
 
@@ -24,34 +29,32 @@ describe(landingPage, () => {
     expect(landingPage("toString")).toBeUndefined();
     expect(landingPage()).toBeUndefined();
     expect(landingPage("heloc")).toBeUndefined();
-    expect(landingPage("digital-heloc")?.title).toBe(
-      "A Digital HELOC With Less Paperwork"
+    expect(landingPage("digital-heloc")?.headlineAccent).toBe(
+      "5 business days.¹"
     );
   });
 
-  it("shows each hero photo from the seed media every stage serves, with its placeholder", () => {
-    const [hero] = LANDING_PAGES["keep-your-rate"].content;
-    expect(hero).toMatchObject({
-      _type: "page_hero",
-      image: {
-        alt: "A two-story craftsman home lit up at dusk",
-        blurhash: "LaA,;8WBJBbcPEs:oeWXFif*xCs.",
-        dominantColor: "rgb(75,83,88)",
-        filename: "estate-hero-X6IKSjTQ.jpg",
-        id: "estate-hero-X6IKSjTQ.jpg",
-        src: "/_seed/media/estate-hero-X6IKSjTQ.jpg",
-      },
-    });
-    const photos = Object.values(LANDING_PAGES).flatMap(({ content }) =>
-      content.flatMap((block) =>
-        block._type === "page_hero" && block.image?.filename !== undefined
-          ? [block.image.filename]
-          : []
-      )
+  it("marks exactly the footnotes each page shows", () => {
+    for (const page of Object.values(LANDING_PAGES)) {
+      const used = MARKERS.filter((marker) => pageText(page).includes(marker));
+      expect(used).toStrictEqual(MARKERS.slice(0, page.notes.length));
+    }
+  });
+
+  it("keeps the renovation planner and nothing else below the application", () => {
+    const sections = Object.entries(LANDING_PAGES).flatMap(([slug, page]) =>
+      "sections" in page
+        ? page.sections.map((block) => `${slug}:${block._type}`)
+        : []
     );
-    expect(photos).toHaveLength(4);
-    expect(
-      photos.filter((file) => !existsSync(path.join(SEED_MEDIA, file)))
-    ).toStrictEqual([]);
+    expect(sections).toStrictEqual(["home-renovation:renovation_planner"]);
+  });
+
+  it("qualifies every soft-check claim and never says calendar days or sales calls", () => {
+    const all = Object.values(LANDING_PAGES).map(pageText).join(" ");
+    expect(all).not.toMatch(/5 days|no sales calls|Soft credit check only/iu);
+    expect(LANDING_PAGES["debt-consolidation"].points[0]?.text).toBe(
+      SOFT_CHECK
+    );
   });
 });

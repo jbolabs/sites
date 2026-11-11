@@ -2,7 +2,7 @@
  * The in-progress application, kept on this device so a closed dialog
  * resumes where it left off. Stored as URL-encoded text: every answer is a
  * string, so reading it back needs no shape checks. Consent is never kept
- * (the visitor ticks it again each time), and neither is the date of birth,
+ * (the visitor ticks both boxes again each time), and neither is the date of birth,
  * which shouldn't sit in a shared browser's storage.
  */
 import { EMPTY_ANSWERS, STEP_KEYS } from "@/lib/application-rules";
@@ -16,10 +16,14 @@ export interface Draft {
   readonly step: StepKey;
 }
 
-type TextField = Exclude<keyof ApplicationAnswers, "consent">;
+type TextField = Exclude<
+  keyof ApplicationAnswers,
+  "consent" | "marketingConsent"
+>;
 
 const TEXT_FIELDS = Object.keys(EMPTY_ANSWERS).filter(
-  (key): key is TextField => key !== "consent" && key !== "birthDate"
+  (key): key is TextField =>
+    key !== "consent" && key !== "marketingConsent" && key !== "birthDate"
 );
 
 const storage = (): Storage | undefined => {

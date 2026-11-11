@@ -7,7 +7,8 @@
 import type { Locale } from "./locales.ts";
 
 const en = {
-  applyIntro: "A short set of questions to start your EquityFast request.",
+  applyIntro:
+    "About 10 questions about you and your property to start your EquityFast request.",
   applyTitle: "Start your EquityFast request",
   close: "Close",
   emailLabel: "Email",
@@ -34,10 +35,12 @@ const en = {
     birthDateHelp: "MM/DD/YYYY",
     city: "City",
     consent:
-      "I consent to receiving updates, offers, and calls or texts from EquityFast and E Mortgage Capital at the contact info above.",
+      "I agree that EquityFast dba E Mortgage Capital may contact me by call, text, or email at the contact info above about this request.",
+    contactTerms:
+      "[TCPA consent wording and Terms link, from EquityFast compliance]",
     continue: "Continue",
     disclaimer:
-      "This is not a commitment to lend. Submitting starts a soft credit review only.",
+      "This is not a commitment to lend. Submitting starts a soft credit review only. A full application requires a hard credit inquiry.",
     doneHome: "Back to Home",
     errorGeneric: "We couldn't send that. Please try again.",
     errorInvalid:
@@ -66,6 +69,8 @@ const en = {
     incomeSource: "Primary income source",
     incomeSourcePlaceholder: "Select a source",
     lastName: "Last name",
+    marketingConsent:
+      "Optional: also send me updates and offers by call or text.",
     middleName: "Middle name",
     mortgageBalance: "Current mortgage balance",
     mortgageBalanceHelp: "An estimate is fine. Leave blank if you're not sure.",
@@ -103,8 +108,7 @@ const en = {
     street: "Street address",
     submit: "Submit My Request",
     successBody:
-      "We have everything we need to get started. An EquityFast specialist will reach out personally to walk you through your options. No obligation, no pressure.",
-    successNote: "Most homeowners hear from us the same business day.",
+      "We have everything we need to get started. An EquityFast specialist will reach out personally to walk you through your options.",
     successTitle: "Thanks",
     successTitleAnonymous: "Thanks for reaching out.",
     turnstileFailed:
@@ -143,7 +147,7 @@ const en = {
     budgetAmountFor: "Budget amount for",
     budgetFor: "Budget for",
     count: "Projects selected",
-    cta: "Fund This With A HELOC",
+    cta: "Fund this with a HELOC",
     drag: "Drag to set your budget",
     equityAdded: "Equity added",
     gained: "Estimated equity gained",
@@ -166,7 +170,8 @@ const en = {
 export type UiStrings = typeof en;
 
 const es: UiStrings = {
-  applyIntro: "Unas preguntas breves para iniciar su solicitud EquityFast.",
+  applyIntro:
+    "Unas 10 preguntas sobre usted y su propiedad para iniciar su solicitud EquityFast.",
   applyTitle: "Inicie su solicitud EquityFast",
   close: "Cerrar",
   emailLabel: "Correo electrónico",
@@ -193,10 +198,12 @@ const es: UiStrings = {
     birthDateHelp: "MM/DD/AAAA",
     city: "Ciudad",
     consent:
-      "Doy mi consentimiento para recibir actualizaciones, ofertas y llamadas o mensajes de EquityFast y E Mortgage Capital en los datos de contacto anteriores.",
+      "Acepto que EquityFast dba E Mortgage Capital me contacte por llamada, mensaje de texto o correo electrónico en los datos de contacto anteriores sobre esta solicitud.",
+    contactTerms:
+      "[Texto de consentimiento TCPA y enlace a los Términos, de cumplimiento de EquityFast]",
     continue: "Continuar",
     disclaimer:
-      "Esto no es un compromiso de préstamo. Enviar solo inicia una revisión de crédito suave.",
+      "Esto no es un compromiso de préstamo. Enviar solo inicia una revisión de crédito suave. Una solicitud completa requiere una consulta de crédito rigurosa.",
     doneHome: "Volver al Inicio",
     errorGeneric: "No pudimos enviarlo. Inténtelo de nuevo.",
     errorInvalid: "Complete los campos resaltados con información válida.",
@@ -225,6 +232,8 @@ const es: UiStrings = {
     incomeSource: "Fuente principal de ingresos",
     incomeSourcePlaceholder: "Seleccione una fuente",
     lastName: "Apellido",
+    marketingConsent:
+      "Opcional: también envíenme novedades y ofertas por llamada o mensaje de texto.",
     middleName: "Segundo nombre",
     mortgageBalance: "Saldo actual de la hipoteca",
     mortgageBalanceHelp:
@@ -266,9 +275,7 @@ const es: UiStrings = {
     street: "Dirección",
     submit: "Enviar Mi Solicitud",
     successBody:
-      "Tenemos todo lo necesario para comenzar. Un especialista de EquityFast se comunicará personalmente para explicarle sus opciones. Sin compromiso, sin presión.",
-    successNote:
-      "La mayoría de los propietarios recibe noticias nuestras el mismo día hábil.",
+      "Tenemos todo lo necesario para comenzar. Un especialista de EquityFast se comunicará personalmente para explicarle sus opciones.",
     successTitle: "Gracias",
     successTitleAnonymous: "Gracias por contactarnos.",
     turnstileFailed:

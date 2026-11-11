@@ -174,6 +174,11 @@ const PlanSummary = ({
       <output aria-live="polite" className="sr-only">
         {usd(totals.gain)}
       </output>
+      {disclaimer !== undefined && (
+        <p className="text-graphite mt-3 text-sm leading-relaxed">
+          {disclaimer}
+        </p>
+      )}
       <dl className="mt-6 divide-y border-t">
         {lines.map((line) => (
           <div
@@ -187,14 +192,21 @@ const PlanSummary = ({
           </div>
         ))}
       </dl>
-      <a
-        href={`${applyHref}?amount=${encodeURIComponent(amount)}`}
-        data-apply=""
-        data-amount={totals.budget > 0 ? amount : undefined}
-        className={cn(buttonVariants({ size: "cta" }), "mt-5 w-full")}
-      >
-        {strings.cta}
-      </a>
+      {totals.count > 0 ? (
+        <a
+          href={`${applyHref}?amount=${encodeURIComponent(amount)}`}
+          data-apply=""
+          data-amount={amount}
+          className={cn(buttonVariants({ size: "cta" }), "mt-5 w-full")}
+        >
+          {strings.cta}
+        </a>
+      ) : (
+        // Nothing to fund yet: no application pre-filled with the minimum.
+        <Button type="button" size="cta" className="mt-5 w-full" disabled>
+          {strings.cta}
+        </Button>
+      )}
       <Button
         type="button"
         variant="quiet"
@@ -204,11 +216,6 @@ const PlanSummary = ({
       >
         {strings.reset}
       </Button>
-      {disclaimer !== undefined && (
-        <p className="text-graphite mt-4 text-xs leading-relaxed">
-          {disclaimer}
-        </p>
-      )}
     </aside>
   );
 };
