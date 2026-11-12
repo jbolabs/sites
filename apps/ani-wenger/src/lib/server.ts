@@ -9,6 +9,7 @@ import {
   TurnstileLive,
   WaitUntil,
   emailFromEnv,
+  textsFromConfig,
 } from "@jakebodea/cloudflare-kit/server";
 import { env, waitUntil } from "cloudflare:workers";
 import { ConfigProvider, Layer } from "effect";
@@ -45,8 +46,12 @@ export const scheduleLayer = () =>
     catalogEmDash(site.timeZone),
     bookingLockD1(env.DB),
     emailFromEnv(env.EMAIL),
-    bookingMailFromConfig({ replyTo: site.business.email, siteName: site.name })
-  ).pipe(Layer.provide(configLayer()));
+    bookingMailFromConfig({
+      replyTo: site.business.email,
+      siteName: site.name,
+    }),
+    textsFromConfig
+  ).pipe(Layer.provide(FetchHttpClient.layer), Layer.provide(configLayer()));
 
 /** Everything a public booking request needs, Turnstile included. */
 export const bookingLayer = () =>

@@ -19,6 +19,18 @@ export interface LeadMailEnv {
   readonly ALERT_EMAIL: string;
 }
 
+/**
+ * Twilio texts, prod only (see `textMessages`). Empty values mean texts are
+ * logged, not sent. `TEXT_NOTIFY_TO` is the client's own cell for alerts.
+ */
+export interface TextEnv {
+  readonly TWILIO_ACCOUNT_SID: string;
+  readonly TWILIO_API_KEY_SID: string;
+  readonly TWILIO_API_KEY_SECRET: string;
+  readonly TEXT_FROM: string;
+  readonly TEXT_NOTIFY_TO: string;
+}
+
 export interface EmDashSecretsEnv {
   readonly EMDASH_ENCRYPTION_KEY: string;
 }

@@ -30,6 +30,15 @@ export type {
   EmailAddress,
   EmailMessage,
 } from "./email.ts";
+export {
+  TextFailed,
+  Texts,
+  TextsLog,
+  textsFromConfig,
+  textsTwilio,
+  twilioMessagesUrl,
+} from "./text.ts";
+export type { TextMessage, TwilioCredentials } from "./text.ts";
 export { Lead, LeadNotSaved, LeadStore } from "./leads.ts";
 export { WaitUntil } from "./runtime.ts";
 export {

@@ -8,6 +8,7 @@
  */
 import {
   Email,
+  Texts,
   Turnstile,
   isEmailAddress,
 } from "@jakebodea/cloudflare-kit/server";
@@ -28,6 +29,7 @@ import {
   studioCancelledForClientMail,
   studioCancelledMail,
   studioNewBookingMail,
+  studioNewBookingText,
 } from "./mail.ts";
 import type { MailAppointment, MailContext } from "./mail.ts";
 import { MAX_PHOTOS, MAX_PHOTOS_PER_KIND } from "./photo-limits.ts";
@@ -326,6 +328,27 @@ const sendQuietly = Effect.fn("sendQuietly")(function* sendQuietly(
   });
 });
 
+/** Texts Ani when her cell is configured; like mail, a failure is logged, never surfaced. */
+const textQuietly = Effect.fn("textQuietly")(function* textQuietly(
+  to: string | undefined,
+  body: string,
+  context: Record<string, string>
+) {
+  const texts = yield* Texts;
+  if (to === undefined) {
+    return;
+  }
+  yield* texts
+    .send({ body, to })
+    .pipe(
+      Effect.catchCause(() =>
+        Effect.logError("booking text failed").pipe(
+          Effect.annotateLogs(context)
+        )
+      )
+    );
+});
+
 const asMail = (appointment: Appointment): MailAppointment => ({
   clientFor: appointment.clientFor,
   clientName: appointment.clientName,
@@ -479,6 +502,14 @@ export const bookAppointment = Effect.fn("bookAppointment")(
           photos: photosText(hairPhotos, mail.siteOrigin),
         }),
       },
+      logContext
+    );
+    yield* textQuietly(
+      Option.getOrUndefined(mail.studioText),
+      studioNewBookingText(appointment, {
+        adminUrl: `${mail.siteOrigin}/_admin`,
+        timeZone: policy.rules.timeZone,
+      }),
       logContext
     );
 

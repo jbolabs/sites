@@ -13,6 +13,7 @@ import {
   resolveStage,
   webAnalytics,
   leadMail,
+  textMessages,
   emdashSecrets,
   siteObservability,
   writeBuildInputs,
@@ -28,7 +29,8 @@ import {
  *   + Workers AI for the CMS assistant, through the stage's shared AI Gateway
  *   (`stacks/assistant-gateways.ts`; deployed stages only)
  *   prod only: custom domain, retained backups bucket + daily backup cron,
- *   aniwenger.hair registered for sending booking emails
+ *   aniwenger.hair registered for sending booking emails, Twilio texts to
+ *   Ani on each new booking (once its key and numbers are in Infisical)
  *
  * Deploy: `bun alchemy deploy --stage <stage> --profile <profile>` from this
  * directory (see .agents/skills/deploy). Never export CLOUDFLARE_* variables.
@@ -127,6 +129,8 @@ export default Alchemy.Stack(
         fromName: `${site.name} website`,
         inbox: site.leadInbox,
       }),
+      // A text to Ani's cell on each new booking; prod only, empty until Twilio is set up.
+      ...(yield* textMessages(stage, { secretPrefix: "ANI_WENGER" })),
       ...(yield* emdashSecrets),
       AI_GATEWAY_ID: assistant.gatewayId,
       BACKUPS: backups,
