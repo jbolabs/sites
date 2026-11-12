@@ -74,6 +74,7 @@ const sectionsFor = (answers: ReadonlyMap<string, string>): Section[] => {
         { question: QUESTION.occupancy },
         { question: QUESTION.ownership },
         { question: QUESTION.forSale },
+        { question: QUESTION.propertyValue },
         { question: QUESTION.mortgageBalance },
       ],
       title: "Property for this line of credit",
