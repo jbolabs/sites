@@ -1,13 +1,8 @@
 ---
-/**
- * Home opener: the headline (the page's h1) with the tagline as its sky-blue
- * second line (like "FAST" in the wordmark), intro, two buttons, and the quick equity estimate floating on
- * the CMS photo in a rounded frame. Light, with a faint sky glow.
- */
+/** The home's value is the subject: one headline, a photograph, and a usable estimate. */
 import { sanitizeHref } from "emdash";
 import Image from "@jakebodea/cloudflare-kit/astro/image.astro";
 import type { BlockComponentProps } from "emdash/ui";
-
 import ButtonLink from "@/components/button-link.astro";
 import EquityEstimator from "@/components/islands/equity-estimator";
 import { toLocale } from "@/i18n/locales";
@@ -16,39 +11,25 @@ import { applyHref } from "@/lib/apply";
 import type { PageContentHomeHeroBlock } from "../../../emdash-env";
 
 type Props = BlockComponentProps<PageContentHomeHeroBlock>;
-
 const { value } = Astro.props;
 const t = ui(toLocale(Astro.currentLocale));
 const apply = applyHref(Astro.currentLocale);
 const showEstimator = value.show_estimator !== false;
 ---
-
-<section class="relative isolate overflow-hidden bg-white">
-  <div class="glow-sky-top absolute inset-x-0 top-0 -z-10 h-[40rem]" aria-hidden="true"></div>
-  <div class="container-page grid *:min-w-0 items-center gap-12 pt-12 pb-16 sm:pt-16 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-20 lg:pb-20">
-    <div>
-      <h1 class="text-display animate-rise font-medium">{value.headline}</h1>
-      {value.tagline && <p class="text-display stagger-1 animate-rise headline-accent font-medium text-balance">{value.tagline}</p>}
-      {value.intro && <p class="stagger-2 mt-7 max-w-xl animate-rise text-lg leading-relaxed text-graphite sm:text-xl">{value.intro}</p>}
-      <div class="stagger-3 mt-9 flex animate-rise flex-col gap-3 sm:flex-row">
-        {value.apply_label && <ButtonLink href={apply} data-apply variant="accent" size="hero">{value.apply_label}</ButtonLink>}
-        {value.secondary_cta_label && value.secondary_cta_url && (
-          <ButtonLink href={sanitizeHref(value.secondary_cta_url)} variant="outline-ink" size="hero">{value.secondary_cta_label}</ButtonLink>
-        )}
+<section class="equity-hero">
+  <div class="container-page hero-grid">
+    <div class="hero-intro">
+      <h1 class="hero-title animate-rise">{value.headline}</h1>
+      <div class="hero-support stagger-1 animate-rise">
+        {value.intro && <p>{value.intro}</p>}
+        {value.tagline && <p class="mt-3">{value.tagline}</p>}
+        {value.secondary_cta_label && value.secondary_cta_url && <a class="text-link mt-5" href={sanitizeHref(value.secondary_cta_url)}>{value.secondary_cta_label}</a>}
+        {!showEstimator && value.apply_label && <ButtonLink href={apply} data-apply variant="accent" size="hero" class="mt-6">{value.apply_label}</ButtonLink>}
       </div>
     </div>
-    {(showEstimator || value.image) && (
-      <div class="stagger-2 relative isolate animate-lift overflow-hidden rounded-[2rem] bg-ink p-3 sm:p-8 lg:p-10">
-        {value.image && (
-          <Image image={value.image} alt="" priority sizes="(min-width: 1024px) 50vw, 100vw" class="absolute inset-0 -z-20 size-full! animate-settle object-cover" />
-        )}
-        <div class="absolute inset-0 -z-10 bg-linear-to-t from-ink/55 via-ink/10 to-ink/0" aria-hidden="true"></div>
-        {showEstimator ? (
-          <div class="mx-auto max-w-md"><EquityEstimator client:visible strings={t.estimator} applyHref={apply} /></div>
-        ) : (
-          <div class="aspect-[4/5]" aria-hidden="true"></div>
-        )}
-      </div>
-    )}
+    <div class="hero-stage">
+      {value.image && <div class="hero-photograph stagger-2 animate-lift"><Image image={value.image} priority sizes="(min-width: 1024px) 55vw, 100vw" class="hero-photo" /></div>}
+      {showEstimator && <div class="hero-estimate stagger-1 animate-lift"><EquityEstimator client:load strings={t.estimator} applyHref={apply} /></div>}
+    </div>
   </div>
 </section>

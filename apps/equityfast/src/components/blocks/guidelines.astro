@@ -1,39 +1,25 @@
 ---
-/** Program guidelines: headline, text, and a link beside a grid of label/value facts in one card. */
-import ArrowRight from "@lucide/astro/icons/arrow-right";
+/** The program's actual specifications, in a readable definition table. */
 import { sanitizeHref } from "emdash";
 import type { BlockComponentProps } from "emdash/ui";
-
 import Headline from "@/components/headline.astro";
 import type { PageContentGuidelinesBlock } from "../../../emdash-env";
 
 type Props = BlockComponentProps<PageContentGuidelinesBlock>;
-
 const { value } = Astro.props;
 ---
-
 <section class="section-y bg-canvas">
-  <div class="container-page grid *:min-w-0 gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
-    <div class="lg:sticky lg:top-28 lg:self-start" data-reveal>
+  <div class="container-page guidelines-layout">
+    <div data-reveal-group>
       <Headline text={value.headline} accent={value.headline_accent} />
-      {value.body && <p class="mt-6 max-w-md text-lg leading-relaxed text-graphite">{value.body}</p>}
-      {value.link_label && value.link_url && (
-        <a href={sanitizeHref(value.link_url)} class="group mt-8 inline-flex items-center gap-2 font-medium text-ink">
-          {value.link_label}
-          <ArrowRight class="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-        </a>
-      )}
+      {value.body && <p class="mt-8 max-w-md text-base leading-relaxed">{value.body}</p>}
+      {value.link_label && value.link_url && <a href={sanitizeHref(value.link_url)} class="text-link mt-8">{value.link_label}</a>}
     </div>
     <div data-reveal>
-      <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-line bg-line sm:grid-cols-3">
-        {value.items.map((item) => (
-          <div class="bg-white p-5 hyphens-auto max-sm:odd:last:col-span-2 sm:p-7 sm:[&:nth-child(3n+1):last-child]:col-span-3 sm:[&:nth-child(3n+2):last-child]:col-span-2">
-            <dt class="text-sm text-graphite">{item.label}</dt>
-            <dd class="mt-3 text-lg leading-snug font-medium tracking-tight sm:text-xl">{item.value}</dd>
-          </div>
-        ))}
+      <dl class="specifications">
+        {value.items.map((item) => <div><dt>{item.label}</dt><dd>{item.value}</dd></div>)}
       </dl>
-      {value.footnote && <p class="mt-6 text-sm leading-relaxed text-graphite">{value.footnote}</p>}
+      {value.footnote && <p class="mt-6 text-base leading-relaxed">{value.footnote}</p>}
     </div>
   </div>
 </section>

@@ -13,7 +13,7 @@ const sliderVariants = {
     indicator: "bg-sky",
     // Grows a touch while held: the thumb answers the finger.
     thumb:
-      "size-6 border-4 border-white bg-ink shadow-[0_2px_10px_rgb(0_0_0/0.25)] transition-[scale,box-shadow] duration-150 ease-out-strong active:scale-115 data-dragging:scale-115",
+      "size-6 border-4 border-white bg-ink transition-[scale,box-shadow] duration-150 ease-out-strong active:scale-115 data-dragging:scale-115",
     track: "bg-line data-horizontal:h-1.5",
   },
 } as const;
@@ -30,11 +30,8 @@ function Slider({
   ...props
 }: SliderPrimitive.Root.Props & { variant?: keyof typeof sliderVariants }) {
   const styles = sliderVariants[variant];
-  const _values = Array.isArray(value)
-    ? value
-    : Array.isArray(defaultValue)
-      ? defaultValue
-      : [min, max];
+  const selected = value ?? defaultValue ?? min;
+  const values = Array.isArray(selected) ? selected : [selected];
 
   return (
     <SliderPrimitive.Root
@@ -67,7 +64,7 @@ function Slider({
             )}
           />
         </SliderPrimitive.Track>
-        {Array.from({ length: _values.length }, (_, index) => (
+        {Array.from({ length: values.length }, (_, index) => (
           <SliderPrimitive.Thumb
             data-slot="slider-thumb"
             key={index}
