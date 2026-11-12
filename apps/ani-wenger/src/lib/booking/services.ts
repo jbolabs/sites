@@ -188,6 +188,8 @@ export interface BookingMailRoutes {
   readonly studioInbox: Option.Option<readonly string[]>;
   /** Where client replies go: Ani's own address. */
   readonly replyTo: string;
+  /** Ani's cell, texted on each new booking (prod only; see `textMessages`). */
+  readonly studioText: Option.Option<string>;
 }
 
 export class BookingMail extends Context.Service<
@@ -201,7 +203,7 @@ const nonEmpty = (name: string) =>
     Config.map(Option.filter((value) => value !== ""))
   );
 
-/** Reads the same sender and inbox bindings as the contact form (`leadMail` in the stack). */
+/** Reads the same sender and inbox bindings as the contact form (`leadMail` in the stack), plus Ani's cell for texts. */
 export const bookingMailFromConfig = (options: {
   readonly siteName: string;
   readonly replyTo: string;
@@ -212,6 +214,7 @@ export const bookingMailFromConfig = (options: {
       const from = yield* nonEmpty("LEAD_NOTIFY_FROM");
       const studioInbox = yield* leadInboxConfig;
       const siteOrigin = yield* Config.String("SITE_ORIGIN");
+      const studioText = yield* nonEmpty("TEXT_NOTIFY_TO");
       return {
         from: from.pipe(
           Option.map((email) => ({ email, name: options.siteName }))
@@ -220,6 +223,7 @@ export const bookingMailFromConfig = (options: {
         siteName: options.siteName,
         siteOrigin,
         studioInbox,
+        studioText,
       };
     })
   );

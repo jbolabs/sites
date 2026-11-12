@@ -103,6 +103,22 @@ export const studioNewBookingMail = (
   ].join("\n"),
 });
 
+/** The text Ani gets on her phone for a new booking: who, what, when, and where to see it. */
+export const studioNewBookingText = (
+  appointment: MailAppointment,
+  context: Pick<MailContext, "timeZone"> & { readonly adminUrl: string }
+): string => {
+  const audience =
+    appointment.clientFor === undefined
+      ? ""
+      : ` (${AUDIENCE_LABELS[appointment.clientFor]})`;
+  return [
+    `New booking: ${appointment.clientName}, ${appointment.service}${audience}, ${whenText(appointment.start, context.timeZone)}.`,
+    ...(appointment.phone === undefined ? [] : [`Phone: ${appointment.phone}`]),
+    context.adminUrl,
+  ].join("\n");
+};
+
 export const clientCancelledMail = (
   appointment: MailAppointment,
   context: MailContext & { readonly bookUrl: string }

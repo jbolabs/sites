@@ -1,6 +1,13 @@
 import { describe, expect, it } from "@effect/vitest";
-import { Email, TurnstileAllowAll } from "@jakebodea/cloudflare-kit/server";
-import type { EmailMessage } from "@jakebodea/cloudflare-kit/server";
+import {
+  Email,
+  Texts,
+  TurnstileAllowAll,
+} from "@jakebodea/cloudflare-kit/server";
+import type {
+  EmailMessage,
+  TextMessage,
+} from "@jakebodea/cloudflare-kit/server";
 import { Effect, Exit, Layer, Option, Ref } from "effect";
 import { TestClock } from "effect/testing";
 
@@ -89,10 +96,26 @@ const request: BookingRequest = {
   requestId: "ray-1",
 };
 
-/** An in-memory appointment book, a fixed menu and salon, and a mail recorder. */
+/** Ani's cell in these tests. */
+const ANI_CELL = "+19495550142";
+
+const MAIL_ROUTES = {
+  from: Option.some({
+    email: "sites@mail.jbolabs.com",
+    name: "Ani Wenger",
+  }),
+  replyTo: "aniwenger@gmail.com",
+  siteName: "Ani Wenger",
+  siteOrigin: "https://aniwenger.example",
+  studioInbox: Option.some(["ani@example.com"]),
+  studioText: Option.some(ANI_CELL),
+};
+
+/** An in-memory appointment book, a fixed menu and salon, and mail and text recorders. */
 const world = Effect.gen(function* world() {
   const book = yield* Ref.make<Appointment[]>([]);
   const sent = yield* Ref.make<EmailMessage[]>([]);
+  const texts = yield* Ref.make<TextMessage[]>([]);
   const stored = yield* Ref.make<Uint8Array[]>([]);
   const layer = Layer.mergeAll(
     Layer.succeed(Appointments, {
@@ -147,22 +170,16 @@ const world = Effect.gen(function* world() {
         ]),
     }),
     Layer.succeed(BookingLock, { withLock: (effect) => effect }),
-    Layer.succeed(BookingMail, {
-      from: Option.some({
-        email: "sites@mail.jbolabs.com",
-        name: "Ani Wenger",
-      }),
-      replyTo: "aniwenger@gmail.com",
-      siteName: "Ani Wenger",
-      siteOrigin: "https://aniwenger.example",
-      studioInbox: Option.some(["ani@example.com"]),
-    }),
+    Layer.succeed(BookingMail, MAIL_ROUTES),
     Layer.succeed(Email, {
       send: (message) => Ref.update(sent, (all) => [...all, message]),
     }),
+    Layer.succeed(Texts, {
+      send: (message) => Ref.update(texts, (all) => [...all, message]),
+    }),
     TurnstileAllowAll
   );
-  return { book, layer, sent, stored };
+  return { book, layer, sent, stored, texts };
 });
 
 describe(bookAppointment, () => {
@@ -214,6 +231,41 @@ describe(bookAppointment, () => {
           ],
         ]);
       })
+  );
+
+  it.effect("texts Ani the booking when her cell is set", () =>
+    Effect.gen(function* textAni() {
+      yield* TestClock.setTime(MONDAY_NOON);
+      const { layer, texts } = yield* world;
+      yield* bookAppointment(form({ clientFor: "men" }), request).pipe(
+        Effect.provide(layer)
+      );
+
+      expect(yield* Ref.get(texts)).toStrictEqual([
+        {
+          body: "New booking: Pat Rivera, Men's cut (Men), Tuesday, October 27 at 10:00 AM.\nPhone: 949-555-0100\nhttps://aniwenger.example/_admin",
+          to: ANI_CELL,
+        },
+      ]);
+    })
+  );
+
+  it.effect("sends no text when Ani's cell is not set", () =>
+    Effect.gen(function* noTextWithoutCell() {
+      yield* TestClock.setTime(MONDAY_NOON);
+      const { layer, sent, texts } = yield* world;
+      const withoutCell = Layer.merge(
+        layer,
+        Layer.succeed(BookingMail, {
+          ...MAIL_ROUTES,
+          studioText: Option.none(),
+        })
+      );
+      yield* bookAppointment(form(), request).pipe(Effect.provide(withoutCell));
+
+      expect(yield* Ref.get(sent)).toHaveLength(2);
+      expect(yield* Ref.get(texts)).toStrictEqual([]);
+    })
   );
 
   it.effect("refuses a time that overlaps an existing booking", () =>
