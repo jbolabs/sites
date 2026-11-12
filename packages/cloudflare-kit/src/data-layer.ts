@@ -7,9 +7,16 @@
 /** Events a site sends to the agency's tags. Never put form answers in them. */
 export type DataLayerEvent = "application_submitted";
 
+/**
+ * Extra event parameters, such as the campaign that brought the visitor
+ * (`utm_source`, `landing_page`). Never form answers.
+ */
+export type DataLayerParams = Readonly<Record<string, string>>;
+
 /** What we push. Tag Manager pushes its own richer entries alongside. */
 export interface DataLayerEntry {
   readonly event: string;
+  readonly [param: string]: string;
 }
 
 /** The page global Google's container snippet creates. */
@@ -22,11 +29,12 @@ declare global {
   var dataLayer: DataLayerEntry[] | undefined;
 }
 
-/** Pushes `{ event }` onto `dataLayer`, creating it if the container hasn't. */
+/** Pushes `{ event, ...params }` onto `dataLayer`, creating it if the container hasn't. */
 export const pushDataLayerEvent = (
   event: DataLayerEvent,
+  params: DataLayerParams = {},
   target: DataLayerTarget = globalThis
 ): void => {
   target.dataLayer ??= [];
-  target.dataLayer.push({ event });
+  target.dataLayer.push({ ...params, event });
 };

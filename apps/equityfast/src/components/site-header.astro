@@ -18,9 +18,11 @@ interface Props {
   locale: Locale;
   items: readonly NavItem[];
   alternates: Alternates;
+  /** Ad landing pages: logo and one button to the application on the page. */
+  focused?: boolean;
 }
 
-const { alternates, items, locale } = Astro.props;
+const { alternates, focused = false, items, locale } = Astro.props;
 const t = ui(locale);
 const current = Astro.url.pathname.replace(/\/$/u, "") || "/";
 const home = localePath(locale, "/");
@@ -52,6 +54,11 @@ const switchHref = alternates[other] ?? localePath(other, "/");
         ))
       }
     </nav>
+    {focused ? (
+      <div class="ml-auto flex items-center">
+        <ButtonLink href="#apply-form" variant="accent" size="cta" class="hidden sm:inline-flex">Check your options</ButtonLink>
+      </div>
+    ) : (
     <div class="ml-auto flex items-center gap-1.5 xl:ml-3">
       <a href={site.business.instagram} rel="noopener me" target="_blank" class="hidden size-10 items-center justify-center rounded-full text-graphite hover:bg-canvas hover:text-ink sm:flex" aria-label="Instagram @equityfast">
         <InstagramIcon class="size-[18px]" />
@@ -84,5 +91,6 @@ const switchHref = alternates[other] ?? localePath(other, "/");
         <a href={switchHref} hreflang={other} lang={other} class="text-center text-sm text-graphite hover:text-ink">{t.switchTo}</a>
       </MobileMenu>
     </div>
+    )}
   </div>
 </header>

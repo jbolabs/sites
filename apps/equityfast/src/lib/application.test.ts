@@ -97,6 +97,56 @@ describe(toContactForm, () => {
   });
 });
 
+describe("an application from an ad", () => {
+  const fromAd = {
+    ...submitted,
+    attribution: {
+      capturedAt: "2026-11-11T17:30:00.000Z",
+      fbclid: "IwAR0abc",
+      landingPage: "/lp/debt-consolidation",
+      utm_campaign: "debt-consolidation",
+      utm_content: "card-a",
+      utm_medium: "paid_social",
+      utm_source: "facebook",
+    },
+  };
+
+  it("adds the campaign as the last answer", () => {
+    expect(toContactForm(decode(fromAd)).answers?.at(-1)).toStrictEqual({
+      answer: "facebook / paid_social / debt-consolidation / card-a",
+      question: "Ad campaign",
+    });
+    expect(toContactForm(decode(submitted)).answers?.at(-1)).toStrictEqual({
+      answer: "Spanish",
+      question: "Language",
+    });
+  });
+
+  it("keeps the attribution's own fields and drops unknown ones", () => {
+    const form = decode({
+      ...fromAd,
+      attribution: { ...fromAd.attribution, password: "hunter2" },
+    });
+    expect(form.attribution).toStrictEqual(fromAd.attribution);
+  });
+
+  it("drops an attribution that breaks a limit instead of rejecting the application", () => {
+    const form = decode({
+      ...fromAd,
+      attribution: { utm_source: "x".repeat(201) },
+    });
+    expect(form.attribution).toBeUndefined();
+    expect(form.email).toBe("jordan@example.com");
+    expect(
+      decode({ ...fromAd, attribution: "facebook" }).attribution
+    ).toBeUndefined();
+    expect(
+      decode({ ...fromAd, attribution: { utm_source: "x".repeat(200) } })
+        .attribution
+    ).toStrictEqual({ utm_source: "x".repeat(200) });
+  });
+});
+
 describe(ApplicationForm, () => {
   it("accepts the smoke test's application, so `app smoke` exercises the real action", () => {
     expect(
