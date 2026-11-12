@@ -5,7 +5,7 @@
 
 ## Context
 
-Ani Wenger (`apps/ani-wenger`) is a hairstylist; her site needs a service menu with lengths and prices, a calendar of open times, online booking, cancellation, reminders, and a schedule she can read on her phone. The stack's principle is as few vendors as possible, and the client already edits her site in the EmDash admin.
+Ani Wenger (`apps/ani-wenger`) is a hairstylist; her site needs a service menu with lengths and prices, a calendar of open times, online booking, rescheduling, cancellation, reminders, and a schedule she can read on her phone. The stack's principle is as few vendors as possible, and the client already edits her site in the EmDash admin.
 
 EmDash 1.1 constraints that shape the design:
 
@@ -30,11 +30,12 @@ No booking vendor (Square, Vagaro, Cal.com) and no payments.
 ## Design
 
 - `src/lib/booking/services.ts`: Effect services `Appointments`, `Catalog`, `BookingLock`, `BookingMail`. `emdash-store.ts` implements the first two through `withEmDashRuntime` and decodes every row with Effect Schema; `lock.ts` implements the lock on `env.DB`.
-- `src/lib/booking/booking.ts`: the pipelines `openTimes`, `bookAppointment` (Turnstile, then lock, re-check, save, then mail), `cancelByClient`, `cancelByStudio`, `sendReminders`. Saving is the point of no return; mail after it only logs on failure.
+- `src/lib/booking/booking.ts`: the pipelines `openTimes`, `bookAppointment` (Turnstile, then lock, re-check, save, then mail), `rescheduleTimes`, `rescheduleByClient`, `cancelByClient`, `cancelByStudio`, `sendReminders`. Saving is the point of no return; mail after it only logs on failure.
 - Hair photos: a private R2 bucket (`HAIR_PHOTOS`), not EmDash media (which is public and listed in the library). Objects get random 128-bit names and are served only at `/hair-photos/<name>.jpg` with `private` caching and `noindex`; like the calendar feed, the URL is the credential. A lifecycle rule deletes them after a year. Photos are stored before the lock is taken, so the lock stays short; a booking that then loses its time leaves orphans the lifecycle rule removes. The appointment keeps the links in a "Hair photos" text field, and the schedule page shows them as images. Astro's action body limit is raised to 5 MB for them.
-- Client links: each booking stores the SHA-256 of a random token; `/appointment/<id>?t=<token>` shows, adds to a calendar (`event.ics`), and cancels. A wrong id or token answers the same "not found".
+- Client links: each booking stores the SHA-256 of a random token; `/appointment/<id>?t=<token>` shows, adds to a calendar (`event.ics`), moves to a new time, and cancels. A wrong id or token answers the same "not found".
+- Rescheduling (added 2026-10-28): the manage page reuses the booking calendar (`TimeStep`, fed by `rescheduleTimes`), which offers times for the appointment's stored length and ignores the appointment itself, so a client can shift by half an hour. `rescheduleByClient` re-reads the appointment and re-checks the new time while holding the booking lock, then writes the new start to the same row in one update. There is no hold or second row: the client keeps the old time until the update lands, nobody can take the new time in between, and the old time is free the moment it does. The token does not change, so the confirmation's links and calendar entries still open it. Moving follows the cancel rule (confirmed, outside the studio's `cancel_cutoff_hours`); inside it the page asks for a call. The new time follows the normal booking rules (notice, horizon, hours). The client gets a "Moved" email with the new `.ics` and Google links and a note to delete the old calendar entry; Ani gets a "Moved" email through the same inbox as new bookings.
 - Ani's calendar: `/calendar/<key>.ics`, where the key is an `Alchemy.Random` per stage (`CALENDAR_FEED_KEY`). Calendar apps cannot sign in, so the URL is the credential.
-- Reminders ride EmDash's minute cron every quarter hour (`src/worker.ts`), for appointments within 24 hours that were booked at least 36 hours ahead. Crons run on prod only, so previews send no reminders.
+- Reminders ride EmDash's minute cron every quarter hour (`src/worker.ts`), for appointments within 24 hours that were booked at least 36 hours ahead. A move sets `reminder_sent` with the new start: true when the new time is less than 36 hours away (the "Moved" email is the fresh confirmation), false otherwise, so the reminder follows the new time. Crons run on prod only, so previews send no reminders.
 - Mail reuses the contact form's sender and inbox bindings (`LEAD_NOTIFY_FROM`, `LEAD_NOTIFY_TO`); client mail replies to Ani's address.
 
 ## Alternatives considered
@@ -47,8 +48,9 @@ No booking vendor (Square, Vagaro, Cal.com) and no payments.
 ## Consequences
 
 - Concurrency is proven by a local race (three simultaneous requests for one time: one booked, two told it was taken) and by unit tests of the pipeline with fakes; the lock serializes all bookings, which is fine at one stylist's volume.
-- Editors can change an appointment's time in the admin without the lock. That is Ani's own calendar, and the next availability check sees her change.
+- Editors can change an appointment's time in the admin without the lock. That is Ani's own calendar, and the next availability check sees her change. Such a change does not email the client; only a client's own move does.
 - Appointments are drafts in a non-routable collection, so the published-content exporter (ADR 3) and public queries never see client details. Backups include them.
 - Anyone holding a hair photo link can open it. The links only go to Ani (her schedule and her new-booking email) and expire with the photo.
 - No payments, deposits, SMS, or two-way Google Calendar sync. The ICS feed is one way, and Google refreshes subscribed calendars every few hours (Apple every 15 minutes).
+- A client's "Add to Google Calendar" copy is their own event, which a move cannot update; the "Moved" email asks them to delete the old one. The `.ics` keeps the same UID, so apps that update events by UID replace it.
 - Booking mail needs a verified sender, as the contact form does; until then confirmations are logged, not sent.
