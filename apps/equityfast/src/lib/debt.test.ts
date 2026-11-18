@@ -1,43 +1,37 @@
 import { describe, expect, it } from "vitest";
 
-import { balanceCeiling, debtTotals } from "./debt.ts";
+import { consolidate, monthlyPayment } from "./debt.ts";
 
-describe(debtTotals, () => {
-  it("compares a year of interest today with one line at the HELOC rate", () => {
-    // $18,000 at 24% is $360/mo; $12,000 at 12% is $120/mo: $480/mo today.
-    // $30,000 at 8% is $200/mo, so $280/mo or $3,360 a year saved.
-    const totals = debtTotals(
-      [
-        { aprPercent: 24, balance: 18_000 },
-        { aprPercent: 12, balance: 12_000 },
-      ],
-      8
-    );
-    expect(totals).toMatchObject({
-      balance: 30_000,
-      monthlyToday: 480,
-      monthlyWithLine: 200,
-      savedPerYear: 3360,
+describe(consolidate, () => {
+  it("matches E Mortgage Capital's calculator for $129,000 at 8.5% over 15 years", () => {
+    // Their calculator shows $1,270/mo, $2,905 less than $4,175, and
+    // $228,657 paid in total including $99,657 interest.
+    const result = consolidate({
+      debt: 129_000,
+      paymentsNow: 4175,
+      ratePercent: 8.5,
+      years: 15,
     });
-    expect(totals.blendedApr).toBeCloseTo(19.2, 6);
+    expect(Math.round(result.payment)).toBe(1270);
+    expect(Math.round(result.savedPerMonth)).toBe(2905);
+    expect(Math.round(result.totalPaid)).toBe(228_657);
+    expect(Math.round(result.interest)).toBe(99_657);
   });
 
-  it("never shows a negative saving when the line costs more", () => {
-    const totals = debtTotals([{ aprPercent: 6, balance: 12_000 }], 9);
-    expect(totals.savedPerYear).toBe(0);
-    expect(totals.monthlyWithLine).toBe(90);
-  });
-
-  it("has no blended rate before anything is entered", () => {
-    const totals = debtTotals([], 8);
-    expect(totals.blendedApr).toBeUndefined();
-    expect(totals.balance).toBe(0);
+  it("never shows a negative saving when one payment costs more", () => {
+    const result = consolidate({
+      debt: 35_000,
+      paymentsNow: 300,
+      ratePercent: 8.5,
+      years: 5,
+    });
+    expect(result.savedPerMonth).toBe(0);
+    expect(Math.round(result.payment)).toBe(718);
   });
 });
 
-describe(balanceCeiling, () => {
-  it("lets the slider reach four times the typical balance, at least $50,000", () => {
-    expect(balanceCeiling(3000)).toBe(50_000);
-    expect(balanceCeiling(22_000)).toBe(88_000);
+describe(monthlyPayment, () => {
+  it("splits the balance evenly at a 0% rate", () => {
+    expect(monthlyPayment(12_000, 0, 5)).toBe(200);
   });
 });

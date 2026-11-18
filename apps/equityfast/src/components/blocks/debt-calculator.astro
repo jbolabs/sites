@@ -13,11 +13,6 @@ type Props = BlockComponentProps<PageContentDebtCalculatorBlock>;
 
 const { value } = Astro.props;
 const t = ui(toLocale(Astro.currentLocale));
-const presets = value.debts.map((debt) => ({
-  aprPercent: debt.apr_percent,
-  name: debt.name,
-  typicalBalance: debt.typical_balance,
-}));
 ---
 
 <section class="section-y">
@@ -27,7 +22,7 @@ const presets = value.debts.map((debt) => ({
       {value.intro && <p class="mt-5 text-lg leading-relaxed text-graphite">{value.intro}</p>}
     </div>
     <div class="mt-10">
-      <DebtCalculator client:visible presets={presets} lineRate={value.heloc_rate} strings={t.debt} disclaimer={value.disclaimer ?? undefined} applyHref={applyHref(Astro.currentLocale)} />
+      <DebtCalculator client:visible debt={value.debt} paymentsNow={value.payments_now} rate={value.rate} strings={t.debt} disclaimer={value.disclaimer ?? undefined} applyHref={applyHref(Astro.currentLocale)} />
     </div>
   </div>
 </section>

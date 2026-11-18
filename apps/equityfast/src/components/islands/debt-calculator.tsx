@@ -1,39 +1,40 @@
-import { PlusIcon, XIcon } from "lucide-react";
-import { useId, useRef, useState } from "react";
+import { useId, useState } from "react";
+import type { ReactNode } from "react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
 import type { UiStrings } from "@/i18n/ui";
 import { prefillAmount } from "@/lib/application-rules";
-import { balanceCeiling, debtTotals } from "@/lib/debt";
+import { consolidate, TERMS_YEARS } from "@/lib/debt";
+import type { TermYears } from "@/lib/debt";
 import { cn } from "@/lib/utils";
 
 import { useTweenedNumber } from "./use-tweened-number";
 
-export interface DebtPreset {
-  readonly name: string;
-  readonly typicalBalance: number;
-  readonly aprPercent: number;
-}
-
 type Strings = UiStrings["debt"];
 
 interface DebtCalculatorProps {
-  readonly presets: readonly DebtPreset[];
-  readonly lineRate: number;
+  readonly debt: number;
+  readonly paymentsNow: number;
+  readonly rate: number;
   readonly strings: Strings;
   readonly disclaimer: string | undefined;
   readonly applyHref: string;
 }
 
-interface Row {
-  readonly id: number;
-  readonly name: string;
-  readonly balance: number;
-  readonly aprPercent: number;
-  readonly ceiling: number;
+interface Range {
+  readonly min: number;
+  readonly max: number;
+  readonly step: number;
 }
+
+const DEBT: Range = { max: 250_000, min: 5000, step: 1000 };
+const PAYMENTS: Range = { max: 6000, min: 100, step: 25 };
+const RATE: Range = { max: 20, min: 3, step: 0.25 };
+const QUICK_DEBTS = [15_000, 35_000, 75_000, 120_000] as const;
+const DEFAULT_TERM: TermYears = 15;
 
 const USD_FORMAT: Intl.NumberFormatOptions = {
   currency: "USD",
@@ -47,26 +48,88 @@ const PERCENT_FORMAT: Intl.NumberFormatOptions = {
 };
 
 const usd = (value: number) => `$${Math.round(value).toLocaleString("en-US")}`;
+const short = (value: number) => `$${value / 1000}K`;
 const percent = (value: number) =>
   `${value.toLocaleString("en-US", { maximumFractionDigits: 2 })}%`;
-const BALANCE_STEP = 500;
-const MAX_APR = 60;
-const LINE_RATE = { max: 15, min: 4, step: 0.25 } as const;
-/** Two debts are in the list on first paint, so the result is never empty. */
-const STARTING_ROWS = 2;
 const NON_DIGITS = /\D/gu;
 const NOT_DECIMAL = /[^\d.]/gu;
+const clamp = (value: number, range: Range) =>
+  Math.min(range.max, Math.max(0, value));
 
-const rowFrom = (preset: DebtPreset, id: number): Row => ({
-  aprPercent: preset.aprPercent,
-  balance: preset.typicalBalance,
-  ceiling: balanceCeiling(preset.typicalBalance),
-  id,
-  name: preset.name,
-});
+/** A labelled slider with a typed box beside it, for one input. */
+const Field = ({
+  box,
+  children,
+  format,
+  label,
+  onChange,
+  range,
+  value,
+}: {
+  readonly box: ReactNode;
+  readonly children?: ReactNode;
+  readonly format: Intl.NumberFormatOptions;
+  readonly label: string;
+  readonly onChange: (value: number) => void;
+  readonly range: Range;
+  readonly value: number;
+}) => {
+  const id = useId();
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-4">
+        <span id={id} className="text-ink text-base font-medium">
+          {label}
+        </span>
+        {box}
+      </div>
+      <Slider
+        variant="brand"
+        aria-labelledby={id}
+        format={format}
+        min={range.min}
+        max={range.max}
+        step={range.step}
+        value={Math.max(range.min, value)}
+        onValueChange={(next: number | readonly number[]) => {
+          onChange([next].flat()[0] ?? range.min);
+        }}
+        className="mt-4"
+      />
+      {children}
+    </div>
+  );
+};
 
-/** A rate field that keeps what's typed ("24.") until it leaves focus. */
-const AprInput = ({
+const DollarBox = ({
+  label,
+  onChange,
+  range,
+  value,
+}: {
+  readonly label: string;
+  readonly onChange: (value: number) => void;
+  readonly range: Range;
+  readonly value: number;
+}) => (
+  <Input
+    aria-label={label}
+    inputMode="numeric"
+    variant="compact"
+    value={usd(value)}
+    onChange={(event) => {
+      onChange(
+        clamp(
+          Number(event.currentTarget.value.replaceAll(NON_DIGITS, "")),
+          range
+        )
+      );
+    }}
+  />
+);
+
+/** A rate box that keeps what's typed ("8.") until it leaves focus. */
+const PercentBox = ({
   label,
   onChange,
   value,
@@ -81,7 +144,6 @@ const AprInput = ({
       aria-label={label}
       inputMode="decimal"
       variant="compact"
-      className="w-20"
       value={draft ?? percent(value)}
       onFocus={() => {
         setDraft(String(value));
@@ -90,9 +152,7 @@ const AprInput = ({
         const typed = event.currentTarget.value.replaceAll(NOT_DECIMAL, "");
         setDraft(typed);
         const parsed = Number(typed);
-        onChange(
-          Number.isFinite(parsed) ? Math.min(MAX_APR, Math.max(0, parsed)) : 0
-        );
+        onChange(Number.isFinite(parsed) ? clamp(parsed, RATE) : 0);
       }}
       onBlur={() => {
         setDraft(undefined);
@@ -101,91 +161,15 @@ const AprInput = ({
   );
 };
 
-const DebtRow = ({
-  onChange,
-  onRemove,
-  row,
-  strings,
-}: {
-  readonly onChange: (row: Row) => void;
-  readonly onRemove: () => void;
-  readonly row: Row;
-  readonly strings: Strings;
-}) => (
-  <li className="border-line animate-in fade-in slide-in-from-top-1 ease-out-strong rounded-2xl border bg-white p-4 duration-200 sm:p-5">
-    <div className="flex items-center justify-between gap-3">
-      <p className="text-ink text-base font-medium">{row.name}</p>
-      <Button
-        type="button"
-        variant="quiet"
-        size="icon"
-        aria-label={`${strings.remove} ${row.name}`}
-        className="-mr-1.5"
-        onClick={onRemove}
-      >
-        <XIcon aria-hidden="true" />
-      </Button>
-    </div>
-    <div className="mt-3 flex items-center gap-4">
-      <Slider
-        variant="brand"
-        aria-label={`${strings.balanceFor} ${row.name}`}
-        format={USD_FORMAT}
-        min={0}
-        max={Math.max(row.ceiling, row.balance)}
-        step={BALANCE_STEP}
-        value={row.balance}
-        onValueChange={(next: number | readonly number[]) => {
-          onChange({ ...row, balance: [next].flat()[0] ?? 0 });
-        }}
-      />
-      <Input
-        aria-label={`${strings.balanceFor} ${row.name}`}
-        inputMode="numeric"
-        variant="compact"
-        value={usd(row.balance)}
-        onChange={(event) => {
-          onChange({
-            ...row,
-            balance: Number(
-              event.currentTarget.value.replaceAll(NON_DIGITS, "")
-            ),
-          });
-        }}
-      />
-    </div>
-    <div className="mt-3 flex items-center justify-between gap-3">
-      <label className="text-graphite flex items-center gap-2 text-sm">
-        {strings.apr}
-        <AprInput
-          label={`${strings.aprFor} ${row.name}`}
-          value={row.aprPercent}
-          onChange={(aprPercent) => {
-            onChange({ ...row, aprPercent });
-          }}
-        />
-      </label>
-      <p className="text-graphite text-sm tabular-nums">
-        {strings.perMonth.replace(
-          "{amount}",
-          usd((row.balance * row.aprPercent) / 1200)
-        )}
-      </p>
-    </div>
-  </li>
-);
-
-/** One side of the comparison: a label, its monthly interest, and a bar. */
+/** One side of the comparison: a label, its monthly payment, and a bar. */
 const Bar = ({
   label,
-  detail,
   monthly,
   share,
   strings,
   tone,
 }: {
   readonly label: string;
-  readonly detail: string;
   readonly monthly: number;
   readonly share: number;
   readonly strings: Strings;
@@ -193,8 +177,8 @@ const Bar = ({
 }) => (
   <div>
     <div className="flex items-baseline justify-between gap-3 text-sm">
-      <span className="text-ink font-medium">{label}</span>
-      <span className="text-ink font-mono font-medium tabular-nums">
+      <span className="text-graphite">{label}</span>
+      <span className="text-ink font-medium tabular-nums">
         {strings.perMonth.replace("{amount}", usd(monthly))}
       </span>
     </div>
@@ -210,155 +194,172 @@ const Bar = ({
         style={{ "--share": share }}
       />
     </div>
-    <p className="text-graphite mt-1.5 text-xs">{detail}</p>
   </div>
 );
 
+const TermPicker = ({
+  onChange,
+  strings,
+  value,
+}: {
+  readonly onChange: (years: TermYears) => void;
+  readonly strings: Strings;
+  readonly value: TermYears;
+}) => (
+  <RadioGroup
+    aria-label={strings.term}
+    value={value}
+    variant="segmented"
+    onValueChange={(next) => {
+      const term = TERMS_YEARS.find((years) => years === next);
+      if (term !== undefined) {
+        onChange(term);
+      }
+    }}
+  >
+    {TERMS_YEARS.map((years) => (
+      <label
+        key={years}
+        className="has-data-checked:text-ink text-graphite has-focus-visible:ring-sky/40 flex h-10 cursor-pointer items-center justify-center rounded-full text-sm font-medium tabular-nums has-focus-visible:ring-3 has-data-checked:bg-white has-data-checked:shadow-sm"
+      >
+        <RadioGroupItem value={years} className="sr-only" />
+        {strings.years.replace("{years}", String(years))}
+      </label>
+    ))}
+  </RadioGroup>
+);
+
 /**
- * Add the debts you carry, set each balance and rate, and see the interest
- * they cost next to the same total on one home equity line. Debt names and
- * typical figures come from the CMS; two start in the list so the result
- * shows before anyone touches it.
+ * Today's monthly payments against one consolidated payment, after
+ * E Mortgage Capital's own calculator: what's owed, what's paid now, an
+ * example rate, and a term. Defaults come from the CMS so the first paint
+ * already shows a result.
  */
 const DebtCalculator = ({
   applyHref,
+  debt: startingDebt,
   disclaimer,
-  lineRate: startingRate,
-  presets,
+  paymentsNow: startingPayments,
+  rate: startingRate,
   strings,
 }: DebtCalculatorProps) => {
-  const rateId = useId();
-  const [rows, setRows] = useState<readonly Row[]>(() =>
-    presets.slice(0, STARTING_ROWS).map(rowFrom)
-  );
-  const nextId = useRef(STARTING_ROWS);
-  const [lineRate, setLineRate] = useState(startingRate);
-  const totals = debtTotals(rows, lineRate);
-  const saved = useTweenedNumber(totals.savedPerYear);
-  const largest = Math.max(1, totals.monthlyToday, totals.monthlyWithLine);
-  const amount = prefillAmount(totals.balance);
-
-  const update = (next: Row) => {
-    setRows((current) =>
-      current.map((row) => (row.id === next.id ? next : row))
-    );
-  };
-  const add = (preset: DebtPreset) => {
-    const id = nextId.current;
-    nextId.current += 1;
-    setRows((current) => [...current, rowFrom(preset, id)]);
-  };
-  const remove = (id: number) => {
-    setRows((current) => current.filter((row) => row.id !== id));
-  };
+  const [debt, setDebt] = useState(startingDebt);
+  const [paymentsNow, setPaymentsNow] = useState(startingPayments);
+  const [rate, setRate] = useState(startingRate);
+  const [years, setYears] = useState<TermYears>(DEFAULT_TERM);
+  const result = consolidate({ debt, paymentsNow, ratePercent: rate, years });
+  const saved = useTweenedNumber(result.savedPerMonth);
+  const largest = Math.max(1, paymentsNow, result.payment);
+  const amount = prefillAmount(debt);
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start">
-      <div className="min-w-0">
-        <ul className="grid gap-3">
-          {rows.map((row) => (
-            <DebtRow
-              key={row.id}
-              row={row}
-              strings={strings}
-              onChange={update}
-              onRemove={() => {
-                remove(row.id);
-              }}
+    <div className="grid gap-10 lg:grid-cols-[1fr_400px] lg:items-start lg:gap-16">
+      <div className="min-w-0 space-y-9">
+        <Field
+          label={strings.debt}
+          format={USD_FORMAT}
+          range={DEBT}
+          value={debt}
+          onChange={setDebt}
+          box={
+            <DollarBox
+              label={strings.debt}
+              range={DEBT}
+              value={debt}
+              onChange={setDebt}
             />
-          ))}
-        </ul>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {presets.map((preset) => (
-            <Button
-              key={preset.name}
-              type="button"
-              variant="outline-ink"
-              size="cta"
-              onClick={() => {
-                add(preset);
-              }}
-            >
-              <PlusIcon aria-hidden="true" />
-              {preset.name}
-            </Button>
-          ))}
-        </div>
+          }
+        >
+          <div className="mt-4 flex flex-wrap gap-2">
+            {QUICK_DEBTS.map((quick) => (
+              <Button
+                key={quick}
+                type="button"
+                variant="outline-ink"
+                size="cta"
+                aria-pressed={debt === quick}
+                onClick={() => {
+                  setDebt(quick);
+                }}
+              >
+                {short(quick)}
+              </Button>
+            ))}
+          </div>
+        </Field>
+        <Field
+          label={strings.payments}
+          format={USD_FORMAT}
+          range={PAYMENTS}
+          value={paymentsNow}
+          onChange={setPaymentsNow}
+          box={
+            <DollarBox
+              label={strings.payments}
+              range={PAYMENTS}
+              value={paymentsNow}
+              onChange={setPaymentsNow}
+            />
+          }
+        />
+        <Field
+          label={strings.rate}
+          format={PERCENT_FORMAT}
+          range={RATE}
+          value={rate}
+          onChange={setRate}
+          box={
+            <PercentBox label={strings.rate} value={rate} onChange={setRate} />
+          }
+        />
       </div>
 
       <aside className="border-line shadow-float min-w-0 rounded-3xl border bg-white p-5 sm:p-7 lg:sticky lg:top-28">
-        <p className="text-graphite text-sm">{strings.saved}</p>
-        <p
-          aria-hidden="true"
-          className="text-ink tracking-figure mt-2 text-5xl leading-none font-medium tabular-nums"
-        >
-          {usd(saved)}
+        <p className="text-graphite text-sm">
+          {strings.lead.replace("{years}", String(years))}
+        </p>
+        <p className="mt-2 flex items-baseline gap-2" aria-hidden="true">
+          <span className="text-sky-ink tracking-figure text-5xl leading-none font-medium tabular-nums">
+            {usd(saved)}
+          </span>
+          <span className="text-graphite text-base">{strings.less}</span>
         </p>
         <output aria-live="polite" className="sr-only">
-          {usd(totals.savedPerYear)}
+          {`${usd(result.savedPerMonth)} ${strings.less}`}
         </output>
 
-        <div className="mt-7 space-y-5">
+        <div className="mt-6">
+          <TermPicker strings={strings} value={years} onChange={setYears} />
+        </div>
+
+        <div className="mt-6 space-y-4">
           <Bar
             label={strings.today}
-            detail={
-              totals.blendedApr === undefined
-                ? "-"
-                : strings.averageApr.replace(
-                    "{rate}",
-                    percent(Math.round(totals.blendedApr * 10) / 10)
-                  )
-            }
-            monthly={totals.monthlyToday}
-            share={totals.monthlyToday / largest}
+            monthly={paymentsNow}
+            share={paymentsNow / largest}
             strings={strings}
             tone="bg-ink"
           />
           <Bar
-            label={strings.heloc}
-            detail={strings.atRate.replace("{rate}", percent(lineRate))}
-            monthly={totals.monthlyWithLine}
-            share={totals.monthlyWithLine / largest}
+            label={strings.onePayment}
+            monthly={result.payment}
+            share={result.payment / largest}
             strings={strings}
             tone="bg-sky"
           />
         </div>
 
-        <div className="border-line mt-6 border-t pt-5">
-          <div className="flex items-baseline justify-between gap-3">
-            <span id={rateId} className="text-graphite text-sm">
-              {strings.helocRate}
-            </span>
-            <span className="font-mono text-sm font-medium tabular-nums">
-              {percent(lineRate)}
-            </span>
-          </div>
-          <Slider
-            variant="brand"
-            aria-labelledby={rateId}
-            format={PERCENT_FORMAT}
-            min={LINE_RATE.min}
-            max={LINE_RATE.max}
-            step={LINE_RATE.step}
-            value={lineRate}
-            onValueChange={(next: number | readonly number[]) => {
-              setLineRate([next].flat()[0] ?? startingRate);
-            }}
-            className="mt-3"
-          />
-        </div>
-
-        <dl className="border-line mt-6 flex items-center justify-between border-t pt-5">
-          <dt className="text-graphite">{strings.total}</dt>
-          <dd className="text-ink font-semibold tabular-nums">
-            {usd(totals.balance)}
-          </dd>
-        </dl>
+        <p className="text-graphite border-line mt-6 border-t pt-5 text-sm leading-relaxed">
+          {strings.totalPaid
+            .replace("{years}", String(years))
+            .replace("{total}", usd(result.totalPaid))
+            .replace("{interest}", usd(result.interest))}
+        </p>
 
         <a
           href={`${applyHref}?amount=${encodeURIComponent(amount)}`}
           data-apply=""
-          data-amount={totals.balance > 0 ? amount : undefined}
+          data-amount={amount}
           className={cn(
             buttonVariants({ size: "hero", variant: "accent" }),
             "mt-5 w-full"
@@ -366,12 +367,13 @@ const DebtCalculator = ({
         >
           {strings.cta}
         </a>
-        {disclaimer !== undefined && (
-          <p className="text-graphite mt-4 text-xs leading-relaxed">
-            {disclaimer}
-          </p>
-        )}
       </aside>
+
+      {disclaimer !== undefined && (
+        <p className="text-graphite max-w-4xl text-xs leading-relaxed whitespace-pre-line lg:col-span-2">
+          {disclaimer}
+        </p>
+      )}
     </div>
   );
 };
