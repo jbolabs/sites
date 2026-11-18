@@ -46,6 +46,8 @@ const buttonVariants = cva(
         cta: "h-auto min-h-11 gap-2 rounded-full px-5 py-2 text-center text-sm font-medium whitespace-normal",
         hero: "h-auto min-h-13 gap-2 rounded-full px-7 py-3 text-center text-base font-medium whitespace-normal",
         bare: "h-auto p-0",
+        // Equal pills that share a row on phones (the debt calculator's amounts).
+        chip: "h-11 rounded-full px-3 text-sm font-medium sm:px-5",
         // Padded, auto-height content (the planner's list rows).
         block: "h-auto p-4",
         icon: "size-8",

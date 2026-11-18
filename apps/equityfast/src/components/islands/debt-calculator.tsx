@@ -78,7 +78,7 @@ const Field = ({
   return (
     <div>
       <div className="flex items-center justify-between gap-4">
-        <span id={id} className="text-ink text-base font-medium">
+        <span id={id} className="text-ink text-sm font-medium sm:text-base">
           {label}
         </span>
         {box}
@@ -161,38 +161,47 @@ const PercentBox = ({
   );
 };
 
+/** Today's payments as several blocks, the consolidated one as a single bar. */
+const TODAY_PIECES = 3;
+
 /** One side of the comparison: a label, its monthly payment, and a bar. */
 const Bar = ({
   label,
   monthly,
+  pieces,
   share,
   strings,
   tone,
 }: {
   readonly label: string;
   readonly monthly: number;
+  readonly pieces: number;
   readonly share: number;
   readonly strings: Strings;
   readonly tone: string;
 }) => (
   <div>
     <div className="flex items-baseline justify-between gap-3 text-sm">
-      <span className="text-graphite">{label}</span>
-      <span className="text-ink font-medium tabular-nums">
+      <span className="text-white/60">{label}</span>
+      <span className="font-medium text-white tabular-nums">
         {strings.perMonth.replace("{amount}", usd(monthly))}
       </span>
     </div>
     <div
-      className="bg-canvas mt-2 h-2.5 overflow-hidden rounded-full"
+      className="mt-2.5 h-3 overflow-hidden rounded-full bg-white/10"
       aria-hidden="true"
     >
       <div
-        className={cn(
-          "h-full origin-left scale-x-(--share) rounded-full transition-transform duration-300",
-          tone
-        )}
+        className="flex h-full origin-left scale-x-(--share) gap-1 transition-transform duration-300"
         style={{ "--share": share }}
-      />
+      >
+        {Array.from({ length: pieces }, (_, index) => (
+          <span
+            key={index}
+            className={cn("h-full flex-1 rounded-full", tone)}
+          />
+        ))}
+      </div>
     </div>
   </div>
 );
@@ -220,10 +229,10 @@ const TermPicker = ({
     {TERMS_YEARS.map((years) => (
       <label
         key={years}
-        className="has-data-checked:text-ink text-graphite has-focus-visible:ring-sky/40 flex h-10 cursor-pointer items-center justify-center rounded-full text-sm font-medium tabular-nums has-focus-visible:ring-3 has-data-checked:bg-white has-data-checked:shadow-sm"
+        className="has-data-checked:text-ink has-focus-visible:ring-sky/50 flex h-10 cursor-pointer items-center justify-center rounded-full text-xs font-medium whitespace-nowrap text-white/70 tabular-nums hover:text-white has-focus-visible:ring-3 has-data-checked:bg-white sm:text-sm"
       >
         <RadioGroupItem value={years} className="sr-only" />
-        {strings.years.replace("{years}", String(years))}
+        {years}
       </label>
     ))}
   </RadioGroup>
@@ -253,124 +262,132 @@ const DebtCalculator = ({
   const amount = prefillAmount(debt);
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[1fr_400px] lg:items-start lg:gap-16">
-      <div className="min-w-0 space-y-9">
-        <Field
-          label={strings.debt}
-          format={USD_FORMAT}
-          range={DEBT}
-          value={debt}
-          onChange={setDebt}
-          box={
-            <DollarBox
-              label={strings.debt}
-              range={DEBT}
-              value={debt}
-              onChange={setDebt}
-            />
-          }
-        >
-          <div className="mt-4 flex flex-wrap gap-2">
-            {QUICK_DEBTS.map((quick) => (
-              <Button
-                key={quick}
-                type="button"
-                variant="outline-ink"
-                size="cta"
-                aria-pressed={debt === quick}
-                onClick={() => {
-                  setDebt(quick);
-                }}
-              >
-                {short(quick)}
-              </Button>
-            ))}
+    <div>
+      <div className="border-line grid overflow-hidden rounded-4xl border bg-white lg:grid-cols-[1fr_minmax(0,28rem)]">
+        <div className="flex min-w-0 flex-col justify-center gap-9 p-5 sm:p-10">
+          <Field
+            label={strings.debt}
+            format={USD_FORMAT}
+            range={DEBT}
+            value={debt}
+            onChange={setDebt}
+            box={
+              <DollarBox
+                label={strings.debt}
+                range={DEBT}
+                value={debt}
+                onChange={setDebt}
+              />
+            }
+          >
+            <div className="mt-4 grid grid-cols-4 gap-2 sm:flex">
+              {QUICK_DEBTS.map((quick) => (
+                <Button
+                  key={quick}
+                  type="button"
+                  variant="outline-ink"
+                  size="chip"
+                  aria-pressed={debt === quick}
+                  onClick={() => {
+                    setDebt(quick);
+                  }}
+                >
+                  {short(quick)}
+                </Button>
+              ))}
+            </div>
+          </Field>
+          <Field
+            label={strings.payments}
+            format={USD_FORMAT}
+            range={PAYMENTS}
+            value={paymentsNow}
+            onChange={setPaymentsNow}
+            box={
+              <DollarBox
+                label={strings.payments}
+                range={PAYMENTS}
+                value={paymentsNow}
+                onChange={setPaymentsNow}
+              />
+            }
+          />
+          <Field
+            label={strings.rate}
+            format={PERCENT_FORMAT}
+            range={RATE}
+            value={rate}
+            onChange={setRate}
+            box={
+              <PercentBox
+                label={strings.rate}
+                value={rate}
+                onChange={setRate}
+              />
+            }
+          />
+        </div>
+
+        <div className="bg-ink glow-sky min-w-0 p-6 text-white sm:p-10">
+          <p className="text-sm text-white/60">
+            {strings.lead.replace("{years}", String(years))}
+          </p>
+          <p className="mt-3 flex items-baseline gap-2" aria-hidden="true">
+            <span className="text-sky tracking-figure text-6xl leading-none font-medium tabular-nums sm:text-7xl">
+              {usd(saved)}
+            </span>
+            <span className="text-base text-white/60">{strings.less}</span>
+          </p>
+          <output aria-live="polite" className="sr-only">
+            {`${usd(result.savedPerMonth)} ${strings.less}`}
+          </output>
+
+          <div className="mt-8">
+            <TermPicker strings={strings} value={years} onChange={setYears} />
           </div>
-        </Field>
-        <Field
-          label={strings.payments}
-          format={USD_FORMAT}
-          range={PAYMENTS}
-          value={paymentsNow}
-          onChange={setPaymentsNow}
-          box={
-            <DollarBox
-              label={strings.payments}
-              range={PAYMENTS}
-              value={paymentsNow}
-              onChange={setPaymentsNow}
+
+          <div className="mt-8 space-y-5">
+            <Bar
+              label={strings.today}
+              monthly={paymentsNow}
+              pieces={TODAY_PIECES}
+              share={paymentsNow / largest}
+              strings={strings}
+              tone="bg-white/45"
             />
-          }
-        />
-        <Field
-          label={strings.rate}
-          format={PERCENT_FORMAT}
-          range={RATE}
-          value={rate}
-          onChange={setRate}
-          box={
-            <PercentBox label={strings.rate} value={rate} onChange={setRate} />
-          }
-        />
+            <Bar
+              label={strings.onePayment}
+              monthly={result.payment}
+              pieces={1}
+              share={result.payment / largest}
+              strings={strings}
+              tone="bg-sky"
+            />
+          </div>
+
+          <p className="mt-8 border-t border-white/10 pt-6 text-sm leading-relaxed text-white/60">
+            {strings.totalPaid
+              .replace("{years}", String(years))
+              .replace("{total}", usd(result.totalPaid))
+              .replace("{interest}", usd(result.interest))}
+          </p>
+
+          <a
+            href={`${applyHref}?amount=${encodeURIComponent(amount)}`}
+            data-apply=""
+            data-amount={amount}
+            className={cn(
+              buttonVariants({ size: "hero", variant: "inverse" }),
+              "mt-6 w-full"
+            )}
+          >
+            {strings.cta}
+          </a>
+        </div>
       </div>
 
-      <aside className="border-line shadow-float min-w-0 rounded-3xl border bg-white p-5 sm:p-7 lg:sticky lg:top-28">
-        <p className="text-graphite text-sm">
-          {strings.lead.replace("{years}", String(years))}
-        </p>
-        <p className="mt-2 flex items-baseline gap-2" aria-hidden="true">
-          <span className="text-sky-ink tracking-figure text-5xl leading-none font-medium tabular-nums">
-            {usd(saved)}
-          </span>
-          <span className="text-graphite text-base">{strings.less}</span>
-        </p>
-        <output aria-live="polite" className="sr-only">
-          {`${usd(result.savedPerMonth)} ${strings.less}`}
-        </output>
-
-        <div className="mt-6">
-          <TermPicker strings={strings} value={years} onChange={setYears} />
-        </div>
-
-        <div className="mt-6 space-y-4">
-          <Bar
-            label={strings.today}
-            monthly={paymentsNow}
-            share={paymentsNow / largest}
-            strings={strings}
-            tone="bg-ink"
-          />
-          <Bar
-            label={strings.onePayment}
-            monthly={result.payment}
-            share={result.payment / largest}
-            strings={strings}
-            tone="bg-sky"
-          />
-        </div>
-
-        <p className="text-graphite border-line mt-6 border-t pt-5 text-sm leading-relaxed">
-          {strings.totalPaid
-            .replace("{years}", String(years))
-            .replace("{total}", usd(result.totalPaid))
-            .replace("{interest}", usd(result.interest))}
-        </p>
-
-        <a
-          href={`${applyHref}?amount=${encodeURIComponent(amount)}`}
-          data-apply=""
-          data-amount={amount}
-          className={cn(
-            buttonVariants({ size: "hero", variant: "accent" }),
-            "mt-5 w-full"
-          )}
-        >
-          {strings.cta}
-        </a>
-      </aside>
-
       {disclaimer !== undefined && (
-        <p className="text-graphite max-w-4xl text-xs leading-relaxed whitespace-pre-line lg:col-span-2">
+        <p className="text-graphite mt-6 max-w-4xl text-xs leading-relaxed whitespace-pre-line">
           {disclaimer}
         </p>
       )}

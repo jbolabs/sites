@@ -5,11 +5,11 @@ import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
 
 import { cn } from "@/lib/utils";
 
-// Site addition: `segmented` is a pill row of equal options (the debt
+// Site addition: `segmented` is a pill row of equal options on ink (the debt
 // calculator's terms); its items hide their dot and style the label.
 const radioGroupVariants = {
   default: "gap-2",
-  segmented: "bg-canvas auto-cols-fr grid-flow-col gap-1 rounded-full p-1",
+  segmented: "auto-cols-fr grid-flow-col gap-1 rounded-full bg-white/10 p-1",
 } as const;
 
 function RadioGroup({
