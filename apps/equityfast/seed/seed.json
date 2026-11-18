@@ -833,6 +833,77 @@
       ]
     },
     {
+      "slug": "debt_calculator",
+      "label": "Debt calculator",
+      "description": "The interactive debt consolidation calculator.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "headline_accent",
+              "label": "Headline, second half (blue)",
+              "type": "string"
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "debts",
+              "label": "Debts",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 8,
+                "subFields": [
+                  {
+                    "slug": "name",
+                    "label": "Debt",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "slug": "typical_balance",
+                    "label": "Typical balance ($)",
+                    "type": "integer",
+                    "required": true
+                  },
+                  {
+                    "slug": "apr_percent",
+                    "label": "Typical APR (%, e.g. 24.9)",
+                    "type": "number",
+                    "required": true
+                  }
+                ]
+              }
+            },
+            {
+              "slug": "heloc_rate",
+              "label": "Example HELOC rate (%, e.g. 8.5)",
+              "type": "number",
+              "required": true
+            },
+            {
+              "slug": "disclaimer",
+              "label": "Disclaimer",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "slug": "cta_band",
       "label": "Call to action",
       "description": "A closing band with a headline and buttons.",
@@ -964,6 +1035,7 @@
               "timeline",
               "image_cards",
               "renovation_planner",
+              "debt_calculator",
               "cta_band",
               "rich_text"
             ],
@@ -1018,6 +1090,7 @@
               "timeline",
               "image_cards",
               "renovation_planner",
+              "debt_calculator",
               "cta_band",
               "rich_text"
             ],
@@ -1846,6 +1919,43 @@
                 }
               ],
               "disclaimer": "Estimates only, based on national average cost-vs-value data plus 3-year appreciation. Actual results vary by market and condition."
+            },
+            {
+              "_type": "debt_calculator",
+              "_version": 1,
+              "_key": "debt",
+              "headline": "What is your debt",
+              "headline_accent": "really costing you?",
+              "intro": "Add what you owe and what each balance charges. See a year of interest today next to one home equity line.",
+              "debts": [
+                {
+                  "name": "Credit card",
+                  "typical_balance": 18000,
+                  "apr_percent": 24.9
+                },
+                {
+                  "name": "Personal loan",
+                  "typical_balance": 12000,
+                  "apr_percent": 14
+                },
+                {
+                  "name": "Auto loan",
+                  "typical_balance": 22000,
+                  "apr_percent": 9.5
+                },
+                {
+                  "name": "Store card",
+                  "typical_balance": 3000,
+                  "apr_percent": 29.9
+                },
+                {
+                  "name": "Medical bills",
+                  "typical_balance": 5000,
+                  "apr_percent": 12
+                }
+              ],
+              "heloc_rate": 8.5,
+              "disclaimer": "Illustration only, not an offer or a rate quote. Compares interest on the balances you enter with the same total at the example HELOC rate you choose; HELOC rates are variable and vary with credit, combined loan-to-value and market conditions. Using a HELOC to consolidate unsecured debt makes that debt secured by your home. Failure to repay could result in foreclosure. Total borrowing costs may vary."
             }
           ]
         }
@@ -2562,6 +2672,43 @@
                 }
               ],
               "disclaimer": "Solo estimaciones, basadas en datos nacionales de costo vs. valor más 3 años de apreciación. Los resultados varían según el mercado y las condiciones."
+            },
+            {
+              "_type": "debt_calculator",
+              "_version": 1,
+              "_key": "debt",
+              "headline": "¿Cuánto le cuesta",
+              "headline_accent": "realmente su deuda?",
+              "intro": "Agregue lo que debe y lo que cobra cada saldo. Vea un año de intereses hoy junto a una sola línea de equidad.",
+              "debts": [
+                {
+                  "name": "Tarjeta de crédito",
+                  "typical_balance": 18000,
+                  "apr_percent": 24.9
+                },
+                {
+                  "name": "Préstamo personal",
+                  "typical_balance": 12000,
+                  "apr_percent": 14
+                },
+                {
+                  "name": "Préstamo de auto",
+                  "typical_balance": 22000,
+                  "apr_percent": 9.5
+                },
+                {
+                  "name": "Tarjeta de tienda",
+                  "typical_balance": 3000,
+                  "apr_percent": 29.9
+                },
+                {
+                  "name": "Gastos médicos",
+                  "typical_balance": 5000,
+                  "apr_percent": 12
+                }
+              ],
+              "heloc_rate": 8.5,
+              "disclaimer": "Solo ilustrativo, no es una oferta ni una cotización de tasa. Compara el interés de los saldos que ingresa con el mismo total a la tasa HELOC de ejemplo que elija; las tasas HELOC son variables y dependen del crédito, la relación préstamo-valor combinada y el mercado. Usar un HELOC para consolidar deuda no garantizada hace que esa deuda quede garantizada por su vivienda. La falta de pago podría resultar en una ejecución hipotecaria. Los costos totales del préstamo pueden variar."
             }
           ]
         },

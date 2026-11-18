@@ -1,0 +1,33 @@
+---
+/** The interactive debt consolidation calculator: copy from the CMS, interaction in the island. */
+import type { BlockComponentProps } from "emdash/ui";
+
+import Headline from "@/components/headline.astro";
+import DebtCalculator from "@/components/islands/debt-calculator";
+import { toLocale } from "@/i18n/locales";
+import { ui } from "@/i18n/ui";
+import { applyHref } from "@/lib/apply";
+import type { PageContentDebtCalculatorBlock } from "../../../emdash-env";
+
+type Props = BlockComponentProps<PageContentDebtCalculatorBlock>;
+
+const { value } = Astro.props;
+const t = ui(toLocale(Astro.currentLocale));
+const presets = value.debts.map((debt) => ({
+  aprPercent: debt.apr_percent,
+  name: debt.name,
+  typicalBalance: debt.typical_balance,
+}));
+---
+
+<section class="section-y">
+  <div class="container-page">
+    <div class="max-w-3xl">
+      <Headline text={value.headline} accent={value.headline_accent} inline />
+      {value.intro && <p class="mt-5 text-lg leading-relaxed text-graphite">{value.intro}</p>}
+    </div>
+    <div class="mt-10">
+      <DebtCalculator client:visible presets={presets} lineRate={value.heloc_rate} strings={t.debt} disclaimer={value.disclaimer ?? undefined} applyHref={applyHref(Astro.currentLocale)} />
+    </div>
+  </div>
+</section>
