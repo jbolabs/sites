@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-const buttonVariants = cva(
+const buttonClasses = cva(
   "group/button focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 ease-out-strong inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition duration-150 outline-none select-none focus-visible:ring-3 active:not-aria-[haspopup]:scale-97 disabled:pointer-events-none disabled:opacity-50 aria-invalid:ring-3 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
@@ -65,16 +65,24 @@ const buttonVariants = cva(
   }
 );
 
+/**
+ * Site addition: merged, so a size's own radius or padding replaces the base
+ * one (`hero`'s `rounded-full` over `rounded-lg`) wherever this is called,
+ * not only inside `cn()`. Unmerged, CSS order picked the winner.
+ */
+const buttonVariants = (...args: Parameters<typeof buttonClasses>): string =>
+  cn(buttonClasses(...args));
+
 function Button({
   className,
   variant = "default",
   size = "default",
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props & VariantProps<typeof buttonClasses>) {
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={buttonVariants({ className, size, variant })}
       {...props}
     />
   );

@@ -1,5 +1,9 @@
 ---
-/** The interactive debt consolidation calculator: copy from the CMS, interaction in the island. */
+/**
+ * The interactive debt consolidation calculator: copy from the CMS, interaction
+ * in the island. Tighter than `section-y`: the panel is dense and reads as one
+ * piece with its headline.
+ */
 import type { BlockComponentProps } from "emdash/ui";
 
 import Headline from "@/components/headline.astro";
@@ -15,13 +19,13 @@ const { value } = Astro.props;
 const t = ui(toLocale(Astro.currentLocale));
 ---
 
-<section class="section-y">
+<section class="py-14 sm:py-20">
   <div class="container-page">
     <div class="max-w-3xl">
       <Headline text={value.headline} accent={value.headline_accent} inline />
       {value.intro && <p class="mt-5 text-lg leading-relaxed text-graphite">{value.intro}</p>}
     </div>
-    <div class="mt-10">
+    <div class="mt-8">
       <DebtCalculator client:visible debt={value.debt} paymentsNow={value.payments_now} rate={value.rate} strings={t.debt} disclaimer={value.disclaimer ?? undefined} applyHref={applyHref(Astro.currentLocale)} />
     </div>
   </div>
