@@ -8,8 +8,9 @@
  * Every line comes from the compliance-approved Meta creative for the page or
  * from the main site's own copy. The footer shows the main site's
  * disclosures, which explain the asterisks; a page whose ad carries its own
- * asterisk line keeps that line word for word in `note`. The renovation
- * page shows the main site's calculator, read from the CMS.
+ * asterisk line keeps that line word for word in `note`. A page with a
+ * `calculator` shows that block from the main site's calculator page, read
+ * from the CMS.
  */
 
 export interface LandingPage {
@@ -22,14 +23,15 @@ export interface LandingPage {
   readonly points: readonly string[];
   /** The ad's own asterisk line, word for word, where the site's disclosures don't cover it. */
   readonly note?: string;
-  /** Show the main site's renovation planner below the application. */
-  readonly planner?: boolean;
+  /** The main site's calculator block to show below the application. */
+  readonly calculator?: "renovation_planner" | "debt_calculator";
 }
 
 export const LANDING_PAGES = {
   "debt-consolidation": {
     benefit:
       "A HELOC could help consolidate eligible high-interest debts into a single credit line.*",
+    calculator: "debt_calculator",
     headline: "Consolidate with",
     headlineAccent: "one home equity line.",
     intro:
@@ -59,11 +61,11 @@ export const LANDING_PAGES = {
   },
   "home-renovation": {
     benefit: "Big plans for your home? Put your equity in motion.",
+    calculator: "renovation_planner",
     headline: "The kitchen won't",
     headlineAccent: "remodel itself.",
     intro:
       "Put your home equity toward the kitchen, the bath, or the next project on your list, and see which projects pay you back.",
-    planner: true,
     points: [
       "Draw only what you need",
       "Interest only on what you draw",
@@ -96,5 +98,5 @@ const isSlug = (slug: string): slug is LandingPageSlug =>
 export const landingPage = (slug?: string): LandingPage | undefined =>
   slug !== undefined && isSlug(slug) ? LANDING_PAGES[slug] : undefined;
 
-/** The main site's CMS page whose renovation planner the renovation page shows. */
-export const PLANNER_SOURCE_SLUG = "calculator";
+/** The main site's CMS page whose calculators the landing pages show. */
+export const CALCULATOR_SOURCE_SLUG = "calculator";

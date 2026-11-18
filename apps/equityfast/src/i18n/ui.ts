@@ -10,6 +10,20 @@ const en = {
   applyIntro: "A short set of questions to start your EquityFast request.",
   applyTitle: "Start your EquityFast request",
   close: "Close",
+  debt: {
+    cta: "Check My Options",
+    debt: "Total debt to consolidate",
+    lead: "With a {years}-year term, your payment could be",
+    less: "less /mo",
+    onePayment: "One payment",
+    payments: "Monthly payments now",
+    perMonth: "{amount}/mo",
+    rate: "Example interest rate",
+    term: "Repayment term in years",
+    today: "Today",
+    totalPaid:
+      "Over {years} years you'd pay about {total} in total, including {interest} in interest.",
+  },
   emailLabel: "Email",
   equalHousing: "Equal Housing Opportunity",
   estimator: {
@@ -169,6 +183,20 @@ const es: UiStrings = {
   applyIntro: "Unas preguntas breves para iniciar su solicitud EquityFast.",
   applyTitle: "Inicie su solicitud EquityFast",
   close: "Cerrar",
+  debt: {
+    cta: "Ver Mis Opciones",
+    debt: "Deuda total a consolidar",
+    lead: "Con un plazo de {years} años, su pago podría ser",
+    less: "menos /mes",
+    onePayment: "Un solo pago",
+    payments: "Pagos mensuales actuales",
+    perMonth: "{amount}/mes",
+    rate: "Tasa de interés de ejemplo",
+    term: "Plazo de pago en años",
+    today: "Hoy",
+    totalPaid:
+      "En {years} años pagaría alrededor de {total} en total, incluidos {interest} de intereses.",
+  },
   emailLabel: "Correo electrónico",
   equalHousing: "Igualdad de Oportunidades en la Vivienda",
   estimator: {
