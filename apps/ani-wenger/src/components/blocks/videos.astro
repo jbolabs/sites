@@ -1,8 +1,9 @@
 ---
 /**
- * Instagram reels and posts, shown with Instagram's own embed so they play in
- * place. The iframes are lazy, so nothing from Instagram loads until a visitor
- * scrolls near the section. Links that are not a reel or post are skipped.
+ * Instagram reels and posts, played with Instagram's own embed. Each one
+ * starts as a plain cover; Instagram's player (which sets cookies and logs to
+ * the console) loads only when a visitor taps it, so the page itself stays
+ * free of third-party content. Links that are not a reel or post are skipped.
  * Instagram's embed is a 4:5 picture plus about 13.5rem of header and footer,
  * so each frame's height follows its own width.
  */
@@ -32,18 +33,47 @@ const videos = value.items.flatMap((item) => {
       </div>
       <ul class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {videos.map((video, index) => (
-          <li class="@container overflow-hidden rounded-2xl border border-border bg-card">
-            <iframe
-              src={video.embedUrl}
-              title={`${value.headline}, video ${index + 1}`}
-              loading="lazy"
-              referrerpolicy="strict-origin-when-cross-origin"
-              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-              class="block h-[calc(125cqw+13.5rem)] w-full"
-            ></iframe>
+          <li class="@container overflow-hidden rounded-2xl border border-border bg-card" data-instagram-video>
+            <button
+              type="button"
+              class="group flex aspect-[4/5] w-full flex-col items-center justify-center gap-4 bg-linen text-espresso transition-colors hover:bg-sand focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring"
+              aria-label={`Play ${value.headline}, video ${index + 1}`}
+              data-instagram-play
+            >
+              <span class="flex size-16 items-center justify-center rounded-full bg-espresso text-ivory transition-transform group-hover:scale-105" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="ml-1 size-7" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" /></svg>
+              </span>
+              <span class="text-ui font-medium">Play video</span>
+              <span class="text-sm text-muted-foreground">Plays from Instagram</span>
+            </button>
+            <template>
+              <iframe
+                src={video.embedUrl}
+                title={`${value.headline}, video ${index + 1}`}
+                referrerpolicy="strict-origin-when-cross-origin"
+                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                class="block h-[calc(125cqw+13.5rem)] w-full"
+              ></iframe>
+            </template>
           </li>
         ))}
       </ul>
     </div>
   </section>
 )}
+
+<script>
+  /** Swaps a video's cover for Instagram's player the first time it is tapped. */
+  const play = (button: HTMLButtonElement): void => {
+    const template = button.closest("[data-instagram-video]")?.querySelector("template");
+    const player = template?.content.firstElementChild?.cloneNode(true);
+    if (player instanceof HTMLIFrameElement) {
+      button.replaceWith(player);
+      player.focus();
+    }
+  };
+
+  for (const button of document.querySelectorAll<HTMLButtonElement>("[data-instagram-play]")) {
+    button.addEventListener("click", () => play(button), { once: true });
+  }
+</script>
