@@ -9,9 +9,11 @@
  * editor left unreadable is logged and skipped rather than failing the calendar.
  */
 import { Effect, Layer, Option, Schema } from "effect";
+import { BlockTypeRegistry } from "emdash";
 import { withEmDashRuntime } from "emdash/middleware";
 
 import { CLIENT_FOR, HAIR_HISTORY_ORDER } from "../labels.ts";
+import { ensureLaterSections } from "../later-sections.ts";
 import { addressLine } from "../studio.ts";
 import {
   CLIENT_FOR_FIELD,
@@ -206,6 +208,36 @@ export const addLaterAppointmentFields = withRuntime(
       ? Effect.void
       : Effect.logInfo("appointment fields added").pipe(
           Effect.annotateLogs({ fields: added.join(", ") })
+        )
+  )
+);
+
+/**
+ * Adds the section types that came after launch (Videos) to a live site's
+ * page editor; the worker runs it on the minute tick next to the fields above.
+ */
+export const addLaterSections = withRuntime(
+  "Pages.addLaterSections",
+  async (runtime) => {
+    const blockTypes = new BlockTypeRegistry(runtime.db);
+    const schema = runtime.schemaRegistry;
+    const result = await ensureLaterSections({
+      applySeedBlockType: async (input, onConflict) =>
+        await blockTypes.applySeedBlockType(input, onConflict),
+      getCollectionWithFields: async (slug) =>
+        await schema.getCollectionWithFields(slug),
+      updateField: async (collection, field, input) => {
+        await schema.updateField(collection, field, input);
+      },
+    });
+    return result.allowed;
+  }
+).pipe(
+  Effect.tap((allowed) =>
+    allowed.length === 0
+      ? Effect.void
+      : Effect.logInfo("later sections allowed").pipe(
+          Effect.annotateLogs({ collections: allowed.join(", ") })
         )
   )
 );

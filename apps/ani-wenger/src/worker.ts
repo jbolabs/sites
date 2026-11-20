@@ -4,7 +4,8 @@
  * EmDash's entry. The kit's `siteScheduled` owns the crons (analytics plugin
  * settings, EmDash's minute tick, the prod backup); the minute tick also sends
  * appointment reminders every quarter hour, and after a deploy adds any
- * Appointments fields that came after launch (see `appointment-fields.ts`).
+ * Appointments fields and page section types that came after launch (see
+ * `appointment-fields.ts` and `later-sections.ts`).
  * Non-prod stages send `X-Robots-Tag: noindex` so previews never get indexed
  * (a header, not robots.txt, because a Disallow hides the noindex). Resized photos go
  * through the kit's image cache, since EmDash's endpoint re-resizes per view.
@@ -18,7 +19,10 @@ import {
 } from "@jakebodea/cloudflare-kit/emdash/worker";
 
 import { sendReminders } from "./lib/booking/booking.ts";
-import { addLaterAppointmentFields } from "./lib/booking/emdash-store.ts";
+import {
+  addLaterAppointmentFields,
+  addLaterSections,
+} from "./lib/booking/emdash-store.ts";
 import { runSchedule } from "./lib/booking/run.ts";
 import { BACKUP_CRON, EMDASH_CRON, isReminderTick } from "./lib/schedule.ts";
 
@@ -28,11 +32,20 @@ export { PluginBridge } from "@emdash-cms/cloudflare/worker";
 const SWITCHING_PROTOCOLS = 101;
 const scheduled = siteScheduled({ backupCron: BACKUP_CRON });
 
-/** Once this isolate has checked the Appointments fields, it stops asking. */
+/** Once this isolate has checked the Appointments fields and sections, it stops asking. */
 let appointmentFieldsReady = false;
-const addAppointmentFields = async () => {
-  const outcome = await runSchedule(addLaterAppointmentFields);
-  appointmentFieldsReady = outcome.ok;
+let sectionsReady = false;
+const addLaterSchema = async () => {
+  const [fields, sections] = await Promise.all([
+    appointmentFieldsReady
+      ? Promise.resolve({ ok: true })
+      : runSchedule(addLaterAppointmentFields),
+    sectionsReady
+      ? Promise.resolve({ ok: true })
+      : runSchedule(addLaterSections),
+  ]);
+  appointmentFieldsReady = fields.ok;
+  sectionsReady = sections.ok;
 };
 
 export default {
@@ -68,8 +81,11 @@ export default {
   },
   async scheduled(controller, env, ctx) {
     await scheduled(controller, env, ctx);
-    if (controller.cron === EMDASH_CRON && !appointmentFieldsReady) {
-      ctx.waitUntil(addAppointmentFields());
+    if (
+      controller.cron === EMDASH_CRON &&
+      !(appointmentFieldsReady && sectionsReady)
+    ) {
+      ctx.waitUntil(addLaterSchema());
     }
     if (
       controller.cron === EMDASH_CRON &&
