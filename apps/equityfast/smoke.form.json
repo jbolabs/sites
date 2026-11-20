@@ -12,6 +12,7 @@
     "lastName": "Test",
     "locale": "en",
     "mortgageBalance": "$250,000",
+    "propertyValue": "$750,000",
     "occupancy": "Primary residence",
     "otherIncome": "$0",
     "ownership": "Sole owner",

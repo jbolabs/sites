@@ -432,6 +432,18 @@ const StepFields = ({
         />
       );
     }
+    case "propertyValue": {
+      return (
+        <TextInput
+          form={form}
+          field="propertyValue"
+          label={t.propertyValue}
+          help={t.propertyValueHelp}
+          format={formatDollars}
+          extra={{ inputMode: "numeric", placeholder: "$750,000" }}
+        />
+      );
+    }
     case "mortgageBalance": {
       return (
         <TextInput
