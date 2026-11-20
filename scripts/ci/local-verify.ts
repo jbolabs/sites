@@ -98,7 +98,8 @@ if (!prepare) {
       await lighthouse(
         origin,
         smokeForm(directory).page,
-        path.join(output, site, "lighthouse")
+        path.join(output, site, "lighthouse"),
+        directory
       );
     } catch (error) {
       failed = true;
