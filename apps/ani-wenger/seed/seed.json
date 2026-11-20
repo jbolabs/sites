@@ -246,6 +246,44 @@
       ]
     },
     {
+      "slug": "videos",
+      "label": "Videos",
+      "description": "Instagram reels or posts. Paste the link from Instagram's Share button.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "items",
+              "label": "Videos",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "minItems": 1,
+                "maxItems": 6,
+                "subFields": [
+                  {
+                    "slug": "url",
+                    "label": "Instagram link",
+                    "type": "url",
+                    "required": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "slug": "testimonials",
       "label": "Client words",
       "description": "Quotes from clients.",
@@ -532,6 +570,7 @@
               "credentials",
               "services_menu",
               "transformations",
+              "videos",
               "testimonials",
               "questions_list",
               "products_list",
@@ -581,6 +620,7 @@
               "credentials",
               "services_menu",
               "transformations",
+              "videos",
               "testimonials",
               "questions_list",
               "products_list",
@@ -1522,6 +1562,20 @@
                   "caption": "Blonde to a rich brunette with soft waves and dimension."
                 }
               ]
+            },
+            {
+              "_type": "videos",
+              "_key": "videos",
+              "headline": "On Instagram",
+              "items": [
+                {
+                  "url": "https://www.instagram.com/reel/DP_jRZ9kfRp/"
+                },
+                {
+                  "url": "https://www.instagram.com/reel/DbSLFXmPuWN/"
+                }
+              ],
+              "_version": 1
             },
             {
               "_type": "story",

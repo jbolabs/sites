@@ -1,0 +1,49 @@
+---
+/**
+ * Instagram reels and posts, shown with Instagram's own embed so they play in
+ * place. The iframes are lazy, so nothing from Instagram loads until a visitor
+ * scrolls near the section. Links that are not a reel or post are skipped.
+ * Instagram's embed is a 4:5 picture plus about 13.5rem of header and footer,
+ * so each frame's height follows its own width.
+ */
+import type { BlockComponentProps } from "emdash/ui";
+
+import ButtonLink from "@/components/button-link.astro";
+import SectionHeading from "@/components/section-heading.astro";
+import { instagramMedia } from "@/lib/instagram";
+import type { PageContentVideosBlock } from "../../../emdash-env";
+import { site } from "../../../site.config";
+
+type Props = BlockComponentProps<PageContentVideosBlock>;
+
+const { value } = Astro.props;
+const videos = value.items.flatMap((item) => {
+  const media = instagramMedia(item.url);
+  return media === undefined ? [] : [media];
+});
+---
+
+{videos.length > 0 && (
+  <section class="py-20 sm:py-28">
+    <div class="container-page">
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <SectionHeading title={value.headline} />
+        <ButtonLink href={site.business.instagram} variant="outline" size="cta" class="self-start sm:self-auto" rel="noopener" target="_blank">More on Instagram</ButtonLink>
+      </div>
+      <ul class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {videos.map((video, index) => (
+          <li class="@container overflow-hidden rounded-2xl border border-border bg-card">
+            <iframe
+              src={video.embedUrl}
+              title={`${value.headline}, video ${index + 1}`}
+              loading="lazy"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+              class="block h-[calc(125cqw+13.5rem)] w-full"
+            ></iframe>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
