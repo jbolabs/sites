@@ -833,6 +833,59 @@
       ]
     },
     {
+      "slug": "debt_calculator",
+      "label": "Debt calculator",
+      "description": "The interactive debt consolidation calculator.",
+      "category": "Sections",
+      "currentVersion": 1,
+      "versions": [
+        {
+          "version": 1,
+          "fields": [
+            {
+              "slug": "headline",
+              "label": "Headline",
+              "type": "string",
+              "required": true
+            },
+            {
+              "slug": "headline_accent",
+              "label": "Headline, second half (blue)",
+              "type": "string"
+            },
+            {
+              "slug": "intro",
+              "label": "Intro",
+              "type": "text"
+            },
+            {
+              "slug": "debt",
+              "label": "Starting debt ($)",
+              "type": "integer",
+              "required": true
+            },
+            {
+              "slug": "payments_now",
+              "label": "Starting monthly payments ($)",
+              "type": "integer",
+              "required": true
+            },
+            {
+              "slug": "rate",
+              "label": "Example interest rate (%, e.g. 8.5)",
+              "type": "number",
+              "required": true
+            },
+            {
+              "slug": "disclaimer",
+              "label": "Disclaimer",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "slug": "cta_band",
       "label": "Call to action",
       "description": "A closing band with a headline and buttons.",
@@ -964,6 +1017,7 @@
               "timeline",
               "image_cards",
               "renovation_planner",
+              "debt_calculator",
               "cta_band",
               "rich_text"
             ],
@@ -1018,6 +1072,7 @@
               "timeline",
               "image_cards",
               "renovation_planner",
+              "debt_calculator",
               "cta_band",
               "rich_text"
             ],
@@ -1846,6 +1901,17 @@
                 }
               ],
               "disclaimer": "Estimates only, based on national average cost-vs-value data plus 3-year appreciation. Actual results vary by market and condition."
+            },
+            {
+              "_type": "debt_calculator",
+              "_version": 1,
+              "_key": "debt",
+              "headline": "Your payments today vs.",
+              "headline_accent": "one consolidated payment.",
+              "disclaimer": "A longer term lowers your monthly payment but means paying more interest overall. Consolidating credit cards or other unsecured debt with a home equity loan or line makes that debt secured by your home. If you can't repay, you could lose your home to foreclosure. Your total borrowing costs may vary.\n\nFor illustration only. Estimates use the figures and example rate you enter and assume a fully amortizing payment at a fixed rate with no fees. They are not a loan offer, rate quote or commitment to lend and do not reflect any specific EquityFast program, rate, fee or term. HELOC rates are typically variable and payments can change.",
+              "debt": 35000,
+              "payments_now": 1100,
+              "rate": 8.5
             }
           ]
         }
@@ -2562,6 +2628,17 @@
                 }
               ],
               "disclaimer": "Solo estimaciones, basadas en datos nacionales de costo vs. valor más 3 años de apreciación. Los resultados varían según el mercado y las condiciones."
+            },
+            {
+              "_type": "debt_calculator",
+              "_version": 1,
+              "_key": "debt",
+              "headline": "Sus pagos de hoy vs.",
+              "headline_accent": "un solo pago consolidado.",
+              "disclaimer": "Un plazo más largo reduce su pago mensual, pero significa pagar más intereses en total. Consolidar tarjetas de crédito u otras deudas no garantizadas con un préstamo o línea sobre el valor de su vivienda hace que esa deuda quede garantizada por su vivienda. Si no puede pagar, podría perder su vivienda en una ejecución hipotecaria. Sus costos totales de préstamo pueden variar.\n\nSolo ilustrativo. Los cálculos usan las cifras y la tasa de ejemplo que usted ingresa y suponen un pago totalmente amortizado a tasa fija sin cargos. No son una oferta de préstamo, una cotización de tasa ni un compromiso de préstamo, y no reflejan ningún programa, tasa, cargo o plazo específico de EquityFast. Las tasas HELOC suelen ser variables y los pagos pueden cambiar.",
+              "debt": 35000,
+              "payments_now": 1100,
+              "rate": 8.5
             }
           ]
         },

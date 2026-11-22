@@ -3,9 +3,9 @@
  * Paid-ad landing pages (`src/lib/landing-pages.ts`), English only: one
  * screen with the ad's headline, a line of benefit, three points and the
  * application right on the page, under a header with one button to the form
- * and the main site's footer and disclosures (menus hidden). The renovation
- * page adds the main site's calculator, read live from the CMS so it always
- * matches. Temporary campaign pages: noindex and out of the sitemap, menus
+ * and the main site's footer and disclosures (menus hidden). A page with a
+ * calculator adds that block from the main site's calculator page, read live
+ * from the CMS so it always matches. Temporary campaign pages: noindex and out of the sitemap, menus
  * and CMS. Each lead records `/lp/<slug>` as its landing page.
  */
 import { env } from "cloudflare:workers";
@@ -18,7 +18,7 @@ import Base from "@/layouts/base.astro";
 import { localePath } from "@/i18n/locales";
 import { ui } from "@/i18n/ui";
 import { getPage } from "@/lib/content";
-import { PLANNER_SOURCE_SLUG, landingPage } from "@/lib/landing-pages";
+import { CALCULATOR_SOURCE_SLUG, landingPage } from "@/lib/landing-pages";
 import { site } from "../../../site.config";
 
 const { slug } = Astro.params;
@@ -28,8 +28,8 @@ if (!page) {
 }
 const t = ui("en");
 const origin = Astro.site?.origin ?? Astro.url.origin;
-const calculator = page.planner ? await getPage(PLANNER_SOURCE_SLUG, "en") : undefined;
-const planner = (calculator?.entry?.data.content ?? []).filter((block) => block._type === "renovation_planner");
+const source = page.calculator ? await getPage(CALCULATOR_SOURCE_SLUG, "en") : undefined;
+const calculator = (source?.entry?.data.content ?? []).filter((block) => block._type === page.calculator);
 ---
 
 <Base title={page.title} description={page.intro} canonical={`${origin}/lp/${slug}`} robots="noindex, follow" focused>
@@ -58,7 +58,7 @@ const planner = (calculator?.entry?.data.content ?? []).filter((block) => block.
       </div>
     </div>
   </section>
-  {planner.length > 0 && <PageBlocks value={planner} />}
+  {calculator.length > 0 && <PageBlocks value={calculator} />}
   <div class="pb-safe sticky bottom-0 z-30 border-t border-line bg-white/95 px-5 py-3 backdrop-blur sm:hidden">
     <a href="#apply-form" class="flex h-12 w-full items-center justify-center rounded-full bg-ink text-base font-medium text-white">Check your options</a>
   </div>

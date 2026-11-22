@@ -5,11 +5,22 @@ import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
 
 import { cn } from "@/lib/utils";
 
-function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
+// Site addition: `segmented` is a pill row of equal options (the debt
+// calculator's terms). Fill it with `RadioGroupSegment`, not `RadioGroupItem`.
+const radioGroupVariants = {
+  default: "gap-2",
+  segmented: "bg-canvas auto-cols-fr grid-flow-col gap-1 rounded-full p-1",
+} as const;
+
+function RadioGroup({
+  className,
+  variant = "default",
+  ...props
+}: RadioGroupPrimitive.Props & { variant?: keyof typeof radioGroupVariants }) {
   return (
     <RadioGroupPrimitive
       data-slot="radio-group"
-      className={cn("grid w-full gap-2", className)}
+      className={cn("grid w-full", radioGroupVariants[variant], className)}
       {...props}
     />
   );
@@ -35,4 +46,22 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
   );
 }
 
-export { RadioGroup, RadioGroupItem };
+/**
+ * Site addition: one option of a `segmented` group. The radio itself is the
+ * pill and its children the label, so no hidden dot takes space beside the
+ * text and the label stays centered.
+ */
+function RadioGroupSegment({ className, ...props }: RadioPrimitive.Root.Props) {
+  return (
+    <RadioPrimitive.Root
+      data-slot="radio-group-segment"
+      className={cn(
+        "text-graphite hover:text-ink focus-visible:ring-sky/50 data-checked:text-ink flex h-9 cursor-pointer items-center justify-center rounded-full text-sm font-medium tabular-nums outline-none focus-visible:ring-3 data-checked:bg-white data-checked:shadow-sm",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+export { RadioGroup, RadioGroupItem, RadioGroupSegment };

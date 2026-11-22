@@ -39,12 +39,15 @@ describe(landingPage, () => {
     ).toHaveLength(0);
   });
 
-  it("shows the planner on the renovation page only", () => {
+  it("shows the matching calculator on the debt and renovation pages only", () => {
     const pages: readonly [string, LandingPage][] =
       Object.entries(LANDING_PAGES);
-    const withPlanner = pages
-      .filter(([, page]) => page.planner === true)
-      .map(([slug]) => slug);
-    expect(withPlanner).toStrictEqual(["home-renovation"]);
+    const withCalculator = pages
+      .filter(([, page]) => page.calculator !== undefined)
+      .map(([slug, page]) => [slug, page.calculator]);
+    expect(withCalculator).toStrictEqual([
+      ["debt-consolidation", "debt_calculator"],
+      ["home-renovation", "renovation_planner"],
+    ]);
   });
 });
