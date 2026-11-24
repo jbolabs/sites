@@ -7,10 +7,14 @@ import {
   appointmentLines,
   byDay,
   CANCEL_ACTION,
+  CHECK_CALENDAR_ACTION,
+  CONNECT_CALENDAR_ACTION,
   dayLabel,
+  outsideCalendarBlocks,
   schedulePage,
   todayWidget,
 } from "./schedule-ui.ts";
+import type { OutsideCalendarView } from "./schedule-ui.ts";
 
 const LA = "America/Los_Angeles";
 
@@ -149,11 +153,13 @@ describe(todayWidget, () => {
 describe(schedulePage, () => {
   const now = new Date("2026-11-09T16:00:00Z");
   const feedUrl = "https://aniwenger.hair/calendar/key.ics";
+  const outside: OutsideCalendarView = { connected: false, read: undefined };
 
   it("gives each appointment its lines and Open and Cancel", () => {
     const { blocks } = schedulePage({
       feedUrl,
       now,
+      outside,
       timeZone: LA,
       upcoming: [
         appointment("a", "2026-11-09T22:00:00Z", { clientName: "Maya Chen" }),
@@ -199,7 +205,13 @@ describe(schedulePage, () => {
         new Date(now.getTime() + (index + 1) * 3_600_000).toISOString()
       )
     );
-    const { blocks } = schedulePage({ feedUrl, now, timeZone: LA, upcoming });
+    const { blocks } = schedulePage({
+      feedUrl,
+      now,
+      outside,
+      timeZone: LA,
+      upcoming,
+    });
     expect(blocks.filter((block) => block.type === "actions")).toHaveLength(30);
     expect(
       blocks.find(
@@ -213,7 +225,8 @@ describe(schedulePage, () => {
 
   it("says so when nothing is booked", () => {
     expect(
-      schedulePage({ feedUrl, now, timeZone: LA, upcoming: [] }).blocks[2]
+      schedulePage({ feedUrl, now, outside, timeZone: LA, upcoming: [] })
+        .blocks[2]
     ).toStrictEqual({ text: "No upcoming appointments yet.", type: "context" });
   });
 
@@ -242,8 +255,24 @@ describe(schedulePage, () => {
           })
         : appointment(id, start, busy);
     });
+    const link = "https://p52-caldav.icloud.com/published/2/work";
     const page = {
-      ...schedulePage({ feedUrl, now, timeZone: LA, upcoming }),
+      ...schedulePage({
+        feedUrl,
+        now,
+        outside: {
+          connected: true,
+          read: {
+            address: link,
+            busy: [],
+            checkedAt: now,
+            failed: true,
+            readAt: undefined,
+          },
+        },
+        timeZone: LA,
+        upcoming,
+      }),
       toast: {
         message: "Cancelled. The client has been emailed.",
         type: "success",
@@ -255,6 +284,87 @@ describe(schedulePage, () => {
     expect({ errors: [...errors], valid }).toStrictEqual({
       errors: [],
       valid: true,
+    });
+  });
+});
+
+const hour = (iso: string) => ({
+  end: new Date(new Date(iso).getTime() + 3_600_000),
+  start: new Date(iso),
+});
+
+describe(outsideCalendarBlocks, () => {
+  /** Monday 2026-11-09, 8:00 AM PST. */
+  const now = new Date("2026-11-09T16:00:00Z");
+  const link = "https://p52-caldav.icloud.com/published/2/work";
+
+  it("asks for the link while nothing is connected", () => {
+    const blocks = outsideCalendarBlocks({
+      now,
+      outside: { connected: false, read: undefined },
+      timeZone: LA,
+    });
+    expect(blocks.map((block) => block.type)).toStrictEqual([
+      "header",
+      "section",
+      "form",
+      "accordion",
+    ]);
+    expect(blocks[2]).toMatchObject({
+      submit: { action_id: CONNECT_CALENDAR_ACTION, label: "Connect" },
+    });
+  });
+
+  it("counts the busy times in the next two weeks once it is read", () => {
+    const blocks = outsideCalendarBlocks({
+      now,
+      outside: {
+        connected: true,
+        read: {
+          address: link,
+          busy: [
+            hour("2026-11-09T18:00:00Z"),
+            hour("2026-11-12T18:00:00Z"),
+            // Three weeks out: past the count.
+            hour("2026-11-30T18:00:00Z"),
+          ],
+          checkedAt: new Date("2026-11-09T15:55:00Z"),
+          failed: false,
+          readAt: new Date("2026-11-09T15:55:00Z"),
+        },
+      },
+      timeZone: LA,
+    });
+    expect(blocks[2]).toStrictEqual({
+      text: "Checked at 7:55 AM: 2 busy times in the next 2 weeks.",
+      type: "context",
+    });
+    expect(blocks[3]).toMatchObject({
+      elements: [{ action_id: CHECK_CALENDAR_ACTION, label: "Check now" }, {}],
+    });
+  });
+
+  it("warns when the latest check failed and says what still blocks", () => {
+    const [, banner] = outsideCalendarBlocks({
+      now,
+      outside: {
+        connected: true,
+        read: {
+          address: link,
+          busy: [hour("2026-11-10T18:00:00Z")],
+          checkedAt: new Date("2026-11-09T15:55:00Z"),
+          failed: true,
+          readAt: new Date("2026-11-08T23:00:00Z"),
+        },
+      },
+      timeZone: LA,
+    });
+    expect(banner).toStrictEqual({
+      description:
+        "Tried at 7:55 AM. Times from the read at Sunday, November 8 at 3:00 PM still block booking.",
+      title: "Your work calendar could not be read",
+      type: "banner",
+      variant: "error",
     });
   });
 });

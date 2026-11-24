@@ -15,7 +15,11 @@ import { ConfigProvider, Layer } from "effect";
 import { FetchHttpClient } from "effect/http";
 
 import { site } from "../../site.config.ts";
-import { appointmentsEmDash, catalogEmDash } from "./booking/emdash-store.ts";
+import {
+  appointmentsEmDash,
+  catalogEmDash,
+  outsideCalendarEmDash,
+} from "./booking/emdash-store.ts";
 import { hairPhotosR2 } from "./booking/hair-photos.ts";
 import { bookingLockD1 } from "./booking/lock.ts";
 import { bookingMailFromConfig } from "./booking/services.ts";
@@ -43,6 +47,7 @@ export const scheduleLayer = () =>
   Layer.mergeAll(
     appointmentsEmDash(env.SITE_ORIGIN),
     catalogEmDash(site.timeZone),
+    outsideCalendarEmDash,
     bookingLockD1(env.DB),
     emailFromEnv(env.EMAIL),
     bookingMailFromConfig({ replyTo: site.business.email, siteName: site.name })

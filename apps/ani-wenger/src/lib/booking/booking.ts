@@ -30,6 +30,7 @@ import {
   studioNewBookingMail,
 } from "./mail.ts";
 import type { MailAppointment, MailContext } from "./mail.ts";
+import { outsideBusy } from "./outside-sync.ts";
 import { MAX_PHOTOS, MAX_PHOTOS_PER_KIND } from "./photo-limits.ts";
 import {
   Appointments,
@@ -191,23 +192,27 @@ const now = Clock.currentTimeMillis.pipe(
   Effect.map((millis) => new Date(millis))
 );
 
-/** Everything that blocks time in [from, to): live appointments (with cleanup) and time off. */
+/**
+ * Everything that blocks time in [from, to): live appointments (with cleanup),
+ * time off, and whatever is on Ani's own work calendar.
+ */
 const busyBetween = Effect.fn("busyBetween")(function* busyBetween(
   from: Date,
   to: Date
 ) {
   const appointments = yield* Appointments;
   // An appointment that starts before the window can still run into it.
-  const [booked, away] = yield* Effect.all([
+  const [booked, away, elsewhere] = yield* Effect.all([
     appointments.between(new Date(from.getTime() - MS_PER_DAY), to),
     appointments.timeOff(from, to),
+    outsideBusy(from, to),
   ]);
   const taken = booked.flatMap((appointment): Busy[] =>
     appointment.state === "confirmed"
       ? [{ end: occupiedUntil(appointment), start: appointment.start }]
       : []
   );
-  return [...taken, ...away];
+  return [...taken, ...away, ...elsewhere];
 });
 
 const bookableService = Effect.fn("bookableService")(function* bookableService(

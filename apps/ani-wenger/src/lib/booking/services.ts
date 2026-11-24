@@ -113,6 +113,46 @@ export class Appointments extends Context.Service<
   }
 >()("ani-wenger/Appointments") {}
 
+/** What the last read of Ani's own work calendar found (see `outside-calendar.ts`). */
+export interface OutsideCalendarRead {
+  /** The address that was read: a read of an older link no longer counts. */
+  readonly address: string;
+  readonly checkedAt: Date;
+  /** The last read that worked; its busy times stand until the next one does. */
+  readonly readAt: Date | undefined;
+  /** The latest check could not read the calendar. */
+  readonly failed: boolean;
+  /** Start and end only: titles name her clients and are never kept. */
+  readonly busy: readonly Busy[];
+}
+
+/** The calendar link did not answer with a calendar. */
+export class CalendarUnreadable extends Schema.TaggedError<CalendarUnreadable>()(
+  "CalendarUnreadable",
+  { reason: Schema.String }
+) {}
+
+/** Where Ani's calendar link and its last read live, and how the file is fetched. */
+export class OutsideCalendar extends Context.Service<
+  OutsideCalendar,
+  {
+    readonly link: Effect.Effect<Option.Option<string>, StoreFailed>;
+    readonly setLink: (
+      address: Option.Option<string>
+    ) => Effect.Effect<void, StoreFailed>;
+    readonly lastRead: Effect.Effect<
+      Option.Option<OutsideCalendarRead>,
+      StoreFailed
+    >;
+    readonly saveRead: (
+      read: OutsideCalendarRead
+    ) => Effect.Effect<void, StoreFailed>;
+    readonly download: (
+      address: string
+    ) => Effect.Effect<string, CalendarUnreadable>;
+  }
+>()("ani-wenger/OutsideCalendar") {}
+
 /** A service as the booking flow sees it. */
 export interface BookableService {
   readonly slug: string;

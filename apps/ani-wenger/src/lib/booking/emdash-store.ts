@@ -9,7 +9,7 @@
  * editor left unreadable is logged and skipped rather than failing the calendar.
  */
 import { Effect, Layer, Option, Schema } from "effect";
-import { BlockTypeRegistry } from "emdash";
+import { BlockTypeRegistry, OptionsRepository } from "emdash";
 import { withEmDashRuntime } from "emdash/middleware";
 
 import { CLIENT_FOR, HAIR_HISTORY_ORDER } from "../labels.ts";
@@ -25,10 +25,16 @@ import { bookingRules } from "./rules.ts";
 import {
   APPOINTMENT_STATES,
   Appointments,
+  CalendarUnreadable,
   Catalog,
+  OutsideCalendar,
   StoreFailed,
 } from "./services.ts";
-import type { Appointment, SalonPolicy } from "./services.ts";
+import type {
+  Appointment,
+  OutsideCalendarRead,
+  SalonPolicy,
+} from "./services.ts";
 
 type Runtime = Parameters<Parameters<typeof withEmDashRuntime>[0]>[0];
 
@@ -451,3 +457,117 @@ export const catalogEmDash = (timeZone: string) =>
         )
       ),
   });
+
+/**
+ * Ani's work calendar link and its last read, kept in EmDash's options table
+ * under the Schedule plugin's names (no content type, so nothing to migrate
+ * and nothing public). The read holds start and end times only.
+ */
+const LINK_OPTION = "plugin:schedule:outside-calendar:link";
+const READ_OPTION = "plugin:schedule:outside-calendar:read";
+
+const StoredRead = Schema.Struct({
+  address: Schema.String,
+  busy: Schema.Array(Schema.Tuple([Schema.String, Schema.String])),
+  checkedAt: Schema.String,
+  failed: Schema.Boolean,
+  readAt: Schema.NullOr(Schema.String),
+});
+
+const fromStoredRead = (
+  stored: typeof StoredRead.Type
+): OutsideCalendarRead => ({
+  address: stored.address,
+  busy: stored.busy.map(([start, end]) => ({
+    end: new Date(end),
+    start: new Date(start),
+  })),
+  checkedAt: new Date(stored.checkedAt),
+  failed: stored.failed,
+  readAt: stored.readAt === null ? undefined : new Date(stored.readAt),
+});
+
+const toStoredRead = (read: OutsideCalendarRead): typeof StoredRead.Type => ({
+  address: read.address,
+  busy: read.busy.map((block) => [
+    block.start.toISOString(),
+    block.end.toISOString(),
+  ]),
+  checkedAt: read.checkedAt.toISOString(),
+  failed: read.failed,
+  readAt: read.readAt === undefined ? null : read.readAt.toISOString(),
+});
+
+/** iCloud answers in well under a second; past this it is down, and the next tick tries again. */
+const DOWNLOAD_TIMEOUT_MS = 15_000;
+/** A year of a busy stylist's calendar is a few hundred kilobytes. */
+const MAX_CALENDAR_BYTES = 5_000_000;
+
+const downloadCalendar = (address: string) =>
+  Effect.tryPromise({
+    catch: (cause) =>
+      new CalendarUnreadable({
+        reason: cause instanceof Error ? cause.message : String(cause),
+      }),
+    try: async () => {
+      const response = await fetch(address, {
+        headers: { accept: "text/calendar" },
+        signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const length = Number(response.headers.get("content-length") ?? 0);
+      if (length > MAX_CALENDAR_BYTES) {
+        throw new Error("Calendar file too large");
+      }
+      const file = await response.text();
+      if (file.length > MAX_CALENDAR_BYTES) {
+        throw new Error("Calendar file too large");
+      }
+      return file;
+    },
+  }).pipe(Effect.withSpan("OutsideCalendar.download"));
+
+export const outsideCalendarEmDash = Layer.succeed(OutsideCalendar, {
+  download: downloadCalendar,
+
+  lastRead: withRuntime("OutsideCalendar.lastRead", async (runtime) =>
+    Option.fromNullishOr(
+      await new OptionsRepository(runtime.db).get(READ_OPTION)
+    )
+  ).pipe(
+    Effect.map((stored) =>
+      stored.pipe(
+        Option.flatMap(Schema.decodeUnknownOption(StoredRead)),
+        Option.map(fromStoredRead)
+      )
+    )
+  ),
+
+  link: withRuntime("OutsideCalendar.link", async (runtime) => {
+    const link = await new OptionsRepository(runtime.db).get(LINK_OPTION);
+    return Schema.decodeUnknownOption(Schema.NonEmptyString)(link);
+  }),
+
+  saveRead: (read) =>
+    withRuntime("OutsideCalendar.saveRead", async (runtime) => {
+      await new OptionsRepository(runtime.db).set(
+        READ_OPTION,
+        toStoredRead(read)
+      );
+    }),
+
+  setLink: (address) =>
+    withRuntime("OutsideCalendar.setLink", async (runtime) => {
+      const options = new OptionsRepository(runtime.db);
+      await Option.match(address, {
+        onNone: async () => {
+          await options.deleteMany([LINK_OPTION, READ_OPTION]);
+        },
+        onSome: async (link) => {
+          await options.set(LINK_OPTION, link);
+        },
+      });
+    }),
+});

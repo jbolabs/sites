@@ -2,7 +2,8 @@
  * The `schedule` EmDash plugin: a Schedule page and a dashboard card for Ani,
  * served as Block Kit from the plugin's `admin` route. Appointments are read
  * through the same Effect services as the public booking flow, so a cancel
- * here frees the time and emails the client the same way.
+ * here frees the time and emails the client the same way. The page also
+ * connects Ani's work calendar, whose events block online booking.
  */
 import type { BlockResponse } from "@emdash-cms/blocks";
 import { env } from "cloudflare:workers";
@@ -12,9 +13,23 @@ import { definePlugin } from "emdash";
 
 import { site } from "../../site.config.ts";
 import { cancelByStudio } from "../lib/booking/booking.ts";
+import {
+  connectOutsideCalendar,
+  disconnectOutsideCalendar,
+  refreshOutsideCalendar,
+} from "../lib/booking/outside-sync.ts";
 import { runSchedule } from "../lib/booking/run.ts";
-import { Appointments } from "../lib/booking/services.ts";
-import { CANCEL_ACTION, schedulePage, todayWidget } from "./schedule-ui.ts";
+import { Appointments, OutsideCalendar } from "../lib/booking/services.ts";
+import {
+  CALENDAR_LINK_FIELD,
+  CANCEL_ACTION,
+  CHECK_CALENDAR_ACTION,
+  CONNECT_CALENDAR_ACTION,
+  DISCONNECT_CALENDAR_ACTION,
+  schedulePage,
+  todayWidget,
+} from "./schedule-ui.ts";
+import type { OutsideCalendarView } from "./schedule-ui.ts";
 import { SCHEDULE_PLUGIN_ID } from "./schedule.ts";
 
 const VERSION = "1.0.0";
@@ -27,6 +42,24 @@ const CancelPress = Schema.Struct({
   page: Schema.optional(Schema.String),
   type: Schema.Literal("block_action"),
   value: Schema.String,
+});
+/** Connect pressed under the calendar link field. */
+const ConnectCalendar = Schema.Struct({
+  action_id: Schema.Literal(CONNECT_CALENDAR_ACTION),
+  page: Schema.optional(Schema.String),
+  type: Schema.Literal("form_submit"),
+  values: Schema.Struct({
+    [CALENDAR_LINK_FIELD]: Schema.optional(Schema.NullOr(Schema.String)),
+  }),
+});
+/** Check now or Disconnect on the work calendar. */
+const CalendarPress = Schema.Struct({
+  action_id: Schema.Literals([
+    CHECK_CALENDAR_ACTION,
+    DISCONNECT_CALENDAR_ACTION,
+  ]),
+  page: Schema.optional(Schema.String),
+  type: Schema.Literal("block_action"),
 });
 /** Anything else only needs to know which screen to draw. */
 const ScreenEvent = Schema.Struct({ page: Schema.optional(Schema.String) });
@@ -44,13 +77,29 @@ const upcoming = (now: Date) =>
     return list.filter((appointment) => appointment.state === "confirmed");
   });
 
+const outsideView = Effect.gen(function* loadOutsideView() {
+  const calendar = yield* OutsideCalendar;
+  const [link, read] = yield* Effect.all([calendar.link, calendar.lastRead]);
+  return {
+    connected: Option.isSome(link),
+    read: read.pipe(
+      Option.filter(
+        (last) => Option.isSome(link) && last.address === link.value
+      ),
+      Option.getOrUndefined
+    ),
+  } satisfies OutsideCalendarView;
+});
+
 const render = async (
   page: string | undefined,
   origin: string,
   toast?: Toast
 ): Promise<BlockResponse> => {
   const now = new Date();
-  const outcome = await runSchedule(upcoming(now));
+  const outcome = await runSchedule(
+    Effect.all({ outside: outsideView, upcoming: upcoming(now) })
+  );
   if (!outcome.ok) {
     return {
       blocks: [
@@ -63,12 +112,17 @@ const render = async (
   }
   const view =
     page === "widget:today"
-      ? todayWidget({ now, timeZone: site.timeZone, upcoming: outcome.value })
+      ? todayWidget({
+          now,
+          timeZone: site.timeZone,
+          upcoming: outcome.value.upcoming,
+        })
       : schedulePage({
           feedUrl: `${origin}/calendar/${env.CALENDAR_FEED_KEY}.ics`,
           now,
+          outside: outcome.value.outside,
           timeZone: site.timeZone,
-          upcoming: outcome.value,
+          upcoming: outcome.value.upcoming,
         });
   return toast === undefined ? view : { ...view, toast };
 };
@@ -78,8 +132,61 @@ const cancelled = (notified: boolean): Toast => ({
   type: "success",
 });
 
+/** What to tell Ani when a pasted link does not connect. */
+const connectFailed = (tag: string): string => {
+  if (tag === "CalendarUnreadable") {
+    return "That link didn't open a calendar. Copy it again from Share Link and paste it here.";
+  }
+  if (tag === "InvalidCalendarLink") {
+    return "That isn't a calendar link. Copy it from Share Link and paste it here.";
+  }
+  return "The calendar could not be connected. Try again.";
+};
+
+/** Anything pressed in the work calendar section. */
+const CalendarEvent = Schema.Union([ConnectCalendar, CalendarPress]);
+type CalendarEvent = typeof CalendarEvent.Type;
+
+/** Connect, Check now, or Disconnect on the work calendar. */
+const calendarToast = async (event: CalendarEvent): Promise<Toast> => {
+  if (event.type === "form_submit") {
+    const outcome = await runSchedule(
+      connectOutsideCalendar(
+        event.values[CALENDAR_LINK_FIELD] ?? "",
+        site.timeZone
+      )
+    );
+    return outcome.ok
+      ? {
+          message: "Connected. Your work calendar now blocks those times.",
+          type: "success",
+        }
+      : { message: connectFailed(outcome.tag), type: "error" };
+  }
+  if (event.action_id === DISCONNECT_CALENDAR_ACTION) {
+    const outcome = await runSchedule(disconnectOutsideCalendar());
+    return outcome.ok
+      ? { message: "Disconnected.", type: "success" }
+      : { message: "Could not disconnect. Try again.", type: "error" };
+  }
+  const outcome = await runSchedule(refreshOutsideCalendar(site.timeZone));
+  return outcome.ok &&
+    Option.isSome(outcome.value) &&
+    !outcome.value.value.failed
+    ? { message: "Checked.", type: "success" }
+    : { message: "Your work calendar could not be read.", type: "error" };
+};
+
 const admin = async (ctx: RouteContext): Promise<BlockResponse> => {
   const { origin } = new URL(ctx.request.url);
+  const calendar = Schema.decodeUnknownOption(CalendarEvent)(ctx.input);
+  if (Option.isSome(calendar)) {
+    return await render(
+      calendar.value.page,
+      origin,
+      await calendarToast(calendar.value)
+    );
+  }
   const press = Schema.decodeUnknownOption(CancelPress)(ctx.input);
   if (Option.isSome(press)) {
     const outcome = await runSchedule(cancelByStudio(press.value.value));
