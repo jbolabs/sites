@@ -71,6 +71,21 @@ describe(funnelPayload, () => {
       environment: "production",
     });
   });
+
+  it("links the event to the replay session when a recording is running", () => {
+    const { properties } = funnelPayload({
+      environment: "prod",
+      event: "application_step",
+      key: "phc_test",
+      now,
+      page,
+      properties: { step: "name", step_number: 1 },
+      session: "session-1",
+      visit: "visit-3",
+    });
+    expect(properties).toHaveProperty("$session_id", "session-1");
+    expect(properties).toHaveProperty("step", "name");
+  });
 });
 
 describe(pageOf, () => {
