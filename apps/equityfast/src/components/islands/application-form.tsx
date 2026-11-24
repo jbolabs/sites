@@ -14,8 +14,13 @@ import { FieldError } from "@/components/ui/field";
 import type { UiStrings } from "@/i18n/ui";
 import { STEP_KEYS, shownStep, stepsFor } from "@/lib/application-rules";
 import type { ApplicationAnswers, StepKey } from "@/lib/application-rules";
-import { adEventParams, readAttribution } from "@/lib/attribution";
+import {
+  adEventParams,
+  clearAttribution,
+  readAttribution,
+} from "@/lib/attribution";
 import type { Attribution } from "@/lib/attribution";
+import { track, trackStep } from "@/lib/funnel";
 import { cn } from "@/lib/utils";
 
 import { clearDraft, readDraft, writeDraft } from "./application/draft";
@@ -209,9 +214,15 @@ const ApplicationForm = ({
       clearDraft();
       // The agency's ad conversions (Tag Manager, prod only), with the campaign.
       pushDataLayerEvent("application_submitted", adEventParams(attribution));
+      // Our own funnel (PostHog), then the ad is spent: a later application starts clean.
+      track("application_submitted");
+      clearAttribution();
       setStatus({ firstName: values.firstName.trim(), state: "sent" });
       return;
     }
+    track("application_failed", {
+      reason: isInputError(error) ? "invalid" : error.code,
+    });
     // Tokens are single use: a retry needs a new one.
     resetTurnstile();
     setStatus({
@@ -250,6 +261,11 @@ const ApplicationForm = ({
   useEffect(() => {
     writeDraft({ answers, step });
   }, [answers, step]);
+
+  // How far visitors get (anonymous: the step's name, never its answers).
+  useEffect(() => {
+    trackStep(step, STEP_KEYS.indexOf(step) + 1);
+  }, [step]);
 
   const autoAdvance = useAutoAdvance(() => {
     void form.handleSubmit();

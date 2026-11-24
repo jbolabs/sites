@@ -58,6 +58,7 @@ export const site = {
    * serves it first-party from `gtmEndpoint`, a path no page may use.
    */
   gtmContainerId: "GTM-5CF5JZTT",
+
   gtmEndpoint: "/metrics",
 
   /** Prefixes Worker names (`equityfast-<stage>`) and the Alchemy stack. */
@@ -90,6 +91,13 @@ export const site = {
   localSeedMediaBase: "https://equityfast.emortgagecapital.com/assets",
 
   name: "EquityFast",
+
+  /**
+   * PostHog project key (JBO Labs org, EquityFast project) for anonymous funnel
+   * events: page views and application steps. Public by design, like the
+   * container id; it can only send events, never read them.
+   */
+  posthogKey: "phc_t9HWXWkR5qnpGKySMNLTueq398Sci6FhefqdMN8gjtsk",
 
   shortName: "EquityFast",
 

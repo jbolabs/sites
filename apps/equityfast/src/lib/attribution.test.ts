@@ -5,6 +5,7 @@ import {
   attributionFromParams,
   attributionFromVisit,
   campaignLabel,
+  unexpired,
 } from "./attribution.ts";
 
 const now = new Date("2026-11-11T17:30:00.000Z");
@@ -147,5 +148,26 @@ describe(adEventParams, () => {
       utm_source: "facebook",
     });
     expect(adEventParams()).toStrictEqual({});
+  });
+});
+
+describe(unexpired, () => {
+  const saved = {
+    capturedAt: "2026-11-01T17:30:00.000Z",
+    landingPage: "/lp/digital-heloc",
+    utm_source: "facebook",
+  };
+
+  it("keeps an ad click for 30 days, then drops it", () => {
+    expect(unexpired(saved, now)).toStrictEqual(saved);
+    expect(
+      unexpired(saved, new Date("2026-12-02T17:30:00.000Z"))
+    ).toBeUndefined();
+  });
+
+  it("drops a saved click with an unreadable date", () => {
+    const fresh = { ...saved, capturedAt: now.toISOString() };
+    expect(unexpired(fresh, now)).toStrictEqual(fresh);
+    expect(unexpired({ ...saved, capturedAt: "soon" }, now)).toBeUndefined();
   });
 });

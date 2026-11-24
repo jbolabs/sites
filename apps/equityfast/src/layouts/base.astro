@@ -88,6 +88,8 @@ const breadcrumbs = crumbs === undefined ? undefined : JSON.stringify(breadcrumb
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <GoogleTagManager part="head" />
+    {env.POSTHOG_KEY && <meta name="funnel-key" content={env.POSTHOG_KEY} />}
+    {env.POSTHOG_KEY && <meta name="funnel-environment" content={env.STAGE} />}
     <meta name="theme-color" content="#ffffff" />
     <title>{fullTitle}</title>
     <link rel="icon" href="/favicon.png" type="image/png" />
@@ -115,9 +117,12 @@ const breadcrumbs = crumbs === undefined ? undefined : JSON.stringify(breadcrumb
     <script>
       import { mountSeamlessEdges } from "@jakebodea/site-ui/seamless-edges";
       import { captureAttribution } from "@/lib/attribution";
+      import { track } from "@/lib/funnel";
       import { mountReveal } from "@/lib/reveal";
 
       captureAttribution();
+      // After capture, so the page view carries the ad that brought the visitor.
+      track("$pageview");
       mountSeamlessEdges();
       mountReveal();
     </script>
