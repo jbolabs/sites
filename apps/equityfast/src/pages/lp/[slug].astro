@@ -6,7 +6,8 @@
  * and the main site's footer and disclosures (menus hidden). The renovation
  * page adds the main site's calculator, read live from the CMS so it always
  * matches. Temporary campaign pages: noindex and out of the sitemap, menus
- * and CMS. Each lead records `/lp/<slug>` as its landing page.
+ * and CMS. Each lead records `/lp/<slug>` as its landing page. Only these
+ * pages run masked session replay (`src/lib/replay.ts`).
  */
 import { env } from "cloudflare:workers";
 import Check from "@lucide/astro/icons/check";
@@ -63,3 +64,8 @@ const planner = (calculator?.entry?.data.content ?? []).filter((block) => block.
     <a href="#apply-form" class="flex h-12 w-full items-center justify-center rounded-full bg-ink text-base font-medium text-white">Check your options</a>
   </div>
 </Base>
+<script>
+  import { startReplay } from "@/lib/replay";
+
+  void startReplay();
+</script>

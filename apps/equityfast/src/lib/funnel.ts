@@ -1,10 +1,11 @@
 /**
  * Anonymous funnel events for PostHog: page views, and how far visitors get
  * through the application. No SDK, no cookies, no person profiles, no
- * autocapture or replay, and never a form answer: each browser tab gets a
- * random id, so a funnel can join one visit's steps and nothing more. The
- * base layout renders the project key in a meta tag only when the stage binds
- * one, so local dev sends nothing.
+ * autocapture, and never a form answer: each browser tab gets a random id,
+ * so a funnel can join one visit's steps and nothing more. On the landing
+ * pages, events also carry the masked replay's session id (`replay.ts`), so a
+ * drop-off links to its recording. The base layout renders the project key in
+ * a meta tag only when the stage binds one, so local dev sends nothing.
  *
  * Plain browser code (no Effect), like `attribution.ts`; the payload is built
  * by a pure function so it can be tested without a browser.
@@ -45,6 +46,8 @@ export interface FunnelCapture {
   readonly page: FunnelPage;
   readonly attribution?: Attribution | undefined;
   readonly properties: FunnelProperties;
+  /** The masked replay's session id, when a recording is running. */
+  readonly session?: string | undefined;
   readonly now: Date;
 }
 
@@ -57,12 +60,10 @@ export const funnelPayload = ({
   now,
   page,
   properties,
+  session,
   visit,
-}: FunnelCapture) => ({
-  api_key: key,
-  distinct_id: visit,
-  event,
-  properties: {
+}: FunnelCapture) => {
+  const pageProperties = {
     $current_url: page.url,
     $host: page.host,
     $lib: "equityfast-web",
@@ -71,11 +72,24 @@ export const funnelPayload = ({
     $process_person_profile: false,
     $referrer: page.referrer,
     environment,
-    ...adEventParams(attribution),
-    ...properties,
-  },
-  timestamp: now.toISOString(),
-});
+  };
+  // The session id links the event to its masked recording.
+  const eventProperties =
+    session === undefined
+      ? pageProperties
+      : { ...pageProperties, $session_id: session };
+  return {
+    api_key: key,
+    distinct_id: visit,
+    event,
+    properties: {
+      ...eventProperties,
+      ...adEventParams(attribution),
+      ...properties,
+    },
+    timestamp: now.toISOString(),
+  };
+};
 
 /** `https://host/path` of a URL, or "$direct" when there is none. */
 export const pageOf = (url: string): string => {
@@ -94,9 +108,15 @@ const meta = (name: string): string =>
   "";
 
 let fallbackVisit: string | undefined;
+let replaySession: string | undefined;
+
+/** Ties later events to the masked replay's session (set by `replay.ts`). */
+export const linkReplaySession = (id: string): void => {
+  replaySession = id;
+};
 
 /** This tab's random visit id (a fresh one per page if storage is blocked). */
-const visitId = (): string => {
+export const visitId = (): string => {
   try {
     const saved = window.sessionStorage.getItem(VISIT_KEY);
     if (saved !== null) {
@@ -149,6 +169,7 @@ export const track = (
           url: pageOf(window.location.href),
         },
         properties,
+        session: replaySession,
         visit: visitId(),
       })
     );
