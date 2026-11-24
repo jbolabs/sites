@@ -1,8 +1,10 @@
 /**
  * Ad attribution: which campaign brought the visitor. The base layout captures
- * it on the first page of a visit that carries ad parameters (first touch),
- * keeps it for the browser session, and the application sends it with the
- * lead, so the CMS entry, the lead email and Flow AG all name the campaign.
+ * it from any page whose URL carries ad parameters (the latest ad click wins),
+ * keeps it on the device for 30 days, like the application draft, so a
+ * visitor who leaves and comes back to finish still names the ad, and the
+ * application sends it with the lead, so the CMS entry, the lead email and
+ * Flow AG all name the campaign. A sent application clears it.
  *
  * Plain browser code (no Effect): the layout's script and the application
  * island import it. The server checks the same limits in `application.ts`.
@@ -50,6 +52,9 @@ const LIMITS: ReadonlyMap<AdParam | VisitField, number> = new Map([
 ]);
 
 const STORAGE_KEY = "equityfast.attribution";
+/** How long a saved ad click still names the campaign (Meta's longest click window). */
+export const ATTRIBUTION_DAYS = 30;
+const DAY_MS = 86_400_000;
 
 /**
  * The known fields of `params`, trimmed and cut to their limits; undefined
@@ -104,38 +109,52 @@ export const attributionFromVisit = (visit: Visit): Attribution | undefined => {
   return attributionFromParams(params);
 };
 
-const session = (): Storage | undefined => {
+const storage = (): Storage | undefined => {
   try {
-    return window.sessionStorage;
+    return window.localStorage;
   } catch {
     // Storage disabled (private mode, policy): leads just carry no campaign.
     return undefined;
   }
 };
 
-/** This session's first-touch attribution, if one was captured. */
+/** `saved` unless it is older than the attribution window at `now`. */
+export const unexpired = (
+  saved: Attribution | undefined,
+  now: Date
+): Attribution | undefined => {
+  if (saved === undefined) {
+    return undefined;
+  }
+  const captured = Date.parse(saved.capturedAt ?? "");
+  return Number.isNaN(captured) ||
+    now.getTime() - captured > ATTRIBUTION_DAYS * DAY_MS
+    ? undefined
+    : saved;
+};
+
+/** The ad click that brought this visitor in the last 30 days, if any. */
 export const readAttribution = (): Attribution | undefined => {
   try {
-    const saved = session()?.getItem(STORAGE_KEY);
+    const saved = storage()?.getItem(STORAGE_KEY);
     return saved === null || saved === undefined
       ? undefined
-      : attributionFromParams(new URLSearchParams(saved));
+      : unexpired(
+          attributionFromParams(new URLSearchParams(saved)),
+          new Date()
+        );
   } catch {
     return undefined;
   }
 };
 
 /**
- * Saves the current page's attribution unless this session already has one
- * (first touch wins: a later click inside the site keeps the ad that brought
- * the visitor).
+ * Saves the current page's attribution when its URL carries ad parameters,
+ * replacing an earlier click. A plain page view (a later click inside the
+ * site, a return visit) keeps the saved ad.
  */
 export const captureAttribution = (): void => {
   try {
-    const storage = session();
-    if (storage === undefined || storage.getItem(STORAGE_KEY) !== null) {
-      return;
-    }
     const attribution = attributionFromVisit({
       now: new Date(),
       pathname: window.location.pathname,
@@ -143,13 +162,22 @@ export const captureAttribution = (): void => {
       search: window.location.search,
     });
     if (attribution !== undefined) {
-      storage.setItem(
+      storage()?.setItem(
         STORAGE_KEY,
         new URLSearchParams(Object.entries(attribution)).toString()
       );
     }
   } catch {
     // Quota exceeded or storage blocked: attribution is best effort.
+  }
+};
+
+/** Forgets the saved ad once its application is sent. */
+export const clearAttribution = (): void => {
+  try {
+    storage()?.removeItem(STORAGE_KEY);
+  } catch {
+    // Storage blocked: nothing was saved.
   }
 };
 

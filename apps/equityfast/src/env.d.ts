@@ -34,6 +34,8 @@ declare global {
       TURNSTILE_SECRET_KEY: string;
       /** Flow AG (E Mortgage Capital's CRM) accept-lead key; empty except on prod. */
       FLOW_AG_API_KEY: string;
+      /** PostHog public project key for funnel events; empty in local dev. */
+      POSTHOG_KEY: string;
     }
   }
 

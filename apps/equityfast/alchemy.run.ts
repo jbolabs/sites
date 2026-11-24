@@ -136,6 +136,8 @@ export default Alchemy.Stack(
       // EmDash's /_image endpoint resizes media with this binding.
       IMAGES: Cloudflare.Images.Images("IMAGES"),
       MEDIA: media,
+      // Funnel events (PostHog) from prod and previews, never local dev. A public key.
+      POSTHOG_KEY: dev ? "" : site.posthogKey,
       PUBLIC_HTML_CACHE_TTL_SECONDS: stage.production ? "30" : "0",
       PUBLISHED_CONTENT_EXPORT_TOKEN: stage.production
         ? yield* Config.Redacted("PUBLISHED_CONTENT_EXPORT_TOKEN")
