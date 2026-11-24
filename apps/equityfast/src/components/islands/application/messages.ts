@@ -25,6 +25,7 @@ const OWN_MESSAGE: Partial<Record<Field, keyof Errors>> = {
   otherIncome: "otherIncome",
   ownership: "choice",
   phone: "phone",
+  propertyValue: "propertyValue",
 };
 
 const KIND_MESSAGE: readonly (readonly [

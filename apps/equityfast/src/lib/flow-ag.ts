@@ -74,6 +74,8 @@ export interface FlowAgLead {
   /** Date of birth, `MM/DD/YYYY` as typed. */
   readonly dob: string;
   readonly loanPurpose: "heloc";
+  /** Whole dollars, the visitor's estimate. Flow AG needs it for a proposal. */
+  readonly propertyValue: number;
   /** Whole dollars. On a HELOC the requested draw goes here. */
   readonly loanAmount: number;
   /**
@@ -192,6 +194,7 @@ export const toFlowAgLead = (
     notes,
     phone: digits(form.phone).slice(-10),
     propertyUse: PROPERTY_USE[form.occupancy],
+    propertyValue: dollars(form.propertyValue),
     state: property.state.toUpperCase(),
     zip: property.zip,
     ...tracking,
