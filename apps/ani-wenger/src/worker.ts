@@ -3,7 +3,8 @@
  * `@jakebodea/cloudflare-kit/emdash/alchemy-workarounds`), so this wraps
  * EmDash's entry. The kit's `siteScheduled` owns the crons (analytics plugin
  * settings, EmDash's minute tick, the prod backup); the minute tick also sends
- * appointment reminders every quarter hour, and after a deploy adds any
+ * appointment reminders every quarter hour, reads Ani's work calendar every
+ * five minutes (see `outside-sync.ts`), and after a deploy adds any
  * Appointments fields and page section types that came after launch (see
  * `appointment-fields.ts` and `later-sections.ts`).
  * Non-prod stages send `X-Robots-Tag: noindex` so previews never get indexed
@@ -18,13 +19,20 @@ import {
   siteScheduled,
 } from "@jakebodea/cloudflare-kit/emdash/worker";
 
+import { site } from "../site.config.ts";
 import { sendReminders } from "./lib/booking/booking.ts";
 import {
   addLaterAppointmentFields,
   addLaterSections,
 } from "./lib/booking/emdash-store.ts";
+import { refreshOutsideCalendar } from "./lib/booking/outside-sync.ts";
 import { runSchedule } from "./lib/booking/run.ts";
-import { BACKUP_CRON, EMDASH_CRON, isReminderTick } from "./lib/schedule.ts";
+import {
+  BACKUP_CRON,
+  EMDASH_CRON,
+  isOutsideCalendarTick,
+  isReminderTick,
+} from "./lib/schedule.ts";
 
 // EmDash's sandboxed-plugin entrypoint must be exported from the Worker's main module.
 export { PluginBridge } from "@emdash-cms/cloudflare/worker";
@@ -92,6 +100,12 @@ export default {
       isReminderTick(new Date(controller.scheduledTime))
     ) {
       ctx.waitUntil(runSchedule(sendReminders()));
+    }
+    if (
+      controller.cron === EMDASH_CRON &&
+      isOutsideCalendarTick(new Date(controller.scheduledTime))
+    ) {
+      ctx.waitUntil(runSchedule(refreshOutsideCalendar(site.timeZone)));
     }
   },
 } satisfies ExportedHandler<Env>;

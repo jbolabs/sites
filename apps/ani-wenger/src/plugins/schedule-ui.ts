@@ -1,7 +1,8 @@
 /**
  * Ani's schedule in the admin, as Block Kit: the next appointments day by day
  * on the dashboard, the next weeks with Open and Cancel on each, and the
- * address that puts them on her phone's calendar. Each appointment is two
+ * address that puts them on her phone's calendar, and the link to her own work
+ * calendar whose events block online booking. Each appointment is two
  * short lines (time and name; service and phone) so it reads on a phone, where
  * a wide table scrolled its names and buttons off screen.
  */
@@ -14,10 +15,17 @@ import {
   formatTime,
   toLocal,
 } from "../lib/booking/calendar.ts";
-import type { Appointment } from "../lib/booking/services.ts";
+import type {
+  Appointment,
+  OutsideCalendarRead,
+} from "../lib/booking/services.ts";
 import { HAIR_HISTORY, serviceFor } from "../lib/labels.ts";
 
 export const CANCEL_ACTION = "cancel";
+export const CONNECT_CALENDAR_ACTION = "connect_calendar";
+export const CALENDAR_LINK_FIELD = "calendar_link";
+export const CHECK_CALENDAR_ACTION = "check_calendar";
+export const DISCONNECT_CALENDAR_ACTION = "disconnect_calendar";
 
 const when = (start: Date, timeZone: string, today: string) => {
   const local = toLocal(start, timeZone);
@@ -196,8 +204,138 @@ const hairNotes = (
   ];
 };
 
+/** Her work calendar as the Schedule page shows it: connected or not, and the last read. */
+export interface OutsideCalendarView {
+  readonly connected: boolean;
+  readonly read: OutsideCalendarRead | undefined;
+}
+
+/** "3:05 PM" today, otherwise "Tuesday, November 24 at 3:05 PM". */
+const checkedLabel = (at: Date, timeZone: string, today: string) => {
+  const local = toLocal(at, timeZone);
+  const time = formatTime(local.minutes);
+  return local.date === today ? time : `${formatDate(local.date)} at ${time}`;
+};
+
+const TWO_WEEKS_MS = 14 * 86_400_000;
+
+const busyAhead = (read: OutsideCalendarRead, now: Date) =>
+  read.busy.filter(
+    (block) =>
+      block.end.getTime() > now.getTime() &&
+      block.start.getTime() < now.getTime() + TWO_WEEKS_MS
+  ).length;
+
+const linkForm = (submit: string): Block => ({
+  fields: [
+    {
+      action_id: CALENDAR_LINK_FIELD,
+      label: "Calendar link",
+      placeholder: "webcal://",
+      type: "text_input",
+    },
+  ],
+  submit: { action_id: CONNECT_CALENDAR_ACTION, label: submit },
+  type: "form",
+});
+
+const HOW_TO_GET_THE_LINK: Block = {
+  blocks: [
+    {
+      text: "On your iPhone, open Calendar and tap Calendars at the bottom. Tap the i next to your work calendar, turn on Public Calendar, then tap Share Link and Copy. Keep the link private: anyone with it can see that calendar.",
+      type: "section",
+    },
+  ],
+  label: "How to get the link",
+  type: "accordion",
+};
+
+/** Connect her work calendar, or see how its last read went. */
+export const outsideCalendarBlocks = ({
+  now,
+  outside,
+  timeZone,
+}: {
+  readonly outside: OutsideCalendarView;
+  readonly timeZone: string;
+  readonly now: Date;
+}): Block[] => {
+  const header: Block = { text: "Your work calendar", type: "header" };
+  const { read } = outside;
+  if (!outside.connected || read === undefined) {
+    return [
+      header,
+      {
+        text: "Connect the calendar you put texted clients on, and those times can't be booked online.",
+        type: "section",
+      },
+      linkForm("Connect"),
+      HOW_TO_GET_THE_LINK,
+    ];
+  }
+  const today = toLocal(now, timeZone).date;
+  const checked = checkedLabel(read.checkedAt, timeZone, today);
+  const ahead = busyAhead(read, now);
+  const status: Block[] = read.failed
+    ? [
+        {
+          description:
+            read.readAt === undefined
+              ? `Tried at ${checked}. Nothing from it blocks booking until it can be read.`
+              : `Tried at ${checked}. Times from the read at ${checkedLabel(read.readAt, timeZone, today)} still block booking.`,
+          title: "Your work calendar could not be read",
+          type: "banner",
+          variant: "error",
+        },
+      ]
+    : [
+        {
+          text: "Connected. Anything on your work calendar can't be booked online, all-day events included.",
+          type: "section",
+        },
+        {
+          text: `Checked at ${checked}: ${ahead} busy ${ahead === 1 ? "time" : "times"} in the next 2 weeks.`,
+          type: "context",
+        },
+      ];
+  return [
+    header,
+    ...status,
+    {
+      elements: [
+        {
+          action_id: CHECK_CALENDAR_ACTION,
+          label: "Check now",
+          style: "secondary",
+          type: "button",
+        },
+        {
+          action_id: DISCONNECT_CALENDAR_ACTION,
+          confirm: {
+            confirm: "Disconnect",
+            deny: "Keep it",
+            style: "danger",
+            text: "Times on your work calendar will be open for online booking again.",
+            title: "Disconnect your work calendar?",
+          },
+          label: "Disconnect",
+          style: "secondary",
+          type: "button",
+        },
+      ],
+      type: "actions",
+    },
+    {
+      blocks: [linkForm("Connect"), HOW_TO_GET_THE_LINK],
+      label: "Use a different link",
+      type: "accordion",
+    },
+  ];
+};
+
 export const schedulePage = ({
   feedUrl,
+  outside,
   timeZone,
   upcoming,
   now,
@@ -205,6 +343,7 @@ export const schedulePage = ({
   readonly upcoming: readonly Appointment[];
   readonly timeZone: string;
   readonly feedUrl: string;
+  readonly outside: OutsideCalendarView;
   readonly now: Date;
 }): BlockResponse => {
   const today = toLocal(now, timeZone).date;
@@ -282,6 +421,8 @@ export const schedulePage = ({
       label: "How to add it",
       type: "accordion",
     },
+    { type: "divider" },
+    ...outsideCalendarBlocks({ now, outside, timeZone }),
   ];
   return { blocks };
 };

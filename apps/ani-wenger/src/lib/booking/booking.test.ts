@@ -15,10 +15,17 @@ import {
   Appointments,
   BookingLock,
   BookingMail,
+  CalendarUnreadable,
   Catalog,
   HairPhotos,
+  OutsideCalendar,
 } from "./services.ts";
-import type { Appointment, BookableService, SalonPolicy } from "./services.ts";
+import type {
+  Appointment,
+  BookableService,
+  OutsideCalendarRead,
+  SalonPolicy,
+} from "./services.ts";
 
 const at = (iso: string) => new Date(iso);
 
@@ -94,6 +101,11 @@ const world = Effect.gen(function* world() {
   const book = yield* Ref.make<Appointment[]>([]);
   const sent = yield* Ref.make<EmailMessage[]>([]);
   const stored = yield* Ref.make<Uint8Array[]>([]);
+  /** Ani's work calendar: none connected unless a test reads one in. */
+  const outside = yield* Ref.make<{
+    link: string | null;
+    read: OutsideCalendarRead | null;
+  }>({ link: null, read: null });
   const layer = Layer.mergeAll(
     Layer.succeed(Appointments, {
       between: (from, to) =>
@@ -147,6 +159,22 @@ const world = Effect.gen(function* world() {
         ]),
     }),
     Layer.succeed(BookingLock, { withLock: (effect) => effect }),
+    Layer.succeed(OutsideCalendar, {
+      download: () =>
+        Effect.fail(new CalendarUnreadable({ reason: "offline in tests" })),
+      lastRead: Ref.get(outside).pipe(
+        Effect.map((state) => Option.fromNullishOr(state.read))
+      ),
+      link: Ref.get(outside).pipe(
+        Effect.map((state) => Option.fromNullishOr(state.link))
+      ),
+      saveRead: (read) => Ref.update(outside, (state) => ({ ...state, read })),
+      setLink: (address) =>
+        Ref.update(outside, (state) => ({
+          ...state,
+          link: Option.getOrNull(address),
+        })),
+    }),
     Layer.succeed(BookingMail, {
       from: Option.some({
         email: "sites@mail.jbolabs.com",
@@ -162,7 +190,7 @@ const world = Effect.gen(function* world() {
     }),
     TurnstileAllowAll
   );
-  return { book, layer, sent, stored };
+  return { book, layer, outside, sent, stored };
 });
 
 describe(bookAppointment, () => {
@@ -233,6 +261,44 @@ describe(bookAppointment, () => {
       expect(
         (yield* Ref.get(book)).map((item) => item.clientName)
       ).toStrictEqual(["Pat Rivera"]);
+    })
+  );
+
+  it.effect("refuses a time Ani blocked on her own work calendar", () =>
+    Effect.gen(function* refuseOutsideBusy() {
+      yield* TestClock.setTime(MONDAY_NOON);
+      const { book, layer, outside } = yield* world;
+      const link = "https://p52-caldav.icloud.com/published/2/work";
+      // A client who texted her: Tuesday 9:30 to 10:30 PDT.
+      yield* Ref.set(outside, {
+        link,
+        read: {
+          address: link,
+          busy: [
+            {
+              end: at("2026-10-27T17:30:00.000Z"),
+              start: at("2026-10-27T16:30:00.000Z"),
+            },
+          ],
+          checkedAt: new Date(MONDAY_NOON),
+          failed: false,
+          readAt: new Date(MONDAY_NOON),
+        },
+      });
+      const blocked = yield* bookAppointment(form(), request).pipe(
+        Effect.provide(layer),
+        Effect.exit
+      );
+      expect(Exit.isFailure(blocked) && blocked.cause.toString()).toContain(
+        "SlotUnavailable"
+      );
+      // Once she disconnects the calendar, the time is open again.
+      yield* Ref.set(outside, { link: null, read: null });
+      const booked = yield* bookAppointment(form(), request).pipe(
+        Effect.provide(layer)
+      );
+      expect(booked.start).toBe(TUESDAY_TEN);
+      expect(yield* Ref.get(book)).toHaveLength(1);
     })
   );
 
