@@ -2,7 +2,7 @@ import { runRequest, submitContact } from "@jakebodea/cloudflare-kit/server";
 import { ActionError, defineAction } from "astro:actions";
 import { Cause, Effect, Exit, Option, Schema } from "effect";
 
-import { ApplicationForm, toContactForm } from "@/lib/application";
+import { ApplicationForm, newLeadId, toContactForm } from "@/lib/application";
 import { forwardToFlowAg } from "@/lib/flow-ag";
 import { contactLayer, waitUntil } from "@/lib/server";
 
@@ -44,11 +44,14 @@ export const server = {
       });
       const messages = MESSAGES[locale];
       const requestId = header(request, "cf-ray") ?? crypto.randomUUID();
+      // The application's own reference, in the lead email and (from the
+      // browser) on the PostHog submit event: a lead traces to its visit.
+      const leadRef = newLeadId();
       const sourcePath = new URL(request.headers.get("referer") ?? context.url)
         .pathname;
       const program = Schema.decodeUnknownEffect(ApplicationForm)(input).pipe(
         Effect.flatMap((form) => {
-          const contact = toContactForm(form);
+          const contact = toContactForm(form, leadRef);
           return submitContact(contact, {
             remoteIp: header(request, "cf-connecting-ip"),
             requestId,
@@ -63,7 +66,7 @@ export const server = {
       );
       const exit = await runRequest(program, contactLayer(), waitUntil);
       if (Exit.isSuccess(exit)) {
-        return { ok: true as const };
+        return { leadId: leadRef, ok: true as const };
       }
       const error = Cause.findErrorOption(exit.cause);
       if (error._tag === "Some" && error.value._tag === "SchemaError") {

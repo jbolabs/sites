@@ -132,6 +132,7 @@ export const QUESTION = {
   income: "Pre-tax annual income",
   incomeSource: "Income source",
   language: "Language",
+  leadId: "Lead ID",
   mortgageBalance: "Mortgage balance",
   occupancy: "Occupancy",
   otherIncome: "Other income",
@@ -150,8 +151,26 @@ export const SAME_AS_PROPERTY = "Same as property";
 const address = (value: typeof Address.Type) =>
   formatAddress(value.street, value.city, value.state, value.zip);
 
+/** Crockford base32: no I, L, O or U, so a ref read aloud or retyped stays unambiguous. */
+const LEAD_ID_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+
+/**
+ * A short random reference for one application, like `EF-7K2M9QXD`. It is
+ * printed in the lead email and sent with the PostHog `application_submitted`
+ * event, so a lead can be matched to its visit and masked recording without
+ * sending PostHog a name, email, or phone. 40 random bits: no two leads share
+ * one in practice. Each byte maps evenly, since 256 is a multiple of 32.
+ */
+export const newLeadId = (
+  bytes: Uint8Array = crypto.getRandomValues(new Uint8Array(8))
+): string =>
+  `EF-${Array.from(bytes, (byte) => LEAD_ID_ALPHABET[byte % 32]).join("")}`;
+
 /** The application as a lead: legal name, contact, and its answers in E Mortgage Capital's order. */
-export const toContactForm = (form: ApplicationForm): ContactForm => {
+export const toContactForm = (
+  form: ApplicationForm,
+  leadId: string
+): ContactForm => {
   const amount = formatDollars(form.amount);
   const name = [form.firstName, form.middleName, form.lastName]
     .filter((part) => part !== undefined && part !== "")
@@ -184,6 +203,7 @@ export const toContactForm = (form: ApplicationForm): ContactForm => {
     ...(campaign === undefined
       ? []
       : [{ answer: campaign, question: QUESTION.campaign }]),
+    { answer: leadId, question: QUESTION.leadId },
   ];
   return {
     answers,

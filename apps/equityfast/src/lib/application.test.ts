@@ -2,7 +2,7 @@ import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
 import smokeForm from "../../smoke.form.json" with { type: "json" };
-import { ApplicationForm, toContactForm } from "./application.ts";
+import { ApplicationForm, newLeadId, toContactForm } from "./application.ts";
 
 const primaryResidenceForm = {
   amount: "$75,000",
@@ -42,9 +42,25 @@ const submitted = {
 
 const decode = Schema.decodeUnknownSync(ApplicationForm);
 
+const LEAD = "EF-TEST0001";
+
+describe(newLeadId, () => {
+  it("spells random bytes in unambiguous base32 after EF-", () => {
+    expect(newLeadId(Uint8Array.of(0, 1, 9, 10, 17, 31, 32, 255))).toBe(
+      "EF-019AHZ0Z"
+    );
+  });
+
+  it("makes a fresh ten-character reference each time", () => {
+    const first = newLeadId();
+    expect(first).toMatch(/^EF-[0-9A-HJKMNP-TV-Z]{8}$/u);
+    expect(newLeadId()).not.toBe(first);
+  });
+});
+
 describe(toContactForm, () => {
   it("turns an application into a lead with its answers in form order", () => {
-    expect(toContactForm(decode(submitted))).toStrictEqual({
+    expect(toContactForm(decode(submitted), LEAD)).toStrictEqual({
       answers: [
         { answer: "05/20/1989", question: "Date of birth" },
         { answer: "$75,000", question: "Amount seeking" },
@@ -68,6 +84,7 @@ describe(toContactForm, () => {
           question: "Contact consent",
         },
         { answer: "Spanish", question: "Language" },
+        { answer: "EF-TEST0001", question: "Lead ID" },
       ],
       email: "jordan@example.com",
       message: "HELOC application for $75,000.",
@@ -82,7 +99,7 @@ describe(toContactForm, () => {
       ...primaryResidenceForm,
       occupancy: "Primary residence",
     });
-    expect(toContactForm(form).answers?.[5]).toStrictEqual({
+    expect(toContactForm(form, LEAD).answers?.[5]).toStrictEqual({
       answer: "Same as property",
       question: "Primary residence",
     });
@@ -90,7 +107,7 @@ describe(toContactForm, () => {
 
   it("says the mortgage balance was not given when it was left blank", () => {
     const form = decode({ ...primaryResidenceForm, mortgageBalance: "" });
-    expect(toContactForm(form).answers?.[10]).toStrictEqual({
+    expect(toContactForm(form, LEAD).answers?.[10]).toStrictEqual({
       answer: "Not given",
       question: "Mortgage balance",
     });
@@ -111,12 +128,14 @@ describe("an application from an ad", () => {
     },
   };
 
-  it("adds the campaign as the last answer", () => {
-    expect(toContactForm(decode(fromAd)).answers?.at(-1)).toStrictEqual({
+  it("adds the campaign just before the lead ID", () => {
+    expect(toContactForm(decode(fromAd), LEAD).answers?.at(-2)).toStrictEqual({
       answer: "facebook / paid_social / debt-consolidation / card-a",
       question: "Ad campaign",
     });
-    expect(toContactForm(decode(submitted)).answers?.at(-1)).toStrictEqual({
+    expect(
+      toContactForm(decode(submitted), LEAD).answers?.at(-2)
+    ).toStrictEqual({
       answer: "Spanish",
       question: "Language",
     });
@@ -195,8 +214,8 @@ describe(ApplicationForm, () => {
       middleName: "",
       propertyAddress: { ...submitted.propertyAddress, zip: "92704-1234" },
     });
-    expect(toContactForm(form).name).toBe("Jordan Reyes");
-    expect(toContactForm(form).answers?.[2]?.answer).toBe(
+    expect(toContactForm(form, LEAD).name).toBe("Jordan Reyes");
+    expect(toContactForm(form, LEAD).answers?.[2]?.answer).toBe(
       "3750 S Susan Street, Santa Ana, CA 92704-1234"
     );
   });

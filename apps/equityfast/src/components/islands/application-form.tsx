@@ -204,7 +204,7 @@ const ApplicationForm = ({
   const send = async (values: ApplicationAnswers) => {
     setStatus({ state: "sending" });
     const attribution = readAttribution();
-    const { error } = await submitApplication(
+    const { data, error } = await submitApplication(
       values,
       locale,
       token,
@@ -214,8 +214,9 @@ const ApplicationForm = ({
       clearDraft();
       // The agency's ad conversions (Tag Manager, prod only), with the campaign.
       pushDataLayerEvent("application_submitted", adEventParams(attribution));
-      // Our own funnel (PostHog), then the ad is spent: a later application starts clean.
-      track("application_submitted");
+      // Our own funnel (PostHog), with the lead's reference from the email (no
+      // name, email, or phone); then the ad is spent: a later one starts clean.
+      track("application_submitted", { lead_id: data.leadId });
       clearAttribution();
       setStatus({ firstName: values.firstName.trim(), state: "sent" });
       return;

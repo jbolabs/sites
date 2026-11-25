@@ -164,7 +164,8 @@ describe("an application from an ad", () => {
             },
             occupancy: "Primary residence",
             ownership: "Sole owner",
-          })
+          }),
+          "EF-TEST0001"
         ),
         sourcePath: "/lp/digital-heloc",
       },
@@ -176,6 +177,7 @@ describe("an application from an ad", () => {
         "Contact consent: Yes (calls, texts, and email)",
         "Language: English",
         "Ad campaign: google / cpc / digital-heloc",
+        "Lead ID: EF-TEST0001",
         "Submitted from: https://equityfast.homes/lp/digital-heloc",
       ].join("\n")
     );
@@ -201,7 +203,10 @@ describe("each occupancy and ownership", () => {
     ({ occupancy, ownership }) => {
       const notice = renderLeadEmail(
         {
-          ...toContactForm(decode({ ...application, occupancy, ownership })),
+          ...toContactForm(
+            decode({ ...application, occupancy, ownership }),
+            "EF-TEST0001"
+          ),
           sourcePath: "/apply",
         },
         mail
@@ -221,6 +226,7 @@ describe("each occupancy and ownership", () => {
         ["Income source", "Self-employed"],
         ["Contact consent", "Yes (calls, texts, and email)"],
         ["Language", "English"],
+        ["Lead ID", "EF-TEST0001"],
         ...(livesElsewhere ? [["Address", "1 Main St, Irvine, CA 92618"]] : []),
       ] as const;
       const once = rows.map(() => 1);
@@ -234,7 +240,7 @@ describe("each occupancy and ownership", () => {
         livesElsewhere ? 1 : 0
       );
       expect(count(notice.text, "Same as property")).toBe(0);
-      expect(notice.text.split("\n")).toHaveLength(livesElsewhere ? 30 : 27);
+      expect(notice.text.split("\n")).toHaveLength(livesElsewhere ? 31 : 28);
     }
   );
 });
