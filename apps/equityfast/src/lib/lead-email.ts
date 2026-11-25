@@ -99,6 +99,7 @@ const sectionsFor = (answers: ReadonlyMap<string, string>): Section[] => {
         { question: QUESTION.consent },
         { question: QUESTION.language },
         { question: QUESTION.campaign },
+        { question: QUESTION.leadId },
       ],
       title: "Consent and source",
     },

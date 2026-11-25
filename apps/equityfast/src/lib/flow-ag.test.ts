@@ -86,7 +86,7 @@ const flowAgReplying = (
 /** Runs the hand-off against a Flow AG reply and returns what it logged. */
 const forwardedLogs = (reply: AcceptLeadResponse) => {
   const logs: unknown[] = [];
-  return forwardToFlowAg(form, toContactForm(form), {
+  return forwardToFlowAg(form, toContactForm(form, "EF-TEST0001"), {
     leadId: "entry-1",
     requestId: "ray-1",
     sourcePath: "/apply",
@@ -251,7 +251,7 @@ describe(forwardToFlowAg, () => {
     () => {
       const emails: EmailMessage[] = [];
       return Effect.gen(function* alertsOnMiss() {
-        yield* forwardToFlowAg(form, toContactForm(form), {
+        yield* forwardToFlowAg(form, toContactForm(form, "EF-TEST0001"), {
           leadId: "entry-1",
           requestId: "ray-1",
           sourcePath: "/apply",
